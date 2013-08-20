@@ -1,26 +1,11 @@
-set logscale x
-set logscale y
+#set logscale x
+#set logscale y
 #set logscale z
-set xlabel "Invest"
-set ylabel "UCs"
-set zlabel "TIR"
-splot '-' with points pointsize 10
-1000 378 000
-1000 450493 034
-1350 1000 046
-15500 140 051
-15500 297 077
-15500 726 030
-166 119140 114
-218 37889 060
-327 21865 016
-350 1000 016
-479 20000 026
-560 19815 042
-6355 657 041
-6355 911 018
-790 414697 012
-e e e
+#set xlabel "Invest"
+#set ylabel "UCs"
+set xlabel "TIR"
+set grid xtics ytics ztics
+plot 'real.csv' using 3 with points pointsize 3
 
 pause -1
 
