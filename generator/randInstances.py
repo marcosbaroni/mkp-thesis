@@ -1,88 +1,81 @@
-import random
+#from instances 
+import random as r
+import math
 import sys
 
-# primeiro arguemnto: seed
+class Action:
+	years = 0
+	cost = 0.0
+	uc = 0
+	tir = 0.0
+	curve = []
+	def __init__(self, inst):
+		self.inst = inst
+		self.years = years
+		self.tir = 15 + math.exp(r.gauss(0,1.2))*45
+		#self.tir = 15 + r.random()*45 + math.exp(r.gauss(0,1.2))*45
+		if r.randint(1,2) == 1:
+			# Alto Custo
+			self.uc = r.random()
+		else:
+			# Alto UC
+		self.set_curve(r.randint(1,3))
+	
+	def set_curve(self, c):
+		years = self.inst.years
+		if   c == 1:
+			self.curve = [r.randint(4,7)/10.0] + [1.0]*(years-1)
+		elif c == 2:
+			self.curve = [0.5, 0.85, 0.7, 0.5, 0.25] + [0.0]*(years-5)
+		elif c == 3:
+			self.curve = [0.5, 0.25, 015] + [0.0]*(years-3)
+	
+	def __str__(self):
+		s = "Curve:\n" + str(self.curve)
+		return s
 
-def gen():
-    alpha = float(sys.argv[2])
-    years = int(sys.argv[3])
-    camp = int(sys.argv[4])
+class Instance:
+	years = 0
+	camp = 0
+	alpha = 0.0
+	budgets = []
+	goals = []
+	acts = []
+	def __init__(self, seed, alpha, years, camp):
+		r.seed(seed)
+		self.years = years
+		self.camp = camp
+		self.alpha = alpha
+		self.set_budgets()
+		self.set_goals()
+		self.set_acts()
+	
+	def set_budgets(self):
+		medianOrc = r.randint(700,750)
+		varOrc = r.randint(10,15)
+		for i in range(self.years):
+			self.budgets.append(r.gauss(medianOrc, varOrc))
 
-    print "data;\n"
-    #years = random.randint(3,5)
-    print "param duracao := " + str(years) + ";\n"
-    #camp = random.randint(5,6)
-    print "param acoes := " + str(camp) + ";\n"
-    
+	def set_goals(self):
+		for i in range(self.years):
+			self.goals.append(0.0)
 
-    medianOrc = random.randint(700,750)
-    varOrc = random.randint(10,15)
+	def set_acts(self):
+		for i in range(self.camp):
+			self.acts.append(Action(self.years, self.alpha, self))
 
-    print "param orcamento := "
-    orcSum =  0
-    minOrc = 999999999
-    for i in range(years):
-        orcAux = abs(random.gauss(medianOrc, varOrc))
-        orcSum += orcAux
-        minOrc = min(minOrc, orcAux)
-        print str(i + 1) + " " + str(orcAux)
-    print ";\n"
+	def to_scip(self):
+		print self.years
+		print "budgets"
+		for b in self.budgets:
+			print b
+		print "goals"
+		for g in self.goals:
+			print g
+		print "acts"
+		for a in self.acts:
+			print a
 
-
-    vecCost = []
-    print "param custo := "
-    for i in range(camp):
-        vecCost.append(min(int(minOrc),random.randint(10,50)))
-        print str(i + 1) + " " + str(vecCost[-1])
-    print ";\n"
-
-
-    print "param uc := "
-    for i in range(camp):
-        print str(i + 1) + " " + str(int(orcSum/vecCost[i]*(2.0/years)))
-    print ";\n"
-
-
-
-    vecCostAux = []
-    for j in range(camp):
-        vecCostAux.append([])
-        for i in range(years):
-            vecCostAux[-1].append(random.random())
-        vecCostAux[-1].sort()
-        vecCostAux[-1].reverse()
-
-
-    for j in range(camp):
-        s = 0
-        for i in range(years):
-            s += vecCostAux[j][i]
-        for i in range(years):
-            vecCostAux[j][i] /= s
-
-    print "param energia : " + " ".join([str(x) for x in range(1,camp+1)]) + ":=" 
-    for i in range(years):
-        toPrint = str(i+1) + " "
-        for j in range(camp):
-            toPrint += str(max(0,abs((1-alpha)*vecCost[j]*vecCostAux[j][i] + random.randint(-100,100)*alpha))) + " "
-        print toPrint
-    print ";\n"
-
-#    print "param u : " + " ".join([str(x) for x in range(1,camp+1)]) + ":="
-#    for i in range(years):
-#        print str(i+1) + " " + " ".join((["-1"]*camp)) 
-#    print ";\n"
-
-    print "end;"
-        
-
-
-def main():
-    if(len(sys.argv) != 5):
-        print "seed, alpha, years, camps"
-        return
-#    random.seed(int(sys.argv[1]))
-    gen()
-
-main()
+inst = Instance(1, 0.0, 4, 5)
+inst.to_scip()
 
