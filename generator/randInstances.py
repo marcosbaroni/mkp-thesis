@@ -3,35 +3,53 @@ import random as r
 import math
 import sys
 
+real_inst = "\n\
+01000 450493 034\n\
+01350 001000 046\n\
+15500 000140 051\n\
+15500 000297 077\n\
+15500 000726 030\n\
+00166 119140 114\n\
+00218 037889 06\n\
+00327 021865 016\n\
+00350 001000 016\n\
+00479 020000 026\n\
+00560 019815 042\n\
+06355 000657 041\n\
+06355 000911 018\n\
+00790 414697 012\n\
+e e e\n\
+\n\
+"
+
 def sign(x):
 	if x > 0. : return  1
 	if x < 0. : return -1
 	return 0
 
-def over_line(g):
-	(ax, ay) = (math.log(150.0), math.log(120000.))
-	(bx, by) = (math.log(20000.), math.log(200.))
-	b = (bx*ay - ax*by)/(bx - ax)
-	a = (by-b)/bx
-	if g == 1:
-		x = (0.35 + 0.1*r.gauss(0.5, 0.3))*(-b/a)
-	elif g == 2:
-		x = (0.6 + 0.1*r.gauss(0.5, 0.3))*(-b/a)
-	y = a*x + b
-	y *= r.gauss(1., 0.1)
-	return (x, y)
+#def over_line(g):
+#	(ax, ay) = (math.log(150.0), math.log(120000.))
+#	(bx, by) = (math.log(20000.), math.log(200.))
+#	b = (bx*ay - ax*by)/(bx - ax)
+#	a = (by-b)/bx
+#	if g == 1:
+#		x = (0.35 + 0.1*r.gauss(0.5, 0.3))*(-b/a)
+#	elif g == 2:
+#		x = (0.6 + 0.1*r.gauss(0.5, 0.3))*(-b/a)
+#	y = a*x + b
+#	y *= r.gauss(1., 0.1)
+#	return (x, y)
 
-def exp_gauss():
+def exp_gauss(c, b): # (center, bound)
 	x = -1
-	med = 100
-	d = 5
-	while x < 0. or x > 1.:
-		aux = med*0.1 + r.gauss(0, 0.5)*med
-		x = 0.1 + (sign(aux)*math.exp(abs(aux-0.1*med)))/med
+	while x < 0. or x > b:
+		aux = r.gauss(0.0, 10.0)
+		x = c + b*sign(aux)*math.pow(abs(aux), 3.5)
 	return x
 
-def rand_cost_uc(rotate=False):
-	return (r.random(), exp_gauss())
+def broad_gauss(med, var, wid):
+	x = r.random()*wid + med
+	return x
 
 class Action:
 	years = 0
@@ -42,11 +60,10 @@ class Action:
 	def __init__(self, inst):
 		self.inst = inst
 		self.years = self.inst.years
-		self.tir = 15 + math.exp(r.gauss(0,1.2))*45
+		self.tir = 15 + exp_gauss(10, 120)
 		#self.tir = 15 + r.random()*45 + math.exp(r.gauss(0,1.2))*45
 		self.set_curve(r.randint(1,3))
-		#self.cost, self.uc = over_line(r.randint(1,2))
-		self.cost, self.uc = rand_cost_uc(r.randint(0,1) == 1)
+		self.set_group(r.randint(1,4))
 	
 	def set_curve(self, c):
 		years = self.inst.years
@@ -65,8 +82,19 @@ class Action:
 	
 	def set_group(self, g):
 		self.group = g
-		if g == 1: self.cost, self.uc = over_line(1)
-		elif g == 2 : self.cost, self.uc = over_line(2)
+		if g == 1:
+			self.cost = exp_gauss(500, 16000)
+			self.uc = max(100, r.gauss(50000, 10000)) #r.random()*50000
+		elif g == 2:
+			self.cost = max(100, r.gauss(500, 300)) #r.random()*500
+			self.uc = exp_gauss(50000, 450000)
+		elif g == 3:
+			self.cost = exp_gauss(15000, 16000)
+			self.uc = max(100, r.gauss(50000, 10000)) #r.random()*50000
+		elif g == 4:
+			self.cost = max(100, r.gauss(500, 300)) #r.random()*500
+			self.uc = exp_gauss(400000, 450000)
+		return
 
 	def __str__(self):
 		s = "Curve:\n" + str(self.curve)
@@ -107,21 +135,24 @@ class Instance:
 	
 	def gplot(self):
 		s = ""
-		#s += "set term dumb\n"
+		#s += "set term dumb size 159, 48"
 		#s += "set logscale x\n"
 		#s += "set logscale y\n"
-		#s += "set xrange [0:100]\n"
-		s += "set yrange [0:1]\n"
+		#s += "set xrange [0:1.]\n"
+		#s += "set yrange [0:1.]\n"
+		#s += "set ytics 0.1\n"
 		#s += "set xrange [100:30000]\n"
 		#s += "set yrange [100:1000000]\n"
 		s += "set xlabel \"Invest\"\n"
 		s += "set ylabel \"UCs\"\n"
 		s += "set zlabel \"TIR\"\n"
 		s += "set grid xtics ytics ztics\n"
-		s += "plot '-' using 1:2 with points pointsize 3\n"
+		s += "splot '-' using 1:2:3 with points pointsize 3"
+		s += " ,'-' using 1:2:3 with points pointsize 3\n"
 		for a in self.acts:
 			s += a.to_gplot() + "\n"
 		s += "e e e\n"
+		s += real_inst
 		s += "pause -1\n"
 		return s
 
@@ -138,6 +169,6 @@ class Instance:
 		for a in self.acts:
 			print a
 
-inst = Instance(None, 0.0, 4, 100)
+inst = Instance(None, 0.0, 4, 15)
 print inst.gplot()
 
