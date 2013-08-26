@@ -21,6 +21,11 @@ real_inst = "\n\
 e e e\n\
 \n\
 "
+def addVirg(a, b):
+	return a + ", " + b
+
+def fs2str(ls, ds=3):
+	return "[" + reduce(addVirg, map(("{:." + str(ds) + "f}").format, ls)) + "]"
 
 def sign(x):
 	if x > 0. : return  1
@@ -52,63 +57,69 @@ def broad_gauss(med, var, wid):
 	return x
 
 class Action:
-	years = 0
-	cost = 0.0
-	uc = 0
-	tir = 0.0
-	curve = []
 	def __init__(self, inst):
 		self.inst = inst
 		self.years = self.inst.years
-		self.tir = 15 + exp_gauss(10, 120)
+		self.tir = 0.15 + 0.01*exp_gauss(10., 120.)
 		#self.tir = 15 + r.random()*45 + math.exp(r.gauss(0,1.2))*45
 		self.set_curve(r.randint(1,3))
 		self.set_group(r.randint(1,4))
+		self.set_tir()
 	
+	# argument: class of curve
 	def set_curve(self, c):
 		years = self.inst.years
 		if   c == 1:
 			self.curve = [r.randint(4,7)/10.0] + [1.0]*(years-1)
 		elif c == 2:
 			self.curve = [0.5, 0.85, 0.7, 0.5, 0.25] + [0.0]*(years-5)
+			self.curve = self.curve[0:years]
 		elif c == 3:
-			self.curve = [0.5, 0.25, 015] + [0.0]*(years-3)
+			self.curve = [0.5, 0.25, 0.15] + [0.0]*(years-3)
 	
-	def to_gplot(self):
-		s = str(self.cost) + " "
-		s += str(self.uc) + " "
-		s += str(self.tir)
-		return s
-	
+	# argument: class of group (uc/cost)
 	def set_group(self, g):
 		self.group = g
 		if g == 1:
 			self.cost = exp_gauss(500, 16000)
-			self.uc = max(100, r.gauss(50000, 10000)) #r.random()*50000
+			self.uc = int(max(100, r.gauss(50000, 10000))) #r.random()*50000
 		elif g == 2:
 			self.cost = max(100, r.gauss(500, 300)) #r.random()*500
-			self.uc = exp_gauss(50000, 450000)
+			self.uc = int(exp_gauss(50000, 450000))
 		elif g == 3:
 			self.cost = exp_gauss(15000, 16000)
-			self.uc = max(100, r.gauss(50000, 10000)) #r.random()*50000
+			self.uc = int(max(100, r.gauss(50000, 10000))) #r.random()*50000
 		elif g == 4:
 			self.cost = max(100, r.gauss(500, 300)) #r.random()*500
-			self.uc = exp_gauss(400000, 450000)
+			self.uc = int(exp_gauss(400000, 450000))
 		return
 
+	def set_tir(self):
+		s = 0.0
+		for i in range(len(self.curve)):
+			s += self.curve[i]/math.pow((1.+self.tir), i)
+		k = self.cost/s
+		self.energy = []
+		for i in range(len(self.curve)):
+			self.energy.append(k*self.curve[i])
+
+	def to_gplot(self):
+		s = str(self.cost) + " "
+		s += str(self.uc) + " "
+		s += str(self.tir*100.)
+		return s
+	
 	def __str__(self):
-		s = "Curve:\n" + str(self.curve)
+		s = ""
+		s += "Cost: " + "{:.3f}".format(self.cost) + "\n"
+		s += "UC: " + str(self.uc) + "\n"
+		s += "Curve: " + fs2str(self.curve, 2) + "\n"
+		s += "Energy: " + fs2str(self.energy) + "\n"
+		s += "Tir: " + "{:.3f}".format(self.tir) + "\n"
 		return s
 
 class Instance:
-	years = 0
-	camp = 0
-	alpha = 0.0
-	budgets = []
-	goals = []
-	acts = []
 	stddist = [.36, .36, .14, .14] # Distribution for respective action group
-	dist = [] # number of actions from respective group
 	def __init__(self, seed, alpha, years, camp):
 		r.seed(seed)
 		self.years = years
@@ -116,22 +127,35 @@ class Instance:
 		self.alpha = alpha
 		self.set_budgets()		# yearly budgets
 		self.set_goals()		# yearly goals
+		self.acts = []
 		for i in range(self.camp):
 			self.acts.append(Action(self))
 	
 	def set_budgets(self):
 		medianOrc = r.randint(700,750)
 		varOrc = r.randint(10,15)
+		self.budgets = []
 		for i in range(self.years):
 			self.budgets.append(r.gauss(medianOrc, varOrc))
 
 	def set_goals(self):
+		self.goals = []
 		for i in range(self.years):
 			self.goals.append(0.0)
 
 	def set_dist(self):
 		na = self.camp-4
 		int(round(gauss(na,1)))
+
+	def __str__(self):
+		s = ""
+		s += "Years: " + str(self.years) + "\n"
+		s += "Budgets: " + fs2str(self.budgets) + "\n"
+		s += "Goals: " + str(self.goals) + "\n"
+		s += "Acts: " + str(self.camp) + "\n"
+		for a in self.acts:
+			s += "\n" + str(a)
+		return s
 	
 	def gplot(self):
 		s = ""
@@ -157,18 +181,37 @@ class Instance:
 		return s
 
 
-	def to_scip(self):
+	def print_scip(self):
 		print self.years
-		print "budgets"
-		for b in self.budgets:
-			print b
-		print "goals"
-		for g in self.goals:
+		print self.camp
+		print "1"				# Recursos
+		print "0.15"			# Rate
+		print ""
+		for g in self.goals:	# Metas
 			print g
-		print "acts"
-		for a in self.acts:
-			print a
+		print ""
+		for b in self.budgets:  # Orcamentos
+			print "{:.2f}".format(b)
+		print ""
+		for a in self.acts:		# Market
+			print a.uc
+		print ""
+		for a in self.acts:		# Custo
+			print "{:.2f}".format(a.cost)
+		print ""
+		for a in self.acts:		# Energy
+			s = ""
+			for e in a.energy:
+				s += str(e) + " "
+			print s
 
-inst = Instance(None, 0.0, 4, 15)
-print inst.gplot()
+def main():
+	if len(sys.argv) < 3: print "years, actions, [seed]"
+	else:
+		if len(sys.argv) > 3: seed = int(sys.argv[3]);
+		else: seed = None
+		inst = Instance(seed, 0.0, int(sys.argv[1]), int(sys.argv[2]))
+		inst.print_scip()
+
+main()
 
