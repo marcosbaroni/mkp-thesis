@@ -80,6 +80,7 @@ class Action:
 	# argument: class of group (uc/cost)
 	def set_group(self, g):
 		self.group = g
+		self.profit = 0.16 + r.random()*0.16
 		if g == 1:
 			self.cost = exp_gauss(500, 16000)
 			self.uc = int(max(100, r.gauss(50000, 10000))) #r.random()*50000
@@ -98,7 +99,7 @@ class Action:
 		s = 0.0
 		for i in range(len(self.curve)):
 			s += self.curve[i]/math.pow((1.+self.tir), i)
-		k = self.cost/s
+		k = self.cost*self.profit/s
 		self.energy = []
 		for i in range(len(self.curve)):
 			self.energy.append(k*self.curve[i])
@@ -125,27 +126,30 @@ class Instance:
 		self.years = years
 		self.camp = camp
 		self.alpha = alpha
-		self.set_budgets()		# yearly budgets
-		self.set_goals()		# yearly goals
 		self.acts = []
 		for i in range(self.camp):
 			self.acts.append(Action(self))
+		self.set_budgets()		# yearly budgets
+		self.set_goals()		# yearly goals
 	
 	def set_budgets(self):
-		medianOrc = r.randint(700,750)
-		varOrc = r.randint(10,15)
 		self.budgets = []
+		total = 0
+		for a in self.acts:
+			total += a.uc*a.cost
+		med = total/self.years
 		for i in range(self.years):
-			self.budgets.append(r.gauss(medianOrc, varOrc))
+			self.budgets.append( 0.7*med + 0.4*med*r.random() )
 
 	def set_goals(self):
 		self.goals = []
+		total = 0
+		for a in self.acts:
+			total += a.uc*sum(a.energy)
+		med = total/self.years
+		mini = 0.9*med
 		for i in range(self.years):
-			self.goals.append(0.0)
-
-	def set_dist(self):
-		na = self.camp-4
-		int(round(gauss(na,1)))
+			self.goals.append(mini + 0.2*med*r.random() )
 
 	def __str__(self):
 		s = ""
@@ -186,24 +190,38 @@ class Instance:
 		print self.camp
 		print "1"				# Recursos
 		print "0.15"			# Rate
-		print ""
 		for g in self.goals:	# Metas
 			print g
-		print ""
+		print "# YEARLY BUDGETS"
 		for b in self.budgets:  # Orcamentos
 			print "{:.2f}".format(b)
-		print ""
+		print "# MARKETS"
 		for a in self.acts:		# Market
 			print a.uc
-		print ""
+		print "# COSTS"
 		for a in self.acts:		# Custo
 			print "{:.2f}".format(a.cost)
-		print ""
-		for a in self.acts:		# Energy
+		print "# PROFIT"
+		for a in self.acts:
+			print "{:.3f}".format(a.profit)
+		print "# ENERGY"
+		for i in range(len(self.acts[0].energy)):
 			s = ""
-			for e in a.energy:
-				s += str(e) + " "
+			for a in self.acts:
+				s += "{:.3f}".format(a.energy[i]) + " "
 			print s
+		#for a in self.acts:		# Energy
+		#	s = ""
+		#	for e in a.energy:
+		#		s += str(e) + " "
+		#	print s
+		s = "# ACTION LOWER BOUND\n" 
+		s += ("-1 "*(len(self.acts)) + "\n")*self.years # lowerbound of actions
+		s += "# ACTION UPPER BOUND\n" 
+		s += ("-1 "*(len(self.acts)) + "\n")*self.years # upperbound of actions
+		s += "# DEPEDENCY BETWEEN ACTIONS\n" 
+		s += ("-1 "*(len(self.acts)) + "\n")*len(self.acts) # depedency between actions
+		print s
 
 def main():
 	if len(sys.argv) < 3: print "years, actions, [seed]"
