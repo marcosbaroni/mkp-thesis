@@ -83,15 +83,15 @@ class Action:
 		self.profit = 0.16 + r.random()*0.16
 		if g == 1:
 			self.cost = exp_gauss(500, 16000)
-			self.uc = int(max(100, r.gauss(50000, 10000))) #r.random()*50000
+			self.uc = int(max(100, r.gauss(50000, 10000)))
 		elif g == 2:
-			self.cost = max(100, r.gauss(500, 300)) #r.random()*500
+			self.cost = max(100, r.gauss(500, 300))
 			self.uc = int(exp_gauss(50000, 450000))
 		elif g == 3:
 			self.cost = exp_gauss(15000, 16000)
-			self.uc = int(max(100, r.gauss(50000, 10000))) #r.random()*50000
+			self.uc = int(max(100, r.gauss(50000, 10000)))
 		elif g == 4:
-			self.cost = max(100, r.gauss(500, 300)) #r.random()*500
+			self.cost = max(100, r.gauss(500, 300))
 			self.uc = int(exp_gauss(400000, 450000))
 		return
 
@@ -229,7 +229,8 @@ def main():
 		if len(sys.argv) > 3: seed = int(sys.argv[3]);
 		else: seed = None
 		inst = Instance(seed, 0.0, int(sys.argv[1]), int(sys.argv[2]))
-		inst.print_scip()
+		#inst.print_scip()
+		print inst.gplot()
 
 main()
 

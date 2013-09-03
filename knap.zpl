@@ -136,9 +136,3 @@ subto dependency_cardinality:
 maximize npv: 
 	sum <i> in I do 
 		(total_income[i]-total_costs[i])/(1+rate)^i;
-
-#do print "MATRIZ";
-#do forall <i> in J do
-#	forall <j> in J do 
-#		print dep[I*J];
-
