@@ -79,7 +79,7 @@ class Action:
 		#self.tir = 15 + r.random()*45 + math.exp(r.gauss(0,1.2))*45
 		self.set_curve(r.randint(1,3))
 		self.set_group(r.randint(1,4))
-		self.set_tir()
+		self.set_energy()
 	
 	# argument: class of curve
 	def set_curve(self, c):
@@ -126,7 +126,7 @@ class Action:
 			self.uc = int(exp_gauss(400000, 450000))
 		return
 
-	def set_tir(self):
+	def set_energy(self):
 		s = 0.0
 		for i in range(len(self.curve)):
 			s += self.curve[i]/math.pow((1. + self.tir), i)
@@ -168,20 +168,19 @@ class Instance:
 		total = 0
 		for a in self.acts:
 			total += a.uc*a.cost
-		med = total/self.years
+		self.med_budget = med = total/self.years
 		for i in range(self.years):
-			self.budgets.append( 0.7*med + 0.4*med*r.random() )
+			self.budgets.append( 0.2*med + 0.4*med*r.random() )
 
 	def set_goals(self):
 		self.goals = []
 		total = 0
 		for a in self.acts:
 			total += a.uc*sum(a.energy)
-		med = total/self.years
+		self.med_goal = med = total/self.years
 		mini = 0.9*med
 		for i in range(self.years):
-			self.goals.append(mini + 0.2*med*r.random() )
-
+			self.goals.append(mini + 0.2*med*r.random() ) 
 	def __str__(self):
 		s = ""
 		s += "Years: " + str(self.years) + "\n"
@@ -224,12 +223,12 @@ class Instance:
 		s += "\n" +  str(self.camp)
 		s += "\n# N of RESOURCES"				# Recursos
 		s += "\n1"				# Recursos
-		s += "\n# RATE"				# Recursos
-		s += "\n0.15"			# Rate
-		s += "\n\n# YEARLY GOALS"				# Recursos
+		s += "\n# RATE"			# 
+		s += "\n0.15"
+		s += "\n\n# YEARLY GOALS (mean is " + str(self.med_goal)
 		for g in self.goals:	# Metas
 			s += "\n" +  str(g)
-		s += "\n\n# YEARLY BUDGETS"
+		s += "\n\n# YEARLY BUDGETS (mean is " + str(self.med_budget)
 		for b in self.budgets:  # Orcamentos
 			s += "\n" +  "{:.2f}".format(b)
 		s += "\n" +  "\n# MARKETS"
@@ -255,14 +254,21 @@ class Instance:
 		s += "\n"
 		return s
 
+	def record(self):
+		f = open("knap.dat", "w")
+		f.write(self.scip())
+		f.close()
+
+		f = open("knap.gplot", "w")
+		f.write(self.gplot())
+		f.close()
+
 def main():
-	if len(sys.argv) < 4: print " <gs> years, actions, [seed]\n\nOPTIONS:\n  g gnuplot\n  s scip"
+	if len(sys.argv) < 3: print "ARGS: years, actions, [seed]\n\nWill always write \"knap.dat\" and \"knap.gplot\"."
 	else:
-		if len(sys.argv) > 4: seed = int(sys.argv[3]);
+		if len(sys.argv) > 3: seed = int(sys.argv[3]);
 		else: seed = None
-		inst = Instance(seed, 0.0, int(sys.argv[2]), int(sys.argv[3]))
-		o = sys.argv[1]
-		if o == 's': print inst.scip()
-		elif o == 'g': print inst.gplot()
+		inst = Instance(seed, 0.0, int(sys.argv[1]), int(sys.argv[2]))
+		inst.record() # write files
 main()
 
