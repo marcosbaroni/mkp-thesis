@@ -3,6 +3,38 @@ import random as r
 import math
 import sys
 
+
+#             ACTION CLASS
+# ^
+# |
+# |  4 4
+# | 4    4
+# |   4 
+# |
+# | 4 
+# |
+# |      4
+# |
+# |
+# |
+#    4
+# U
+# C
+#      2
+# |
+# |
+# |
+# |
+# |  2 
+# |
+# |
+# |  2 
+# |     2
+# | 1 2  1       1
+# | 21  2   1          1         1                  3      3  3
+# | 1 1 21    1                              3            3  3 3
+# +---------- COST ------------------------------------------------>
+
 real_inst = "\n\
 01000 450493 034\n\
 01350 001000 046\n\
@@ -81,16 +113,17 @@ class Action:
 	def set_group(self, g):
 		self.group = g
 		self.profit = 0.16 + r.random()*0.16
-		if g == 1:
+		# Classe "g" (see diagram above)
+		if g == 1:   # CENTER --> COST AXIS
 			self.cost = exp_gauss(500, 16000)
-			self.uc = int(max(100, r.gauss(50000, 10000)))
-		elif g == 2:
+			self.uc = int(max(100, r.gauss(5000, 1000)))
+		elif g == 2: # CENTER --> UCs AXIS
 			self.cost = max(100, r.gauss(500, 300))
 			self.uc = int(exp_gauss(50000, 450000))
-		elif g == 3:
+		elif g == 3: # HIGH COST --> CENTER
 			self.cost = exp_gauss(15000, 16000)
-			self.uc = int(max(100, r.gauss(50000, 10000)))
-		elif g == 4:
+			self.uc = int(max(100, r.gauss(5000, 1000)))
+		elif g == 4: # HIGH UCs --> CENTER
 			self.cost = max(100, r.gauss(500, 300))
 			self.uc = int(exp_gauss(400000, 450000))
 		return
@@ -171,12 +204,12 @@ class Instance:
 		#s += "set ytics 0.1\n"
 		#s += "set xrange [100:30000]\n"
 		#s += "set yrange [100:1000000]\n"
-		s += "set xlabel \"Invest\"\n"
+		s += "set xlabel \"Cost\"\n"
 		s += "set ylabel \"UCs\"\n"
 		s += "set zlabel \"TIR\"\n"
 		s += "set grid xtics ytics ztics\n"
-		s += "splot '-' using 1:2:3 with points pointsize 3"
-		s += " ,'-' using 1:2:3 with points pointsize 3\n"
+		s += "splot '-' using 1:2:3 with points pointsize 3 title \"Random\""
+		s += " ,'-' using 1:2:3 with points pointsize 3 title \"Real\"\n"
 		for a in self.acts:
 			s += a.to_gplot() + "\n"
 		s += "e e e\n"
