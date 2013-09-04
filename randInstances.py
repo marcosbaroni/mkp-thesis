@@ -4,7 +4,7 @@ import math
 import sys
 
 
-#             ACTION CLASS
+#             ACTION CLASSES
 # ^
 # |
 # |  4 4
@@ -64,28 +64,11 @@ def sign(x):
 	if x < 0. : return -1
 	return 0
 
-#def over_line(g):
-#	(ax, ay) = (math.log(150.0), math.log(120000.))
-#	(bx, by) = (math.log(20000.), math.log(200.))
-#	b = (bx*ay - ax*by)/(bx - ax)
-#	a = (by-b)/bx
-#	if g == 1:
-#		x = (0.35 + 0.1*r.gauss(0.5, 0.3))*(-b/a)
-#	elif g == 2:
-#		x = (0.6 + 0.1*r.gauss(0.5, 0.3))*(-b/a)
-#	y = a*x + b
-#	y *= r.gauss(1., 0.1)
-#	return (x, y)
-
 def exp_gauss(c, b): # (center, bound)
 	x = -1
 	while x < 0. or x > b:
 		aux = r.gauss(0.0, 10.0)
 		x = c + b*sign(aux)*math.pow(abs(aux), 3.5)
-	return x
-
-def broad_gauss(med, var, wid):
-	x = r.random()*wid + med
 	return x
 
 class Action:
@@ -113,26 +96,41 @@ class Action:
 	def set_group(self, g):
 		self.group = g
 		self.profit = 0.16 + r.random()*0.16
+
+		#   ^ 4
+		#   | |
+		#   | |
+		#   | v
+		# U |            CLASSES
+		# C | ^
+		#   | |
+		#   | 2
+		#   |  1-->        <--3
+		#   +----- COST --------->
+
+		MIN_UC = 150
+		MIN_COST = 100
+
 		# Classe "g" (see diagram above)
-		if g == 1:   # CENTER --> COST AXIS
+		if g == 1:   	# CENTER --> COST AXIS
 			self.cost = exp_gauss(500, 16000)
-			self.uc = int(max(100, r.gauss(5000, 1000)))
-		elif g == 2: # CENTER --> UCs AXIS
-			self.cost = max(100, r.gauss(500, 300))
+			self.uc = int(max(MIN_UC, r.gauss(5000, 1000)))
+		elif g == 2: 	# CENTER --> UCs AXIS
+			self.cost = max(MIN_COST, r.gauss(500, 300))
 			self.uc = int(exp_gauss(50000, 450000))
-		elif g == 3: # HIGH COST --> CENTER
+		elif g == 3: 	# HIGH COST --> CENTER
 			self.cost = exp_gauss(15000, 16000)
-			self.uc = int(max(100, r.gauss(5000, 1000)))
-		elif g == 4: # HIGH UCs --> CENTER
-			self.cost = max(100, r.gauss(500, 300))
+			self.uc = int(max(MIN_UC, r.gauss(5000, 1000)))
+		elif g == 4: 	# HIGH UCs --> CENTER
+			self.cost = max(MIN_COST, r.gauss(500, 300))
 			self.uc = int(exp_gauss(400000, 450000))
 		return
 
 	def set_tir(self):
 		s = 0.0
 		for i in range(len(self.curve)):
-			s += self.curve[i]/math.pow((1.+self.tir), i)
-		k = self.cost*self.profit/s
+			s += self.curve[i]/math.pow((1. + self.tir), i)
+		k = (self.cost/s)/self.profit
 		self.energy = []
 		for i in range(len(self.curve)):
 			self.energy.append(k*self.curve[i])
@@ -218,52 +216,53 @@ class Instance:
 		return s
 
 
-	def print_scip(self):
-		print self.years
-		print self.camp
-		print "1"				# Recursos
-		print "0.15"			# Rate
+	def scip(self):
+		s = ""
+		s += "# N of YEARS"				# Recursos
+		s += "\n" +  str(self.years)
+		s += "\n# N of ACTIONS"				# Recursos
+		s += "\n" +  str(self.camp)
+		s += "\n# N of RESOURCES"				# Recursos
+		s += "\n1"				# Recursos
+		s += "\n# RATE"				# Recursos
+		s += "\n0.15"			# Rate
+		s += "\n\n# YEARLY GOALS"				# Recursos
 		for g in self.goals:	# Metas
-			print g
-		print "# YEARLY BUDGETS"
+			s += "\n" +  str(g)
+		s += "\n\n# YEARLY BUDGETS"
 		for b in self.budgets:  # Orcamentos
-			print "{:.2f}".format(b)
-		print "# MARKETS"
+			s += "\n" +  "{:.2f}".format(b)
+		s += "\n" +  "\n# MARKETS"
 		for a in self.acts:		# Market
-			print a.uc
-		print "# COSTS"
+			s += "\n" +  str(a.uc)
+		s += "\n" +  "\n# COSTS"
 		for a in self.acts:		# Custo
-			print "{:.2f}".format(a.cost)
-		print "# PROFIT"
+			s += "\n" +  "{:.2f}".format(a.cost)
+		s += "\n" +  "\n# PROFITS"
 		for a in self.acts:
-			print "{:.3f}".format(a.profit)
-		print "# ENERGY"
+			s += "\n" +  "{:.3f}".format(a.profit)
+		s += "\n\n# ENERGY\n"
 		for i in range(len(self.acts[0].energy)):
-			s = ""
 			for a in self.acts:
 				s += "{:.3f}".format(a.energy[i]) + " "
-			print s
-		#for a in self.acts:		# Energy
-		#	s = ""
-		#	for e in a.energy:
-		#		s += str(e) + " "
-		#	print s
-		s = "# ACTION LOWER BOUND\n" 
+			s += "\n"
+		s += "\n# ACTION LOWER BOUND\n" 
 		s += ("-1 "*(len(self.acts)) + "\n")*self.years # lowerbound of actions
-		s += "# ACTION UPPER BOUND\n" 
+		s += "\n# ACTION UPPER BOUND\n" 
 		s += ("-1 "*(len(self.acts)) + "\n")*self.years # upperbound of actions
-		s += "# DEPEDENCY BETWEEN ACTIONS\n" 
+		s += "\n# DEPEDENCY BETWEEN ACTIONS\n" 
 		s += ("-1 "*(len(self.acts)) + "\n")*len(self.acts) # depedency between actions
-		print s
+		s += "\n"
+		return s
 
 def main():
-	if len(sys.argv) < 3: print "years, actions, [seed]"
+	if len(sys.argv) < 4: print " <gs> years, actions, [seed]\n\nOPTIONS:\n  g gnuplot\n  s scip"
 	else:
-		if len(sys.argv) > 3: seed = int(sys.argv[3]);
+		if len(sys.argv) > 4: seed = int(sys.argv[3]);
 		else: seed = None
-		inst = Instance(seed, 0.0, int(sys.argv[1]), int(sys.argv[2]))
-		#inst.print_scip()
-		print inst.gplot()
-
+		inst = Instance(seed, 0.0, int(sys.argv[2]), int(sys.argv[3]))
+		o = sys.argv[1]
+		if o == 's': print inst.scip()
+		elif o == 'g': print inst.gplot()
 main()
 
