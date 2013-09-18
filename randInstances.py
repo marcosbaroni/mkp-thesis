@@ -53,6 +53,18 @@ real_inst = "\n\
 e e e\n\
 \n\
 "
+def weighted_random(ls):
+	n = len(ls)
+	tot_p = 0
+	for (x, p) in ls:
+		tot_p += p
+	q = r.random()*tot_p
+	for (x, p) in ls:
+		if q < p: return x
+		q -= p
+	return ls[-1][0]
+	
+
 def addVirg(a, b):
 	return a + ", " + b
 
@@ -75,10 +87,9 @@ class Action:
 	def __init__(self, inst):
 		self.inst = inst
 		self.years = self.inst.years
-		self.tir = 0.15 + 0.01*exp_gauss(10., 120.)
-		#self.tir = 15 + r.random()*45 + math.exp(r.gauss(0,1.2))*45
+		self.tir = 0.9 #0.01*exp_gauss(10., 120.)
 		self.set_curve(r.randint(1,3))
-		self.set_group(r.randint(1,4))
+		self.set_group(weighted_random([(1,0.3), (2,0.3), (3,0.2), (4,0.2)]))
 		self.set_energy()
 	
 	# argument: class of curve
@@ -95,7 +106,8 @@ class Action:
 	# argument: class of group (uc/cost)
 	def set_group(self, g):
 		self.group = g
-		self.profit = 0.16 + r.random()*0.16
+		#self.profit = 0.16 + r.random()*0.16
+		self.profit = 0.2
 
 		#   ^ 4
 		#   | |
@@ -108,22 +120,32 @@ class Action:
 		#   |  1-->        <--3
 		#   +----- COST --------->
 
-		MIN_UC = 150
-		MIN_COST = 100
+
+		MIN_UC, MAX_UC = (150, 450000)
+		MIN_COST, MAX_COST = (100, 16000)
+
+		#MIN_UC, MAX_UC = (150, 300)
+		#MIN_COST, MAX_COST = (100, 160)
+
+		MEAN_UC = (MAX_UC + MIN_UC)/2
+		MEAN_COST = (MAX_COST + MAX_COST)/2
+
+		DIF_UC = (MAX_UC - MIN_UC)
+		DIF_COST = (MAX_COST - MIN_COST)
 
 		# Classe "g" (see diagram above)
 		if g == 1:   	# CENTER --> COST AXIS
-			self.cost = exp_gauss(500, 16000)
-			self.uc = int(max(MIN_UC, r.gauss(5000, 1000)))
+			self.cost = exp_gauss(MIN_COST, MAX_COST)
+			self.uc = int(max(MIN_UC, r.gauss(MIN_UC+ 0.01*DIF_UC, 0.1*DIF_UC)))
 		elif g == 2: 	# CENTER --> UCs AXIS
-			self.cost = max(MIN_COST, r.gauss(500, 300))
-			self.uc = int(exp_gauss(50000, 450000))
+			self.cost = max(MIN_COST, r.gauss(MIN_COST+0.01*DIF_COST, 0.05*DIF_COST))
+			self.uc = int(exp_gauss(MIN_UC, MAX_UC))
 		elif g == 3: 	# HIGH COST --> CENTER
-			self.cost = exp_gauss(15000, 16000)
-			self.uc = int(max(MIN_UC, r.gauss(5000, 1000)))
+			self.cost = exp_gauss(MAX_COST, MAX_COST)
+			self.uc = int(max(MIN_UC, r.gauss(MIN_UC+ 0.01*DIF_UC, 0.05*DIF_UC)))
 		elif g == 4: 	# HIGH UCs --> CENTER
-			self.cost = max(MIN_COST, r.gauss(500, 300))
-			self.uc = int(exp_gauss(400000, 450000))
+			self.cost = max(MIN_COST, r.gauss(MIN_COST+0.01*DIF_COST, 0.02*DIF_COST))
+			self.uc = int(exp_gauss(MAX_UC, MAX_UC))
 		return
 
 	def set_energy(self):
@@ -213,6 +235,37 @@ class Instance:
 		s += real_inst
 		s += "pause -1\n"
 		return s
+
+	def glpk(self):
+		s = ""
+		s += "data;\n"
+		s += "param duaracao := " + str(self.years) + ";\n"
+		s += "param acoes := " + str(self.years) + ";\n"
+		s += "param orcamento := \n"
+		for b in self.budgets:
+			s += str(b) + "\n"
+
+		s += "\nparam custo := \n"
+		for i in range(len(self.acts)):
+			s += str(i+1) + " " + str(self.acts[i].cost)
+		s += ";\n"
+
+		s += "\nparam uc := \n"
+		for i in range(len(self.acts)):
+			s += str(i+1) + " " + str(self.acts[i].uc)
+		s += ";\n"
+
+		s += "\nparam energia : "
+		for i in range(len(self.acts)): s += str(i+1) + " "
+		s += " =\n"
+		for i in range(len(self.acts)):
+			s += str(i+1) + " "
+			for e in self.acts[i].energy:
+				s += str(i+1) + " " + str(e)
+			s += "\n"
+		s += ";\n"
+
+		s += "\nend"
 
 
 	def scip(self):

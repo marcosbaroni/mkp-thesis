@@ -1,4 +1,6 @@
 *~
+*.pyc
 *.swp
 scip
 knap.dat
+*.gplot
