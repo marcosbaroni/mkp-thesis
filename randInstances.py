@@ -87,7 +87,7 @@ class Action:
 	def __init__(self, inst):
 		self.inst = inst
 		self.years = self.inst.years
-		self.tir = 0.9 #0.01*exp_gauss(10., 120.)
+		self.tir = 0.15 + 1.0*r.random()*inst.dtir
 		self.set_curve(r.randint(1,3))
 		self.set_group(weighted_random([(1,0.3), (2,0.3), (3,0.2), (4,0.2)]))
 		self.set_energy()
@@ -174,11 +174,11 @@ class Action:
 
 class Instance:
 	stddist = [.36, .36, .14, .14] # Distribution for respective action group
-	def __init__(self, seed, alpha, years, camp):
+	def __init__(self, years, camp, dtir, seed=None):
 		r.seed(seed)
 		self.years = years
 		self.camp = camp
-		self.alpha = alpha
+		self.dtir = dtir
 		self.acts = []
 		for i in range(self.camp):
 			self.acts.append(Action(self))
@@ -316,12 +316,23 @@ class Instance:
 		f.write(self.gplot())
 		f.close()
 
+def print_usage():
+ 	print "ARGS: <# years> <# actions> <dtir*> [seed]\n"
+	print "  dtir : tir variation [0.0, 1.0]"
+	print "Will always write \"knap.dat\" and \"knap.gplot\"."
+
 def main():
-	if len(sys.argv) < 3: print "ARGS: years, actions, [seed]\n\nWill always write \"knap.dat\" and \"knap.gplot\"."
+	if len(sys.argv) < 4:
+		print_usage()
 	else:
-		if len(sys.argv) > 3: seed = int(sys.argv[3]);
+		if len(sys.argv) > 4: seed = int(sys.argv[4]);
 		else: seed = None
-		inst = Instance(seed, 0.0, int(sys.argv[1]), int(sys.argv[2]))
+		nyears = int(sys.argv[1])
+		nacts = int(sys.argv[2])
+		dtir = float(sys.argv[3])
+		inst = Instance(nyears, nacts, dtir, seed)
 		inst.record() # write files
+		for a in inst.acts:
+			print a.tir
 main()
 
