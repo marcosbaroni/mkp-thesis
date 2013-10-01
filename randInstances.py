@@ -319,7 +319,7 @@ class Instance:
 def print_usage():
  	print "ARGS: <# years> <# actions> <dtir*> [seed]\n"
 	print "  dtir : tir variation [0.0, 1.0]"
-	print "Will always write \"knap.dat\" and \"knap.gplot\"."
+	#print "Will always write \"knap.dat\" and \"knap.gplot\"."
 
 def main():
 	if len(sys.argv) < 4:
@@ -331,8 +331,7 @@ def main():
 		nacts = int(sys.argv[2])
 		dtir = float(sys.argv[3])
 		inst = Instance(nyears, nacts, dtir, seed)
-		inst.record() # write files
-		for a in inst.acts:
-			print a.tir
+		#inst.record() # write files
+		print inst.scip()
 main()
 
