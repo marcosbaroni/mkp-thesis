@@ -1,5 +1,6 @@
 import random
 import math
+from numpy import array
 
 def mean(l):
 	return sum(l)/float(len(l))

@@ -1,64 +1,55 @@
 from sys import argv
+from util import *
 
-def resAppend(res, ye, ac, dt, se, ti):
-	if not res.has_key(dt): res[dt] = {}
-	if not res[dt].has_key(ye): res[dt][ye] = {}
-	if not res[dt][ye].has_key(ac): res[dt][ye][ac] = {}
-	res[dt][ye][ac][se] = float(ti)
+def dic_to_csv(dic, prefix=''):
+	if isinstance(dic, dict):
+		s = ''
+		for k, v in dic.items():
+			s += dic_to_csv(v, prefix + str(k) + ";")
+		return s
+	else:
+		return prefix + str(dic) + "\n"
 
-def writeMedFile(meds):
-	f = open("med.csv", "w")
-	dts = meds.keys()
-	dts.sort()
-	for d in dts:
-		years = meds[d].keys()
-		years.sort()
-		for y in years:
-			acs = meds[d][y].keys()
-			acs.sort()
-			for a in acs:
-				f.write(str(d) + ";" + str(y) + ";" + str(a) + ";" + str(meds[d][y][a]) + "\n");
-	f.close()
+def dic_append(dic, lis):
+	if len(lis) == 2:
+		dic[lis[0]] = lis[1]
+	else:
+		if not dic.has_key(lis[0]):
+			dic[lis[0]] = {}
+		dic_append(dic[lis[0]], lis[1:])
 
-def print_data(med, d):
-	print "set term pngcairo"
-	print "set output \"" + str(d) + ".png\""
-	print "plot '-' using 2:1:3 with image"
-	years = med.keys()
-	years.sort()
-	for y in years:
-		acs = med[y].keys()
-		acs.sort()
-		for a in acs:
-			print(str(y) + " " + str(a) + " " + str(med[y][a]));
-	print("e")
+def dic_apply_func(dic, func=mean):
+	if isinstance(dic.values()[0], dict):
+		newdic = {}
+		for k, v in dic.items():
+			newdic[k] = dic_apply_func(v, func)
+		return newdic
+	else:
+		return func(dic.values())
+	
 
-def read_results(fname):
+""" Read an CSV file, groups the values based on the first arguments and aplies
+		the given function. """
+def read_data(fname, funcs=[min,mean,max]):
+	# Opening file
 	f = open(fname, "r")
 	lines = f.readlines()
-	res = {}
 
-	# Lendo dados
+	# Reading Data
+	raw = []
 	for line in lines:
-		ye, ac, dt, se, ti, garb = line.split(";")
-		resAppend(res, int(ye), int(ac), float(dt), int(se), float(ti))
-	meds = {}
-
-	# Calculando medias
-	for d in res.keys():
-		meds[d] = {}
-		for y in res[d].keys():
-			meds[d][y] = {}
-			for a in res[d][y].keys():
-				l = res[d][y][a].values()
-				l.sort()
-				l = l[2:][:-2]
-				meds[d][y][a] = sum(l)/float(len(l))
+		raw.append(line.split(";"))
 	
-	# Imprimindo
-	for d in meds.keys():
-		print_data(meds[d], d)
-	writeMedFile(meds)
+	# Building Dictionary
+	dic = {}
+	for l in raw:
+		dic_append(dic, l)
+
+	return dic
+
 
 if __name__ == "__main__":
-	read_results(argv[1])
+	data = read_data(argv[1])
+	dic = dic_apply_func(data)
+	print dic_to_csv(dic)
+

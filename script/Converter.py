@@ -54,20 +54,6 @@ class Converter:
 		gen = Generator(sys.argv)
 		
 
-def print_usage():
- 	print "ARGS: <# years> <# actions> <dtir*> [seed]\n"
-	print "  dtir : tir variation [0.0, 1.0]"
-	#print "Will always write \"knap.dat\" and \"knap.gplot\"."
-
-
-def main():
-	nyears = int(sys.argv[1])
-	nacts = int(sys.argv[2])
-	dtir = float(sys.argv[3])
-
-	r.seed(seed)
-	inst = Instance.random(nyears, nacts, dtir)
-	print inst.to_scip()
 
 if __name__ == "__main__":
 	main()
