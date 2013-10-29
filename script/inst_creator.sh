@@ -1,4 +1,4 @@
-GEN="python Generator.py "
+GEN="../generator/python Generator.py "
 OUTDIR=$1
 
 echo "Outdir: $1"

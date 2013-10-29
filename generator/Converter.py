@@ -51,9 +51,7 @@ class Converter:
 		read_output_file()
 	
 	def main():
-		gen = Generator(sys.argv)
-		
-
+		conv = Converter(sys.argv)
 
 if __name__ == "__main__":
 	main()

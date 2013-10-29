@@ -1,0 +1,12 @@
+Requirements = Memory >= 1500 && !CAN_RUN_WHOLE_MACHINE
+arguments = $(Process) $(Cluster)
+
+Executable = run2.sh
+Universe  = vanilla
+Log  = run.log
+
+# if the host is down for 2 minutes, redistribute the job
+JobLeaseDuration = 120
+
+#Output = out
+Queue 200

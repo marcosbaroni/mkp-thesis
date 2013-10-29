@@ -117,3 +117,4 @@ class Action:
 		s += "Energy: " + fs2str(self.energy) + "\n"
 		s += "Tir: " + "{:.3f}".format(self.tir) + "\n"
 		return s
+
