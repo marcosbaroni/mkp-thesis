@@ -1,9 +1,119 @@
 \documentclass{article}
 
+\usepackage[portuguese]{babel}
+\usepackage[utf8]{inputenc}
+
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amssymb}
+
+\usepackage{graphicx}
+
+\usepackage{fullpage}
+
+\renewcommand*\rmdefault{ppl}
+
+\newcommand{\topico}[1]{
+  \vspace{10pt}
+  {\Large \bf #1 }
+  \\
+}
+
+\newcommand{\subtopico}[1]{
+  \vspace{6pt}
+  {\large \bf \underline{#1}}
+  \\
+}
+
+\newcommand{\variavel}[1]{
+  { \Large $ \mathbf{ #1 } $}
+}
+
+\newcommand{\decorator}[1]{
+  {\\ \small \hspace*{10pt} $ \mathbf{ #1 } $ }
+}
+
 \begin{document}
 
-\begin{array}
-\end{array}
+\topico{Conjuntos}
+
+\begin{itemize}
+  \item \variavel{N} Nº de Ações
+  \item \variavel{Y} Nº de Anos
+  \item \variavel{P} Nº de Períodos por ano
+  \item \variavel{R} Nº de Recursos
+\end{itemize}
+
+\topico{Parâmetros}
+
+\subtopico{Globais}
+\begin{itemize}
+  \item \variavel{r} Taxa interna de retorno periodal (juros);
+\end{itemize}
+
+\subtopico{Anuais}
+\begin{itemize}
+  \item \variavel{g_i} Meta anual de redução de perda;
+    \decorator{1 < i < M}
+  \item \variavel{o_l} Orçamento global;
+    \decorator{1 < l < L}
+  \item \variavel{o_l^i} Orçamento anual;
+    \decorator{1 < l < L, \quad 1 < i < M}
+  \item \variavel{s_l^{ip}} Orçamento periodal;
+    \decorator{1 < l < L, \quad 1 < i < M, \quad 1 < p < P}
+\end{itemize}
+
+\subtopico{das Ações}
+\begin{itemize}
+  \item \variavel{m_j} Mercado Global;
+    \decorator{1 < j < N}
+  \item \variavel{u_j^i} Mercado anual;
+    \decorator{1 < j < N, \quad 1 < i < Y}
+  \item \variavel{z_j^{ip}} Mercado periodal;
+    \decorator{1 < j < N, \quad 1 < i < Y, \quad 1 < p < P}
+  \item \variavel{c_{jl}} Custo da ação;
+    \decorator{1 < j < N, \quad 1 < l < R}
+  \item \variavel{v_j} Valor da energia;
+    \decorator{1 < j < N}
+  \item \variavel{e_j^k} Recuperação realizada pela ação $j$ no $k$-ésimo período
+    após sua execução;
+    \decorator{1 < j < N, \quad 1 < k < P.M}
+\end{itemize}
+
+\topico{Variáveis}
+
+\begin{itemize}
+  \item \variavel{x_j^{ip}} Número de vezes que a ação $j$ é executada no $p$-ésimo período do ano $i$;
+\end{itemize}
+
+\topico{Equações}
+
+\topico{Restrições}
+
+Orçamento Periodal
+\begin{equation}
+  \sum_{j = 1}^{N} x_j^{ip} . c_{jl} \leq o_{li}
+  	\qquad i = 1, \ldots, N ,\quad l = 1, \ldots, R
+\end{equation}
+
+Orçamento Anual
+\begin{equation}
+  \sum_{j = 1}^{N} \sum_{p = 1}^{P} x_{jp}^{i} . c_{jl} \leq o_{li}
+  	\qquad i = 1, \ldots, N ,\quad l = 1, \ldots, R
+\end{equation}
+
+Orçamento Global
+\begin{equation}
+  \sum_{j = 1}^{N} x_{jp}^{i} . c_{jl} \leq o_{li}
+  	\qquad i = 1, \ldots, N ,\quad l = 1, \ldots, R
+\end{equation}
+
+\topico{Função Objetivo}
+
+\begin{equation}
+    \sum_{j=1}^{N} x_{j, i} \cdot c_{j,l} \le o_{i,l}, \forall i, l,
+  \label{eq:budget}
+\end{equation}
 
 \end{document}
 
