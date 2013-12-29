@@ -3,15 +3,16 @@
 \usepackage[portuguese]{babel}
 \usepackage[utf8]{inputenc}
 
-\usepackage{amsmath}
+\usepackage[fleqn]{amsmath}
 \usepackage{amsthm}
 \usepackage{amssymb}
+\usepackage{bm} % for bold math text (\bm)
 
 \usepackage{graphicx}
 
 \usepackage{fullpage}
 
-\renewcommand*\rmdefault{ppl}
+%\renewcommand{\rmdefault}{ppl}
 
 \newcommand{\topico}[1]{
   \vspace{10pt}
@@ -26,11 +27,11 @@
 }
 
 \newcommand{\variavel}[1]{
-  { \Large $ \mathbf{ #1 } $}
+  { \Large $ \bm{ #1 } \, $}
 }
 
 \newcommand{\decorator}[1]{
-  {\\ \small \hspace*{10pt} $ \mathbf{ #1 } $ }
+  {\\ \scriptsize \hspace*{12pt} $ \bm{ #1 } $ }
 }
 
 \begin{document}
@@ -38,10 +39,10 @@
 \topico{Conjuntos}
 
 \begin{itemize}
-  \item \variavel{N} Nº de Ações
-  \item \variavel{Y} Nº de Anos
-  \item \variavel{P} Nº de Períodos por ano
-  \item \variavel{R} Nº de Recursos
+  \item \variavel{N} Nº de Ações {\scriptsize $(1 < i < N) $}
+  \item \variavel{Y} Nº de Anos  {\scriptsize $(1 < j < Y) $}
+  \item \variavel{P} Nº de Períodos por ano {\scriptsize $(1 < k < P)$}
+  \item \variavel{R} Nº de Recursos {\scriptsize $(1 < l < R)$}
 \end{itemize}
 
 \topico{Parâmetros}
@@ -53,12 +54,12 @@
 
 \subtopico{Anuais}
 \begin{itemize}
-  \item \variavel{g_i} Meta anual de redução de perda;
-    \decorator{1 < i < M}
+  \item \variavel{g^i} Meta anual de redução de perda;
+    \decorator{1 < i < Y}
   \item \variavel{o_l} Orçamento global;
-    \decorator{1 < l < L}
+    \decorator{1 < l < R}
   \item \variavel{o_l^i} Orçamento anual;
-    \decorator{1 < l < L, \quad 1 < i < M}
+    \decorator{1 < l < R, \quad 1 < i < M}
   \item \variavel{s_l^{ip}} Orçamento periodal;
     \decorator{1 < l < L, \quad 1 < i < M, \quad 1 < p < P}
 \end{itemize}
@@ -70,7 +71,7 @@
   \item \variavel{u_j^i} Mercado anual;
     \decorator{1 < j < N, \quad 1 < i < Y}
   \item \variavel{z_j^{ip}} Mercado periodal;
-    \decorator{1 < j < N, \quad 1 < i < Y, \quad 1 < p < P}
+    \decorator{1 < j < N, \quad 1 < i < Y, \quad 1 < k < P}
   \item \variavel{c_{jl}} Custo da ação;
     \decorator{1 < j < N, \quad 1 < l < R}
   \item \variavel{v_j} Valor da energia;
@@ -90,9 +91,35 @@
 
 \topico{Restrições}
 
-Orçamento Periodal
+\[
+\begin{array}{rlcll}
+    \text{Orçamento Global} \\
+    \displaystyle
+    \sum_{j = 1}^N \sum_{i = 1}^M
+    & x_{jp}^i
+	& \leq
+	& o_l
+	& i = 1, \ldots, M \qquad l = 1, \ldots, R \\
+    \\ \text{Orçamento Anual} \\
+    \displaystyle
+    \sum_{j = 1}^N \sum_{i = 1}^M
+    & x_{jp}^i
+	& \leq
+	& o_l
+	& i = 1, \ldots, M \\
+    \\ \text{Orçamento Periodal} \\
+    \displaystyle
+    \sum_{j = 1}^N \sum_{i = 1}^M
+    & x_{jp}^i
+	& \leq
+	& o_l
+	& i = 1, \ldots, M \\
+\end{array}
+\]
+
+Orçamento Global
 \begin{equation}
-  \sum_{j = 1}^{N} x_j^{ip} . c_{jl} \leq o_{li}
+  \sum_{j = 1}^{N} \sum_{i = 1}^{M} \sum_{p = 1}^{P} x_{jp}^{i} . c_{jl} \leq o_{l}
   	\qquad i = 1, \ldots, N ,\quad l = 1, \ldots, R
 \end{equation}
 
@@ -102,11 +129,23 @@ Orçamento Anual
   	\qquad i = 1, \ldots, N ,\quad l = 1, \ldots, R
 \end{equation}
 
-Orçamento Global
+Orçamento Periodal
 \begin{equation}
-  \sum_{j = 1}^{N} x_{jp}^{i} . c_{jl} \leq o_{li}
+  \sum_{j = 1}^{N} x_j^{ip} . c_{jl} \leq o_{li}
   	\qquad i = 1, \ldots, N ,\quad l = 1, \ldots, R
 \end{equation}
+
+Orçamento Periodal
+\begin{equation}
+  \sum_{j = 1}^{N} x_j^{ip} . c_{jl} \leq o_{li}
+  	\qquad i = 1, \ldots, N ,\quad l = 1, \ldots, R
+\end{equation}
+
+Market Global
+
+Market Anual
+
+Market Periodal
 
 \topico{Função Objetivo}
 
