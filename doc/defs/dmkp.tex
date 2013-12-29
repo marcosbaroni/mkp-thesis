@@ -34,6 +34,28 @@
   {\\ \scriptsize \hspace*{12pt} $ \bm{ #1 } $ }
 }
 
+%%%    LISTAGEM DAS RESTRIÇÔES   %%%
+
+% Ambiente para listagem de restrições
+\newenvironment{constraints}
+	{ \[ \begin{array}{rlcll} }
+	{ \end{array} \] }
+
+% Definição de uma restrição
+\newcommand{\constraint}[6]{
+    \multicolumn{1}{l}{\text{ #1 }} \\ % Descrição
+    \displaystyle
+    #2             % Somatórios
+    & #3           % 1º termo
+	& #4           % Relação
+	& #5           % 2º termo
+	\qquad
+	\begin{array}{c}
+	  #6           % Repetições
+	\end{array}
+	\vspace{14pt}
+}
+
 \begin{document}
 
 \topico{Conjuntos}
@@ -91,61 +113,55 @@
 
 \topico{Restrições}
 
-\[
-\begin{array}{rlcll}
-    \text{Orçamento Global} \\
-    \displaystyle
-    \sum_{j = 1}^N \sum_{i = 1}^M
-    & x_{jp}^i
-	& \leq
-	& o_l
-	& i = 1, \ldots, M \qquad l = 1, \ldots, R \\
-    \\ \text{Orçamento Anual} \\
-    \displaystyle
-    \sum_{j = 1}^N \sum_{i = 1}^M
-    & x_{jp}^i
-	& \leq
-	& o_l
-	& i = 1, \ldots, M \\
-    \\ \text{Orçamento Periodal} \\
-    \displaystyle
-    \sum_{j = 1}^N \sum_{i = 1}^M
-    & x_{jp}^i
-	& \leq
-	& o_l
-	& i = 1, \ldots, M \\
-\end{array}
-\]
-
-Orçamento Global
-\begin{equation}
-  \sum_{j = 1}^{N} \sum_{i = 1}^{M} \sum_{p = 1}^{P} x_{jp}^{i} . c_{jl} \leq o_{l}
-  	\qquad i = 1, \ldots, N ,\quad l = 1, \ldots, R
-\end{equation}
-
-Orçamento Anual
-\begin{equation}
-  \sum_{j = 1}^{N} \sum_{p = 1}^{P} x_{jp}^{i} . c_{jl} \leq o_{li}
-  	\qquad i = 1, \ldots, N ,\quad l = 1, \ldots, R
-\end{equation}
-
-Orçamento Periodal
-\begin{equation}
-  \sum_{j = 1}^{N} x_j^{ip} . c_{jl} \leq o_{li}
-  	\qquad i = 1, \ldots, N ,\quad l = 1, \ldots, R
-\end{equation}
-
-Orçamento Periodal
-\begin{equation}
-  \sum_{j = 1}^{N} x_j^{ip} . c_{jl} \leq o_{li}
-  	\qquad i = 1, \ldots, N ,\quad l = 1, \ldots, R
-\end{equation}
-
-Market Global
-
-Market Anual
-
-Market Periodal
+\begin{constraints}
+    \constraint
+	  {Orçamento Global}
+	  { \sum_{i = 1}^N \sum_{j = 1}^Y \sum_{k = 1}^P }
+	  { x_i^{jk} . c_{il}}
+	  { \leq }
+	  { o_l }
+	  { l = 1, \ldots, R }
+	\\
+    \constraint
+      {Orçamento Anual}
+      { \sum_{i = 1}^N \sum_{k = 1}^P }
+      { x_i^{jk} . c_{il} }
+	  { \leq }
+	  { o_l^i }
+	  { j = 1, \ldots, Y \\ l = 1, \ldots, R}
+    \\
+	\constraint
+	  {Orçamento Periodal}
+      { \sum_{i = 1}^N }
+      { x_i^{jk} . c_{il} }
+	  { \leq }
+	  { o_l^{jk} }
+	  { k = 1, \ldots, P \\ j = 1, \ldots, Y \\ l = 1, \ldots, R }
+	\\
+	\constraint
+	  {Market Global}
+      { \sum_{j = 1}^Y \sum_{k = 1}^P }
+      { x_i^{jk} }
+	  { \leq }
+	  { m_i }
+	  { i = 1, \ldots, N }
+	\\
+	\constraint
+	  {Market Anual}
+      { \sum_{k = 1}^P }
+      { x_i^{jk} }
+	  { \leq }
+	  { m_i^j }
+	  { i = 1, \ldots, N \\ j = 1, \ldots, Y }
+	\\
+	\constraint
+	  {Market Periodal}
+      { }
+      { x_i^{jk} }
+	  { \leq }
+	  { m_i^{jk} }
+	  { i = 1, \ldots, N \\ j = 1, \ldots, Y \\ k = 1, \ldots, P}
+\end{constraints}
 
 \topico{Função Objetivo}
 
