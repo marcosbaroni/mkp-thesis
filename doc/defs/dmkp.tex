@@ -3,25 +3,42 @@
 \usepackage[portuguese]{babel}
 \usepackage[utf8]{inputenc}
 
+\usepackage[cm]{fullpage} % to use more space from page
+
+\usepackage{longtable} % to use multi-page tables
+  % setting longtables alignment
+  \setlength\LTleft\parindent
+  \setlength\LTright\fill
+
+\usepackage{changepage} % to temporarily adjust page layout
+
 \usepackage[fleqn]{amsmath}
 \usepackage{amsthm}
 \usepackage{amssymb}
 \usepackage{bm} % for bold math text (\bm)
 
+\usepackage{multicol}
+\setlength{\columnseprule}{0.1pt}
+
 \usepackage{graphicx}
 
 \usepackage{fullpage}
 
+\allowdisplaybreaks
+
 %\renewcommand{\rmdefault}{ppl}
 
+\newcommand{\myrule}{
+  \rule{\textwidth}{0.1pt}
+  \vspace{6pt}
+}
+
 \newcommand{\topico}[1]{
-  \vspace{10pt}
+  \vspace{20pt}
   {\Large \bf #1 }
-  \\
 }
 
 \newcommand{\subtopico}[1]{
-  \vspace{6pt}
   {\large \bf \underline{#1}}
   \\
 }
@@ -37,26 +54,49 @@
 %%%    LISTAGEM DAS RESTRIÇÔES   %%%
 
 % Ambiente para listagem de restrições
-\newenvironment{constraints}
-	{ \[ \begin{array}{rlcll} }
-	{ \end{array} \] }
 
-% Definição de uma restrição
-\newcommand{\constraint}[6]{
-    \multicolumn{1}{l}{\text{ #1 }} \\ % Descrição
-    \displaystyle
-    #2             % Somatórios
-    & #3           % 1º termo
-	& #4           % Relação
-	& #5           % 2º termo
-	\qquad
-	\begin{array}{c}
-	  #6           % Repetições
-	\end{array}
-	\vspace{14pt}
+\newenvironment{restricoes}
+  { \begin{longtable}{lrccll}}
+  {\end{longtable} }
+
+\newcommand{\restricao}[6]{
+    \multicolumn{2}{l}{ $\bullet$ #1} & & \\ \nopagebreak
+    & ${ \displaystyle \bm{#2} }$
+    & ${ \bm{#3} }$
+    & ${ \bm{#4} }$
+    & ${ \bm{#5} }$ &
+    \begin{tabular}{l}
+	  #6
+    \end{tabular}
+	\\ \hspace{30pt}
 }
 
+
+% Ambiente para listagem de equações
+\newenvironment{equacoes}
+	{ \begin{longtable}{lrcll} }
+	{ \end{longtable} }
+
+% Definição de uma equação
+\newcommand{\equacao}[4]{
+    \multicolumn{5}{l}{\text{ \parbox{250pt}{$\bullet$ #1} }} \\   % Descrição
+    \phantom{aaaaaa} & $ \displaystyle \bm{#2} $                              % Definição
+    & $ = $                 
+	& $\displaystyle \bm{#3} $                           % expressão
+	&
+	\begin{tabular}{l}
+	  #4                                 % Repetições
+	\end{tabular}
+	\vspace{12pt}
+	\\
+}
+
+\title{The Partially Ordered Multidimensional Multi-Knapsack Problem \\ {Definição\footnote{Falta dependência.}} }
+\author{Marcos Daniel V. Baroni}
+
 \begin{document}
+
+\maketitle
 
 \topico{Conjuntos}
 
@@ -64,10 +104,15 @@
   \item \variavel{N} Nº de Ações {\scriptsize $(1 < i < N) $}
   \item \variavel{Y} Nº de Anos  {\scriptsize $(1 < j < Y) $}
   \item \variavel{P} Nº de Períodos por ano {\scriptsize $(1 < k < P)$}
+    \begin{itemize}
+	  \item[$\bullet$]{\small $\bm{P_{j} = \{P.(j-1)+1, \ldots, P.j\}}$ \\ Períodos referentes ao ano $j$;} 
+	\end{itemize}
   \item \variavel{R} Nº de Recursos {\scriptsize $(1 < l < R)$}
 \end{itemize}
 
 \topico{Parâmetros}
+
+\begin{multicols}{2}
 
 \subtopico{Globais}
 \begin{itemize}
@@ -77,98 +122,141 @@
 \subtopico{Anuais}
 \begin{itemize}
   \item \variavel{g^i} Meta anual de redução de perda;
-    \decorator{1 < i < Y}
+    \decorator{1 \leq j \leq Y}
   \item \variavel{o_l} Orçamento global;
-    \decorator{1 < l < R}
-  \item \variavel{o_l^i} Orçamento anual;
-    \decorator{1 < l < R, \quad 1 < i < M}
-  \item \variavel{s_l^{ip}} Orçamento periodal;
-    \decorator{1 < l < L, \quad 1 < i < M, \quad 1 < p < P}
+    \decorator{1 \leq l \leq R}
+  \item \variavel{p_l^i} Orçamento anual;
+    \decorator{1 \leq l \leq R, \quad 1 \leq j \leq Y}
+  \item \variavel{s_l^{k}} Orçamento periodal;
+    \decorator{1 \leq l \leq R, \quad \quad 1 \leq k \leq P}
 \end{itemize}
+
+\vfill \columnbreak
 
 \subtopico{das Ações}
 \begin{itemize}
-  \item \variavel{m_j} Mercado Global;
-    \decorator{1 < j < N}
-  \item \variavel{u_j^i} Mercado anual;
-    \decorator{1 < j < N, \quad 1 < i < Y}
-  \item \variavel{z_j^{ip}} Mercado periodal;
-    \decorator{1 < j < N, \quad 1 < i < Y, \quad 1 < k < P}
-  \item \variavel{c_{jl}} Custo da ação;
-    \decorator{1 < j < N, \quad 1 < l < R}
-  \item \variavel{v_j} Valor da energia;
-    \decorator{1 < j < N}
-  \item \variavel{e_j^k} Recuperação realizada pela ação $j$ no $k$-ésimo período
+  \item \variavel{m_i} Mercado Global;
+    \decorator{1 \leq i \leq N}
+  \item \variavel{u_i^j} Mercado anual;
+    \decorator{1 \leq i \leq N, \quad 1 \leq j \leq Y}
+  \item \variavel{z_i^k} Mercado periodal;
+    \decorator{1 \leq i \leq N, \quad 1 \leq k \leq P}
+  \item \variavel{c_{il}} Custo da ação;
+    \decorator{1 \leq i \leq N, \quad 1 \leq l \leq R}
+  \item \variavel{v_i} Valor da energia;
+    \decorator{1 \leq i \leq N}
+  \item \variavel{e_i^k} Recuperação realizada pela ação $i$ no $k$-ésimo período
     após sua execução;
-    \decorator{1 < j < N, \quad 1 < k < P.M}
+    \decorator{1 \leq i \leq N, \quad 0 \leq k < P.M}
 \end{itemize}
 
-\topico{Variáveis}
+\end{multicols}
 
+\pagebreak
+
+\topico{Variáveis}
 \begin{itemize}
-  \item \variavel{x_j^{ip}} Número de vezes que a ação $j$ é executada no $p$-ésimo período do ano $i$;
+  \item \variavel{x_i^k} Número de vezes que a ação $i$ é executada no período $k$;
 \end{itemize}
 
 \topico{Equações}
 
+\begin{equacoes}
+    \equacao
+	  {Recuperação de energia para o período $k$ causada pelas as ações $i$ de todos os períodos.}
+	  {Rec_{i}^{k}(\overline{x})}
+	  {\sum_{p = 0}^{k-1} x_i^{(k-p)} . e_i^{p}}
+	  { $i \in \{1, \ldots, N\}$ \\ $k \in \{1, \ldots, P\}$ }
+	\equacao
+	  {Lucro originado pela energia recuperada no período $k$.}
+	  {Prof^k(\overline{x})}
+	  {\sum_{i=1}^N Rec_{i}^k(\overline{x}) . v_i}
+	  { $k \in \{1, \ldots, P\}$}
+	\equacao
+	  {Custo total de todas as ações executadas no período $k$.}
+	  {Cost^k(\overline{x})}
+	  {\sum_{i=1}^N \sum_{l=1}^R x_i^k . c_{il}}
+	  { $k \in \{1, \ldots, P\}$}
+\end{equacoes}
+
 \topico{Restrições}
 
-\begin{constraints}
-    \constraint
+\begin{restricoes}
+    \restricao
 	  {Orçamento Global}
-	  { \sum_{i = 1}^N \sum_{j = 1}^Y \sum_{k = 1}^P }
-	  { x_i^{jk} . c_{il}}
+	  { \sum_{i = 1}^N \sum_{k = 1}^P }
+	  { x_i^k . c_{il}}
 	  { \leq }
 	  { o_l }
-	  { l = 1, \ldots, R }
+	  { $ l = 1, \ldots, R $ }
 	\\
-    \constraint
+    \restricao
       {Orçamento Anual}
-      { \sum_{i = 1}^N \sum_{k = 1}^P }
-      { x_i^{jk} . c_{il} }
+      { \sum_{i = 1}^N \sum_{k \in P_j} }
+      { x_i^k . c_{il} }
 	  { \leq }
-	  { o_l^i }
-	  { j = 1, \ldots, Y \\ l = 1, \ldots, R}
+	  { p_l^j }
+	  { $ j = 1, \ldots, Y $ \\ $ l = 1, \ldots, R$ }
     \\
-	\constraint
+	\restricao
 	  {Orçamento Periodal}
       { \sum_{i = 1}^N }
-      { x_i^{jk} . c_{il} }
+      { x_i^k . c_{il} }
 	  { \leq }
-	  { o_l^{jk} }
-	  { k = 1, \ldots, P \\ j = 1, \ldots, Y \\ l = 1, \ldots, R }
+	  { s_l^{k} }
+	  { $ k = 1, \ldots, P $ \\ $ l = 1, \ldots, R $ }
 	\\
-	\constraint
+	\restricao
 	  {Market Global}
-      { \sum_{j = 1}^Y \sum_{k = 1}^P }
-      { x_i^{jk} }
+      { \sum_{k = 1}^P }
+      { x_i^k }
 	  { \leq }
 	  { m_i }
-	  { i = 1, \ldots, N }
+	  { $ i = 1, \ldots, N $ }
 	\\
-	\constraint
+	\restricao
 	  {Market Anual}
-      { \sum_{k = 1}^P }
-      { x_i^{jk} }
+      { \sum_{k \in P_j} }
+      { x_i^k }
 	  { \leq }
-	  { m_i^j }
-	  { i = 1, \ldots, N \\ j = 1, \ldots, Y }
+	  { u_i^j }
+	  { $ i = 1, \ldots, N $ \\ $ j = 1, \ldots, Y $ }
 	\\
-	\constraint
+	\restricao
 	  {Market Periodal}
       { }
-      { x_i^{jk} }
+      { x_i^k }
 	  { \leq }
-	  { m_i^{jk} }
-	  { i = 1, \ldots, N \\ j = 1, \ldots, Y \\ k = 1, \ldots, P}
-\end{constraints}
+	  { z_i^k }
+	  { $ i = 1, \ldots, N $ \\ $ k = 1, \ldots, P$ }
+\end{restricoes}
+
+\pagebreak
 
 \topico{Função Objetivo}
-
 \begin{equation}
-    \sum_{j=1}^{N} x_{j, i} \cdot c_{j,l} \le o_{i,l}, \forall i, l,
+  \nonumber
+    \bm{
+	  Max \big(Z(\overline{x})\big) =
+	    \sum_{k=1}^P
+	    \frac
+		  {\big( Prof^k(\overline{x}) - Cost^k(\overline{x}) \big)}
+	      {(1+r)^k}
+	}
   \label{eq:budget}
 \end{equation}
+
+\vfill
+
+Observações
+
+\begin{itemize}
+  \item Falta especificar a dependência entre ações.
+  \item A recuperação deve estar {\bf abaixo} ou {\bf acima} da meta?
+  \begin{itemize}
+    \item Problema multi-objetivo LUCRO vs META?
+  \end{itemize}
+\end{itemize}
 
 \end{document}
 
