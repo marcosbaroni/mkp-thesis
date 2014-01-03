@@ -2,135 +2,151 @@
 # Problem Parameters #
 ######################
 
+# Number of actions
+param N := read "knap.dat" as "1n" use 1 comment "#";
+
 # Number of years
-param y := read "knap.dat" as "1n" use 1 comment "#";
+param Y := read "knap.dat" as "1n" skip 1 use 1 comment "#";
 
-# Number of periods
-param p := read "knap.dat" as "1n" use 1 comment "#";
+# Number of periods per year
+param P := read "knap.dat" as "1n" skip 2 use 1 comment "#";
 
-#Number of actions
-param n := read "knap.dat" as "1n" skip 1 use 1 comment "#";
+# Number of resources
+param R := read "knap.dat" as "1n" skip 3 use 1 comment "#";
 
-#Number of budgets
-param R := read "knap.dat" as "1n" skip 2 use 1 comment "#";
+# Rate of return
+param r := read "knap.dat" as "1n" skip 4 use 1 comment "#";
 
-#Minimum acceptable rate of return
-param r := read "knap.dat" as "1n" skip 3 use 1 comment "#";
 
 ##############
 # Index Sets #
 ##############
 
-#Years
-set Yrs := {1 .. y};
+# Actions
+set Acs := {1 .. N};
 
-#Actions
-set Acs := {1 .. n};
+# Years
+set Yrs := {1 .. Y};
 
-#Costs
-set Res := {1 .. costs};
+# Periods
+set Pers := {1 .. Y*P};
+
+# Resources
+set Res := {1 .. R};
+
 
 ######################
 # Indexed Parameters #
 ######################
 
-#Yearly goal
-param goal[I] := read "knap.dat" as "1n" skip 4 use duration comment "#";
+# Yearly goal
+param g[Yrs] := read "knap.dat" as "n+" skip 5 use Y comment "#";
 
-#Yearly budgets
-param budgets[I*K] := read "knap.dat" as "n+" skip (4+duration) use duration comment "#";
+# Global budget
+param o[Res] := read "knap.dat" as "n+" skip (5+Y) use R comment "#";
 
-#Market per action
-param market[J] := read "knap.dat" as "1n" skip (4+(duration*2)) use actions comment "#";
+# Yearly budgets
+param p[Yrs] := read "knap.dat" as "n+" skip (5+Y+R) use Y comment "#";
 
-#Costs of actions
-param action_costs[J*K] := read "knap.dat" as "n+" skip (4+(duration*2)+actions) use actions comment "#";
+# Periodal Budgets
+param s[Pers*Res] := read "knap.dat" as "n+" skip (5+(2*Y)+R) use (Y*R) comment "#";
 
-#Profit per energy unit of each action
-param profit[J] := read "knap.dat" as "1n" skip (4+(duration*2)+(actions*2)) use actions comment "#";
+# Global Market
+param m[Acs] := read "knap.dat" as "n+" skip (5+(2*Y)+R+(Y*R)) use N comment "#";
 
-#Yearly energy per action
-param energy[I*J] := read "knap.dat" as "n+" skip (4+(duration*2)+(actions*3)) use duration comment "#";
+# Anual Market
+param z[Acs*Yrs] := read "knap.dat" as "n+" skip (5+(2*Y)+R+(Y*R)) use (N*Y) comment "#";
 
-#Lowerbound of actions
-param lb[I*J] := read "knap.dat" as "n+" skip (4+(duration*3)+(actions*3)) use duration comment "#";
+# Periodal Market
+param c[Acs*Pers] := read "knap.dat" as "n+" skip (5+(2*Y)+R+(Y*R)+(N*Y)) use (N*P) comment "#";
 
-#Upperbound of actions
-param ub[I*J] := read "knap.dat" as "n+" skip (4+(duration*4)+(actions*3)) use duration comment "#";
+# Costs of actions
+param c[Acs*Res] := read "knap.dat" as "n+" skip (5+(2*Y)+R+(Y*R)+(N*Y)) use (N*R) comment "#";
 
-#Dependency between actions
-param dep[J*J] := read "knap.dat" as "n+" skip (4+(duration*5)+(actions*3)) use actions comment "#";
+# Energy Value
+param v[Acs] := read "knap.dat" as "n+" skip (5+(2*Y)+R+(Y*R)+(N*Y)+(N*R)) use N comment "#";
+
+# Energy Recover
+param e[Acs*Pers] := read "knap.dat" as "n+" skip (5+(2*Y)+R+(Y*R)+(N*Y)+(N*R)+N) use (N*P) comment "#";
+
 
 #####################
 # Decision Variable #
 #####################
 
-#Number of actions by given year
-var x[I*J] integer;
+# Number of actions by given period
+var x[Acs*Pers] integer;
+
 
 ####################
 # Others variables #
 ####################
 
-#Yearly total costs
-var total_costs[I];
+# Energy recover for a given period caused by a given action
+var rec[Act*Pers];
 
-#Yearly total income
-var total_income[I];
+# Profit for energy recovering for a given period
+var prof[Pers];
 
-###############
-# Definitions #
-###############
-#Total yearly costs
+# Total cost of all actions executed on a given period
+var cost[Pres];
+
+
+#############
+# Equations #
+#############
+# Total yearly costs
 subto definition_yearly_costs:
 	forall <i> in I do
 		sum <j,k> in J*K do
 			x[i,j]*action_costs[j,k] == total_costs[i];
 
-#Total yearly income
+# Total yearly income
 subto definition_yearly_income:
 	forall <i> in I do
 		sum <k,j> in I*J with i>=k do
 			(x[k,j]*energy[i-k+1,j]*profit[j]) == total_income[i];
 
-################
-# Restrictions #
-################
 
-#Budgets restrictions
+##############
+# Constraint #
+##############
+
+# Budgets restrictions
 subto limit_budget: 
 	forall <i,k> in I*K do
 		sum <j> in J do
 			x[i,j]*action_costs[j,k] <= budgets[i,k];
-#Goal restrictions
+# Goal restrictions
 subto limit_goal:
 	forall <i> in I do
 		sum <k,j> in I*J with (i >= k) do
 			x[k,j]*energy[i-k+1,j] <= goal[i];
 
-#Market restrictions
+# Market restrictions
 subto limit_market:
 	forall <j> in J do
 		sum <i> in I do
 			x[i,j] <= market[j];
 
-#Lowerbound of actions
+# Lowerbound of actions
 subto lowerbound_actions:
 	forall <i,j> in I*J with (lb[i,j] >= 0) do
 		x[i,j] >= lb[i,j];
 
-#Upperbound of actions
+# Upperbound of actions
 subto upperbound_actions:
 	forall <i,j> in I*J with (ub[i,j] >= 0) do
 		x[i,j] <= ub[i,j];
 
-#Dependecy between actions
+# Dependecy between actions
 subto dependency_cardinality:
 	forall <i,j,k> in I*J*J with (dep[j,k] >= 0) do
 		sum <l> in I with (i >= l) do
 			x[l,j] <= 
 		sum <l> in I with (i >= l) do
 		 	x[l,k]*dep[j,k];
+
 
 ######################
 # Objective Function #
