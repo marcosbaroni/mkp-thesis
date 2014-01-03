@@ -121,11 +121,11 @@
 
 \subtopico{Anuais}
 \begin{itemize}
-  \item \variavel{g^i} Meta anual de redução de perda;
+  \item \variavel{g^j} Meta anual de redução de perda;
     \decorator{1 \leq j \leq Y}
   \item \variavel{o_l} Orçamento global;
     \decorator{1 \leq l \leq R}
-  \item \variavel{p_l^i} Orçamento anual;
+  \item \variavel{p_l^j} Orçamento anual;
     \decorator{1 \leq l \leq R, \quad 1 \leq j \leq Y}
   \item \variavel{s_l^{k}} Orçamento periodal;
     \decorator{1 \leq l \leq R, \quad \quad 1 \leq k \leq P}
@@ -183,6 +183,14 @@
 
 \begin{restricoes}
     \restricao
+	  {Meta de Recuperação Anual\footnote{Dúvida: a recuperação ficar muito abaixo da meta não é um problema?}}
+	  { \sum_{i = 1}^N \sum_{k \in P_j}}
+	  { Rec_i^k(\overline{x})}
+	  { \leq }
+	  { g^j }
+	  { $ j = 1, \ldots, Y $ }
+	\\
+    \restricao
 	  {Orçamento Global}
 	  { \sum_{i = 1}^N \sum_{k = 1}^P }
 	  { x_i^k . c_{il}}
@@ -231,8 +239,6 @@
 	  { $ i = 1, \ldots, N $ \\ $ k = 1, \ldots, P$ }
 \end{restricoes}
 
-\pagebreak
-
 \topico{Função Objetivo}
 \begin{equation}
   \nonumber
@@ -247,16 +253,6 @@
 \end{equation}
 
 \vfill
-
-Observações
-
-\begin{itemize}
-  \item Falta especificar a dependência entre ações.
-  \item A recuperação deve estar {\bf abaixo} ou {\bf acima} da meta?
-  \begin{itemize}
-    \item Problema multi-objetivo LUCRO vs META?
-  \end{itemize}
-\end{itemize}
 
 \end{document}
 
