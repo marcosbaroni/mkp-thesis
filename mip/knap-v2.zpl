@@ -82,12 +82,12 @@ subto global_market:
 subto anual_market:
   forall <i, j> in Acs*Yrs do
     sum <k> in YPers[j] do
-	  x[i, k] <= z[i, j];
+	  x[i, k] <= u[i, j];
 
 # Periodal Market
 subto periodal_market:
   forall <i, k> in Acs*Pers do
-	  x[i, k] <= c[i, k];
+	  x[i, k] <= z[i, k];
 
 # Dependecy between actions
 # subto dependency_cardinality:
