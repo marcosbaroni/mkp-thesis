@@ -40,13 +40,6 @@ data Config = Config {
 	marketVar :: (Double, Double),     -- | (Med, Var) of Market
 	energyCostVar :: (Double, Double), -- | (Med, Var) of Energy Value
 	goalVar :: (Double, Double),       -- | (Med, Var) of Energy Goal
-:qa
-
-
-:q
-:q
-
-
 	}
 
 type Generator = (RandomGen a => a -> Config -> Pcope)
