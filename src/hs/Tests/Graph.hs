@@ -22,11 +22,25 @@ eigen g u = eigen' u g (U.replicate (n g) $ 1.0)
 
 iterSum ads v = U.foldr1 (+) $ (U.map (\x -> v U.! x) $ ads)
 
+ex = (6, 6, [(1,2), (1,5), (2,3), (3,4), (4,5), (5,6)])
+(na, ma, tlsa) = ex
+
 buildGraph :: (Int, Int, [(Int, Int)]) -> Graph
 buildGraph (nG, mG, tls) = Graph nG mG dgrsG adjsG
 	where
-	adjsG = V.map (U.fromList) $ V.fromList $ map (map ((+(-1)).snd)) $ groupBy (\a b -> (fst a) == (fst b)) tls
+	adjsG = V.map (U.fromList) $ V.fromList $ map (map (+(-1))) $ groups
+	groups = grp tls
 	dgrsG = U.fromList $ V.toList $ V.map U.length $ adjsG
+
+grp :: Eq a => [(a, b)] -> [[b]]
+grp [] = []
+grp ((y, x):xs) = subGrp [[x]] y xs
+	where
+	subGrp (xs1:xss) y1 ((y2, x2):ys) =
+		if y1 == y2
+		then subGrp ((x2:xs1):xss) y1 ys
+		else subGrp ([x2]:xs1:xss) y2 ys
+	subGrp xss _ [] = xss
 
 readGraph :: FilePath -> IO Graph
 readGraph fp = do
