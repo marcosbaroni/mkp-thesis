@@ -64,13 +64,13 @@ subto global_budget:
 subto anual_budget:
   forall <j, l> in Yrs*Res do
     sum <i, k> in Acs*YPers[j] do
-	  x[i, k]*c[i, l] <= p[j, l];
+	  x[i, k]*c[i, l] <= p[l, j];
 
 # Periodal Budgets
 subto periodal_budget:
   forall <k, l> in Pers*Res do
     sum <i> in Acs do
-	  x[i, k] <= s[k, l];
+	  x[i, k] <= s[l, k];
 
 # Global Market
 subto global_market:
