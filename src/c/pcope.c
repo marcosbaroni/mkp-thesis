@@ -132,8 +132,8 @@ int main(int argc, char **argv){
 	pcope = pcope_random(5, 4, 3, 2, 0.1);
 	j = pcope_to_json(pcope);
 
-	str = json_dumps(j, 0);
-	printf("%s", str);
+	str = json_dumps(j, JSON_INDENT(2));
+	printf("%s\n", str);
 
 	free(str);
 	pcope_free(pcope);
