@@ -4,86 +4,265 @@
 #include "util.h"
 #include "pcope.h"
 
-void action_free(Action *act){
-	free(act->cost);
-	free(act->ymarket);
-	free(act->pmarket);
-	free(act->recup);
-	free(act);
-	return;
+/* Allocs a blank problem instance. */
+PCOPE *pcope_new(int nacts, int nyears, int npers, int nres){
+	int i, j, k, l;
+	int ntotpers;
+	PCOPE *p;
+
+	p = (PCOPE*)malloc(sizeof(PCOPE));
+
+	/*** Basic attributes ***/
+	p->nacts = nacts;
+	p->nyears = nyears;
+	p->npers = npers;
+	p->nres = nres;
+	p->ntotpers = ntotpers = npers*nyears;
+
+	/*** Instance attributes ***/
+	/* Yearly goal */
+	p->ygoals = (double*)malloc(nyears*sizeof(double));
+	/* Periodal goal */
+	p->pgoals = (double*)malloc(npers*sizeof(double));
+	/* Global budget */
+	p->gbudget = (double*)malloc(nres*sizeof(double));
+	/* Yearly budget */
+	p->ybudgets = (double**)malloc(nres*sizeof(double*));
+	for( j = 0 ; j < nres ; j++ )
+		p->ybudgets[j] = (double*)malloc(nyears*sizeof(double));
+	/* Periodal budget */
+	p->pbudgets = (double**)malloc(nres*sizeof(double*));
+	for( j = 0 ; j < nres ; j++ )
+		p->pbudgets[j] = (double*)malloc(ntotpers*sizeof(double));
+
+	/*** Actions ***/
+	/* Global market */
+	p->gmarket = (int*)malloc(nacts*sizeof(int));
+	/* Yearly market */
+	p->ymarket = (int**)malloc(nacts*sizeof(int*));
+	for( i = 0 ; i < nacts ; i++ )
+		p->ymarket[i] = (int*)malloc(nyears*sizeof(int));
+	/* Periodal market */
+	p->pmarket = (int**)malloc(nacts*sizeof(int*));
+	for( i = 0 ; i < nacts ; i++ )
+		p->pmarket[i] = (int*)malloc(ntotpers*sizeof(int));
+	/* Cost */
+	p->cost = (double**)malloc(nacts*sizeof(double*));
+	for( i = 0 ; i < nacts ; i++ )
+		p->cost[i] = (double*)malloc(nres*sizeof(double));
+	/* Energy value */
+	p->evalue = (double*)malloc(nacts*sizeof(double));
+	/* Recovery curve */
+	p->recup = (double**)malloc(nacts*sizeof(double*));
+	for( i = 0 ; i < nacts ; i++ )
+		p->recup[i] = (double*)malloc(ntotpers*sizeof(double));
+
+	return p;
 }
 
-Action *new_random_action(PCOPE *pcope){
-	int i, nyears, ntotpers, nres;
-	Action *act;
 
-	nyears = pcope->nyears;
-	ntotpers = pcope->ntotpers;
-	nres = pcope->nresources;
-
-	act = (Action*)malloc(sizeof(Action));
-	act->cost = (double*)malloc(nres*sizeof(double));
-	act->ymarket = (int*)malloc(nyears*sizeof(int));
-	act->pmarket = (int*)malloc(ntotpers*sizeof(int));
-	act->recup = (double*)malloc(ntotpers*sizeof(double));
-
-	act->pcope = pcope;
-
-	return act;
-}
-
-void pcope_free(PCOPE *pcope){
+/*
+ * Frees a problem instance.
+*/
+void pcope_free(PCOPE *p){
 	int i;
 
-	for( i = 0 ; i < pcope->nacts ; i++)
-		action_free(pcope->acts[i]);
+	/* Instance */
+	for( i = 0 ; i < p->nres; i++){
+		free(p->ybudgets[i]);
+		free(p->pbudgets[i]);
+	}
+	free(p->ygoals);
+	free(p->pgoals);
+	free(p->gbudget);
+	free(p->ybudgets);
+	free(p->pbudgets);
 
-	for( i = 0 ; i < pcope->nresources; i++)
-		free(pcope->ybudgets[i]);
-	free(pcope->ybudgets);
+	/* Actions */
+	for( i = 0 ; i < p->nacts ; i++ ){
+		free(p->ymarket[i]);
+		free(p->pmarket[i]);
+		free(p->cost[i]);
+		free(p->recup[i]);
+	}
+	free(p->gmarket);
+	free(p->ymarket);
+	free(p->pmarket);
+	free(p->cost);
+	free(p->evalue);
+	free(p->recup);
 
-	for( i = 0 ; i < pcope->nresources; i++)
-		free(pcope->pbudgets[i]);
-	free(pcope->pbudgets);
-
-	free(pcope->ygoals);
-	free(pcope->pgoals);
-	free(pcope->acts);
-	free(pcope);
+	free(p);
 
 	return;
 }
 
-PCOPE *pcope_random(int nacts, int nyears, int nperiods, int nresources, double irr){
+/*
+ * Creates a random instance of the problem.
+*/
+PCOPE *pcope_random(int nacts, int nyears, int npers, int nres, double irr){
 	int i, ntotpers;
 	PCOPE *pcope;
 	pcope = (PCOPE*)malloc(sizeof(PCOPE));
 	pcope->nacts = nacts;
 	pcope->nyears = nyears;
-	pcope->nperiods = nperiods;
-	pcope->ntotpers = ntotpers = nyears*nperiods;
-	pcope->nresources = nresources;
+	pcope->npers = npers;
+	pcope->ntotpers = ntotpers = nyears*npers;
+	pcope->nres = nres;
 	pcope->irr = irr;
 
 	pcope->ygoals = (double*)malloc(nyears*sizeof(double));
 	pcope->pgoals = (double*)malloc(ntotpers*sizeof(double));
-	pcope->ybudgets = (double**)malloc(nresources*sizeof(double*));
-	pcope->pbudgets = (double**)malloc(nresources*sizeof(double*));
+	pcope->ybudgets = (double**)malloc(nres*sizeof(double*));
+	pcope->pbudgets = (double**)malloc(nres*sizeof(double*));
 
-	for( i = 0 ; i < nresources ; i++ )
+	for( i = 0 ; i < nres ; i++ )
 		pcope->ybudgets[i] = (double*)malloc(nyears*sizeof(double));
-	for( i = 0 ; i < nresources ; i++ )
+	for( i = 0 ; i < nres ; i++ )
 		pcope->pbudgets[i] = (double*)malloc(ntotpers*sizeof(double));
-
-	pcope->acts = (Action**)malloc(nacts*sizeof(Action*));
-
-	for( i = 0 ; i < nacts ; i++ )
-		pcope->acts[i] = new_random_action(pcope);
 
 	return pcope;
 }
 
-json_t *pcope_to_json(PCOPE *pcope){
+void pcope_to_plain(PCOPE *p, FILE *fout){
+	int i, j, k, l;
+	int nacts, nyears, npers, nres, ntotpers;
+
+	nacts = p->nacts;
+	nyears = p->nyears;
+	npers = p->npers;
+	nres = p->nres;
+	ntotpers = nyears*npers;
+
+	/*** Basic attributes ***/
+	fprintf(fout, "%d %d %d %d\n",
+		p->nacts, p->nyears, p->npers, p->nres);
+	fprintf(fout, "%.3f\n", p->irr);
+
+	/* Global goal */
+//	fprintf(fout, "%.3f\n", p->ggoal);
+	/* Yearly goal */
+	for( j = 0 ; j < nyears ; j++ )
+		fprintf(fout, "%.3f ", p->ygoals[j]);
+	fprintf(fout, "\n");
+	/* Periodal goal */
+//	for( k = 0 ; k < p->ntotpers ; k++ )
+//		fprintf(fout, "%.3f ", p->pgoals[k]);
+//	fprintf(fout, "\n");
+	/* global budget */
+	for( l = 0 ; l < nres ; l++ )
+		fprintf(fout, "%.3lf ", p->gbudget[l]);
+	fprintf(fout, "\n");
+	/* Yearly budget */
+	for( l = 0 ; l < nres ; l++ ){
+		for( j = 0 ; j < nyears ; j++ )
+			fprintf(fout, "%.3lf ", p->ybudgets[l][j]);
+		fprintf(fout, "\n");
+	}
+	/* Periodal budget */
+	for( l = 0 ; l < nres ; l++ ){
+		for( k = 0 ; k < nyears ; k++ )
+			fprintf(fout, "%.3lf ", p->pbudgets[l][k]);
+		fprintf(fout, "\n");
+	}
+
+	/*** Actions ***/
+	for( i = 0 ; i < nacts ; i++ ){
+		/* Global market */
+		fprintf(fout, "%d\n", p->gmarket[i]);
+		/* Yearly market */
+		for( j = 0 ; j < nyears ; j++ )
+			fprintf(fout, "%d ", p->ymarket[i][j]);
+		fprintf(fout, "\n");
+		/* Periodal market */
+		for( k = 0 ; k < ntotpers ; k++ )
+			fprintf(fout, "%d ", p->pmarket[i][k]);
+		fprintf(fout, "\n");
+		/* Cost of action (each resource) */
+		for( l = 0 ; l < nres ; l++ )
+			fprintf(fout, "%.3lf ", p->cost[i][l]);
+		fprintf(fout, "\n");
+		/* Energy value of action */
+		fprintf(fout, "%.3lf\n", p->evalue[i]);
+		/* Recuperation curve */
+		for( k = 0 ; k < ntotpers ; k++ )
+			fprintf(fout, "%.3lf ", p->recup[i][k]);
+		fprintf(fout, "\n");
+	}
+	
+	return;
+}
+
+PCOPE *pcope_from_plain(FILE *fin){
+	int i, j, k, l;
+	int ret;
+	int nacts, nyears, npers, nres, ntotpers;
+	PCOPE *p;
+
+	/* Basic attributes */
+	ret = fscanf(fin, "%d %d %d %d", &nacts, &nyears, &npers, &nres);
+	ntotpers = nyears*npers;
+	p = pcope_new(nacts, nyears, npers, nres);
+
+	/* internal rate of return */
+	ret = fscanf(fin, "%lf", &(p->irr));
+
+	/* Global goal */
+	//ret = fscanf(fin, "%f", &(p->ggoal));
+
+	/* Yearly goal */
+	for( j = 0 ; j < nyears ; j++ )
+		ret = fscanf(fin, "%lf", &(p->ygoals[j]));
+
+	/* Periodal goal */
+	//for( k = 0 ; k < ntotpers ; k++ )
+	//	ret = fscanf(fin, "%f", &(p->pgoals[k]));
+
+	/* Global budget */
+	for( l = 0 ; l < nres ; l++ )
+		ret = fscanf(fin, "%lf", &(p->gbudget[l]));
+
+	/* Yearly budget */
+	for( l = 0 ; l < nres ; l++ )
+		for( j = 0 ; j < nyears ; j++ )
+			ret = fscanf(fin, "%lf", &(p->ybudgets[l][j]));
+
+	/* Periodal budget */
+	for( l = 0 ; l < nres ; l++ )
+		for( k = 0 ; k < ntotpers ; k++ )
+			ret = fscanf(fin, "%lf", &(p->pbudgets[l][k]));
+	
+	/* Actions */
+	/*** Actions ***/
+	for( i = 0 ; i < nacts ; i++ ){
+		/* Global market */
+		ret = fscanf(fin, "%d", &(p->gmarket[i]));
+		/* Yearly market */
+		for( j = 0 ; j < nyears ; j++ )
+			ret = fscanf(fin, "%d", &(p->ymarket[i][j]));
+		/* Periodal market */
+		for( k = 0 ; k < ntotpers ; k++ )
+			ret = fscanf(fin, "%d", &(p->pmarket[i][k]));
+		/* Cost of action (each resource) */
+		for( l = 0 ; l < nres ; l++ )
+			ret = fscanf(fin, "%lf", &(p->cost[i][l]));
+		/* Energy value of action */
+		ret = fscanf(fin, "%lf", &(p->evalue[i]));
+		/* Recuperation curve */
+		for( k = 0 ; k < ntotpers ; k++ )
+			ret = fscanf(fin, "%lf", &(p->recup[i][k]));
+	}
+	
+	return p;
+}
+
+PCOPE *pcope_from_json(FILE *fin){
+	PCOPE *p;
+
+	return p;
+}
+
+void pcope_to_json(PCOPE *pcope, FILE *fout){
 	int i;
 	json_t *p_aux;
 
@@ -98,19 +277,19 @@ json_t *pcope_to_json(PCOPE *pcope){
 
 	p_nacts = json_integer(pcope->nacts);
 	p_nyrs = json_integer(pcope->nyears);
-	p_npers = json_integer(pcope->nperiods);
-	p_nres = json_integer(pcope->nresources);
+	p_npers = json_integer(pcope->npers);
+	p_nres = json_integer(pcope->nres);
 	p_irr = json_real(pcope->irr);
 
-	p_ggoal = json_real(pcope->ggoal);
+	//p_ggoal = json_real(pcope->ggoal);
 
 	p_ygoals = json_array();
 	for( i = 0 ; i < pcope->nyears ; i++ )
 		json_array_append(p_ygoals, json_real(pcope->ygoals[i]));
 
-	p_pgoals = json_array();
-	for( i = 0 ; i < pcope->ntotpers; i++ )
-		json_array_append(p_pgoals, json_real(pcope->pgoals[i]));
+	//p_pgoals = json_array();
+	//for( i = 0 ; i < pcope->ntotpers; i++ )
+	//	json_array_append(p_pgoals, json_real(pcope->pgoals[i]));
 
 	json_object_set(p_obj, "N", p_nacts);
 	json_object_set(p_obj, "Y", p_nyrs);
@@ -121,23 +300,71 @@ json_t *pcope_to_json(PCOPE *pcope){
 	json_object_set(p_obj, "g", p_ygoals);
 	//json_object_set(p_obj, "g", p_pgoals);
 
-	return p_obj;
+	return;
 }
 
-int main(int argc, char **argv){
-	PCOPE *pcope;
-	json_t *j;
-	char *str;
+void pcope_to_scip(PCOPE *p, FILE *fout){
+	int i, j, k, l;
+	int nacts, nyears, npers, nres, ntotpers;
 
-	pcope = pcope_random(5, 4, 3, 2, 0.1);
-	j = pcope_to_json(pcope);
+	nacts = p->nacts;
+	nyears = p->nyears;
+	npers = p->npers;
+	nres = p->nres;
+	ntotpers = nyears*npers;
 
-	str = json_dumps(j, JSON_INDENT(2));
-	printf("%s\n", str);
+	fprintf(fout, "param N := %d;\n", nacts);
+	fprintf(fout, "param Y := %d;\n", nyears);
+	fprintf(fout, "param P := %d;\n", npers);
+	fprintf(fout, "param R := %d;\n", nres);
+	fprintf(fout, "param r := %f;\n", p->irr);
 
-	free(str);
-	pcope_free(pcope);
+	fprintf(fout, "set Acs := {1 .. N};\n");
+	fprintf(fout, "set Yrs := {1 .. Y};\n");
+	fprintf(fout, "set Pers := {1 .. Y*P};\n");
+	fprintf(fout, "set YPers[<j> in Yrs] := { (P*(j-1)+1) .. (P*j)};\n");
+	fprintf(fout, "set Res := {1 .. R};\n");
 	
-	return 0;
+	/* Yearly goal */
+	fprintf(fout, "param g[Yrs] :=\n");
+	fprint_scip_double_array(fout, p->ygoals, nyears);
+
+	/* Global budget */
+	fprintf(fout, "param o[Res] :=\n");
+	fprint_scip_double_array(fout, p->gbudget, nres);
+
+	/* Yearly budget */
+	fprintf(fout, "param p[Res*Yrs] :=\n");
+	fprint_scip_double_matrix(fout, p->ybudgets, nres, nyears);
+
+	/* Periodal budget */
+//	fprintf(fout, "param s[Res*Pers] :=\n");
+//	fprint_scip_double_matrix(fout, p->pbudgets, nres, ntotpers);
+
+	/* Global market */
+	fprintf(fout, "param m[Acs] :=\n");
+	fprint_scip_int_array(fout, p->gmarket, nacts);
+
+	/* Yearly market */
+	fprintf(fout, "param u[Acs*Yrs] :=\n");
+	fprint_scip_int_matrix(fout, p->ymarket, nacts, nyears);
+
+	/* Periodal market */
+	fprintf(fout, "param z[Acs*Pers] :=\n");
+	fprint_scip_int_matrix(fout, p->pmarket, nacts, ntotpers);
+
+	/* Cost */
+	fprintf(fout, "param c[Acs*Res] :=\n");
+	fprint_scip_double_matrix(fout, p->cost, nacts, nres);
+
+	/* Energy value */
+	fprintf(fout, "param v[Acs] :=\n");
+	fprint_scip_double_array(fout, p->evalue, nacts);
+
+	/* Recovery curve */
+	fprintf(fout, "param e[Acs*Pers] :=\n");
+	fprint_scip_double_matrix(fout, p->recup, nacts, npers);
+
+	return;
 }
 

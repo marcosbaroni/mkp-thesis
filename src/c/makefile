@@ -1,4 +1,5 @@
 all: c
-c:
-	gcc -O3 -static -o pcope pcope.c `pkg-config --cflags --libs jansson`
+c: converter
+converter:
+	gcc -O3 -static -o converter pcope.c converter.c util.c `pkg-config --cflags --libs jansson`
 

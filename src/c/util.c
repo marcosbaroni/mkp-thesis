@@ -2,46 +2,55 @@
 #include <string.h>
 #include "util.h"
 
-#define STD_MAX_LEN 1000;
-
-String *str_new(){
-	String *s;
-	s = (String*)malloc(sizeof(String));
-	s->str = (char*)malloc((STD_MAX_LEN+1)*sizeof(char*));
-	s->str[0] = '\0';
-	s->n = 0;
-	s->nmax = STD_MAX_LEN;
-
-	return s;
+void fprint_scip_int_array(FILE *fout, int *v, int n){
+	int i;
+	for( i = 0 ; i < n-1 ; i++ )
+		fprintf(fout, "<%d> %d,\n", i+1, v[i]);
+	fprintf(fout, "<%d> %d;\n", i+1, v[i]);
+	return;
 }
 
-int str_fits(String *s, size_t n){
-	return (s->nmax >= n);
+void fprint_scip_double_array(FILE *fout, double *v, int n){
+	int i;
+	for( i = 0 ; i < n-1 ; i++ )
+		fprintf(fout, "<%d> %lf,\n", i+1, v[i]);
+	fprintf(fout, "<%d> %lf;\n", i+1, v[i]);
+	return;
 }
 
-String *str_assert_size(String *s, size_t n){
-	char *aux;
-	while(!str_fits(s, n)){
-		s->str = realloc(s->str, s->nmax*2);
-		s->nmax *= 2;
+void fprint_scip_int_matrix(FILE *fout, int **v, int n, int m){
+	int i, j;
+	/* header */
+	fprintf(fout, "|");
+	for( j = 0 ; j < m-1 ; j++)
+		fprintf(fout, "%d,", j+1);
+	fprintf(fout, "%d|\n", j+1);
+
+	/* rows */
+	for( i = 0 ; i < n ; i++ ){
+		fprintf(fout, "|%d|", i+1);
+		for( j = 0 ; j < m-1 ; j++ )
+			fprintf(fout, "%d, ", v[i][j]);
+		fprintf(fout, "%d|%s\n", v[i][j], (i == n-1) ? ";" : "" );
 	}
-	return s;
+	return;
 }
 
-char *str_get(String *s){
-	return s->str;
-}
+void fprint_scip_double_matrix(FILE *fout, double **v, int n, int m){
+	int i, j;
+	/* header */
+	fprintf(fout, "|");
+	for( j = 0 ; j < m-1 ; j++)
+		fprintf(fout, "%d,", j+1);
+	fprintf(fout, "%d|\n", j+1);
 
-String *str_concat(String *dest, String *src){
-	dest = str_assert_size(dest->n + src->n);
-	strcat(&(dest->s[dest->n]), src->s);
-	dest->n += src->n;
-	return dest;
-}
-
-void str_free(String *s){
-	free(s->str);
-	free(s);
+	/* rows */
+	for( i = 0 ; i < n ; i++ ){
+		fprintf(fout, "|%d|", i+1);
+		for( j = 0 ; j < m-1 ; j++ )
+			fprintf(fout, "%f, ", v[i][j]);
+		fprintf(fout, "%f|%s\n", v[i][j], (i == n-1) ? ";" : "" );
+	}
 	return;
 }
 
