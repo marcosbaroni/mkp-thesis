@@ -42,6 +42,45 @@ double gauss2(double med, double std_var){
 	return med + std_var*gauss();
 }
 
+/* Random fill a double vector with values totaling "total".
+ *   Each value will have a min value of (min_rate*total)/n.
+ * */
+double *double_rand_fill_with_total(double *v, int n, double total, double min_rate){
+	int i;
+	double sum, min, rest;
+
+	min = (min_rate*total)/((double)n);
+	rest = total*(1.0 - min_rate);
+
+	sum = 0;
+	/* Random filling */
+	for( i = 0 ; i < n ; i++ )
+		{ v[i] = randd(); sum += v[i]; }
+	for( i = 0 ; i < n ; i++ )
+		v[i] = min + (v[i]*rest)/sum;
+	return v;
+}
+
+int *int_rand_fill_with_total(int *v, int n, int total, double min_rate){
+	int i;
+	int min, sum, rest, left;
+
+	min = (min_rate*total)/n;
+	rest = total - (n*min);
+
+	sum = 0;
+	/* Random filling */
+	for( i = 0 ; i < n ; i++ )
+		{ v[i] = randint(0, 100000); sum += v[i]; }
+	left = total;
+	for( i = 0 ; i < n-1 ; i++ ){
+		v[i] = rint(min + (v[i]*rest)/((double)sum));
+		left -= v[i];
+	}
+	v[i] = left;
+	return v;
+}
+
 int distributed_rand_int(double *dist, int n){
 	double aux, r, sum;
 	int i;

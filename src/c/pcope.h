@@ -27,28 +27,26 @@ typedef struct PCOPE{
 	double **recup;        // recuperation curve
 }PCOPE;
 
-typedef double* (*curve_f)(double*, int, int);      // Recovery curve setter
-typedef void (*classe_f)(int*, double*);         // Markets/costs/evalue setter
+/* Recovery curve setter fuction */
+typedef double* (*curve_f)(
+	double*,         // the array
+	int,             // Number of years
+	int);            // Number of periods
 
 typedef struct RandConf{
 	double dtir;	               // Tir variation [0.0 , 1.0]  ->  [.15, 1.15]
 	/* Rigid Bound parameters */
-	int min_gmarket;               // Minimum global market of and action
-	int max_gmarket;               // Maximum global market of and action
+	int min_market;                // Minimum market bound (periodal reference)
+	int max_market;                // Maximum market bound (periodal reference)
 	double min_tot_cost;           // Minimum total cost of an action
 	double max_tot_cost;           // Maximum total cost of an action
 	/* Recuperation Curve */
 	int ncurves;                   // Number of different curves
 	double curves_prob[20];        // Probability distribution of curves
 	curve_f curves_f[20];          // Function pointers for curve setters
-	/* Cost/Market Classes */
-	int nclasses;                  // Number of different classes
-	double classes_prob[20];       // Probability distribution of classes
-	classe_f classes_f[20];        // Function pointer for classe setters
 }RandConf;
 
 RandConf *register_curve_f(RandConf *rc, curve_f f, double prob);
-RandConf *register_classe_f(RandConf *rc, classe_f f, double prob);
 
 /*** INSTANCE GERENATION ***/
 PCOPE *pcope_new(int nacts, int nyears, int npers, int nres); /* Allocs a blank

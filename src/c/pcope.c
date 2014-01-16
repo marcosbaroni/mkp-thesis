@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 #include <jansson.h>
 #include "util.h"
 #include "pcope.h"
@@ -9,7 +10,7 @@
 **  |    ***************
 **  | ***                            
 **  +---|---|---|---|---> (Years) */
-double *curve1(double *v, int npers, int nyears){
+double *curve1(double *v, int nyears, int npers){
 	int j, k;
 	double fst, others;
 	fst = randd2(0.6, 0.4)/npers;
@@ -28,7 +29,7 @@ double *curve1(double *v, int npers, int nyears){
 **  |***    ****        
 **  |           ****                 
 **  +---|---|---|---|---> (Years) */
-double *curve2(double *v, int npers, int nyears){
+double *curve2(double *v, int nyears, int npers){
 	int j, k;
 	double r1, r2, r3, r4;
 	r1 = randd2(0.2, 0.2)/npers;
@@ -67,7 +68,7 @@ double *curve2(double *v, int npers, int nyears){
 **  |    ****        
 **  |        ****                 
 **  +---|---|---|---|---> (Years) */
-double *curve3(double *v, int npers, int nyears){
+double *curve3(double *v, int nyears, int npers){
 	int j, k;
 	double r1, r2, r3, r4;
 	r1 = randd2(0.8, 0.2)/npers;
@@ -96,8 +97,6 @@ double *curve3(double *v, int npers, int nyears){
 }
 
 
-
-
 RandConf *register_curve_f( RandConf *rc, curve_f f, double prob){
 	rc->curves_prob[rc->ncurves] = prob;
 	rc->curves_f[rc->ncurves] = f;
@@ -105,16 +104,20 @@ RandConf *register_curve_f( RandConf *rc, curve_f f, double prob){
 	return rc;
 }
 
-RandConf *register_classe_f( RandConf *rc, classe_f f, double prob){
-	rc->classes_prob[rc->nclasses] = prob;
-	rc->classes_f[rc->nclasses] = f;
-	rc->nclasses++;
-	return rc;
-}
-
 RandConf *randconf_default(){
 	RandConf *rc = (RandConf*)malloc(sizeof(RandConf));
+	rc->ncurves = 0;
+
+	/* Tir variation */
 	rc->dtir = 0.5;
+
+	/* Market range */
+	rc->min_market = 5;
+	rc->max_market = 30;
+
+	/* Cost range*/
+	rc->min_tot_cost = 10.0;
+	rc->max_tot_cost = 100.0;
 
 	/* Setting curve creators */
 	register_curve_f(rc, curve1, 0.4);
@@ -217,15 +220,18 @@ void pcope_free(PCOPE *p){
 	return;
 }
 
-void classe1(int *gmarket, double *total_cost){
-	return;
+curve_f get_rand_curve_f(RandConf *rc){
+	return rc->curves_f[distributed_rand_int(rc->curves_prob, rc->ncurves)];
 }
-
 
 void set_random_acts(RandConf *rc, PCOPE *p){
 	int i, j, k, l;
-	int cls;
+	int cls, tot_market;
 	int nacts, nyears, npers, nres, ntotpers;
+	double tot_cost, tir;
+	double profit;
+	double rec_scalar;       // recovery value scalar
+	curve_f f;
 
 	nacts = p->nacts;
 	nyears = p->nyears;
@@ -234,7 +240,36 @@ void set_random_acts(RandConf *rc, PCOPE *p){
 	ntotpers = nyears*npers;
 
 	for( i = 0 ; i < nacts ; i++ ){
-		cls = randint(0, rc->nclasses);
+		/* Total Market */
+		tot_market = randint(rc->min_market*ntotpers, rc->max_market*ntotpers);
+		p->gmarket[i] = tot_market;
+		/* Yearly market */
+		 int_rand_fill_with_total(
+		 	p->ymarket[i],                      // the array
+			nyears,                             // array size
+		 	rint(tot_market*randd2(1.0, 1.0)),  // total
+			randd());                           // min rate
+		/* Periodal market */
+		 int_rand_fill_with_total(
+		 	p->pmarket[i],                      // the array
+			ntotpers,                           // array size
+		 	rint(tot_market*randd2(1.0, 1.0)),  // total
+			randd());                           // min rate
+		/* Total Cost */
+		tot_cost = randd2(rc->min_tot_cost, rc->max_tot_cost);
+		/* Cost */
+		double_rand_fill_with_total(
+			p->cost[i],                         // the array
+			nres,                               // array size
+			tot_cost,                           // total
+			randd());                           // min rate
+		/* Tir */
+		tir = randd2(0.15, rc->dtir);
+		/* Choosing class */
+		f = get_rand_curve_f(rc);
+		p->recup[i] = f(p->recup[i], nyears, npers);
+		/* Computing internal return (profit) */
+		profit = 0;
 	}
 
 	return;
