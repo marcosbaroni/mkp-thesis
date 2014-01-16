@@ -1,6 +1,9 @@
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 #include "util.h"
+
+double gauss_stash = 0.0;
 
 double randd(){
 	return (rand()/((double)RAND_MAX));
@@ -8,6 +11,30 @@ double randd(){
 
 double randd2(double min, double var){
 	return min+var*randd();
+}
+
+double gauss(){
+	float x1, x2, w, y;
+
+	if( gauss_stash != 0.0 ){
+		y = gauss_stash;
+		gauss_stash = 0.0;
+		return y;
+	}
+
+	do{
+		x1 = randd2(-1., 2.);
+		x2 = randd2(-1., 2.);
+		w = x1*x1 + x2*x2;
+	}while( w >= 1.0);
+	w = sqrt((-2.*log(2))/w);
+	y = x1*w;
+	gauss_stash = x2*w;
+	return y;
+}
+
+double gauss2(double med, double std_var){
+	return med + std_var*gauss();
 }
 
 int distributed_rand_int(double *dist, int n){

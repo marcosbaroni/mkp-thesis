@@ -109,7 +109,7 @@ RandConf *randconf_default(){
 	RandConf *rc = (RandConf*)malloc(sizeof(RandConf));
 	rc->tir = 0.5;
 
-	/* Setting curves */
+	/* Setting curve creators */
 	register_curve(rc, curve1, 0.4);
 	register_curve(rc, curve2, 0.3);
 	register_curve(rc, curve3, 0.3);
