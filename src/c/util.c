@@ -5,6 +5,11 @@
 
 double gauss_stash = 0.0;
 
+int randint(int a, int b){
+	int d = (b-a+1);
+	return (a + (rand() % d));
+}
+
 double randd(){
 	return (rand()/((double)RAND_MAX));
 }

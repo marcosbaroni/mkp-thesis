@@ -4,9 +4,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-double randd();                            /* Random double. */
-double randd2(double min, double var);     /* Random double between [min, min+var] */
-double gauss();                            /* Random gauss number. */
+int randint(int a, int b);                     /* Random int in range (a,b) */
+double randd();                                /* Random double. */
+double randd2(double min, double var);         /* Random double between [min, min+var] */
+double gauss();                                /* Random gauss number. */
 double gauss2(double med, double std_var);     /* Random gauss number with med and std_var. */
 int distributed_rand_int(double *dist, int n);
 

@@ -95,24 +95,31 @@ double *curve3(double *v, int npers, int nyears){
 	return v;
 }
 
-RandConf *register_curve(
-	RandConf *rc,
-	curve_f f,
-	double prob){
+
+
+
+RandConf *register_curve_f( RandConf *rc, curve_f f, double prob){
 	rc->curves_prob[rc->ncurves] = prob;
-	rc->curves[rc->ncurves] = f;
+	rc->curves_f[rc->ncurves] = f;
 	rc->ncurves++;
+	return rc;
+}
+
+RandConf *register_classe_f( RandConf *rc, classe_f f, double prob){
+	rc->classes_prob[rc->nclasses] = prob;
+	rc->classes_f[rc->nclasses] = f;
+	rc->nclasses++;
 	return rc;
 }
 
 RandConf *randconf_default(){
 	RandConf *rc = (RandConf*)malloc(sizeof(RandConf));
-	rc->tir = 0.5;
+	rc->dtir = 0.5;
 
 	/* Setting curve creators */
-	register_curve(rc, curve1, 0.4);
-	register_curve(rc, curve2, 0.3);
-	register_curve(rc, curve3, 0.3);
+	register_curve_f(rc, curve1, 0.4);
+	register_curve_f(rc, curve2, 0.3);
+	register_curve_f(rc, curve3, 0.3);
 
 	return rc;
 }
@@ -210,8 +217,31 @@ void pcope_free(PCOPE *p){
 	return;
 }
 
+void classe1(int *gmarket, double *total_cost){
+	return;
+}
+
+
+void set_random_acts(RandConf *rc, PCOPE *p){
+	int i, j, k, l;
+	int cls;
+	int nacts, nyears, npers, nres, ntotpers;
+
+	nacts = p->nacts;
+	nyears = p->nyears;
+	npers = p->npers;
+	nres = p->nres;
+	ntotpers = nyears*npers;
+
+	for( i = 0 ; i < nacts ; i++ ){
+		cls = randint(0, rc->nclasses);
+	}
+
+	return;
+}
+
 /* Creates a random instance of the problem.  */
-PCOPE *pcope_random(int nacts, int nyears, int npers, int nres, double irr, RandConf *rconf){
+PCOPE *pcope_random(int nacts, int nyears, int npers, int nres, double irr, RandConf *rc){
 	int i, ntotpers;
 	PCOPE *p;
 
@@ -219,9 +249,8 @@ PCOPE *pcope_random(int nacts, int nyears, int npers, int nres, double irr, Rand
 	p = pcope_new(nacts, nyears, npers, nres);
 	p->irr = irr;
 
-	/* Instance */
-
 	/* Actions */
+	set_random_acts(rc, p);
 
 	return p;
 }
