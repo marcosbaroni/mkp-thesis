@@ -7,7 +7,8 @@ int main(int argc, char **argv){
 	PCOPE *p;
 	FILE *fin;
 
-	fin = fopen(argv[1], "r");
+	if( argc > 1 ) fin = fopen(argv[1], "r");
+	else fin = stdin;
 	p = pcope_from_plain(fin);
 	fclose(fin);
 

@@ -2,6 +2,24 @@
 #include <string.h>
 #include "util.h"
 
+int distributed_rand_int(double *dist, int n){
+	double aux, r, sum;
+	int i;
+
+	sum = 0;
+	for( i = 0 ; i < n ; i++ )
+		sum += dist[i];
+
+	r = (rand()/((double)RAND_MAX))*sum;
+	aux = dist[0];
+	i = 0;
+
+	while( r > aux )
+		aux += dist[++i];
+
+	return i;
+}
+
 void fprint_scip_int_array(FILE *fout, int *v, int n){
 	int i;
 	for( i = 0 ; i < n-1 ; i++ )

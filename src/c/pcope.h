@@ -27,10 +27,16 @@ typedef struct PCOPE{
 	double **recup;        // recuperation curve
 }PCOPE;
 
+typedef struct RandConf{
+	double tir;	            // Tir variation [0.0 , 1.0]  ->  [.15, 1.15]
+	double curves_dist[3];  // Probability distribution of curves
+}RandConf;
+
+/*** INSTANCE GERENATION ***/
 PCOPE *pcope_new(int nacts, int nyears, int npers, int nres); /* Allocs a blank
 	problem instance. */
+PCOPE *pcope_random(int nacts, int nyears, int npers, int nres, double irr, RandConf *rconf);
 
-/*** RANDOM GERENATION ***/
 
 /*** INPUT and OUTPUT ***/
 PCOPE *pcope_from_json(FILE *fin);                  /* JSON inputing */

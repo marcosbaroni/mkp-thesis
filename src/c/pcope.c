@@ -97,31 +97,20 @@ void pcope_free(PCOPE *p){
 	return;
 }
 
-/*
- * Creates a random instance of the problem.
-*/
-PCOPE *pcope_random(int nacts, int nyears, int npers, int nres, double irr){
+/* Creates a random instance of the problem.  */
+PCOPE *pcope_random(int nacts, int nyears, int npers, int nres, double irr, RandConf *rconf){
 	int i, ntotpers;
-	PCOPE *pcope;
-	pcope = (PCOPE*)malloc(sizeof(PCOPE));
-	pcope->nacts = nacts;
-	pcope->nyears = nyears;
-	pcope->npers = npers;
-	pcope->ntotpers = ntotpers = nyears*npers;
-	pcope->nres = nres;
-	pcope->irr = irr;
+	PCOPE *p;
 
-	pcope->ygoals = (double*)malloc(nyears*sizeof(double));
-	pcope->pgoals = (double*)malloc(ntotpers*sizeof(double));
-	pcope->ybudgets = (double**)malloc(nres*sizeof(double*));
-	pcope->pbudgets = (double**)malloc(nres*sizeof(double*));
+	/* Basic attributes */
+	p = pcope_new(nacts, nyears, npers, nres);
+	p->irr = irr;
 
-	for( i = 0 ; i < nres ; i++ )
-		pcope->ybudgets[i] = (double*)malloc(nyears*sizeof(double));
-	for( i = 0 ; i < nres ; i++ )
-		pcope->pbudgets[i] = (double*)malloc(ntotpers*sizeof(double));
+	/* Instance */
 
-	return pcope;
+	/* Actions */
+
+	return p;
 }
 
 void pcope_to_plain(PCOPE *p, FILE *fout){
