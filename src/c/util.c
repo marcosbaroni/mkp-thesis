@@ -2,6 +2,14 @@
 #include <string.h>
 #include "util.h"
 
+double randd(){
+	return (rand()/((double)RAND_MAX));
+}
+
+double randd2(double min, double var){
+	return min+var*randd();
+}
+
 int distributed_rand_int(double *dist, int n){
 	double aux, r, sum;
 	int i;

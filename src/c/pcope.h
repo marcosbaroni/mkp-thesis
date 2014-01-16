@@ -27,10 +27,19 @@ typedef struct PCOPE{
 	double **recup;        // recuperation curve
 }PCOPE;
 
+typedef double* (*curve_f)(double*, int, int);
+
 typedef struct RandConf{
-	double tir;	            // Tir variation [0.0 , 1.0]  ->  [.15, 1.15]
-	double curves_dist[3];  // Probability distribution of curves
+	double tir;	             // Tir variation [0.0 , 1.0]  ->  [.15, 1.15]
+	double curves_prob[20];      // Probability distribution of curves
+	curve_f curves[20];          // function pointers for curve makers
+	int ncurves;
 }RandConf;
+
+RandConf *register_curve(
+	RandConf *rc,
+	curve_f f,
+	double prob);
 
 /*** INSTANCE GERENATION ***/
 PCOPE *pcope_new(int nacts, int nyears, int npers, int nres); /* Allocs a blank

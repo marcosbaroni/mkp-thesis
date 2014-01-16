@@ -4,6 +4,119 @@
 #include "util.h"
 #include "pcope.h"
 
+/*      CURVE 1
+**  |                            
+**  |    ***************
+**  | ***                            
+**  +---|---|---|---|---> (Years) */
+double *curve1(double *v, int npers, int nyears){
+	int j, k;
+	double fst, others;
+	fst = randd2(0.6, 0.4)/npers;
+	others = randd2(0.9, 0.1)/npers;
+	
+	for( k = 0 ; k < npers ; k++ )
+		v[k] = fst;
+	for( j = 1 ; j < nyears ; j++ )
+		for( k = 0 ; k < npers ; k++ )
+			v[j*nyears+k] = others;
+	return v;
+}
+
+/*      CURVE 2
+**  |   ****                     
+**  |***    ****        
+**  |           ****                 
+**  +---|---|---|---|---> (Years) */
+double *curve2(double *v, int npers, int nyears){
+	int j, k;
+	double r1, r2, r3, r4;
+	r1 = randd2(0.2, 0.2)/npers;
+	r2 = randd2(0.6, 0.3)/npers;
+	r3 = randd2(0.3, 0.3)/npers;
+	r4 = randd2(0.1, 0.2)/npers;
+
+	/* 1º year */
+	for( k = 0 ; k < npers ; k++ )
+		v[k] = r1;
+
+	/* 2º year */
+	if( nyears > 1 )
+		for( k = 0 ; k < npers ; k++ )
+			v[npers+k] = r2;
+	/* 3º year */
+	if( nyears > 2 )
+		for( k = 0 ; k < npers ; k++ )
+			v[2*npers+k] = r3;
+
+	/* 4º year */
+	if( nyears > 3 )
+		for( k = 0 ; k < npers ; k++ )
+			v[3*npers+k] = r4;
+
+	/* others years */
+	for( j = 4 ; j < nyears ; j++ )
+		for( k = 0 ; k < npers ; k++ )
+			v[j*npers+k] = 0.0;
+
+	return v;
+}
+
+/*      CURVE 3
+**  |****                     
+**  |    ****        
+**  |        ****                 
+**  +---|---|---|---|---> (Years) */
+double *curve3(double *v, int npers, int nyears){
+	int j, k;
+	double r1, r2, r3, r4;
+	r1 = randd2(0.8, 0.2)/npers;
+	r2 = randd2(0.5, 0.2)/npers;
+	r3 = randd2(0.1, 0.2)/npers;
+
+	/* 1º year */
+	for( k = 0 ; k < npers ; k++ )
+		v[k] = r1;
+
+	/* 2º year */
+	if( nyears > 1 )
+		for( k = 0 ; k < npers ; k++ )
+			v[npers+k] = r2;
+	/* 3º year */
+	if( nyears > 2 )
+		for( k = 0 ; k < npers ; k++ )
+			v[2*npers+k] = r3;
+
+	/* others years */
+	for( j = 3 ; j < nyears ; j++ )
+		for( k = 0 ; k < npers ; k++ )
+			v[j*npers+k] = 0.0;
+
+	return v;
+}
+
+RandConf *register_curve(
+	RandConf *rc,
+	curve_f f,
+	double prob){
+	rc->curves_prob[rc->ncurves] = prob;
+	rc->curves[rc->ncurves] = f;
+	rc->ncurves++;
+	return rc;
+}
+
+RandConf *randconf_default(){
+	RandConf *rc = (RandConf*)malloc(sizeof(RandConf));
+	rc->tir = 0.5;
+
+	/* Setting curves */
+	register_curve(rc, curve1, 0.4);
+	register_curve(rc, curve2, 0.3);
+	register_curve(rc, curve3, 0.3);
+
+	return rc;
+}
+
 /* Allocs a blank problem instance. */
 PCOPE *pcope_new(int nacts, int nyears, int npers, int nres){
 	int i, j, k, l;
