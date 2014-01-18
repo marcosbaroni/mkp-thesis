@@ -46,6 +46,9 @@ typedef struct RandConf{
 	curve_f curves_f[20];          // Function pointers for curve setters
 }RandConf;
 
+RandConf *randconf_default();
+void randconf_free(RandConf *rc);
+
 RandConf *register_curve_f(RandConf *rc, curve_f f, double prob);
 
 /*** INSTANCE GERENATION ***/

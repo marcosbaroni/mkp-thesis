@@ -5,15 +5,17 @@
 
 
 int main(int argc, char **argv){
-	int v[10];
-	int i;
+	PCOPE *p;
+	RandConf *rc;
 
 	srand(time(NULL));
-	int_rand_fill_with_total(v, 10, 100, 0.0);
 
-	for( i = 0 ; i < 10 ; i++ )
-		printf("%d, ", v[i]);
-	printf("\n");
+	rc = randconf_default();
+	p = pcope_random(5, 4, 3, 2, 0.15, rc);
+	//pcope_to_plain(p, stdout);
+
+	pcope_free(p);
+	randconf_free(rc);
 
 	return 0;
 }

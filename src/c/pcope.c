@@ -13,6 +13,7 @@
 double *curve1(double *v, int nyears, int npers){
 	int j, k;
 	double fst, others;
+
 	fst = randd2(0.6, 0.4)/npers;
 	others = randd2(0.9, 0.1)/npers;
 	
@@ -20,7 +21,7 @@ double *curve1(double *v, int nyears, int npers){
 		v[k] = fst;
 	for( j = 1 ; j < nyears ; j++ )
 		for( k = 0 ; k < npers ; k++ )
-			v[j*nyears+k] = others;
+			v[j*npers+k] = others;
 	return v;
 }
 
@@ -127,6 +128,11 @@ RandConf *randconf_default(){
 	return rc;
 }
 
+void randconf_free(RandConf *rc){
+	free(rc);
+	return;
+}
+
 /* Allocs a blank problem instance. */
 PCOPE *pcope_new(int nacts, int nyears, int npers, int nres){
 	int i, j, k, l;
@@ -146,7 +152,7 @@ PCOPE *pcope_new(int nacts, int nyears, int npers, int nres){
 	/* Yearly goal */
 	p->ygoals = (double*)malloc(nyears*sizeof(double));
 	/* Periodal goal */
-	p->pgoals = (double*)malloc(npers*sizeof(double));
+	p->pgoals = (double*)malloc(ntotpers*sizeof(double));
 	/* Global budget */
 	p->gbudget = (double*)malloc(nres*sizeof(double));
 	/* Yearly budget */
@@ -228,8 +234,8 @@ void set_random_acts(RandConf *rc, PCOPE *p){
 	int i, j, k, l;
 	int cls, tot_market;
 	int nacts, nyears, npers, nres, ntotpers;
-	double tot_cost, tir;
-	double profit;
+	double tot_cost, tir, daux;
+	double profit, p_recup, y_recup;
 	double rec_scalar;       // recovery value scalar
 	curve_f f;
 
@@ -265,12 +271,31 @@ void set_random_acts(RandConf *rc, PCOPE *p){
 			randd());                           // min rate
 		/* Tir */
 		tir = randd2(0.15, rc->dtir);
+		/* Energy Value */
+		p->evalue[i] = randd2(0.2, 0.5);
 		/* Choosing class */
 		f = get_rand_curve_f(rc);
-		p->recup[i] = f(p->recup[i], nyears, npers);
+		f(p->recup[i], nyears, npers);
 		/* Computing internal return (profit) */
 		profit = 0;
+		daux = 1.0;
+		printf("%d - Tir: %f\n", i+1, tir);
+		for( k = 0 ; k < ntotpers ; k++ ){
+			profit += p->recup[i][k]/daux;
+			daux *= (1+tir);
+		}
+		profit *= p->evalue[i];
+		profit /= tot_cost;
+		for( k = 0 ; k < ntotpers ; k++ )
+			p->recup[i][k] /= profit;
 	}
+
+	/* Setting goals */
+	// Computing the maximum total overall recuperation
+	for( i = 0 ; i < nacts ; i++ ){
+	}
+
+	/* Setting budgets */
 
 	return;
 }
