@@ -596,7 +596,7 @@ void pcope_to_scip(PCOPE *p, FILE *fout){
 
 	/* Recovery curve */
 	fprintf(fout, "param e[Acs*Pers] :=\n");
-	fprint_scip_double_matrix(fout, p->recup, nacts, npers);
+	fprint_scip_double_matrix(fout, p->recup, nacts, ntotpers);
 
 	return;
 }
