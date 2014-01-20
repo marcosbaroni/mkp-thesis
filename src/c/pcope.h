@@ -34,28 +34,39 @@ typedef double* (*curve_f)(
 	int);                  // Number of periods
 
 typedef struct RandConf{
-	int seed;
 	int nacts;
 	int nyears;
 	int npers;
 	int nres;
+	/* Internal rate of return */
 	double irr;
-	double dtir;	               // Tir variation [0.0 , 1.0]  ->  [.15, 1.15]
+	/* Tir variation for normal distribution */
+	double mtir;             // mean tir
+	double vtir;             // var tir
+	/* Seed for random generation */
+	int seed;
 	/* Rigid Bound parameters */
 	int min_market;                // Minimum market bound (periodal reference)
 	int max_market;                // Maximum market bound (periodal reference)
 	double min_tot_cost;           // Minimum total cost of an action
 	double max_tot_cost;           // Maximum total cost of an action
+
 	/* Recuperation Curve */
 	int ncurves;                   // Number of different curves
 	double curves_prob[20];        // Probability distribution of curves
 	curve_f curves_f[20];          // Function pointers for curve setters
 }RandConf;
 
-RandConf *randconf_default(int seed, int nacts, int nyears, int npers, int nres, double irr, double dtir);
+RandConf *randconf_default(
+	int nacts,
+	int nyears,
+	int npers,
+	int nres,
+	int seed);
 void randconf_free(RandConf *rc);
 
 RandConf *register_curve_f(RandConf *rc, curve_f f, double prob);
+RandConf* rc_from_args(int argc, char **argv);
 
 /*** INSTANCE GERENATION ***/
 PCOPE *pcope_new(int nacts, int nyears, int npers, int nres); /* Allocs a blank

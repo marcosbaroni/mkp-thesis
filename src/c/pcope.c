@@ -97,10 +97,26 @@ double *curve3(double *v, int nyears, int npers){
 }
 
 RandConf* rc_from_args(int argc, char **argv){
-	RandConf *rc = randconf_default();
-	if(argc > 1) rc->nacts = atoi(argv[1]);
-	if(argc > 2) rc->nyears = atoi(argv[2]);
-	if(argc > 3) rc->npers = atoi(argv[3]);
+	/* Basic */
+	RandConf *rc = randconf_default(
+		atoi(argv[1]),             // nacts
+		atoi(argv[2]),             // nyears
+		atoi(argv[3]),             // npers
+		atoi(argv[4]),             // nres
+		(argc > 5) ?               // seed
+			atoi(argv[5]) :
+			time(NULL));
+	/* Others */
+	if(argc > 6)
+		rc->irr = atof(argv[6]);
+	if(argc > 7)
+		rc->mtir = atof(argv[7]);
+	if(argc > 8)
+		rc->vtir = atof(argv[8]);
+	if(argc > 9)	
+		rc->seed = atoi(argv[9]);
+
+	return rc;
 }
 
 RandConf *register_curve_f( RandConf *rc, curve_f f, double prob){
@@ -110,18 +126,26 @@ RandConf *register_curve_f( RandConf *rc, curve_f f, double prob){
 	return rc;
 }
 
-RandConf *randconf_default(int seed, int nacts, int nyears, int npers, int nres, double irr, double dtir){
+RandConf *randconf_default(
+	int nacts,
+	int nyears,
+	int npers,
+	int nres,
+	int seed){
 	RandConf *rc = (RandConf*)malloc(sizeof(RandConf));
-	rc->ncurves = 0;
+	/* Basic attributtes */
 	rc->seed = seed;
 	rc->nacts = nacts;
 	rc->nyears = nyears;
 	rc->npers = npers;
 	rc->nres = nres;
-	rc->irr = irr;
+
+	/* Internal rate of return */
+	rc->irr = 0.;
 
 	/* Tir variation */
-	rc->dtir = dtir;
+	rc->mtir = 0.0;
+	rc->vtir = 0.0;
 
 	/* Market range */
 	rc->min_market = 5;
@@ -132,6 +156,7 @@ RandConf *randconf_default(int seed, int nacts, int nyears, int npers, int nres,
 	rc->max_tot_cost = 100.0;
 
 	/* Setting curve creators */
+	rc->ncurves = 0;
 	register_curve_f(rc, curve1, 0.4);
 	register_curve_f(rc, curve2, 0.3);
 	register_curve_f(rc, curve3, 0.3);
@@ -281,7 +306,7 @@ void set_random_acts(RandConf *rc, PCOPE *p){
 			tot_cost,                           // total
 			randd());                           // min rate
 		/* Tir */
-		tir = randd2(0.15, rc->dtir);
+		tir = 1.0;
 		/* Energy Value */
 		p->evalue[i] = randd2(0.2, 0.5);
 		/* Choosing class */
