@@ -97,6 +97,12 @@ double *curve3(double *v, int nyears, int npers){
 	return v;
 }
 
+RandConf* rc_from_args(int argc, char **argv){
+	RandConf *rc = randconf_default();
+	if(argc > 1) rc->nacts = atoi(argv[1]);
+	if(argc > 2) rc->nyears = atoi(argv[2]);
+	if(argc > 3) rc->npers = atoi(argv[3]);
+}
 
 RandConf *register_curve_f( RandConf *rc, curve_f f, double prob){
 	rc->curves_prob[rc->ncurves] = prob;
@@ -279,7 +285,6 @@ void set_random_acts(RandConf *rc, PCOPE *p){
 		/* Computing internal return (profit) */
 		profit = 0;
 		daux = 1.0;
-		printf("%d - Tir: %f\n", i+1, tir);
 		for( k = 0 ; k < ntotpers ; k++ ){
 			profit += p->recup[i][k]/daux;
 			daux *= (1+tir);

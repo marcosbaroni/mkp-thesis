@@ -29,9 +29,9 @@ typedef struct PCOPE{
 
 /* Recovery curve setter fuction */
 typedef double* (*curve_f)(
-	double*,         // the array
-	int,             // Number of years
-	int);            // Number of periods
+	double*,               // the array
+	int,                   // Number of years
+	int);                  // Number of periods
 
 typedef struct RandConf{
 	double dtir;	               // Tir variation [0.0 , 1.0]  ->  [.15, 1.15]

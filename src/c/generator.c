@@ -12,7 +12,7 @@ int main(int argc, char **argv){
 
 	rc = randconf_default();
 	p = pcope_random(5, 4, 3, 2, 0.15, rc);
-	//pcope_to_plain(p, stdout);
+	pcope_to_plain(p, stdout);
 
 	pcope_free(p);
 	randconf_free(rc);
