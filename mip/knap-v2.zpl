@@ -55,10 +55,10 @@ subto anual_goal:
 	  rec[i, k] <= g[j];
 
 # Global Budgets
-subto global_budget:
-  forall <l> in Res do
-    sum <i, k> in Acs*Pers do
-	  x[i, k]*c[i, l] <= o[l];
+#subto global_budget:
+#  forall <l> in Res do
+#    sum <i, k> in Acs*Pers do
+#	  x[i, k]*c[i, l] <= o[l];
 
 # Anual Budgets
 subto anual_budget:
@@ -67,10 +67,10 @@ subto anual_budget:
 	  x[i, k]*c[i, l] <= p[l, j];
 
 # Periodal Budgets
-subto periodal_budget:
-  forall <k, l> in Pers*Res do
-    sum <i> in Acs do
-	  x[i, k] <= s[l, k];
+#subto periodal_budget:
+#  forall <k, l> in Pers*Res do
+#    sum <i> in Acs do
+#	  x[i, k] <= s[l, k];
 
 # Global Market
 subto global_market:

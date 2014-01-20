@@ -34,6 +34,12 @@ typedef double* (*curve_f)(
 	int);                  // Number of periods
 
 typedef struct RandConf{
+	int seed;
+	int nacts;
+	int nyears;
+	int npers;
+	int nres;
+	double irr;
 	double dtir;	               // Tir variation [0.0 , 1.0]  ->  [.15, 1.15]
 	/* Rigid Bound parameters */
 	int min_market;                // Minimum market bound (periodal reference)
@@ -46,7 +52,7 @@ typedef struct RandConf{
 	curve_f curves_f[20];          // Function pointers for curve setters
 }RandConf;
 
-RandConf *randconf_default();
+RandConf *randconf_default(int seed, int nacts, int nyears, int npers, int nres, double irr, double dtir);
 void randconf_free(RandConf *rc);
 
 RandConf *register_curve_f(RandConf *rc, curve_f f, double prob);
@@ -54,12 +60,12 @@ RandConf *register_curve_f(RandConf *rc, curve_f f, double prob);
 /*** INSTANCE GERENATION ***/
 PCOPE *pcope_new(int nacts, int nyears, int npers, int nres); /* Allocs a blank
 	problem instance. */
-PCOPE *pcope_random(int nacts, int nyears, int npers, int nres, double irr, RandConf *rconf);
+PCOPE *pcope_random(RandConf *rc);
 
 
 /*** INPUT and OUTPUT ***/
-PCOPE *pcope_from_json(FILE *fin);                  /* JSON inputing */
-void pcope_to_json(PCOPE *pcope, FILE *fout);       /* JSON outputing */
+//PCOPE *pcope_from_json(FILE *fin);                  /* JSON inputing */
+//void pcope_to_json(PCOPE *pcope, FILE *fout);       /* JSON outputing */
 PCOPE *pcope_from_plain(FILE *fin);                 /* plain text inputting */
 void pcope_to_plain(PCOPE *p, FILE *fout);          /* plain text outpuing */ 
 void pcope_to_scip(PCOPE *p, FILE *fout);           /* SCIP outpuing */ 

@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include <jansson.h>
 #include "util.h"
 #include "pcope.h"
 
@@ -111,12 +110,18 @@ RandConf *register_curve_f( RandConf *rc, curve_f f, double prob){
 	return rc;
 }
 
-RandConf *randconf_default(){
+RandConf *randconf_default(int seed, int nacts, int nyears, int npers, int nres, double irr, double dtir){
 	RandConf *rc = (RandConf*)malloc(sizeof(RandConf));
 	rc->ncurves = 0;
+	rc->seed = seed;
+	rc->nacts = nacts;
+	rc->nyears = nyears;
+	rc->npers = npers;
+	rc->nres = nres;
+	rc->irr = irr;
 
 	/* Tir variation */
-	rc->dtir = 0.5;
+	rc->dtir = dtir;
 
 	/* Market range */
 	rc->min_market = 5;
@@ -342,13 +347,15 @@ void set_random_acts(RandConf *rc, PCOPE *p){
 }
 
 /* Creates a random instance of the problem.  */
-PCOPE *pcope_random(int nacts, int nyears, int npers, int nres, double irr, RandConf *rc){
-	int i, ntotpers;
+PCOPE *pcope_random(RandConf *rc){
 	PCOPE *p;
 
+	if(rc->seed) srand(rc->seed);
+	else srand(time(NULL));
+
 	/* Basic attributes */
-	p = pcope_new(nacts, nyears, npers, nres);
-	p->irr = irr;
+	p = pcope_new(rc->nacts, rc->nyears, rc->npers, rc->nres);
+	p->irr = rc->irr;
 
 	/* Actions */
 	set_random_acts(rc, p);
@@ -488,52 +495,52 @@ PCOPE *pcope_from_plain(FILE *fin){
 	return p;
 }
 
-PCOPE *pcope_from_json(FILE *fin){
-	PCOPE *p;
+//PCOPE *pcope_from_json(FILE *fin){
+//	PCOPE *p;
+//
+//	return p;
+//}
 
-	return p;
-}
-
-void pcope_to_json(PCOPE *pcope, FILE *fout){
-	int i;
-	json_t *p_aux;
-
-	json_t *p_obj = json_object();
-	json_t *p_nyrs, *p_nacts, *p_npers, *p_nres;
-	json_t *p_irr;
-
-	json_t *p_ggoal;
-	json_t *p_ygoals, *p_pgoals;
-	json_t *p_gbudget, *p_ybudgets, *p_pbudgets;
-	json_t *p_acts;
-
-	p_nacts = json_integer(pcope->nacts);
-	p_nyrs = json_integer(pcope->nyears);
-	p_npers = json_integer(pcope->npers);
-	p_nres = json_integer(pcope->nres);
-	p_irr = json_real(pcope->irr);
-
-	//p_ggoal = json_real(pcope->ggoal);
-
-	p_ygoals = json_array();
-	for( i = 0 ; i < pcope->nyears ; i++ )
-		json_array_append(p_ygoals, json_real(pcope->ygoals[i]));
-
-	//p_pgoals = json_array();
-	//for( i = 0 ; i < pcope->ntotpers; i++ )
-	//	json_array_append(p_pgoals, json_real(pcope->pgoals[i]));
-
-	json_object_set(p_obj, "N", p_nacts);
-	json_object_set(p_obj, "Y", p_nyrs);
-	json_object_set(p_obj, "P", p_npers);
-	json_object_set(p_obj, "R", p_nres);
-	json_object_set(p_obj, "r", p_irr);
-	//json_object_set(p_obj, "", p_ggoal);
-	json_object_set(p_obj, "g", p_ygoals);
-	//json_object_set(p_obj, "g", p_pgoals);
-
-	return;
-}
+//void pcope_to_json(PCOPE *pcope, FILE *fout){
+//	int i;
+//	json_t *p_aux;
+//
+//	json_t *p_obj = json_object();
+//	json_t *p_nyrs, *p_nacts, *p_npers, *p_nres;
+//	json_t *p_irr;
+//
+//	json_t *p_ggoal;
+//	json_t *p_ygoals, *p_pgoals;
+//	json_t *p_gbudget, *p_ybudgets, *p_pbudgets;
+//	json_t *p_acts;
+//
+//	p_nacts = json_integer(pcope->nacts);
+//	p_nyrs = json_integer(pcope->nyears);
+//	p_npers = json_integer(pcope->npers);
+//	p_nres = json_integer(pcope->nres);
+//	p_irr = json_real(pcope->irr);
+//
+//	//p_ggoal = json_real(pcope->ggoal);
+//
+//	p_ygoals = json_array();
+//	for( i = 0 ; i < pcope->nyears ; i++ )
+//		json_array_append(p_ygoals, json_real(pcope->ygoals[i]));
+//
+//	//p_pgoals = json_array();
+//	//for( i = 0 ; i < pcope->ntotpers; i++ )
+//	//	json_array_append(p_pgoals, json_real(pcope->pgoals[i]));
+//
+//	json_object_set(p_obj, "N", p_nacts);
+//	json_object_set(p_obj, "Y", p_nyrs);
+//	json_object_set(p_obj, "P", p_npers);
+//	json_object_set(p_obj, "R", p_nres);
+//	json_object_set(p_obj, "r", p_irr);
+//	//json_object_set(p_obj, "", p_ggoal);
+//	json_object_set(p_obj, "g", p_ygoals);
+//	//json_object_set(p_obj, "g", p_pgoals);
+//
+//	return;
+//}
 
 void pcope_to_scip(PCOPE *p, FILE *fout){
 	int i, j, k, l;
@@ -595,7 +602,7 @@ void pcope_to_scip(PCOPE *p, FILE *fout){
 
 	/* Recovery curve */
 	fprintf(fout, "param e[Acs*Pers] :=\n");
-	fprint_scip_double_matrix(fout, p->recup, nacts, npers);
+	fprint_scip_double_matrix(fout, p->recup, nacts, ntotpers);
 
 	return;
 }
