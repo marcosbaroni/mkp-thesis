@@ -50,8 +50,7 @@ typedef struct RandConf{
 	int max_market;                // Maximum market bound (periodal reference)
 	double min_tot_cost;           // Minimum total cost of an action
 	double max_tot_cost;           // Maximum total cost of an action
-
-	/* Recuperation Curve */
+	/* Recuperation Curves */
 	int ncurves;                   // Number of different curves
 	double curves_prob[20];        // Probability distribution of curves
 	curve_f curves_f[20];          // Function pointers for curve setters

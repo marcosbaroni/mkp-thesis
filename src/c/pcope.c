@@ -272,7 +272,6 @@ void set_random_acts(RandConf *rc, PCOPE *p){
 	int nacts, nyears, npers, nres, ntotpers;
 	double tot_cost, tir, daux;
 	double profit, recup;
-	double rec_scalar;       // recovery value scalar
 	curve_f f;
 
 	nacts = p->nacts;
@@ -285,45 +284,65 @@ void set_random_acts(RandConf *rc, PCOPE *p){
 		/* Total Market */
 		tot_market = randint(rc->min_market*ntotpers, rc->max_market*ntotpers);
 		p->gmarket[i] = tot_market;
-		/* Yearly market */
+
+		/* Random Yearly market */
 		 int_rand_fill_with_total(
 		 	p->ymarket[i],                      // the array
 			nyears,                             // array size
 		 	rint(tot_market*randd2(1.0, 1.0)),  // total
 			randd());                           // min rate
-		/* Periodal market */
+
+		/* Random Periodal market */
 		 int_rand_fill_with_total(
 		 	p->pmarket[i],                      // the array
 			ntotpers,                           // array size
 		 	rint(tot_market*randd2(1.0, 1.0)),  // total
 			randd());                           // min rate
-		/* Total Cost */
+
+		/* Random total cost */
 		tot_cost = randd2(rc->min_tot_cost, rc->max_tot_cost);
-		/* Cost */
+
+		/* Random Resources Cost */
 		double_rand_fill_with_total(
 			p->cost[i],                         // the array
 			nres,                               // array size
 			tot_cost,                           // total
 			randd());                           // min rate
+
 		/* Tir */
 		tir = 1.0;
+
 		/* Energy Value */
 		p->evalue[i] = randd2(0.2, 0.5);
-		/* Choosing class */
+
+		/* Energy Recuperation */
+		// Choosing class of recuperation curve
 		f = get_rand_curve_f(rc);
 		f(p->recup[i], nyears, npers);
-		/* Computing internal return (profit) */
+
+		// Computing internal return (profit)
 		profit = 0;
 		daux = 1.0;
 		for( k = 0 ; k < ntotpers ; k++ ){
 			profit += p->recup[i][k]/daux;
 			daux *= (1+tir);
 		}
+		// Setting recuperation
 		profit *= p->evalue[i];
 		profit /= tot_cost;
 		for( k = 0 ; k < ntotpers ; k++ )
 			p->recup[i][k] /= profit;
 	}
+
+	return;
+}
+
+void set_random_budgets(RandConf *rc, PCOPE *p){
+	int l, i, nacts, nres;
+	double daux;
+
+	nres = p->nres;
+	nacts = p->nacts;
 
 	/*** Setting budgets ***/
 	for( l = 0 ; l < nres ; l++ ){
@@ -331,40 +350,55 @@ void set_random_acts(RandConf *rc, PCOPE *p){
 		daux = 0;
 		for( i = 0 ; i < nacts ; i++ )
 			daux += p->cost[i][l]*p->gmarket[i];
+
 		/* Global budgets */
 		p->gbudget[l] = daux*randd2(0.5, 0.3);
+
 		/* Yearly budgets */
 		double_rand_fill_with_total(
 			p->ybudgets[l],
-			nyears,
+			p->nyears,
 			daux,
 			randd2(0.5, 0.4));
+
 		/* Periodal budgets */
 		double_rand_fill_with_total(
 			p->pbudgets[l],
-			ntotpers,
+			p->ntotpers,
 			daux,
 			randd2(0.5, 0.4));
 	}
 
-	/*** Setting goals ***/
+	return;
+}
+
+void set_random_goals(RandConf *rc, PCOPE *p){
+	int i, k, nacts, ntotpers;
+	double daux;
+	
+	nacts = p->nacts;
+	ntotpers = p->ntotpers;
+
 	// Computing overall energy recuperation
 	daux = 0;
 	for( i = 0 ; i < nacts ; i++ )
 		for( k = 0 ; k < ntotpers ; k++ )
 			daux += p->gmarket[i]*p->recup[i][k];
+
 	// Global goal
 	p->ggoal = daux*randd2(0.5, 0.3);
+
 	// Yearly goals
 	double_rand_fill_with_total(
 		p->ygoals,
-		nyears,
+		p->nyears,
 		daux,
 		randd2(0.5, 0.4));
+
 	// Periodal goals
 	double_rand_fill_with_total(
 		p->pgoals,
-		ntotpers,
+		p->ntotpers,
 		daux,
 		randd2(0.5, 0.4));
 
@@ -384,6 +418,10 @@ PCOPE *pcope_random(RandConf *rc){
 
 	/* Actions */
 	set_random_acts(rc, p);
+	/* Budgets */
+	set_random_budgets(rc, p);
+	/* Goals */
+	set_random_goals(rc, p);
 
 	return p;
 }
