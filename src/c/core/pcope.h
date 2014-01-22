@@ -81,14 +81,35 @@ void pcope_to_plain(PCOPE *p, FILE *fout);          /* plain text outpuing */
 void pcope_to_scip(PCOPE *p, FILE *fout);           /* SCIP outpuing */ 
 
 typedef struct Solution{
-	int **x;               // decision variable [action, period]
-	double obj;            // objective function value
-	char viable;           // if solution is viable
-    struct PCOPE *pcope;   // the problem instance
+	/*** Basic Variables ***/
+    struct PCOPE *pcope;        // The problem instance
+	int **x;            		// decision variable [action, period]
+	double obj;                 // objective function value
+	char viable;                // if solution is viable
+	/*** Auxiliary info, to help on computing ***/
+	/* Goal */
+	double ggoal_left;          // global goal       (NOT USED YET)
+	double *ygoals_left;        // yearly goal
+	double *pgoals_left;        // periodal goal     (NOT USED YET)
+	/* Budget */
+	double *gbudget_left;       // global budget
+	double **ybudgets_left;     // yearly budget
+	double **pbudgets_left;     // periodal budgets
+	/* Markets */
+	int *gmarket_left;          // global market
+	int **ymarket_left;         // yearly market
+	int **pmarket_left;         // periodal market
 }Solution;
 
+/* IO */
 Solution *sol_from_plain(PCOPE *p, FILE *fin);
 void sol_to_plain(Solution *sol, FILE *fout);
+void sol_fprint(FILE *fout, Solution *sol);
+/* Solution manipulation */
+Solution *increment_action(Solution *sol, int act, int per);
+Solution *decrement_action(Solution *sol, int act, int per);
+Solution *rm_action(Solution *sol, int act, int per, int n);
+Solution *add_action(Solution *sol, int act, int per, int n);
 
 #endif
 

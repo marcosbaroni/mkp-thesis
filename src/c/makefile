@@ -1,7 +1,13 @@
+bindir="../../bin"
 all: c
-c: converter generator
+c: converter generator calcobj
 converter:
-	gcc -g -O3 -static -o converter pcope.c converter.c util.c -lm
+	gcc -g -O3 -static -o converter core/*.c converter.c -lm
+	mv converter $(bindir)
 generator:
-	gcc -g -O3 -o generator pcope.c generator.c util.c -lm
+	gcc -g -O3 -o generator core/*.c generator.c -lm
+	mv generator $(bindir)
+calcobj:
+	gcc -g -O3 -o calcobj core/*.c calcobj.c -lm
+	mv calcobj $(bindir)
 

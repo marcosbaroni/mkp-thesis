@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "util.h"
-#include "pcope.h"
+#include "core/util.h"
+#include "core/pcope.h"
 
 int main(int argc, char **argv){
 	PCOPE *p;

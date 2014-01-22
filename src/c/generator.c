@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "pcope.h"
+#include "core/pcope.h"
 
 void print_help(){
 	printf("   nacts:  # of actions\n");

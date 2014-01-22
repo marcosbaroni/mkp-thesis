@@ -672,29 +672,96 @@ void pcope_to_scip(PCOPE *p, FILE *fout){
 
 Solution *sol_new_blank(PCOPE *p){
 	Solution *sol;
-	int i, k;
+	int i, k, j, l;
 
 	sol = (Solution*)malloc(sizeof(Solution));
-	sol->x = (int**)malloc(p->nacts*sizeof(int*))
+	/* Decision variable */
+	sol->x = (int**)malloc(p->nacts*sizeof(int*));
 	for( i = 0 ; i < p->nacts ; i++ ){
-		sol->x[i] = (int*)malloc(ntotpers*sizeof(int));
+		sol->x[i] = (int*)malloc(p->ntotpers*sizeof(int));
 		for( k = 0 ; k < p->ntotpers ; k++ )
 		 sol->x[i][k] = 0;
 	}
+	/* Basic variables */
 	sol->obj = 0.0;
 	sol->viable = 1;
 	sol->pcope = p;
 
+	/* Goals */
+	sol->ggoal_left = p->ggoal;
+	sol->ygoals_left = (double*)malloc(p->nyears*sizeof(double));
+	for( j = 0 ; j < p->nyears ; j++ )
+		sol->ygoals_left[j] = p->ygoals[j];
+	sol->pgoals_left = (double*)malloc(p->ntotpers*sizeof(double));
+	for( k = 0 ; k < p->ntotpers ; k++ )
+		sol->pgoals_left[k] = p->pgoals[k];
+	/* Budgets */
+	sol->gbudget_left = (double*)malloc(p->nres*sizeof(double));
+	sol->ybudgets_left = (double**)malloc(p->nres*sizeof(double*));
+	sol->pbudgets_left = (double**)malloc(p->nres*sizeof(double*));
+	for( l = 0 ; l < p->nres ; l++ ){
+		sol->gbudget_left[l] = p->gbudget[l];
+		sol->ybudgets_left[l] = (double*)malloc(p->nyears*sizeof(double));
+		for( j = 0 ; j < p->nyears ; j++ )
+			sol->ybudgets_left[l][j] = p->ybudgets[l][j];
+		sol->pbudgets_left[l] = (double*)malloc(p->ntotpers*sizeof(double));
+		for( k = 0 ; k < p->ntotpers ; k++ )
+			sol->pbudgets_left[l][k] = p->pbudgets[l][k];
+	}
+	/* Markets */
+	sol->gmarket_left = (int*)malloc(p->nacts*sizeof(int));
+	sol->ymarket_left = (int**)malloc(p->nacts*sizeof(int*));
+	sol->pmarket_left = (int**)malloc(p->nacts*sizeof(int*));
+	for( i = 0 ; i < p->nacts ; i++ ){
+		sol->gmarket_left[i] = p->gmarket[i];
+		sol->ymarket_left[i] = (int*)malloc(p->nyears*sizeof(int));
+		for( j = 0 ; j < p->nyears ; j++ )
+			sol->ymarket_left[i][j] = p->ymarket[i][j];
+		sol->pmarket_left[i] = (int*)malloc(p->ntotpers*sizeof(int));
+		for( k = 0 ; k < p->ntotpers ; k++ )
+			sol->pmarket_left[i][k] = p->pmarket[i][k];
+	}
+
 	return sol;
 }
 
+void sol_free(Solution *sol){
+	int i, j, k, l;
+	
+	for( l = 0 ; l < sol->pcope->nres ; l++ ){
+		free(sol->ybudgets_left[l]);
+		free(sol->pbudgets_left[l]);
+	}
+	for( i = 0 ; i < sol->pcope->nacts ; i++ ){
+		free(sol->x[i]);
+		free(sol->ymarket_left[i]);
+		free(sol->pmarket_left[i]);
+	}
+	free(sol->x);
+	free(sol->ybudgets_left);
+	free(sol->pbudgets_left);
+	free(sol->ymarket_left);
+	free(sol->pmarket_left);
+
+	free(sol->ygoals_left);
+	free(sol->pgoals_left);
+	free(sol->gbudget_left);
+	free(sol->gmarket_left);
+	free(sol);
+	return;
+}
+
 Solution *sol_from_plain(PCOPE *p, FILE *fin){
-	int i, k;
+	int i, k, res, n;
 	Solution *sol = sol_new_blank(p);
 
-	for( i = 0 ; i < p->nacts ; i++ )
-		for( k = 0 ; k < p->ntotpers ; k++ )
-			fscanf(fin, "%d", &(sol->x[i][k]));
+	while(!feof(fin)){
+		res = fscanf(fin, "%d %d %d", &i, &k, &n);
+		if( res > 2 )
+			add_action(sol, i-1, k-1, n);
+	}
+	
+	return sol;
 }
 
 void sol_to_plain(Solution *sol, FILE *fout){
@@ -711,5 +778,107 @@ void sol_to_plain(Solution *sol, FILE *fout){
 	return;
 }
 
+void sol_fprint(FILE *fout, Solution *sol){
+	fprintf(fout, "Objective: %f\n", sol->obj);
+	fprintf(fout, "Viable: %s\n", sol->viable ? "true" : "false");
+	return;
+}
 
+#define assert_positive(x) if(x<0) return 0
+
+char recompute_viability(Solution *sol, int act, int per){
+	int i, j, k, l, year;
+	int nacts, nyears, npers, nres, ntotpers;
+
+	nacts = sol->pcope->nacts;
+	nyears = sol->pcope->nyears;
+	npers = sol->pcope->npers;
+	nres = sol->pcope->nres;
+	ntotpers = nyears*npers;
+
+	/* Goals */
+	/*************************************************** olhar periodos/anos na frente tambem */
+	assert_positive(sol->ggoal_left);
+	assert_positive(sol->ygoals_left[per/npers]);
+	assert_positive(sol->pgoals_left[per]);
+
+	/* Budgets */
+	assert_positive(sol->gbudget_left);
+	for( l = 0 ; l < nres ; l++ )
+		assert_positive(sol->ybudgets_left[l][per/npers]);
+	for( l = 0 ; l < nres ; l++ )
+		assert_positive(sol->pbudgets_left[l][per]);
+	
+	/* Market */
+	assert_positive(sol->gmarket_left[act]);
+	assert_positive(sol->ymarket_left[act][per/npers]);
+	assert_positive(sol->pmarket_left[act][per]);
+	
+	return 1;
+}
+
+Solution *add_action(Solution *sol, int act, int per, int n){
+	int i, j, k, l, year;
+	int nacts, nyears, npers, nres, ntotpers;
+	double rec, overall_cost, cost, profit, daux;
+	PCOPE *p;
+
+	nacts = sol->pcope->nacts;
+	nyears = sol->pcope->nyears;
+	npers = sol->pcope->npers;
+	nres = sol->pcope->nres;
+	ntotpers = nyears*npers;
+
+	p = sol->pcope;
+
+	/* Updating goals/profit */
+	profit = 0;
+	daux = pow(1 + p->irr, per);
+	for( k = per ; k < ntotpers ; k++ ){
+		rec = n*p->recup[act][k-per];
+		/* Global */
+		sol->ggoal_left -= rec;
+		/* Yearly */
+		sol->ygoals_left[(k/npers)] -= rec;
+		/* Periodal */
+		sol->pgoals_left[k] -= rec;
+
+		/* Accumulating profit */
+		profit += rec*p->evalue[act]/daux;
+		daux *= (1+p->irr);
+	}
+
+	/* Updating budgets */
+	overall_cost = 0.0;
+	for( l = 0 ; l < nres ; l++ ){
+		cost = n*p->cost[act][l];
+		/* Global */
+		sol->gbudget_left[l] -= cost;
+		/* Yearly */
+		sol->ybudgets_left[l][per/npers] -= cost;
+		/* Periodal */
+		sol->pbudgets_left[l][per] -= cost;
+
+		/* Accumulating cost */
+		overall_cost += cost;
+	}
+
+	/* Updating markets */
+	sol->gmarket_left[act] -= n;
+	sol->ymarket_left[act][per/npers] -= n;
+	sol->pmarket_left[act][per] -= n;
+
+	/* Updating objective */
+	overall_cost /= pow(1 + p->irr, per);
+	sol->obj += profit - overall_cost;
+
+	/* Updating decision variable */
+	sol->x[act][per] += n;
+
+	/* Checking viability */
+	if( sol->viable )
+		sol->viable = recompute_viability(sol, act, per);
+
+	return sol;
+}
 
