@@ -670,3 +670,46 @@ void pcope_to_scip(PCOPE *p, FILE *fout){
 	return;
 }
 
+Solution *sol_new_blank(PCOPE *p){
+	Solution *sol;
+	int i, k;
+
+	sol = (Solution*)malloc(sizeof(Solution));
+	sol->x = (int**)malloc(p->nacts*sizeof(int*))
+	for( i = 0 ; i < p->nacts ; i++ ){
+		sol->x[i] = (int*)malloc(ntotpers*sizeof(int));
+		for( k = 0 ; k < p->ntotpers ; k++ )
+		 sol->x[i][k] = 0;
+	}
+	sol->obj = 0.0;
+	sol->viable = 1;
+	sol->pcope = p;
+
+	return sol;
+}
+
+Solution *sol_from_plain(PCOPE *p, FILE *fin){
+	int i, k;
+	Solution *sol = sol_new_blank(p);
+
+	for( i = 0 ; i < p->nacts ; i++ )
+		for( k = 0 ; k < p->ntotpers ; k++ )
+			fscanf(fin, "%d", &(sol->x[i][k]));
+}
+
+void sol_to_plain(Solution *sol, FILE *fout){
+	int i, k;
+	PCOPE *p;
+
+	p = sol->pcope;
+
+	for( i = 0 ; i < p->nacts ; i++ ){
+		for( k = 0 ; k < p->ntotpers ; k++ )
+			fprintf(fout, "%d", sol->x[i][k]);
+		fprintf(fout, "\n");
+	}
+	return;
+}
+
+
+

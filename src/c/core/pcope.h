@@ -81,11 +81,14 @@ void pcope_to_plain(PCOPE *p, FILE *fout);          /* plain text outpuing */
 void pcope_to_scip(PCOPE *p, FILE *fout);           /* SCIP outpuing */ 
 
 typedef struct Solution{
-	int *x;                // variable
+	int **x;               // decision variable [action, period]
 	double obj;            // objective function value
 	char viable;           // if solution is viable
     struct PCOPE *pcope;   // the problem instance
 }Solution;
+
+Solution *sol_from_plain(PCOPE *p, FILE *fin);
+void sol_to_plain(Solution *sol, FILE *fout);
 
 #endif
 

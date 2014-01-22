@@ -8,8 +8,8 @@
 # Load data
 include "data.zpl";
 
-# Definition of further periods (without spends, but profit)
-# set ...
+# Extra Set ("Doubled Pers"): All periods, 
+set DPers := {1 .. 2*Y*P};
 
 #####################
 # Decision Variable #
@@ -24,10 +24,12 @@ var x[Acs*Pers] integer;
 ####################
 
 # Energy recover for a given period caused by a given action
-var rec[Acs*Pers];
+#   rec[a, k1, k2] is the energy recovered by action "a" (taken made on period "k1"),
+#   "k2" after it
+var rec[Acs*DPers];
 
 # Profit for energy recovering for a given period
-var prof[Pers];
+var prof[DPers];
 
 # Total cost of all actions executed on a given period
 var cost[Pers];
@@ -36,15 +38,15 @@ var cost[Pers];
 #############
 # Equations #
 #############
-# Energy recover for period by action
+# Total energy recovered on Period "k" by action "i"
 subto rec_def:
-  forall <i, k> in Acs*Pers do
-    sum <k2> in Pers with k2 <= k do
-	  x[i, (k-k2+1)]*e[i, k2] == rec[i, k];
+  forall <i, k> in Acs*DPers do
+  	sum <k2> in Pers with 1 <= k-k2 and k-k2 <= Y*P do
+	  x[i, (k-k2)]*e[i, k2] == rec[i, k];
 
-# Profit by energy recovery for period k
+# Profit by energy recovery for period k>
 subto prof_def:
-  forall <k> in Pers do
+  forall <k> in DPers do
     sum <i> in Acs do
 	  rec[i, k]*v[i] == prof[k];
 
@@ -113,6 +115,8 @@ subto periodal_market:
 ######################
 
 maximize npv: 
+	sum <k> in DPers do 
+		prof[k]/(1+r)^k -
 	sum <k> in Pers do 
-		(prof[k]-cost[k])/(1+r)^k;
+		cost[k]/(1+r)^k;
 
