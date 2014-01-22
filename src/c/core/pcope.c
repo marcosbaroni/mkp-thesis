@@ -798,20 +798,30 @@ char recompute_viability(Solution *sol, int act, int per){
 
 	/* Goals */
 	/*************************************************** olhar periodos/anos na frente tambem */
-	assert_positive(sol->ggoal_left);
-	assert_positive(sol->ygoals_left[per/npers]);
-	assert_positive(sol->pgoals_left[per]);
+	//assert_positive(sol->ggoal_left);   (NOT USED YET)
+	for( j = (per/npers) ; j < nyears ; j++ ){
+		printf("ygoal_left[%d]:%lf\n", j, sol->ygoals_left[j]);
+		assert_positive(sol->ygoals_left[j]);
+	}
+	//for( k = per ; k < ntotpers ; k++ )
+	//	assert_positive(sol->pgoals_left[k]); (NOT USED YET)
 
 	/* Budgets */
-	assert_positive(sol->gbudget_left);
-	for( l = 0 ; l < nres ; l++ )
+	for( l = 0 ; l < nres ; l++ ){
+		printf("gbudget_left[%d]:%lf\n", l, sol->gbudget_left[l]);
+		assert_positive(sol->gbudget_left[l]);
+		printf("ybudgets_left[%d][%d]:%lf\n", l, per/npers, sol->ybudgets_left[l][per/npers]);
 		assert_positive(sol->ybudgets_left[l][per/npers]);
-	for( l = 0 ; l < nres ; l++ )
+		printf("pbudgets_left[%d][%d]:%lf\n", l, per, sol->pbudgets_left[l][per]);
 		assert_positive(sol->pbudgets_left[l][per]);
+	}
 	
 	/* Market */
+	printf("gmarket_left:%d\n", sol->gmarket_left[act]);
 	assert_positive(sol->gmarket_left[act]);
+	printf("ymarket_left[%d]:%d\n", per/npers, sol->ymarket_left[act][per/npers]);
 	assert_positive(sol->ymarket_left[act][per/npers]);
+	printf("pmarket_left[%d]:%d\n", per, sol->pmarket_left[act][per]);
 	assert_positive(sol->pmarket_left[act][per]);
 	
 	return 1;
@@ -847,6 +857,13 @@ Solution *add_action(Solution *sol, int act, int per, int n){
 		profit += rec*p->evalue[act]/daux;
 		daux *= (1+p->irr);
 	}
+#if COMPUTE_FURTHER_RECUP >= 1
+	for( k = ntotpers ; k < ntotpers+per ; k++ ){
+		rec = n*p->recup[act][k-per];
+		profit += rec*p->evalue[act]/daux;
+		daux *= (1+p->irr);
+	}
+#endif
 
 	/* Updating budgets */
 	overall_cost = 0.0;

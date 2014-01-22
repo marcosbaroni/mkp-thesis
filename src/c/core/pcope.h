@@ -1,6 +1,8 @@
 #ifndef PCOPE_H
 #define PCOPE_H 1
 
+#define COMPUTE_FURTHER_RECUP 1
+
 #include <stdlib.h>
 
 typedef struct PCOPE{
