@@ -5,11 +5,8 @@
 #   - Sem dependência entre as ações
 #	- Considerando o lucro dos periodos a mais (fora do plano)
 
-# Load data
-include "data.zpl";
+include "data.zpl"
 
-# Extra Set ("Doubled Pers"): All periods, 
-set DPers := {1 .. 2*Y*P};
 
 #####################
 # Decision Variable #
@@ -41,8 +38,8 @@ var cost[Pers];
 # Total energy recovered on Period "k" by action "i"
 subto rec_def:
   forall <i, k> in Acs*DPers do
-  	sum <k2> in Pers with 1 <= k-k2 and k-k2 <= Y*P do
-	  x[i, (k-k2)]*e[i, k2] == rec[i, k];
+  	sum <k2> in Pers with k-k2+1 > 0 do
+		x[i, (k-k2+1)]*e[i, k2] == rec[i, k];
 
 # Profit by energy recovery for period k>
 subto prof_def:
@@ -108,6 +105,12 @@ subto periodal_market:
 #			x[l,j] <= 
 #		sum <l> in I with (i >= l) do
 #		 	x[l,k]*dep[j,k];
+#
+subto dependecy:
+	forall <i, i2, q> in D do
+		forall <k> in Pers do
+			sum <k2> in Pers with k2 < k do
+				x[i2, k2] >= q*x[i, k];
 
 
 ######################
