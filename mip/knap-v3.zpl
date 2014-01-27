@@ -1,12 +1,5 @@
-# Autor: MArcos Daniel Baroni
-# Data: Ter Jan 21 18:05:11 BRST 2014
-# 
-# Modelagem do problema de recuperação de perdas:
-#   - Sem dependência entre as ações
-#	- Considerando o lucro dos periodos a mais (fora do plano)
-
-include "data.zpl"
-
+# Autor: Marcos Daniel Baroni
+# Data: Mon Jan 27 10:39:57 BRST 2014
 
 #####################
 # Decision Variable #
@@ -38,7 +31,7 @@ var cost[Pers];
 # Total energy recovered on Period "k" by action "i"
 subto rec_def:
   forall <i, k> in Acs*DPers do
-  	sum <k2> in Pers with k-k2+1 > 0 do
+  	sum <k2> in Pers with (k-k2+1) > 0 and (k-k2+1) <= Y*P do
 		x[i, (k-k2+1)]*e[i, k2] == rec[i, k];
 
 # Profit by energy recovery for period k>
@@ -73,7 +66,7 @@ subto anual_goal:
 subto anual_budget:
   forall <j, l> in Yrs*Res do
     sum <i, k> in Acs*YPers[j] do
-	  x[i, k]*c[i, l] <= p[l, j];
+	  x[i, k]*c[i, l] <= p[j, l];
 
 # Periodal Budgets
 #subto periodal_budget:
@@ -122,4 +115,3 @@ maximize npv:
 		prof[k]/(1+r)^k -
 	sum <k> in Pers do 
 		cost[k]/(1+r)^k;
-

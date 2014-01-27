@@ -1,5 +1,5 @@
-# Load data
-include "data.zpl";
+# Autor: Marcos Daniel Baroni
+# Data: Ter Jan 21 18:05:11 BRST 2014
 
 #####################
 # Decision Variable #
