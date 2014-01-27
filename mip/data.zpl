@@ -1,3 +1,7 @@
+# Autor: Marcos Daniel Baroni
+# Created: Mon Jan 21 10:39:57 BRST 2014
+# Updated: Mon Jan 27 14:24:50 BRST 2014
+
 ######################
 # Problem Parameters #
 ######################
@@ -93,8 +97,8 @@ param e[Acs*Pers] :=
 | 3|22127.293, 55318.233, 55318.233, 55318.233|;
 # DEPEDENCY GROUPS
 set D := {
-<1,2,5>,
-<2,3,12>
+<1, 2, 5.0>,
+<2, 3, 1.5>
 };
 
 include "knap-v3.zpl";

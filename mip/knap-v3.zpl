@@ -1,6 +1,7 @@
 # Autor: Marcos Daniel Baroni
-# Data: Mon Jan 27 10:39:57 BRST 2014
-
+# Created: Mon Jan 21 10:39:57 BRST 2014
+# Updated: Mon Jan 27 16:09:43 BRST 2014
+#
 #####################
 # Decision Variable #
 #####################
@@ -92,24 +93,18 @@ subto periodal_market:
 	  x[i, k] <= z[i, k];
 
 # Dependecy between actions
-# subto dependency_cardinality:
-#	forall <i,j,k> in I*J*J with (dep[j,k] >= 0) do
-#		sum <l> in I with (i >= l) do
-#			x[l,j] <= 
-#		sum <l> in I with (i >= l) do
-#		 	x[l,k]*dep[j,k];
-#
-subto dependecy:
-	forall <i, i2, q> in D do
+subto dependency:
+	forall <i1, i2, q> in D do
 		forall <k> in Pers do
-			sum <k2> in Pers with k2 < k do
-				x[i2, k2] >= q*x[i, k];
+			sum <k2> in Pers with (k2 < k) do
+				x[i1, k2] <= 
+			sum <k3> in Pers with (k3 < k) do
+		 		q*x[i2, k3];
 
 
 ######################
 # Objective Function #
 ######################
-
 maximize npv: 
 	sum <k> in DPers do 
 		prof[k]/(1+r)^k -
