@@ -115,3 +115,4 @@ maximize npv:
 		prof[k]/(1+r)^k -
 	sum <k> in Pers do 
 		cost[k]/(1+r)^k;
+
