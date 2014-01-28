@@ -56,17 +56,18 @@
 % Ambiente para listagem de restrições
 
 \newenvironment{restricoes}
-  { \begin{longtable}{lrccll}}
+  { \begin{longtable}{lrcclll}}
   {\end{longtable} }
 
-\newcommand{\restricao}[6]{
+\newcommand{\restricao}[7]{
     \multicolumn{2}{l}{ $\bullet$ #1} & & \\ \nopagebreak
     & ${ \displaystyle \bm{#2} }$
     & ${ \bm{#3} }$
     & ${ \bm{#4} }$
-    & ${ \bm{#5} }$ &
-    \begin{tabular}{l}
-	  #6
+    & ${ \displaystyle \bm{#5} }$
+    & ${ \bm{#6} }$
+	& \begin{tabular}{l}
+	  #7
     \end{tabular}
 	\\ \hspace{30pt}
 }
@@ -91,7 +92,7 @@
 	\\
 }
 
-\title{The Partially Ordered Multidimensional Multi-Knapsack Problem \\ {Definição\footnote{Falta dependência.}} }
+\title{The Partially Ordered Multidimensional Multi-Knapsack Problem \\ {Definição} }
 \author{Marcos Daniel V. Baroni}
 
 \begin{document}
@@ -148,6 +149,9 @@
   \item \variavel{e_i^k} Recuperação realizada pela ação $i$ no $k$-ésimo período
     após sua execução;
     \decorator{1 \leq i \leq N, \quad 0 \leq k < P.M}
+  \item \variavel{D_{it}} Quantidade de vezes que a ação $t$ precisa ser
+  	feita para que seja possível a execução de 1 ação $i$.
+    \decorator{1 \leq i \leq N, \quad 1 \leq t \leq N}
 \end{itemize}
 
 \end{multicols}
@@ -187,6 +191,7 @@
 	  { \sum_{i = 1}^N \sum_{k \in P_j}}
 	  { Rec_i^k(\overline{x})}
 	  { \leq }
+	  { }
 	  { g^j }
 	  { $ j = 1, \ldots, Y $ }
 	\\
@@ -195,6 +200,7 @@
 	  { \sum_{i = 1}^N \sum_{k = 1}^P }
 	  { x_i^k . c_{il}}
 	  { \leq }
+	  { }
 	  { o_l }
 	  { $ l = 1, \ldots, R $ }
 	\\
@@ -203,6 +209,7 @@
       { \sum_{i = 1}^N \sum_{k \in P_j} }
       { x_i^k . c_{il} }
 	  { \leq }
+	  { }
 	  { p_l^j }
 	  { $ j = 1, \ldots, Y $ \\ $ l = 1, \ldots, R$ }
     \\
@@ -211,6 +218,7 @@
       { \sum_{i = 1}^N }
       { x_i^k . c_{il} }
 	  { \leq }
+	  { }
 	  { s_l^{k} }
 	  { $ k = 1, \ldots, P $ \\ $ l = 1, \ldots, R $ }
 	\\
@@ -219,6 +227,7 @@
       { \sum_{k = 1}^P }
       { x_i^k }
 	  { \leq }
+	  { }
 	  { m_i }
 	  { $ i = 1, \ldots, N $ }
 	\\
@@ -227,6 +236,7 @@
       { \sum_{k \in P_j} }
       { x_i^k }
 	  { \leq }
+	  { }
 	  { u_i^j }
 	  { $ i = 1, \ldots, N $ \\ $ j = 1, \ldots, Y $ }
 	\\
@@ -235,8 +245,18 @@
       { }
       { x_i^k }
 	  { \leq }
+	  { }
 	  { z_i^k }
 	  { $ i = 1, \ldots, N $ \\ $ k = 1, \ldots, P$ }
+	\\
+	\restricao
+	  {Dependência entre as Ações}
+      { \sum_{k' = 1}^k }
+      { D_{it} . x_i^{k'} }
+	  { \leq }
+	  { \sum_{k' = 1 }^{k-1} }
+	  { x_t^{k'} }
+	  { $i,t=1,\ldots,N$ \\ $k=2,\ldots,P$ }
 \end{restricoes}
 
 \topico{Função Objetivo}
