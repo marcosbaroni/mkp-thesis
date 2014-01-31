@@ -117,7 +117,7 @@
 
 \subtopico{Globais}
 \begin{itemize}
-  \item \variavel{r} Taxa interna de retorno periodal (juros);
+  \item \variavel{r} Taxa interna de retorno periódico (juros);
 \end{itemize}
 
 \subtopico{Anuais}
@@ -128,7 +128,7 @@
     \decorator{1 \leq l \leq R}
   \item \variavel{p_l^j} Orçamento anual;
     \decorator{1 \leq l \leq R, \quad 1 \leq j \leq Y}
-  \item \variavel{s_l^{k}} Orçamento periodal;
+  \item \variavel{s_l^{k}} Orçamento periódico;
     \decorator{1 \leq l \leq R, \quad \quad 1 \leq k \leq P}
 \end{itemize}
 
@@ -140,7 +140,7 @@
     \decorator{1 \leq i \leq N}
   \item \variavel{u_i^j} Mercado anual;
     \decorator{1 \leq i \leq N, \quad 1 \leq j \leq Y}
-  \item \variavel{z_i^k} Mercado periodal;
+  \item \variavel{z_i^k} Mercado periódico;
     \decorator{1 \leq i \leq N, \quad 1 \leq k \leq P}
   \item \variavel{c_{il}} Custo da ação;
     \decorator{1 \leq i \leq N, \quad 1 \leq l \leq R}
@@ -214,7 +214,7 @@
 	  { $ j = 1, \ldots, Y $ \\ $ l = 1, \ldots, R$ }
     \\
 	\restricao
-	  {Orçamento Periodal}
+	  {Orçamento periódico}
       { \sum_{i = 1}^N }
       { x_i^k . c_{il} }
 	  { \leq }
@@ -241,7 +241,7 @@
 	  { $ i = 1, \ldots, N $ \\ $ j = 1, \ldots, Y $ }
 	\\
 	\restricao
-	  {Market Periodal}
+	  {Market periódico}
       { }
       { x_i^k }
 	  { \leq }

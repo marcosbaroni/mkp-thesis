@@ -66,8 +66,8 @@ subto anual_budget:
     sum <i, k> in Acs*YPers[j] do
 	  x[i, k]*c[i, l] <= p[l, j];
 
-# Periodal Budgets
-#subto periodal_budget:
+# PERIODIC Budgets
+#subto PERIODIC_budget:
 #  forall <k, l> in Pers*Res do
 #    sum <i> in Acs do
 #	  x[i, k] <= s[l, k];
@@ -84,8 +84,8 @@ subto anual_market:
     sum <k> in YPers[j] do
 	  x[i, k] <= u[i, j];
 
-# Periodal Market
-subto periodal_market:
+# PERIODIC Market
+subto PERIODIC_market:
   forall <i, k> in Acs*Pers do
 	  x[i, k] <= z[i, k];
 

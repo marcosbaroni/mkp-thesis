@@ -48,7 +48,7 @@ param p[Yrs*Res] :=
 | 2|1000|
 | 3|1000|
 | 4|1000|;
-# PERIODAL BUDGETS (s)
+# PERIODIC BUDGETS (s)
 param s[Pers*Res] :=
   |	1|
 | 1|1000|
@@ -67,7 +67,7 @@ param u[Acs*Yrs] :=
 | 1|250, 250, 250, 250|
 | 2|250, 250, 250, 250|
 | 3|250, 250, 250, 250|;
-# PERIODAL MARKET (c)
+# PERIODIC MARKET (c)
 param z[Acs*Pers] :=
   |	1, 	2, 	3, 	4|
 | 1|250, 250, 250, 250|
