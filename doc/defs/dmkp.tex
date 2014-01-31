@@ -129,7 +129,7 @@
   \item \variavel{p_l^j} Orçamento anual;
     \decorator{1 \leq l \leq R, \quad 1 \leq j \leq Y}
   \item \variavel{s_l^{k}} Orçamento periódico;
-    \decorator{1 \leq l \leq R, \quad \quad 1 \leq k \leq P}
+    \decorator{1 \leq l \leq R, \quad \quad 1 \leq k \leq P.Y}
 \end{itemize}
 
 \vfill \columnbreak
@@ -141,14 +141,14 @@
   \item \variavel{u_i^j} Mercado anual;
     \decorator{1 \leq i \leq N, \quad 1 \leq j \leq Y}
   \item \variavel{z_i^k} Mercado periódico;
-    \decorator{1 \leq i \leq N, \quad 1 \leq k \leq P}
+    \decorator{1 \leq i \leq N, \quad 1 \leq k \leq P.Y}
   \item \variavel{c_{il}} Custo da ação;
     \decorator{1 \leq i \leq N, \quad 1 \leq l \leq R}
   \item \variavel{v_i} Valor da energia;
     \decorator{1 \leq i \leq N}
   \item \variavel{e_i^k} Recuperação realizada pela ação $i$ no $k$-ésimo período
     após sua execução;
-    \decorator{1 \leq i \leq N, \quad 0 \leq k < P.M}
+    \decorator{1 \leq i \leq N, \quad 0 \leq k \leq P.Y-1}
   \item \variavel{D_{it}} Quantidade de vezes que a ação $t$ precisa ser
   	feita para que seja possível a execução de 1 ação $i$.
     \decorator{1 \leq i \leq N, \quad 1 \leq t \leq N}
@@ -161,6 +161,7 @@
 \topico{Variáveis}
 \begin{itemize}
   \item \variavel{x_i^k} Número de vezes que a ação $i$ é executada no período $k$;
+    \decorator{1 \leq i \leq N, \quad 1 \leq k \leq P.Y}
 \end{itemize}
 
 \topico{Equações}
@@ -169,7 +170,7 @@
     \equacao
 	  {Recuperação de energia para o período $k$ causada pelas as ações $i$ de todos os períodos.}
 	  {Rec_{i}^{k}(\overline{x})}
-	  {\sum_{p = 0}^{k-1} x_i^{(k-p)} . e_i^{p}}
+	  {\sum_{\substack{k' = k-P.Y+1 \\ k' \geq 1}}^{k} x_i^{k'} . e_i^{(k-k'+1)}}
 	  { $i \in \{1, \ldots, N\}$ \\ $k \in \{1, \ldots, P\}$ }
 	\equacao
 	  {Lucro originado pela energia recuperada no período $k$.}
