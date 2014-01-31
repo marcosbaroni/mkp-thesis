@@ -626,6 +626,7 @@ void pcope_to_scip(PCOPE *p, FILE *fout){
 	fprintf(fout, "set Pers := {1 .. Y*P};\n");
 	fprintf(fout, "set YPers[<j> in Yrs] := { (P*(j-1)+1) .. (P*j)};\n");
 	fprintf(fout, "set Res := {1 .. R};\n");
+	fprintf(fout, "set DPers := {1 .. 2*Y*P};\n");
 	
 	/* Yearly goal */
 	fprintf(fout, "param g[Yrs] :=\n");
@@ -666,6 +667,12 @@ void pcope_to_scip(PCOPE *p, FILE *fout){
 	/* Recovery curve */
 	fprintf(fout, "param e[Acs*Pers] :=\n");
 	fprint_scip_double_matrix(fout, p->recup, nacts, ntotpers);
+
+	/* Depedency groups */
+	fprintf(fout, "set D := {};\n");
+
+	/* Import of model */
+	fprintf(fout, "include \"knap-v3.zpl\";\n");
 
 	return;
 }
