@@ -102,13 +102,13 @@
 \topico{Conjuntos}
 
 \begin{itemize}
-  \item \variavel{N} Nº de Ações {\scriptsize $(1 < i < N) $}
-  \item \variavel{Y} Nº de Anos  {\scriptsize $(1 < j < Y) $}
-  \item \variavel{P} Nº de Períodos por ano {\scriptsize $(1 < k < P)$}
+  \item \variavel{N} Nº de Ações {\scriptsize $(1 \leq i \leq N) $}
+  \item \variavel{Y} Nº de Anos  {\scriptsize $(1 \leq j \leq Y) $}
+  \item \variavel{P} Nº de Períodos por ano {\scriptsize $(1 \leq k \leq P.Y)$}
     \begin{itemize}
 	  \item[$\bullet$]{\small $\bm{P_{j} = \{P.(j-1)+1, \ldots, P.j\}}$ \\ Períodos referentes ao ano $j$;} 
 	\end{itemize}
-  \item \variavel{R} Nº de Recursos {\scriptsize $(1 < l < R)$}
+  \item \variavel{R} Nº de Recursos {\scriptsize $(1 \leq l \leq R)$}
 \end{itemize}
 
 \topico{Parâmetros}
@@ -136,9 +136,9 @@
 
 \subtopico{das Ações}
 \begin{itemize}
-  \item \variavel{m_i} Mercado Global;
+  \item \variavel{m_i} Mercado global;
     \decorator{1 \leq i \leq N}
-  \item \variavel{u_i^j} Mercado anual;
+  \item \variavel{u_i^j} Mercado Anual;
     \decorator{1 \leq i \leq N, \quad 1 \leq j \leq Y}
   \item \variavel{z_i^k} Mercado periódico;
     \decorator{1 \leq i \leq N, \quad 1 \leq k \leq P.Y}
@@ -176,7 +176,7 @@
 	  {Custo total de todas as ações executadas no período $k$.}
 	  {Cost_i^k(\overline{x})}
 	  {\sum_{l=1}^R x_i^k . c_{il}}
-	  { $k \in \{1, \ldots, P\}$}
+	  { $k \in \{1, \ldots, P.Y\}$}
 	\equacao
 	  {Recuperação de energia para o $k$-ésimo  período após o plano, causada pelas as ações $i$ de todos os períodos.}
 	  {{Rec'}_{i}^k(\overline{x})}
@@ -198,7 +198,7 @@
 	\\
     \restricao
 	  {Orçamento Global}
-	  { \sum_{i = 1}^N \sum_{k = 1}^P }
+	  { \sum_{i = 1}^N \sum_{k = 1}^{P.Y} }
 	  { x_i^k . c_{il}}
 	  { \leq }
 	  { }
@@ -221,10 +221,10 @@
 	  { \leq }
 	  { }
 	  { s_l^{k} }
-	  { $ k = 1, \ldots, P $ \\ $ l = 1, \ldots, R $ }
+	  { $ k = 1, \ldots, P.Y $ \\ $ l = 1, \ldots, R $ }
 	\\
 	\restricao
-	  {Market Global}
+	  {Mercado Global}
       { \sum_{k = 1}^P }
       { x_i^k }
 	  { \leq }
@@ -233,7 +233,7 @@
 	  { $ i = 1, \ldots, N $ }
 	\\
 	\restricao
-	  {Market Anual}
+	  {Marcado Anual}
       { \sum_{k \in P_j} }
       { x_i^k }
 	  { \leq }
@@ -242,13 +242,13 @@
 	  { $ i = 1, \ldots, N $ \\ $ j = 1, \ldots, Y $ }
 	\\
 	\restricao
-	  {Market periódico}
+	  {Marcado Periódico}
       { }
       { x_i^k }
 	  { \leq }
 	  { }
 	  { z_i^k }
-	  { $ i = 1, \ldots, N $ \\ $ k = 1, \ldots, P$ }
+	  { $ i = 1, \ldots, N $ \\ $ k = 1, \ldots, P.Y$ }
 	\\
 	\restricao
 	  {Dependência entre as Ações}
@@ -257,7 +257,7 @@
 	  { \leq }
 	  { \sum_{k' = 1 }^{k-1} }
 	  { x_t^{k'} }
-	  { $i,t=1,\ldots,N$ \\ $k=2,\ldots,P$ }
+	  { $i,t=1,\ldots,N$ \\ $k=2,\ldots,P.Y$ }
 \end{restricoes}
 
 \topico{Função Objetivo}
