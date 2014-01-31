@@ -1,0 +1,2 @@
+#!/bin/bash
+grep "x#"|grep "obj" | sed 's/#/ /g'|sed 's/ \+/ /g'| cut -d ' ' -f 2,3,4
