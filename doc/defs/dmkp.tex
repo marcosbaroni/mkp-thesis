@@ -168,20 +168,20 @@
 
 \begin{equacoes}
     \equacao
-	  {Recuperação de energia para o período $k$ causada pelas as ações $i$ de todos os períodos.}
+	  {Total de energia recuperada para o $k$-ésimo período, considerando as ações $i$ de todos os períodos.}
 	  {Rec_{i}^{k}(\overline{x})}
-	  {\sum_{\substack{k' = k-P.Y+1 \\ k' \geq 1}}^{k} x_i^{k'} . e_i^{(k-k'+1)}}
-	  { $i \in \{1, \ldots, N\}$ \\ $k \in \{1, \ldots, P\}$ }
-	\equacao
-	  {Lucro originado pela energia recuperada no período $k$.}
-	  {Prof^k(\overline{x})}
-	  {\sum_{i=1}^N Rec_{i}^k(\overline{x}) . v_i}
-	  { $k \in \{1, \ldots, P\}$}
+	  {\sum_{k'=1}^{k} x_i^{k'} . e_i^{(k-k')}}
+	  { $i \in \{1, \ldots, N\}$ \\ $k \in \{1, \ldots, P.Y\}$ }
 	\equacao
 	  {Custo total de todas as ações executadas no período $k$.}
-	  {Cost^k(\overline{x})}
-	  {\sum_{i=1}^N \sum_{l=1}^R x_i^k . c_{il}}
+	  {Cost_i^k(\overline{x})}
+	  {\sum_{l=1}^R x_i^k . c_{il}}
 	  { $k \in \{1, \ldots, P\}$}
+	\equacao
+	  {Recuperação de energia para o $k$-ésimo  período após o plano, causada pelas as ações $i$ de todos os períodos.}
+	  {{Rec'}_{i}^k(\overline{x})}
+	  {\sum_{k'=k+1}^{P.Y} x_i^{k'} . e_i^{(P.Y+k-k')}}
+	  { $i \in \{1, \ldots, N\}$ \\ $k \in \{1, \ldots, P.Y\}$ }
 \end{equacoes}
 
 \topico{Restrições}
@@ -265,10 +265,19 @@
   \nonumber
     \bm{
 	  Max \big(Z(\overline{x})\big) =
-	    \sum_{k=1}^P
+	    \sum_{i=1}^N
+	    \sum_{k=1}^{P.Y}
 	    \frac
-		  {\big( Prof^k(\overline{x}) - Cost^k(\overline{x}) \big)}
+		  {\big( Rec_i^k(\overline{x}).v_i - Cost_i^k(\overline{x}) \big)}
 	      {(1+r)^k}
+		+
+	    \underbrace{
+	    \sum_{i=1}^N
+	    \sum_{k=1}^{P.Y}
+	    \frac
+		  {{Rec'}_i^k(\overline{x}).v_i}
+	      {(1+r)^{(k+P.Y)}}
+		}_{\text{Lucro pós-planejamento}}
 	}
   \label{eq:budget}
 \end{equation}
