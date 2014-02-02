@@ -637,12 +637,12 @@ void pcope_to_scip(PCOPE *p, FILE *fout){
 	fprint_scip_double_array(fout, p->gbudget, nres);
 
 	/* Yearly budget */
-	fprintf(fout, "param p[Res*Yrs] :=\n");
-	fprint_scip_double_matrix(fout, p->ybudgets, nres, nyears);
+	fprintf(fout, "param p[Yrs*Res] :=\n");
+	fprint_scip_double_matrix(fout, p->ybudgets, nres, nyears, 1);
 
 	/* Periodal budget */
 //	fprintf(fout, "param s[Res*Pers] :=\n");
-//	fprint_scip_double_matrix(fout, p->pbudgets, nres, ntotpers);
+//	fprint_scip_double_matrix(fout, p->pbudgets, nres, ntotpers, 0);
 
 	/* Global market */
 	fprintf(fout, "param m[Acs] :=\n");
@@ -658,7 +658,7 @@ void pcope_to_scip(PCOPE *p, FILE *fout){
 
 	/* Cost */
 	fprintf(fout, "param c[Acs*Res] :=\n");
-	fprint_scip_double_matrix(fout, p->cost, nacts, nres);
+	fprint_scip_double_matrix(fout, p->cost, nacts, nres, 0);
 
 	/* Energy value */
 	fprintf(fout, "param v[Acs] :=\n");
@@ -666,7 +666,7 @@ void pcope_to_scip(PCOPE *p, FILE *fout){
 
 	/* Recovery curve */
 	fprintf(fout, "param e[Acs*Pers] :=\n");
-	fprint_scip_double_matrix(fout, p->recup, nacts, ntotpers);
+	fprint_scip_double_matrix(fout, p->recup, nacts, ntotpers, 0);
 
 	/* Depedency groups */
 	fprintf(fout, "set D := {};\n");

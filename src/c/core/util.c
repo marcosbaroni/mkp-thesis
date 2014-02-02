@@ -133,8 +133,13 @@ void fprint_scip_int_matrix(FILE *fout, int **v, int n, int m){
 	return;
 }
 
-void fprint_scip_double_matrix(FILE *fout, double **v, int n, int m){
+/* rev: If index is reversed */
+void fprint_scip_double_matrix(FILE *fout, double **v, int n, int m, char rev){
 	int i, j;
+
+	if(rev)
+		{ i = n; n = m; m = i; } /* swap */
+
 	/* header */
 	fprintf(fout, "|");
 	for( j = 0 ; j < m-1 ; j++)
@@ -145,8 +150,8 @@ void fprint_scip_double_matrix(FILE *fout, double **v, int n, int m){
 	for( i = 0 ; i < n ; i++ ){
 		fprintf(fout, "|%d|", i+1);
 		for( j = 0 ; j < m-1 ; j++ )
-			fprintf(fout, "%f, ", v[i][j]);
-		fprintf(fout, "%f|%s\n", v[i][j], (i == n-1) ? ";" : "" );
+			fprintf(fout, "%f, ", rev ? v[j][i] : v[i][j]);
+		fprintf(fout, "%f|%s\n", rev ? v[j][i] : v[i][j], (i == n-1) ? ";" : "" );
 	}
 	return;
 }
