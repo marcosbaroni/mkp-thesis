@@ -3,6 +3,9 @@
 #include <math.h>
 #include "util.h"
 
+/********************************************************************
+ *                     RANDOM NUMBER GENERATION
+ ********************************************************************/
 double gauss_stash = 0.0;
 
 int randint(int a, int b){
@@ -61,12 +64,22 @@ double *double_rand_fill_with_total(double *v, int n, double total, double min_r
 	return v;
 }
 
+/*
+ * Fills an int array with random values, totaling "total"
+ *    on a way each array element was a rate of "min_rate" of the mean.
+ *
+ *    Ex.:
+ *    	int_rand_fill_with_total(v, 5, 50, 1.0) -> [10, 10, 10, 10, 10] (min=10)
+ *    	int_rand_fill_with_total(v, 5, 50, 0.0) -> [12, 14, 00, 22, 02]   (min=0)
+ *    	int_rand_fill_with_total(v, 5, 50, 0.0) -> [08, 15, 12, 10, 05]   (min=5)
+ */
 int *int_rand_fill_with_total(int *v, int n, int total, double min_rate){
 	int i;
-	int min, sum, rest, left;
+	int min, sum, tot_rest, left;
+	if(DEBUG) printf(" -total:%d\n", total);
 
-	min = (min_rate*total)/n;
-	rest = total - (n*min);
+	min = (min_rate*total)/n;   // minimum value for each element (rate of total)
+	tot_rest = total - (n*min);
 
 	sum = 0;
 	/* Random filling */
@@ -74,7 +87,7 @@ int *int_rand_fill_with_total(int *v, int n, int total, double min_rate){
 		{ v[i] = randint(0, 100000); sum += v[i]; }
 	left = total;
 	for( i = 0 ; i < n-1 ; i++ ){
-		v[i] = rint(min + (v[i]*rest)/((double)sum));
+		v[i] = rint(min + v[i]*(tot_rest/(double)sum));
 		left -= v[i];
 	}
 	v[i] = left;
@@ -99,6 +112,50 @@ int distributed_rand_int(double *dist, int n){
 	return i;
 }
 
+/********************************************************************
+ *                     ARRAY / MATRIX DEBBUGING UTILS
+ ********************************************************************/
+ /* Prints an array of int.  */
+void fprint_int_array(FILE *out, int *v, int n, char conf){
+	int i;
+	for( i = 0 ; i < n ; i++ )
+		fprintf(out, "%d ", v[i]);
+	fprintf(out, "\n");
+	return;
+}
+
+ /* Returns the sum of an int array. */
+int sum_int_array(int *v, int n){
+	int i, sum;
+	sum = 0;
+	for( i = 0 ; i < n ; i++ )
+		sum += v[i];
+	return sum;
+}
+
+ /* Prints an array of double.  */
+void fprint_double_array(FILE *out, double *v, int n, char conf){
+	int i;
+	for( i = 0 ; i < n ; i++ )
+		fprintf(out, "%.2f ", v[i]);
+	fprintf(out, "\n");
+	return;
+}
+
+ /* Returns the sum of a double array. */
+double sum_double_array(double *v, int n){
+	int i;
+	double sum;
+	sum = 0;
+	for( i = 0 ; i < n ; i++ )
+		sum += v[i];
+	return sum;
+}
+
+/********************************************************************
+ *                     SCIP FORMATTING
+ ********************************************************************/
+ /* Prints an array of int on scip format.  */
 void fprint_scip_int_array(FILE *fout, int *v, int n){
 	int i;
 	for( i = 0 ; i < n-1 ; i++ )
@@ -107,14 +164,7 @@ void fprint_scip_int_array(FILE *fout, int *v, int n){
 	return;
 }
 
-void fprint_scip_double_array(FILE *fout, double *v, int n){
-	int i;
-	for( i = 0 ; i < n-1 ; i++ )
-		fprintf(fout, "<%d> %lf,\n", i+1, v[i]);
-	fprintf(fout, "<%d> %lf;\n", i+1, v[i]);
-	return;
-}
-
+ /* Prints a matrix of int on scip format.  */
 void fprint_scip_int_matrix(FILE *fout, int **v, int n, int m){
 	int i, j;
 	/* header */
@@ -133,7 +183,17 @@ void fprint_scip_int_matrix(FILE *fout, int **v, int n, int m){
 	return;
 }
 
-/* rev: If index is reversed */
+ /* Prints an array of double on scip format.  */
+void fprint_scip_double_array(FILE *fout, double *v, int n){
+	int i;
+	for( i = 0 ; i < n-1 ; i++ )
+		fprintf(fout, "<%d> %lf,\n", i+1, v[i]);
+	fprintf(fout, "<%d> %lf;\n", i+1, v[i]);
+	return;
+}
+
+ /* Prints double matrix on scip format.
+  *   - rev: If index is reversed */
 void fprint_scip_double_matrix(FILE *fout, double **v, int n, int m, char rev){
 	int i, j;
 

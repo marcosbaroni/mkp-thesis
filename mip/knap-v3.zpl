@@ -14,16 +14,16 @@ var x[Acs*Pers] integer;
 # Others variables #
 ####################
 
-# Energy recover for a given period caused by a given action
-#   rec[a, k1, k2] is the energy recovered by action "a" (taken made on period "k1"),
-#   "k2" after it
-var rec[Acs*DPers];
+# (Rec) rec[i, j]: Energy recovered by actions 'i' on the jth-period of the
+#   plan
+var rec[Acs*Pers];
 
-# Profit for energy recovering for a given period
-var prof[DPers];
+# (Rec') rec2[i, j]: Energy recovered by actions 'i' on the jth-period AFTER the
+#   plan
+var rec2[Acs*Pers];
 
 # Total cost of all actions executed on a given period
-var cost[Pers];
+var cost[Acs*Pers];
 
 
 #############
@@ -31,21 +31,21 @@ var cost[Pers];
 #############
 # Total energy recovered on Period "k" by action "i"
 subto rec_def:
-  forall <i, k> in Acs*DPers do
-  	sum <k2> in Pers with (k-k2+1) > 0 and (k-k2+1) <= Y*P do
-		x[i, (k-k2+1)]*e[i, k2] == rec[i, k];
+  forall <i, k> in Acs*Pers do
+  	sum <k2> in Pers with k2 <= k do
+		x[i, k2]*e[i, (k-k2+1)] == rec[i, k];
 
-# Profit by energy recovery for period k>
-subto prof_def:
-  forall <k> in DPers do
-    sum <i> in Acs do
-	  rec[i, k]*v[i] == prof[k];
+# Total energy recovered on the "k"-th period after plan, by action "i"
+subto rec_def2:
+  forall <i, k> in Acs*Pers do
+  	sum <k2> in Pers with k2 >= k+1 do
+		x[i, k2]*e[i, (Y*P+k-k2+1)] == rec2[i, k];
 
 # Cost of all actions on period K
 subto cost_def:
-  forall <k> in Pers do
-    sum <i, l> in Acs*Res do
-	  x[i, k]*c[i, l] == cost[k];
+  forall <i, k> in Acs*Pers do
+    sum <l> in Res do
+	  x[i, k]*c[i, l] == cost[i, k];
 
 ###############
 # Constraints #
@@ -88,7 +88,7 @@ subto anual_market:
 	  x[i, k] <= u[i, j];
 
 # PERIODIC Market
-subto PERIODIC_market:
+subto periodic_market:
   forall <i, k> in Acs*Pers do
 	  x[i, k] <= z[i, k];
 
@@ -106,8 +106,11 @@ subto dependency:
 # Objective Function #
 ######################
 maximize npv: 
-	sum <k> in DPers do 
-		prof[k]/(1+r)^k -
-	sum <k> in Pers do 
-		cost[k]/(1+r)^k;
+	sum <i> in Acs do
+		sum <k> in Pers do 
+			(rec[i, k]*v[i] - cost[i, k])/((1+r)^k)
+	+
+	sum <i> in Acs do
+		sum <k> in Pers do 
+			rec2[i, k]*v[i]/((1+r)^(Y*P+k));
 

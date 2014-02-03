@@ -169,7 +169,9 @@ void randconf_free(RandConf *rc){
 	return;
 }
 
-/* Allocs a blank problem instance. */
+/* 
+ * Allocs a blank problem instance.
+ */
 PCOPE *pcope_new(int nacts, int nyears, int npers, int nres){
 	int i, j, k, l;
 	int ntotpers;
@@ -266,6 +268,9 @@ curve_f get_rand_curve_f(RandConf *rc){
 	return rc->curves_f[distributed_rand_int(rc->curves_prob, rc->ncurves)];
 }
 
+/*
+ *  Sets all attributes of actions 
+ */
 void set_random_acts(RandConf *rc, PCOPE *p){
 	int i, j, k, l;
 	int cls, tot_market;
@@ -281,26 +286,33 @@ void set_random_acts(RandConf *rc, PCOPE *p){
 	ntotpers = nyears*npers;
 
 	for( i = 0 ; i < nacts ; i++ ){
+		if(DEBUG) printf("Random act %d\n", i);
 		/* Total Market */
 		tot_market = randint(rc->min_market*ntotpers, rc->max_market*ntotpers);
 		p->gmarket[i] = tot_market;
+		if(DEBUG) printf(" Total market: %d\n", tot_market);
 
 		/* Random Yearly market */
-		 int_rand_fill_with_total(
+		int_rand_fill_with_total(
 		 	p->ymarket[i],                      // the array
 			nyears,                             // array size
-		 	rint(tot_market*randd2(1.0, 1.0)),  // total
+		 	rint(tot_market*randd2(1.5, 0.5)),  // total
 			randd());                           // min rate
+		if(DEBUG) printf(" Yearly market: ");
+		if(DEBUG) fprint_int_array(stdout, p->ymarket[i], nyears);
 
 		/* Random Periodal market */
-		 int_rand_fill_with_total(
+		int_rand_fill_with_total(
 		 	p->pmarket[i],                      // the array
 			ntotpers,                           // array size
-		 	rint(tot_market*randd2(1.0, 1.0)),  // total
+		 	rint(tot_market*randd2(1.5, 0.5)),  // total
 			randd());                           // min rate
+		if(DEBUG) printf(" Periodal market: ");
+		if(DEBUG) fprint_int_array(stdout, p->pmarket[i], ntotpers);
 
 		/* Random total cost */
 		tot_cost = randd2(rc->min_tot_cost, rc->max_tot_cost);
+		if(DEBUG) printf(" Total cost: %.3f\n", tot_cost);
 
 		/* Random Resources Cost */
 		double_rand_fill_with_total(
@@ -308,12 +320,14 @@ void set_random_acts(RandConf *rc, PCOPE *p){
 			nres,                               // array size
 			tot_cost,                           // total
 			randd());                           // min rate
+		if(DEBUG) printf(" Costs : ");
+		if(DEBUG) fprint_double_array(stdout, p->cost[i], nres);
 
 		/* Tir */
 		tir = 1.0;
 
 		/* Energy Value */
-		p->evalue[i] = randd2(0.2, 0.5);
+		p->evalue[i] = randd2(1.0, 1.0);
 
 		/* Energy Recuperation */
 		// Choosing class of recuperation curve
@@ -332,6 +346,7 @@ void set_random_acts(RandConf *rc, PCOPE *p){
 		profit /= tot_cost;
 		for( k = 0 ; k < ntotpers ; k++ )
 			p->recup[i][k] /= profit;
+		if(DEBUG) printf("\n");
 	}
 
 	return;
@@ -409,6 +424,7 @@ void set_random_goals(RandConf *rc, PCOPE *p){
 PCOPE *pcope_random(RandConf *rc){
 	PCOPE *p;
 
+	/* Random Seed */
 	if(rc->seed) srand(rc->seed);
 	else srand(time(NULL));
 
@@ -416,10 +432,12 @@ PCOPE *pcope_random(RandConf *rc){
 	p = pcope_new(rc->nacts, rc->nyears, rc->npers, rc->nres);
 	p->irr = rc->irr;
 
-	/* Actions */
+	/* Actions (Markets, Costs, EnergyValue, Recoveries, Depedencies) */
 	set_random_acts(rc, p);
+
 	/* Budgets */
 	set_random_budgets(rc, p);
+
 	/* Goals */
 	set_random_goals(rc, p);
 

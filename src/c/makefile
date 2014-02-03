@@ -1,13 +1,16 @@
 bindir="../../bin"
+DEBUG=1
+CFLAGS=-O3 -static -D DEBUG=$(DEBUG) -lm
+CC=gcc
 all: c
 c: converter generator calcobj
 converter:
-	gcc -g -O3 -static -o converter core/*.c converter.c -lm
+	$(CC) -o converter core/*.c converter.c $(CFLAGS)
 	mv converter $(bindir)
 generator:
-	gcc -g -O3 -o generator core/*.c generator.c -lm
+	$(CC) -o generator core/*.c generator.c $(CFLAGS)
 	mv generator $(bindir)
 calcobj:
-	gcc -g -O3 -o calcobj core/*.c calcobj.c -lm
+	$(CC) -o calcobj core/*.c calcobj.c $(CFLAGS)
 	mv calcobj $(bindir)
 
