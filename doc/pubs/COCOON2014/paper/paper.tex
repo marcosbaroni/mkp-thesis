@@ -1,0 +1,68 @@
+\documentclass{llncs}
+\usepackage{llncsdoc}
+
+\usepackage[citestyle=authoryear]{biblatex}
+
+\addbibresource{ref.bib}
+
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{todonotes}
+\usepackage{hyperref}
+
+\title{\it Papers title}
+
+\author{
+Marcos Daniel Valad\~ao Baroni,
+Jo\~ao Carlos,
+Fl\'avio Miguel Varej\~ao,
+Diego Luchi,\\
+N\'ucleo de Infer\^encia em Algoritmos (NINFA) - Departamento de Inform\'atica\\
+Universidade Federal do Esp\'irito Santo\\
+Vit\'oria, Esp\'irito Santo, Brasil
+}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Electricity fraud corresponds to a major source of loss of Electricity
+Distribution Companies (EDCO's) in developing countries. To attenuate this,
+EDCO's have at their disposal several loss reduction actions. These actions
+must be performed to reach a given energy loss reduction goal, established
+by the regulatory agency. If this goal is not reached, the profit margin
+of the company is reduced.
+This work defines a formal model for the action allocation task 
+and proposes an exact mathematic programming method for solving small instances of
+the problem and two heuristic methods for larger ones. We compare
+the techniques considering running time and solution quality.
+\end{abstract}
+
+\section{Introduction}
+\label{sec:introduction}
+\input{texs/Introduction.tex}
+
+\section{Problem Definition}
+\label{sec:definition}
+\input{texs/definition.tex}
+
+\section{Related Work}
+\label{sec:related}
+\input{texs/related}
+
+\section{Problem Solving Methods}
+\label{sec:solving}
+\input{texs/solving.tex}
+
+\section{Experiments}
+\label{sec:experiments}
+\input{texs/experiments}
+
+\section{Conclusion and Future Works}
+\label{sec:conclusion}
+\input{texs/conclusion}
+
+\end{document}
+

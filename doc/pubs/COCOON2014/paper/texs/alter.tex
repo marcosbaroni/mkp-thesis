@@ -1,0 +1,72 @@
+\section{Solving the Problem}
+\label{sec:alter}
+
+To solve our allocation problem we have developed three methodologies: a exact algorithm
+using integer programming, an heuristic algorithm using the LP-relaxed version of the integer
+programming model with an a-posteriori heuristic allocation scheme and a \todo[inline]{???}
+algorithm. In the following subsections we present each approach and comment on their particularities.
+
+\subsection{Exact Mathematical Programming Approach}
+\todo[inline]{Diego}
+
+\subsection{Heuristic Approach - Gradient Ascent}
+We use a simple heuristic approach, namely Gradient Ascent (GA), using
+the truncated solution of the relaxed version of the linear problem (considering continuous
+variables) as a initial search point.
+Since the relaxed version of the linear problem is easily solvable and the Gradient Ascent
+algorithm has fast convergence characteristics, this approach is very efficient. Algorithm \ref{alg:ga} depicts the used algorithm.
+
+\begin{algorithm}[H]
+\begin{algorithmic}[1]
+\Function{Gradient Ascent}{Initial solution $S_{ini}$}
+\State $S_{best} \gets S_{ini}$
+\State $HasImproved \gets True$
+\While{$HasImproved$}
+    \State $HasImproved \gets False$
+    \For{Each $Neig$ in $Neighborhood(V_{best})$}
+        \If{$Evaluate(Neig) > Evaluate(S_{ini})$}
+            \State $S_{best} \gets Neig$
+            \State $HasImproved \gets True$
+        \EndIf
+    \EndFor
+\EndWhile
+\State \Return $S_{best}$
+\EndFunction
+\end{algorithmic}
+\caption{Gradient Ascent Algorithm}
+\label{alg:ga}
+\end{algorithm}
+
+\begin{algorithm}[H]
+\begin{algorithmic}[1]
+\Function{Tabu Search}{Initial solution $S_{ini}$}
+\State $S_{best} \gets S_{ini}$
+\State $TabuList \gets \O$
+\While{$StoppingCondition$}
+    \State $CandList \gets \O$
+    \For{Each $S_{cand}$ in $Neighborhood(S)$}
+        \If{$S_{cand} \notin TabuList$}
+            \State $CandList \gets CandList + S_{cand}$
+        \EndIf
+    \EndFor
+    \State $S \gets BestCand(CandList)$
+    \If{$Fitness(S) > Fitness(S_{best})$}
+        \State $S_{best} \gets S$
+        \State $CandList \gets CandList + S$
+		\While{$size(TabuList) > maxSize$}
+		    \State $RemoveOldest(TabuList)$
+		\EndWhile
+    \EndIf
+\EndWhile
+\State \Return $S_{best}$
+\EndFunction
+\end{algorithmic}
+\caption{Tabu Search Algorithm}
+\label{alg:ga}
+\end{algorithm}
+
+
+
+\subsection{Meta-Heuristic Approach}
+\todo[inline]{Diego}
+
