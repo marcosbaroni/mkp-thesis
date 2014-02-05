@@ -3,4 +3,4 @@
 *.swp
 knap.dat
 *.gplot
-bin/*
+scip.set
