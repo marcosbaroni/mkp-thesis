@@ -7,3 +7,4 @@
 *.log
 figs/
 paper-blx.bib
+paper.run.xml
