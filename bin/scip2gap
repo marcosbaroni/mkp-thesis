@@ -1,0 +1,2 @@
+#!/bin/bash
+grep Gap|sed 's/\t/ /g'| sed 's/ \+/ /g'| cut -d ' ' -f 3|line
