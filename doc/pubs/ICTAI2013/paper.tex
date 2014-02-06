@@ -2,15 +2,16 @@
 
 \usepackage{amsfonts}
 \usepackage{amssymb,amsmath}
-\usepackage{todonotes}
 \usepackage{hyperref}
-
 \usepackage{algorithm}
 \usepackage{algpseudocode}
+\usepackage{graphicx}
+\usepackage[skip=2pt,font=footnotesize]{caption}
 
 
 % http://blog.mikael.johanssons.org/archive/2012/03/biblatex-%E2%80%94-why-havent-i-used-this-earlier/
-\usepackage[citestyle=authoryear]{biblatex}
+\usepackage{biblatex}
+%\usepackage[citestyle=authoryear]{biblatex}
 \addbibresource{ref.bib}
 \renewcommand*{\nameyeardelim}{\addspace}
 \renewcommand*{\revsdnamedelim}{\addspace}
@@ -18,6 +19,15 @@
 % correct bad hyphenation here
 \hyphenation{op-tical net-works semi-conduc-tor}
 
+% path for images
+\graphicspath{ {../figs/generated/} }
+
+\makeatletter
+\renewcommand{\ALG@beginalgorithmic}{\footnotesize}
+\renewcommand{\alglinenumber}{\footnotesize}
+\setlength{\belowcaptionskip}{0pt plus 0pt minus 0pt}
+\setlength{\abovecaptionskip}{0pt plus 0pt minus 0pt}
+\makeatother
 
 \begin{document}
 \renewcommand*{\nameyeardelim}{\addspace}
@@ -25,8 +35,11 @@
 %
 % paper title
 % can use linebreaks \\ within to get better formatting as desired
-\title{Using Optimization Techniques for Building Investments Strategies for Reducing Fraud in Electricity Distribution}
-                                                                                  
+\title{A Recommender Framework for Portfolio Selection to Reduce
+Fraud in Electricity Distribution Using Integer Programming and Heuristic Techniques}
+
+
+
 % author names and affiliations
 % use a multiple column layout for up to two different
 % affiliations
@@ -34,42 +47,42 @@
 \author{\IEEEauthorblockN{Diego Luchi \IEEEauthorrefmark{1}, 
 F\'abio Fabris \IEEEauthorrefmark{2}, 
 Marcos Daniel Valad\~ao Baroni,
+Alexandre Rodrigues,
 Fl\'avio Miguel Varej\~ao}
 \IEEEauthorblockA{N\'ucleo de Infer\^encia em Algoritmos (NINFA) - Departamento de Inform\'atica\\
 Universidade Federal do Esp\'irito Santo\\
 Vit\'oria, Esp\'irito Santo, Brasil\\
 }
 \IEEEauthorblockA{\IEEEauthorrefmark{1}
-E-mail: diego.luchi@gmail.com
+E-mail: dluchi@ninfa.inf.ufes.br
 }
 \IEEEauthorblockA{\IEEEauthorrefmark{2}
-E-mail: fabiofabris@gmail.com
+E-mail: ffabris@ninfa.inf.ufes.br
 }
 }
 
 
 
 % make the title area
-\listoftodos
 \maketitle
 
 
 \begin{abstract}
-Electricity fraud corresponds to a major source of loss of Electricity
-Distribution Companies (EDCO's) in developing countries. To attenuate this,
-EDCO's have at their disposal several loss reduction actions. These actions
-must be performed to reach a given energy loss reduction goal, established
+Electricity fraud corresponds to a major source of loss in Electricity
+Distribution Companies in developing countries. To attenuate this,
+companies have at their disposal several loss reduction actions. These actions
+must be performed to reach a given electricity loss reduction goal, established
 by the regulatory agency. If this goal is not reached, the profit margin
 of the company is reduced.
 This work defines a formal model for the action allocation task 
 and proposes an exact mathematic programming method for solving small instances of
 the problem and two heuristic methods for larger ones. We compare
-the techniques considering running time and solution quality.
+the techniques considering solution quality.
 
 \end{abstract}
 
 \begin{IEEEkeywords}
-Optimization; Meta-heuristics; Knapsack; Experimental Evaluation.
+Optimization; Metaheuristics; Knapsack;
 \end{IEEEkeywords}
 
 
@@ -88,14 +101,14 @@ Optimization; Meta-heuristics; Knapsack; Experimental Evaluation.
 
 \input{defi.tex}
 
-%\input{related.tex}
+\input{related.tex}
 % \input{knap.tex}
 
 \input{alter.tex}
 
 \input{exp.tex}
 
-%\input{conclu.tex}
+\input{conclu.tex}
 
 \printbibliography
 
