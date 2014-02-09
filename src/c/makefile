@@ -1,5 +1,5 @@
 bindir="../../bin"
-DEBUG=1
+DEBUG=0
 CFLAGS=-O3 -static -D DEBUG=$(DEBUG) -lm
 CC=gcc
 all: c
