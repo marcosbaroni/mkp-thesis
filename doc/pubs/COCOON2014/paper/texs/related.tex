@@ -1,0 +1,33 @@
+%The exact formulation of the problem has shown to be quite particular and
+%no work addressing a similar problem was found in literature.
+%If the depreciation of the investments is not considered ($r=0$),
+%the problem may  be viewed as a \textit{Partially-Ordered Multidimensional
+%Multiple Knapsack Problem} (POMMKP). Which is, as far as we know, a
+%novel version of the classical Knapsack Problem.
+
+%Additionally, If we consider just the cost $c_{j,l}$ of each action (weight), the
+%reduction of lost electricity  $e_{j,k}$ of each action (profit) and the yearly budget (capacity)
+%on a single year situation ($M=1$) the problem could be classified as a simple
+%\textit{Knapsack Problem}~\cite{pisinger1995}.
+%If we now add the dependency restriction, the problem could be considered
+%a \textit{Partially-Ordered Knapsack Problem}~\cite{pok2002}.
+%If we consider multiple years ($M > 1$) instead of the dependency restriction, it would characterize
+%a \textit{Multiple Knapsack Problem}, with each year with its own capacity.
+%Considering multiple resources ($M=1, L > 1$) and no dependency, the problem can be formulated as a
+%\textit{Multidimensional Knapsack Problem}.
+
+%All the problems mentioned above are hard to solve optimally, these problems are known 
+%as $\mathcal{NP}$-hard problems and are no know polynomial time algorithms to solve, unless $\mathcal{P} = \mathcal{NP}$.
+%For the classical knapsack problem there is a FPTAS (\textit{Fully Polynomial Time Approximation Scheme}),
+%while for the others variants mentioned above are hard to aproximate and there are only PTAS 
+%(\textit{Polynomial Time Approximation Scheme}) to solve them with a certain degree of 
+%approximation of the optimal solution, ~\cite{pok2002, puchinger2006core, dawande2000approximation}. 
+
+%The POMMKP can be considered as a generalization of the above mentioned problems,
+%thus we may conclude that POMMKP is at least as difficult as any of them.
+%Since our problem is a generalization of the POMMKP, it is as difficult as the POMMKP.
+%For this reason there is no algorithm that solves our problem in polynomial time (considering
+%$\mathcal{P} \ne \mathcal{NP}$).
+%Given the difficulty of approximating the optimal solution of this problem through exact algorithms, heuristics methods are necessary 
+%for solving larger instances of the problem.
+

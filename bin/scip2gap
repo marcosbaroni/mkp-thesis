@@ -1,2 +1,6 @@
 #!/bin/bash
+<<<<<<< HEAD
 grep Gap|sed 's/\t/ /g'| sed 's/ \+/ /g'| cut -d ' ' -f 3|line
+=======
+grep "Gap"| sed 's/ //g' | cut -d ':' -f 2| sed 's/%//g'|head -1
+>>>>>>> 83143ae103b15890e1d5961515b47ed2f8dfef78

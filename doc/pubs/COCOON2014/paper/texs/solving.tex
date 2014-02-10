@@ -1,0 +1,125 @@
+%To solve our allocation problem we have developed three methodologies: 1) an exact algorithm
+%using integer programming, 2) a heuristic Gradient Ascent algorithm using the LP-relaxed version of the integer
+%programming model as a starting solution (GALP) and 3) a Tabu Search
+%algorithm that also uses the LP solution as a starting point (TSLP). In the following subsections we present each approach and comment on their particularities.
+%%The implementation of all methos is available at 
+
+%%To solve our allocation problem we have developed three methodologies: an exact approach
+%%and two heuristic algorithms.
+%%The exact approach considered the realistic version of the MIP formulation, previously defined on Section~\ref{sec:defi}.
+%%The first heuristic algorithm applies a gradient ascent method on an initial solution from a LP-relaxed model of the MIP formulation.
+%
+%%The second heuristic algorithm takes this same initial 
+%
+%%As duas baordagens heuristicas sao inicializadas com uma solucao inicial 
+%%As outras duas abordagens heuristicas sao inicializadas com a solucao otima truncated do LP-relaxation of the original formulation.
+%
+%%using integer programming and two heuristic algorithms using the LP-relaxed version of MIP
+%%with an a-posteriori heuristic allocation scheme.
+%%algorithm. In the following subsections we present each approach and comment on their particularities.
+
+\subsection{Exact Mathematical Programming Approach}
+%The exact approach considers the realistic version of the 
+%MIP formulation, previously defined in Section~\ref{sec:defi}.
+%To solve this formulation, we have used a branch-and-bound method~\cite{lawler1966branch}
+%included in the GLPK solver \cite{GLPK}.
+
+\subsection{Gradient Ascent using the LP solution (GALP)}
+%%However this method is known to get stuck in local minima.
+%We use a simple heuristic approach, namely Gradient Ascent (GA), using
+%the truncated solution of the relaxed version of the linear problem (considering $x_{j,i} \in [0,u_{j,i}]$) as a initial search point.
+%Since the relaxed version of the linear problem is easily solvable by the simplex 
+%algorithm ~\cite{dantzig1955generalized} and the Gradient Ascent algorithm has 
+%fast convergence characteristics, this approach is very efficient, 
+%converging in less than 10 iterations in most of our test instances. 
+%However because it is a greedy heuristic, it has the flaw of getting stuck in local minima,
+%because it never accepts a solution if it is worse than the current one.
+%Algorithm \ref{alg:ga} depicts the procedure.
+
+%We have compared the solution quality randomly starting the $GA$ algorithm in different locations of the
+%search space and found that in our experiments it never found a better solution
+%than using the truncated Linear Problem solution as a start.
+
+%%\begin{figure}
+%\begin{algorithm}[H]
+%\begin{algorithmic}[1]
+%\Function{Gradient Ascent}{Initial solution $S_{ini}$}
+%\State $S_{best} \gets S_{ini}$
+%\State $HasImproved \gets True$
+%\While{$HasImproved$}
+%    \State $HasImproved \gets False$
+%    \For{\label{alg:neigh}Each $Neig$ in $Neighborhood(V_{best})$}
+%        \If{$Evaluate(Neig) > Evaluate(S_{ini})$}
+%            \State $S_{best} \gets Neig$
+%            \State $HasImproved \gets True$
+%        \EndIf
+%    \EndFor
+%\EndWhile
+%\State \Return $S_{best}$
+%\EndFunction
+%\end{algorithmic}
+%\caption{Gradient Ascent Algorithm}
+%\label{alg:ga}
+%\end{algorithm}
+%%\end{figure}
+
+%Line \ref{alg:neigh} of the algorithm uses the function $Neighborhood(Solution)$, that
+%returns a set containing all possible solutions generated from $Solution$ by adding a
+%single action to the current solution.
+
+%
+\subsection{Tabu Search using the LP solution (TSLP)}
+
+%The second applied technique was the Tabu Search algorithm ~\cite{glover1997tabu}, again using the Linear Programming solution as the initial candidate solution. In~\cite{puchinger2010}, the authors claim that Tabu Search initialized with LP solution is the best known method to solve Multidimensional Knapsack Problem. We expect that the Tabu Search algorithm to be more prone to scape
+%local minima, since it can accept solutions worst than the current one. 
+%The pseudocode is depicted in the algorithm~\ref{alg:ts} ~\cite{brownlee2011clever}.
+
+%We have also compared the solution quality if we randomly start the $TS$ algorithm in the
+%search space and found that in our experiments it never found a better solution
+%than using the truncated Linear Problem solution as a start.
+
+%%\begin{figure}
+%\begin{algorithm}[H]
+%\begin{algorithmic}[1]
+%\Function{Tabu Search}{Initial solution $S_{ini}$}
+%\State $S \gets S_{ini}$
+%\State $S_{best} \gets S$
+%\State $TabuList \gets \emptyset$
+%\While{$StoppingCondition$}
+%    \State $CandList \gets \emptyset$
+%    \For{\label{alg:tabuneig}Each $S_{cand}$ in $TabuNeighborhood(S)$}
+%        \If{$featureDiff(S_{cand},S) \notin TabuList$}
+%            \State $CandList \gets CandList + S_{cand}$
+%        \EndIf
+%    \EndFor
+%    \State $S \gets BestCand(CandList)$
+%    \If{$Fitness(S) > Fitness(S_{best})$}
+%        \State $TabuList \gets TabuList + featureDiff(S, S_{best})$
+%        \State $S_{best} \gets S$
+%        \While{$size(TabuList) > maxSize$}
+%            \State $RemoveOldest(TabuList)$
+%        \EndWhile
+%    \EndIf
+%\EndWhile
+%\State \Return $S_{best}$
+%\EndFunction
+%\end{algorithmic}
+%\caption{Tabu Search Algorithm}
+%\label{alg:ts}
+%\end{algorithm}
+%%\end{figure}
+
+%The for loop on Line \ref{alg:tabuneig} uses the function $TabuNeighborhood(Solution)$,
+%that returns a neighborhood of  solutions generated from $Solution$.
+%In our case, we chose to return in this list the same neighborhood of GALP
+%concatenated with a randomly generated set of size $n_{tabu}$ that differ from the base solution
+%by at most three actions. For instance, if $Solution = \{10, 12, 30, 10\}$, a possible return of
+%$TabuNeighborhood(Solution)$ could be $\{\{12, 11, 30, 10\},\{10,12,29,10\},\{9,11,30,10\}\}$.
+
+%%We opted to use the actual solution of the problem as a tabu element instead of a movement.
+%%Albeit this is not the standard approach, we have found it to be more effective, converging
+%%faster and yielding statistical equivalent results in comparison to the standard approach
+%%in our problem.
+
+ 
+ 

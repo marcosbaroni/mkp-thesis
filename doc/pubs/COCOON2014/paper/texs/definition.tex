@@ -1,0 +1,124 @@
+%To apply optimization algorithms in our problem we first need to define it formally. Lets assume
+%that we must maximize the \textit{net present value} (the present investment return considering 
+%inflation) for a reduction plan of $M$ years, given:
+
+%\begin{itemize}
+%    \item a yearly budget for a set of $L$ resources $o_{il}$, $1 \le i \le M$, $1 \le l \le L$;
+%    
+%    \item a fraud reduction goal $g_i$, $1 \le i \le M$ that represents the
+%    amount of electricity loss that must be reduced;
+%
+%    \item an \textit{internal rate of return} $r$, that represents the yearly depreciation of the investment
+%    (constant for all investments and years). 
+%
+%\end{itemize}
+
+%We also assume that there are several actions to choose from a portfolio of actions of size $N$.
+%Each action $j$, $1 \le j \le N$, contained in the portfolio has several parameters: 
+%\begin{itemize}
+%    \item the electricity value $v_j$, that represents the value of the unit of electricity for each action $j$ in portfolio,
+%    i.e., the value of each Kilowatt of electricity;
+%    \item $m_j$, the maximum number of times that action $j$ may be performed, we
+%    shall refer to it as \textit{the market} of the action;
+%    \item $u_{j,i}$ the maximum number of times that action $j$ may be performed in the $i$-th year;
+%    \item $c_{j,l}$, the $l$-th cost associated to each execution of action $j$;
+%    \item $e_{j,k}$, the amount of lost electricity that the action $j$ will reduce after 
+%    $k$ years it was executed, when taken once;
+%    \item a set $D_j \subset \mathbb{N^*}$ that represents which actions must be performed prior action $j$.
+%    For each action $j$ the action $D_{j,d}$ ($1 \le d \le |D_j|$) must be executed a number of times defined by
+%    \item the parameter $Q_{j,d} \in \mathbb{R^+}$.
+%\end{itemize}
+
+%Our objective is to find a set of values for variables $x_{j,i}$, $\forall i,j$, $x_{j,i} \in \mathbb{N} $, 
+%the number of times that the action $j$ will be performed in the $i$-th year. We wish to choose a combination
+%of values that maximizes the net present value and is under the fraud reduction goal for all years. 
+
+%The constraints of the problem are the yearly budget restriction,
+%\begin{equation}
+%    \sum_{j=1}^{N} x_{j, i} \cdot c_{j,l} \le o_{i,l} \, \forall i, l,
+%	\label{eq:budget}
+%\end{equation}
+%the market restriction,
+%\begin{equation}
+%     \sum_{i=1}^{M} x_{j, i} \le m_j \, \forall j,
+%	\label{eq:market}
+%\end{equation}
+%the maximum number of times the action $x_{j, i}$ may be performed in $i$-th year,
+%\begin{equation}
+%     x_{j, i} \le u_{j, i} \, \forall j, i,
+%	\label{eq:maxacts}
+%\end{equation}
+%the goal restriction,
+%\begin{equation}
+%    \label{eq:goal}
+%    \sum_{j=1}^{N} \sum_{k=1}^{M}R_{i,j,k}(\bar{x}) \leq g_i \, \forall i, \\
+%\end{equation}
+%$R_{i,j,k}$ being the fraud reduction in the $k$-th year by the action $j$ taken on $i$-th year, defined as
+%\begin{equation}
+%    \label{eq:rec}
+%    R_{i,j,k}(\bar{x}) = x_{j, i} \cdot e_{j, k - i + 1} \, \forall k \geq i,
+%\end{equation}
+%and the dependency restriction for all actions and for all years,
+%\begin{equation}
+%    \label{eq:dependency}
+%    \forall j,k \quad \sum_{i=1}^{k} x_{d, i} \ge x_{j, d} \cdot Q_{j, d} \, \forall d \in D_j.
+%\end{equation}
+
+%To introduce the objective function we must define some auxiliary concepts:
+%The yearly total cost, $C_i$,
+%\begin{equation}
+%\label{eq:cost}
+%C_{i}(\bar{x}) =  \sum_{j=1}^{N} \sum_{l=1}^{L} x_{j, i} \cdot c_{j,l} \, \forall i,
+%\end{equation}
+%the gained profit in $i$-th year, due to elimination of the fraud, $V_i$,
+%\begin{equation}
+%    V_{i}(\bar{x}) = \sum_{j=1}^{N} \sum_{k=1}^{M} R_{k, j, i}(\bar{x}) \cdot v_j \, \forall i,
+%\end{equation}
+%by definition $V_i - C_i$ is the total cash flow in $i$-th year. 
+
+%Finally, we may define the objective function as:
+%\begin{equation}
+%    \label{eq:objective}
+%    max(O(\bar{x})) = max\left(\sum_{i=1}^{M} \frac{V_i(\bar{x}) - C_i(\bar{x})}{(1+r)^i}\right).
+%\end{equation}
+
+%The objective function represents the net present value, that is,
+%the sum of the yearly cash flows, $V_i - C_i$, adjusted by the internal rate of return for all years.
+
+%\subsection{Realistic Version}
+
+%To adapt the previously defined problem to the current state of our local EDCO, we simplify it in several  ways:
+
+%\begin{itemize}
+%%terminar de editar
+%\item We consider that the yearly budgets are insufficient to surpass the goal for any given year;
+%%because this is usually the case in real world scenarios. %This consideration
+%%renders the equation~\ref{eq:objective} imprecise. 
+
+%\item We consider all actions on portfolio have an positive cash flow;
+
+%\item We ignore the dependencies among actions, that is, the set $D_j$ is empty
+%for all actions; %This is necessary to simplify the analysis we perform in this work.
+
+%\item We assume that both the vectors that define the costs of the $j$-th  action $c_j$
+%and the $i$-th budget $o_i$ have size 1;%, that is, actions use resources of only
+%one kind.
+
+%\item We assume that the electricity  value $v_j$ is constant for all actions;
+
+%\item We assume that the value of $\sum_{i=0}^{N} u_{j,i} \leq m_j, \forall j$.
+%%Meaning that there is no yearly limit to the amount of times actions may be
+%%performed.
+
+%\end{itemize}
+
+%The simplifications may be altered accordingly to the current
+%state of the distributer. Other companies may eliminate or consider other restrictions,
+%and as far as we know, the model is general enough to model for the
+%majority of possible scenarios.
+
+%\todo[inline]{Terminar seção.}
+
+
+
+
