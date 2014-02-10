@@ -1,63 +1,62 @@
-\section{Introduction}
-Electricity loss due to fraud is a major concern among Electricity Distribution Companies (EDCO's) in developing countries. 
-The current estimate in our local Brazilian distributer is that about 13\% of the overall distributed electricity is lost due to fraud (non-technical losses)
-whereas only 7\% is lost due to inherent physical phenomena involved in the transmission of electricity (technical losses) \cite{ANEEL2012}. 
-The excessive non-technical loss represents a profit reduction for the
-EDCOS's and ultimately an impact on the quality of the distribution service, which in turn, motivate even more non-technical losses.
+%Electricity loss due to fraud is a major concern among Electricity Distribution Companies (EDCO's) in developing countries. 
+%The current estimate in our local Brazilian distributer is that about 13\% of the overall distributed electricity is lost due to fraud (non-technical losses)
+%whereas only 7\% is lost due to inherent physical phenomena involved in the transmission of electricity (technical losses) \cite{ANEEL2012}. 
+%The excessive non-technical loss represents a profit reduction for the
+%EDCOS's and ultimately an impact on the quality of the distribution service, which in turn, motivate even more non-technical losses.
 
-In principle, EDCO's could increase the charge of consumers to payoff the loss of electricity due to non-technical sources.
-However, the Brazilian regulatory agency of electricity (ANEEL) dictates that only a given amount of non-technical loss
-may be covered by increasing the charges of non-fraudulent clients. 
-This electricity threshold is known as \textit{non-technical loss reducing goal}.
-The electricity loss above the goal cannot be paid by consumers and results in 
-profit reduction to the EDCO's.
+%In principle, EDCO's could increase the charge of consumers to payoff the loss of electricity due to non-technical sources.
+%However, the Brazilian regulatory agency of electricity (ANEEL) dictates that only a given amount of non-technical loss
+%may be covered by increasing the charges of non-fraudulent clients. 
+%This electricity threshold is known as \textit{non-technical loss reducing goal}.
+%The electricity loss above the goal cannot be paid by consumers and results in 
+%profit reduction to the EDCO's.
 
-In practice, the existence of a non-technical loss reducing goal means that EDCO's are forbidden to charge clients more than a fixed value per Kilowatt/hour to
-attenuate losses due to non-technical sources.
-The non-technical loss reducing goal (and indirectly the maximum Kilowatt/hour charge) is established by ANEEL by studying the EDCO's 
-profile and the historical non-technical losses behaviour of similar regions of the country.
-Additionally, the EDCO's are required to \textit{reduce} the Kilowatt/hour electricity charge if they manage to mitigate
-electricity loss more than the established non-technical loss reducing goal. 
-This means that there is no gain to the EDCO's if they reduce the non-technical losses more than the established goal.
+%In practice, the existence of a non-technical loss reducing goal means that EDCO's are forbidden to charge clients more than a fixed value per Kilowatt/hour to
+%attenuate losses due to non-technical sources.
+%The non-technical loss reducing goal (and indirectly the maximum Kilowatt/hour charge) is established by ANEEL by studying the EDCO's 
+%profile and the historical non-technical losses behaviour of similar regions of the country.
+%Additionally, the EDCO's are required to \textit{reduce} the Kilowatt/hour electricity charge if they manage to mitigate
+%electricity loss more than the established non-technical loss reducing goal. 
+%This means that there is no gain to the EDCO's if they reduce the non-technical losses more than the established goal.
 
-Usually, the non-technical loss reducing goal is given for the following three years,
-defining a \textit{non-technical loss reducing curve},
-so that EDCO's may plan their \textit{non-technical loss reducing actions} for the
-following years.
-If EDCO's don't meet the imposed non-technical loss reduction curve in a given year, their profit in that year
-is reduced by the corresponding value of the electricity under the goal. For instance, if the regulatory
-agency establishes that the non-technical loss reduction goal is $40\,GW$, $50\,GW$, $60\,GW$, and the EDCO achieves $30\,GW$, $40\,GW$, $60\,GW$;
-$20\,GW$ won't be sold to consumers and will ultimately represent a profit loss.
-However, if the EDCO's reduces more electricity loss than the established goal in a year,
-they are required to reduce their gains to match the profit that they would have had in that year if they were exactly
-on the non-technical loss reduction goal.
+%Usually, the non-technical loss reducing goal is given for the following three years,
+%defining a \textit{non-technical loss reducing curve},
+%so that EDCO's may plan their \textit{non-technical loss reducing actions} for the
+%following years.
+%If EDCO's don't meet the imposed non-technical loss reduction curve in a given year, their profit in that year
+%is reduced by the corresponding value of the electricity under the goal. For instance, if the regulatory
+%agency establishes that the non-technical loss reduction goal is $40\,GW$, $50\,GW$, $60\,GW$, and the EDCO achieves $30\,GW$, $40\,GW$, $60\,GW$;
+%$20\,GW$ won't be sold to consumers and will ultimately represent a profit loss.
+%However, if the EDCO's reduces more electricity loss than the established goal in a year,
+%they are required to reduce their gains to match the profit that they would have had in that year if they were exactly
+%on the non-technical loss reduction goal.
 
-This scenario introduces a new problem to the EDCO's: given an investment portfolio comprised of 
-several non-technical loss reducing actions, a non-technical loss reduction curve and a yearly budget, which is the best possible 
-allocation of actions that maximizes the return of the investment? That is, the 
-allocation with the greatest profit or, in other words, the best \textit{investment strategy}.
-For instance, if the EDCO chooses to do nothing, it would not be able to charge for some portion of the
-distributed electricity,
-since this usually costs more than performing the non-technical loss reducing actions, doing nothing would not
-be the optimal course of action. On the other hand, reduce the loss to a greater extent than the
-imposed reduction curve is also not the optimal decision, since the over-reduced electricity loss does not
-increase the overall EDCO profit.
+%This scenario introduces a new problem to the EDCO's: given an investment portfolio comprised of 
+%several non-technical loss reducing actions, a non-technical loss reduction curve and a yearly budget, which is the best possible 
+%allocation of actions that maximizes the return of the investment? That is, the 
+%allocation with the greatest profit or, in other words, the best \textit{investment strategy}.
+%For instance, if the EDCO chooses to do nothing, it would not be able to charge for some portion of the
+%distributed electricity,
+%since this usually costs more than performing the non-technical loss reducing actions, doing nothing would not
+%be the optimal course of action. On the other hand, reduce the loss to a greater extent than the
+%imposed reduction curve is also not the optimal decision, since the over-reduced electricity loss does not
+%increase the overall EDCO profit.
 
-The current methodology used by EDCO's is to manually select the fraud reducing actions in
-a heuristic trial-and-error fashion. As we shall present in this work, choosing the best non-technical loss reducing actions is
-a complex combinatorial problem, thus the current \textit{de facto} procedure hardly finds to optimum solution of the problem.
-Since reducing technical losses is an important activity of EDCOS's, this motivates the use of computational techniques to 
-find the best, or at least good, solutions to our problem.
+%The current methodology used by EDCO's is to manually select the fraud reducing actions in
+%a heuristic trial-and-error fashion. As we shall present in this work, choosing the best non-technical loss reducing actions is
+%a complex combinatorial problem, thus the current \textit{de facto} procedure hardly finds to optimum solution of the problem.
+%Since reducing technical losses is an important activity of EDCOS's, this motivates the use of computational techniques to 
+%find the best, or at least good, solutions to our problem.
 
 
 \subsection{Organization}
-The reminder of the paper is organized as follows: Section~\ref{sec:defi} defines the
-problem of choosing non-technical loss reducing actions more formally.
-Section~\ref{sec:relat} is comprised of an investigation of related works in the literature 
-and a explanation of the inherent complexity of our problem.
-Section~\ref{sec:alter} introduces our methods for solving the defined problem. 
-In section~\ref{sec:exp} we present our experimental evaluation. Finally, in section~\ref{sec:con} 
-we make our concluding remarks about the experimental results and lay ground 
-for future work.
+%The reminder of the paper is organized as follows: Section~\ref{sec:defi} defines the
+%problem of choosing non-technical loss reducing actions more formally.
+%Section~\ref{sec:relat} is comprised of an investigation of related works in the literature 
+%and a explanation of the inherent complexity of our problem.
+%Section~\ref{sec:alter} introduces our methods for solving the defined problem. 
+%In section~\ref{sec:exp} we present our experimental evaluation. Finally, in section~\ref{sec:con} 
+%we make our concluding remarks about the experimental results and lay ground 
+%for future work.
 
                  
