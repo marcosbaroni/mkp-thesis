@@ -18,13 +18,13 @@ algorithm that also uses the LP solution as a starting point (TSLP). In the foll
 %with an a-posteriori heuristic allocation scheme.
 %algorithm. In the following subsections we present each approach and comment on their particularities.
 
-\subsection{Exact Mathematical Programming Approach}
+%\subsection{Exact Mathematical Programming Approach}
 The exact approach considers the realistic version of the 
 MIP formulation, previously defined in Section~\ref{sec:defi}.
 To solve this formulation, we have used a branch-and-bound method~\cite{lawler1966branch}
 included in the GLPK solver \cite{GLPK}.
 
-\subsection{Gradient Ascent using the LP solution (GALP)}
+%\subsection{Gradient Ascent using the LP solution (GALP)}
 %However this method is known to get stuck in local minima.
 We use a simple heuristic approach, namely Gradient Ascent (GA), using
 the truncated solution of the relaxed version of the linear problem (considering $x_{j,i} \in [0,u_{j,i}]$) as a initial search point.
