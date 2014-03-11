@@ -1,77 +1,48 @@
-\documentclass{article}
+\documentclass[11pt,twocolumn]{article}
 
 \usepackage[portuguese]{babel}
 \usepackage[utf8]{inputenc}
-
 \usepackage[cm]{fullpage} % to use more space from page
-
-\usepackage{longtable} % to use multi-page tables
-  % setting longtables alignment
-  \setlength\LTleft\parindent
-  \setlength\LTright\fill
-
-\usepackage{changepage} % to temporarily adjust page layout
-
-\usepackage[fleqn]{amsmath}
+\usepackage{graphicx}
 \usepackage{amsthm}
 \usepackage{amssymb}
+\usepackage[fleqn]{amsmath}
+\usepackage{multicol}
 \usepackage{bm} % for bold math text (\bm)
 
-\usepackage{multicol}
+\usepackage{longtable} % to use multi-page tables
+% setting longtables alignment
+\setlength\LTleft\parindent
+\setlength\LTright\fill
+
+% to temporarily adjust page layout
+\usepackage{changepage}
+
 \setlength{\columnseprule}{0.1pt}
-
-\usepackage{graphicx}
-
-\usepackage{fullpage}
 
 \allowdisplaybreaks
 
 %\renewcommand{\rmdefault}{ppl}
 
-\newcommand{\myrule}{
-  \rule{\textwidth}{0.1pt}
-  \vspace{6pt}
-}
-
-\newcommand{\topico}[1]{
-  \vspace{20pt}
-  {\Large \bf #1 }
-}
-
-\newcommand{\subtopico}[1]{
-  {\large \bf \underline{#1}}
-  \\
-}
-
-\newcommand{\variavel}[1]{
-  { \Large $ \bm{ #1 } \, $}
-}
-
-\newcommand{\decorator}[1]{
-  {\\ \scriptsize \hspace*{12pt} $ \bm{ #1 } $ }
-}
+\newcommand{\topico}[1]{ \subsection{#1} }
+\newcommand{\subtopico}[1]{ }
+\newcommand{\variavel}[1]{ $ #1 : $ }
+\newcommand{\decorator}[1]{ {\\ \scriptsize \hspace*{12pt} $ \bm{ #1 } $ } }
 
 %%%    LISTAGEM DAS RESTRIÇÔES   %%%
 
 % Ambiente para listagem de restrições
-
 \newenvironment{restricoes}
-  { \begin{longtable}{lrcclll}}
-  {\end{longtable} }
+  { \begin{itemize} }
+  { \end{itemize} }
 
 \newcommand{\restricao}[7]{
-    \multicolumn{2}{l}{ $\bullet$ #1} & & \\ \nopagebreak
-    & ${ \displaystyle \bm{#2} }$
-    & ${ \bm{#3} }$
-    & ${ \bm{#4} }$
-    & ${ \displaystyle \bm{#5} }$
-    & ${ \bm{#6} }$
-	& \begin{tabular}{l}
-	  #7
-    \end{tabular}
-	\\ \hspace{30pt}
+	\item #1 :
+	\begin{center}
+		$ \displaystyle{#2} #3 #4 \displaystyle{#5} #6 \qquad $
+		#7
+	\end{center}
 }
-
 
 % Ambiente para listagem de equações
 \newenvironment{equacoes}
@@ -92,6 +63,8 @@
 	\\
 }
 
+%\input{style1}
+
 \title{The Partially Ordered Multidimensional Multi-Knapsack Problem \\ {Definição} }
 \author{Marcos Daniel V. Baroni}
 
@@ -99,190 +72,10 @@
 
 \maketitle
 
-\topico{Conjuntos}
+\input{knap1.tex}
+%\pagebreak
 
-\begin{itemize}
-  \item \variavel{N} Nº de Ações {\scriptsize $(1 \leq i \leq N) $}
-  \item \variavel{Y} Nº de Anos  {\scriptsize $(1 \leq j \leq Y) $}
-  \item \variavel{P} Nº de Períodos por ano {\scriptsize $(1 \leq k \leq P.Y)$}
-    \begin{itemize}
-	  \item[$\bullet$]{\small $\bm{P_{j} = \{P.(j-1)+1, \ldots, P.j\}}$ \\ Períodos referentes ao ano $j$;} 
-	\end{itemize}
-  \item \variavel{R} Nº de Recursos {\scriptsize $(1 \leq l \leq R)$}
-\end{itemize}
-
-\topico{Parâmetros}
-
-\begin{multicols}{2}
-
-\subtopico{Globais}
-\begin{itemize}
-  \item \variavel{r} Taxa interna de retorno periódico (juros);
-\end{itemize}
-
-\subtopico{Anuais}
-\begin{itemize}
-  \item \variavel{g^j} Meta anual de redução de perda;
-    \decorator{1 \leq j \leq Y}
-  \item \variavel{o_l} Orçamento global;
-    \decorator{1 \leq l \leq R}
-  \item \variavel{p_l^j} Orçamento anual;
-    \decorator{1 \leq l \leq R, \quad 1 \leq j \leq Y}
-  \item \variavel{s_l^{k}} Orçamento periódico;
-    \decorator{1 \leq l \leq R, \quad \quad 1 \leq k \leq P.Y}
-\end{itemize}
-
-\vfill \columnbreak
-
-\subtopico{das Ações}
-\begin{itemize}
-  \item \variavel{m_i} Mercado global;
-    \decorator{1 \leq i \leq N}
-  \item \variavel{u_i^j} Mercado Anual;
-    \decorator{1 \leq i \leq N, \quad 1 \leq j \leq Y}
-  \item \variavel{z_i^k} Mercado periódico;
-    \decorator{1 \leq i \leq N, \quad 1 \leq k \leq P.Y}
-  \item \variavel{c_{il}} Custo da ação;
-    \decorator{1 \leq i \leq N, \quad 1 \leq l \leq R}
-  \item \variavel{v_i} Valor da energia;
-    \decorator{1 \leq i \leq N}
-  \item \variavel{e_i^k} Recuperação realizada pela ação $i$ no $k$-ésimo período
-    após sua execução;
-    \decorator{1 \leq i \leq N, \quad 0 \leq k \leq P.Y-1}
-  \item \variavel{D_{it}} Quantidade de vezes que a ação $t$ precisa ser
-  	feita para que seja possível a execução de 1 ação $i$.
-    \decorator{1 \leq i \leq N, \quad 1 \leq t \leq N}
-\end{itemize}
-
-\end{multicols}
-
-\pagebreak
-
-\topico{Variáveis}
-\begin{itemize}
-  \item \variavel{x_i^k} Número de vezes que a ação $i$ é executada no período $k$;
-    \decorator{1 \leq i \leq N, \quad 1 \leq k \leq P.Y}
-\end{itemize}
-
-\topico{Equações}
-
-\begin{equacoes}
-    \equacao
-	  {Total de energia recuperada para o $k$-ésimo período, considerando as ações $i$ de todos os períodos.}
-	  {Rec_{i}^{k}(\overline{x})}
-	  {\sum_{k'=1}^{k} x_i^{k'} . e_i^{(k-k')}}
-	  { $i \in \{1, \ldots, N\}$ \\ $k \in \{1, \ldots, P.Y\}$ }
-	\equacao
-	  {Custo total de todas as ações executadas no período $k$.}
-	  {Cost_i^k(\overline{x})}
-	  {\sum_{l=1}^R x_i^k . c_{il}}
-	  { $k \in \{1, \ldots, P.Y\}$}
-	\equacao
-	  {Recuperação de energia para o $k$-ésimo  período após o plano, causada pelas as ações $i$ de todos os períodos.}
-	  {{Rec'}_{i}^k(\overline{x})}
-	  {\sum_{k'=k+1}^{P.Y} x_i^{k'} . e_i^{(P.Y+k-k')}}
-	  { $i \in \{1, \ldots, N\}$ \\ $k \in \{1, \ldots, P.Y\}$ }
-\end{equacoes}
-
-\topico{Restrições}
-
-\begin{restricoes}
-    \restricao
-	  {Meta de Recuperação Anual\footnote{Dúvida: a recuperação ficar muito abaixo da meta não é um problema?}}
-	  { \sum_{i = 1}^N \sum_{k \in P_j}}
-	  { Rec_i^k(\overline{x})}
-	  { \leq }
-	  { }
-	  { g^j }
-	  { $ j = 1, \ldots, Y $ }
-	\\
-    \restricao
-	  {Orçamento Global}
-	  { \sum_{i = 1}^N \sum_{k = 1}^{P.Y} }
-	  { x_i^k . c_{il}}
-	  { \leq }
-	  { }
-	  { o_l }
-	  { $ l = 1, \ldots, R $ }
-	\\
-    \restricao
-      {Orçamento Anual}
-      { \sum_{i = 1}^N \sum_{k \in P_j} }
-      { x_i^k . c_{il} }
-	  { \leq }
-	  { }
-	  { p_l^j }
-	  { $ j = 1, \ldots, Y $ \\ $ l = 1, \ldots, R$ }
-    \\
-	\restricao
-	  {Orçamento periódico}
-      { \sum_{i = 1}^N }
-      { x_i^k . c_{il} }
-	  { \leq }
-	  { }
-	  { s_l^{k} }
-	  { $ k = 1, \ldots, P.Y $ \\ $ l = 1, \ldots, R $ }
-	\\
-	\restricao
-	  {Mercado Global}
-      { \sum_{k = 1}^P }
-      { x_i^k }
-	  { \leq }
-	  { }
-	  { m_i }
-	  { $ i = 1, \ldots, N $ }
-	\\
-	\restricao
-	  {Marcado Anual}
-      { \sum_{k \in P_j} }
-      { x_i^k }
-	  { \leq }
-	  { }
-	  { u_i^j }
-	  { $ i = 1, \ldots, N $ \\ $ j = 1, \ldots, Y $ }
-	\\
-	\restricao
-	  {Marcado Periódico}
-      { }
-      { x_i^k }
-	  { \leq }
-	  { }
-	  { z_i^k }
-	  { $ i = 1, \ldots, N $ \\ $ k = 1, \ldots, P.Y$ }
-	\\
-	\restricao
-	  {Dependência entre as Ações}
-      { \sum_{k' = 1}^k }
-      { D_{it} . x_i^{k'} }
-	  { \leq }
-	  { \sum_{k' = 1 }^{k-1} }
-	  { x_t^{k'} }
-	  { $i,t=1,\ldots,N$ \\ $k=2,\ldots,P.Y$ }
-\end{restricoes}
-
-\topico{Função Objetivo}
-\begin{equation}
-  \nonumber
-    \bm{
-	  Max \big(Z(\overline{x})\big) =
-	    \sum_{i=1}^N
-	    \sum_{k=1}^{P.Y}
-	    \frac
-		  {\big( Rec_i^k(\overline{x}).v_i - Cost_i^k(\overline{x}) \big)}
-	      {(1+r)^k}
-		+
-	    \underbrace{
-	    \sum_{i=1}^N
-	    \sum_{k=1}^{P.Y}
-	    \frac
-		  {{Rec'}_i^k(\overline{x}).v_i}
-	      {(1+r)^{(k+P.Y)}}
-		}_{\text{Lucro pós-planejamento}}
-	}
-  \label{eq:budget}
-\end{equation}
-
-\vfill
+%\input{knap2.tex}
 
 \end{document}
 
