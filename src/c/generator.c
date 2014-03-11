@@ -16,8 +16,16 @@ void print_help(){
 }
 
 void print_usage(){
-	printf("usage: ./generator <nacts> <nyears> <npers> <nres> [seed] [irr] [mtir] [vtir]\n");
+	printf("usage: ./generator -b <directory>\n");
+	printf("\tGenerates a batch of instances on <directory>.\n\n");
+	printf("usage: ./generator -s <nacts> <nyears> <npers> <nres> <seed> <irr> <mtir> <vtir>\n");
+	printf("\tGenerates a single instance to standart output.\n");
 
+	return;
+}
+
+void batch(char *dir){
+	
 	return;
 }
 
