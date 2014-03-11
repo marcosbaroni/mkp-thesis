@@ -1,0 +1,34 @@
+\renewcommand{\variavel}[1]{
+  { \Large $ \bm{ #1 } \, $}
+}
+
+\newcommand{\topico}[1]{
+  \vspace{20pt}
+  {\Large \bf #1 }
+}
+
+\newcommand{\subtopico}[1]{
+  {\large \bf \underline{#1}}
+  \\
+}
+
+\newcommand{\decorator}[1]{
+  {\\ \scriptsize \hspace*{12pt} $ \bm{ #1 } $ }
+}
+
+\renewenvironment{restricoes}
+  { \begin{longtable}{lrcclll}}
+  {\end{longtable} }
+
+\renewcommand{\restricao}[7]{
+    \multicolumn{2}{l}{ $\bullet$ #1} & & \\ \nopagebreak
+    & ${ \displaystyle \bm{#2} }$
+    & ${ \bm{#3} }$
+    & ${ \bm{#4} }$
+    & ${ \displaystyle \bm{#5} }$
+    & ${ \bm{#6} }$
+	& \begin{tabular}{l}
+	  #7
+    \end{tabular}
+	\\ \hspace{30pt}
+}

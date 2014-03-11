@@ -1,0 +1,126 @@
+\section{Versão 1}
+
+Versão original do problema, inspirado no problema da Escelsa de combate a perdas.
+
+\topico{Conjuntos}
+\begin{itemize}
+  \item \variavel{N} Nº de ações {\scriptsize $(1 \leq i \leq N) $}
+  \item \variavel{Y} Nº de anos  {\scriptsize $(1 \leq j \leq Y) $}
+  \item \variavel{R} Nº de recursos {\scriptsize $(1 \leq l \leq R)$}
+\end{itemize}
+
+\topico{Parâmetros}
+\subtopico{Globais}
+\begin{itemize}
+  \item \variavel{r} Taxa interna de retorno periódico (juros);
+\end{itemize}
+
+\subtopico{Anuais}
+\begin{itemize}
+  \item \variavel{g^j} Meta anual de redução de perda;
+    \decorator{1 \leq j \leq Y}
+  \item \variavel{p_l^j} Orçamento anual;
+    \decorator{1 \leq l \leq R, \quad 1 \leq j \leq Y}
+\end{itemize}
+
+\subtopico{das Ações}
+\begin{itemize}
+  \item \variavel{m_i} Mercado global;
+    \decorator{1 \leq i \leq N}
+  \item \variavel{u_i^j} Mercado Anual;
+    \decorator{1 \leq i \leq N, \quad 1 \leq j \leq Y}
+  \item \variavel{c_{il}} Custo da ação;
+    \decorator{1 \leq i \leq N, \quad 1 \leq l \leq R}
+  \item \variavel{v_i} Valor da energia;
+    \decorator{1 \leq i \leq N}
+  \item \variavel{e_i^j} Recuperação realizada pela ação $i$ no $j$-ésimo ano
+    após sua execução;
+    \decorator{1 \leq i \leq N, \quad 0 \leq j \leq Y-1}
+  \item \variavel{D_{it}} Quantidade total de vezes que a ação $t$ precisa ter
+    sido feita para que tenha-se um total de $1$ ação $i$.
+    \decorator{1 \leq i \leq N, \quad 1 \leq t \leq N}
+\end{itemize}
+
+\topico{Variáveis}
+\begin{itemize}
+  \item \variavel{x_i^j} Número de vezes que a ação $i$ é executada no período $k$;
+    \decorator{1 \leq i \leq N, \quad 1 \leq j \leq Y}
+\end{itemize}
+
+\topico{Restrições}
+\begin{restricoes}
+    \restricao
+	  {Meta de recuperação anual\footnote{Dúvida: a recuperação ficar muito abaixo da meta não é um problema?}}
+	  { \sum_{i = 1}^N \sum_{k \in P_j}}
+	  { Rec_i^k(\overline{x})}
+	  { \leq }
+	  { }
+	  { g^j }
+	  { \begin{tabular}{l}
+	  	  $j = 1, \ldots, Y$
+		\end{tabular} }
+    \restricao
+      {Orçamento Anual}
+      { \sum_{i = 1}^N \sum_{k \in P_j} }
+      { x_i^k . c_{il} }
+	  { \leq }
+	  { }
+	  { p_l^j }
+	  { \begin{tabular}{l}
+	      $ j = 1, \ldots, Y $ \\
+		  $ l = 1, \ldots, R $ 
+		\end{tabular} }
+	\restricao
+	  {Mercado Global}
+      { \sum_{k = 1}^P }
+      { x_i^k }
+	  { \leq }
+	  { }
+	  { m_i }
+	  { \begin{tabular}{l}
+	    $ i = 1, \ldots, N $
+		\end{tabular} }
+	\restricao
+	  {Marcado Anual}
+      { \sum_{k \in P_j} }
+      { x_i^k }
+	  { \leq }
+	  { }
+	  { u_i^j }
+	  { \begin{tabular}{l}
+	      $ i = 1, \ldots, N $ \\
+		  $ j = 1, \ldots, Y $
+		\end{tabular} }
+	\restricao
+	  {Dependência entre as Ações}
+      { \sum_{k' = 1}^k }
+      { D_{it} . x_i^{k'} }
+	  { \leq }
+	  { \sum_{k' = 1 }^{k-1} }
+	  { x_t^{k'} }
+	  { \begin{tabular}{l}
+	      $ i, t=1, \ldots, N$ \\
+		  $ k=2, \ldots, Y$
+		\end{tabular} }
+\end{restricoes}
+
+\topico{Função Objetivo}
+\begin{align}
+  \nonumber
+	  Max \quad Z(\overline{x}) = &
+	    \sum_{i=1}^N
+	    \sum_{j=1}^{Y}
+	    \frac
+		  {\big( Rec_i^j(\overline{x}).v_i - Cost_i^j(\overline{x}) \big)}
+	      {(1+r)^j}
+		+ \\ & + \nonumber
+	    \underbrace{
+	    \sum_{i=1}^N
+	    \sum_{j=1}^{Y}
+	    \frac
+		  {{Rec'}_i^j(\overline{x}).v_i}
+	      {(1+r)^{(j+P.Y)}}
+		}_{\text{Lucro pós-planejamento}}
+  \label{eq:budget}
+\end{align}
+

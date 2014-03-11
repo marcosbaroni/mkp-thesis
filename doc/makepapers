@@ -1,0 +1,4 @@
+#!/bin/bash
+tar -zxvf papers.tar.gz
+tar -zcvf papers.tar.gz papers/*
+
