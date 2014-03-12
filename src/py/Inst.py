@@ -31,10 +31,6 @@ def gettypes(val):
 	else: form = '%d'
 	return (c1, c2, form)
 
-''' Format value(s) to legible format (this function is inteligent). '''
-def fval(mat):
-	pass
-
 ''' Format value(s) to CPLEX format (this function is inteligent). '''
 def cplexformat(val):
 	# Getting types
