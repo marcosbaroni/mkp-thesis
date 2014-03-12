@@ -22,3 +22,21 @@ float v[Ns] = ...;       // value of energy
 float e[Ns][Ys] = ...;   // energy recovery
 setof(dep) D = ...;      // depedencies
 
+/* Variable */
+dvar int+ x[Ns][Ys];
+
+/* Equations */
+// Total recovered energy on period 'k' by action 'i'
+dexpr float rec_def[i in Ns][k in Ys] = 
+	sum(k2 in Ys) k2 >= k+1
+	x[i,k]
+
+/* Objective */
+maximize
+	totalProfit;
+
+/* Constraints */
+subject to {
+	//
+}
+
