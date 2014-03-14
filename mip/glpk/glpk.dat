@@ -1,6 +1,6 @@
 data;
 
-param duracao := 4;
+param duration := 4;
 
 param acoes := 5;
 
