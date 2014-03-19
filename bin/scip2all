@@ -1,0 +1,11 @@
+#!/bin/bash
+SCDIR="."    # script dir
+INPUT=$1
+temp=`mktemp`
+scip -f $INPUT > $temp
+tm=`cat $temp | $SCDIR/scip2time`
+gp=`cat $temp | $SCDIR/scip2gap`
+ob=`cat $temp | $SCDIR/scip2obj`
+echo ${ob}";"${gp}";"${tm}
+rm $temp
+
