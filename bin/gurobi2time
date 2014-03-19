@@ -1,0 +1,2 @@
+#!/bin/bash
+grep "Explored " | cut -d ' ' -f 8""

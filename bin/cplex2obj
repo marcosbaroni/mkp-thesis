@@ -1,0 +1,2 @@
+#!/bin/bash
+grep "Current MIP best bound"| sed 's/ \+/ /g'|cut -d ' ' -f 6""
