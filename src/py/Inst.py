@@ -53,20 +53,9 @@ def cplexformat(val):
 		
 
 class PCOPE:
-	def __init__(self):
-		self.na = 0        # number of actions
-		self.ny = 0        # number of years
-		self.nr = 0        # number of resources
-		self.r = 0         # internal return rate
-		self.gmarket = []  # global market
-		self.ygoal = []    # yearly goals (Y)
-		self.ybudget = []  # yearly budget (Y)
-		self.ymarket = []  # yearly market (Y)
-		self.acost = []    # action cost (N)
-		self.evalue = []   # energy value (N)
-		self.recover = []  # energy recovery rate (N x Y)
-		self.ndeps = 0     # number of depedencies
-		self.deps = []      # dependencias
+	''' Instance contructor. '''
+	def __init__(self, fin):
+		fromPlain(fin)       # reads from plain text
 
 	''' Reads the Instance from a plain text format. '''
 	def fromPlain(self, fin):
