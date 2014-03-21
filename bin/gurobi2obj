@@ -1,2 +1,0 @@
-#!/bin/bash
-grep "Best objective" | cut -d ' ' -f 3| sed 's/,//g'""

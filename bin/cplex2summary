@@ -1,0 +1,10 @@
+#!/bin/bash
+temp=`mktemp`
+tee $temp > /dev/null
+ob=`cat $temp | grep "MIP " | grep "Objective" | sed 's/.*Objective =//'|sed 's/ //g'`
+gp=`cat $temp | grep "Current MIP best bound"|sed 's/ \+/ /g'|cut -d ' ' -f 10|sed 's/\%)//g'`
+if [ -z "$gp" ]; then gp="0.00" ;fi # gambiarra para quando não teve gap
+tm=`cat $temp | grep "Solution time"| sed 's/ \+/ /g'|cut -d ' ' -f 4`
+echo ${ob}";"${gp}";"${tm}
+rm $temp
+

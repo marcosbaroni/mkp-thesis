@@ -1,0 +1,9 @@
+#!/bin/bash
+temp=`mktemp`
+tee $temp > /dev/null
+ob=`cat $temp | grep "Primal Bound"|sed 's/\ \+/\ /g'|cut -d ' ' -f 4`
+gp=`cat $temp | grep "Gap"| sed 's/ //g' | cut -d ':' -f 2| sed 's/%//g'|head -1`
+tm=`cat $temp | grep "Solving Time (sec)"| sed 's/ //g'|cut -d ':' -f 2`
+echo ${ob}";"${gp}";"${tm}
+rm $temp
+

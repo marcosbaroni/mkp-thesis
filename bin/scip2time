@@ -1,2 +1,0 @@
-#!/bin/bash
-grep "Solving Time (sec)"| sed 's/ //g'|cut -d ':' -f 2
