@@ -1,0 +1,2 @@
+echo $* >> ~/condor/output.txt
+
