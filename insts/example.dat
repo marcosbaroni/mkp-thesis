@@ -1,0 +1,49 @@
+# N. de Ações (N)
+3
+
+# N. de Anos (Y)
+4
+
+# N. de Recursos (R)
+2
+
+# Taxa interna de retorno (r)
+0.15
+
+# Metas Anuais (g) [Y]
+100.0 90.0 80.0 80.0
+
+# Orçamentos Anuais (p) [R X Y]
+10.0 10.0 10.0 10.0
+10.0 10.0 10.0 10.0
+
+# Market Global (m) [N]
+38 27 50
+
+# Market Anual (u) [N X Y]
+12 8 14 5
+9 11 10 8
+20 18 24 14
+
+# Custo da ação (c) [N X R]
+1.0 1.0
+2.0 2.0
+3.0 3.0
+
+# Valor da Energia (v) [N]
+1.0
+1.0
+1.0
+
+# Recuperação anual (e) [N X Y]
+3.0 2.0 1.0 0.0
+2.0 3.0 1.0 0.0
+0.0 2.0 3.0 2.0
+
+# N de dependencias
+2
+
+# Dependencias (i, t, Dit)
+1 2 4
+3 2 1
+

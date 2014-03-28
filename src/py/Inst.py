@@ -2,17 +2,31 @@
 import random as r
 from sys import stdout, stdin, argv
 
-''' Pops value(s) from a list of string, parsing it to the given type. '''
-def scan(f, t=int, lin=0, col=0):
-	if not lin and not col:     # read a integer
-		x = t(f.pop(0))
-	elif col:             # read an integer matrix
-		x = []
-		for i in range(lin):
-			x.append([t(f.pop(0)) for i in range(col)])
-	else:                 # read an integer array
-		x = [t(f.pop(0)) for i in range(lin)]
-	return x
+class Scanner:
+	''' Cria um Scanner a partir de um arquivo. '''
+	def __init__(self, fin):
+		self.vals = []
+		if fin.__class__.__name__ == 'str':
+			fin = open(fin, "r")
+		for l in map(str.strip, fin.readlines()):
+			if l:
+				if l[0] != '#':
+					self.vals += l.split()
+		print self.vals
+	
+
+	''' Pops value(s) from a list of string, parsing it to the given type. '''
+	def scan(self, t=int, lin=0, col=0):
+		if not lin and not col:     # reads a single value
+			x = t(self.vals.pop(0))
+		elif col:                   # reads a matrix
+			x = []
+			for i in range(lin):
+				x.append([t(self.vals.pop(0)) for i in range(col)])
+		else:                       # reads an array
+			x = [t(self.vals.pop(0)) for i in range(lin)]
+		return x
+
 
 ''' Retrieve input the value types and the fundamental formater string. '''
 def gettypes(val):
@@ -53,35 +67,31 @@ def cplexformat(val):
 		
 
 class PCOPE:
-	''' Instance contructor. '''
+	''' Cosntrutor: reads the Instance from a plain text format. '''
 	def __init__(self, fin):
-		fromPlain(fin)       # reads from plain text
+		sc = Scanner(fin)
 
-	''' Reads the Instance from a plain text format. '''
-	def fromPlain(self, fin):
-		# Verificando se e ou o arquivo ou seu o nome
-		if fin.__class__.__name__ == 'str':
-			fin = open(fin, "r")
-		rd = fin.read().split()
-		self.na = scan(rd)
-		self.ny = scan(rd)
-		self.nr = scan(rd)
-		self.r = scan(rd, float)
-		self.gmarket = scan(rd, int, self.na)
-		self.ygoal = scan(rd, float, self.ny)
-		self.ybudget = scan(rd, float, self.nr, self.ny)
-		self.ymarket = scan(rd, int, self.na, self.ny)
-		self.acost = scan(rd, float, self.na, self.nr)
-		self.evalue = scan(rd, float, self.na)
-		self.recover = scan(rd, float, self.na, self.ny)
-		self.ndeps = scan(rd, int)
-		self.deps = [tuple(scan(rd, int, 3)) for i in range(self.ndeps)]
+		# Realiza leituras
+		self.na = sc.scan()          # n ações
+		self.ny = sc.scan()          # n anos
+		self.nr = sc.scan()          # n recursos
+		self.r = sc.scan(float)    # juros
+		self.ygoal = sc.scan(float, self.ny)             # meta anual
+		self.ybudget = sc.scan(float, self.nr, self.ny)  # orçamento anual
+		self.gmarket = sc.scan(int, self.na)             # market global
+		self.ymarket = sc.scan(int, self.na, self.ny)    # market anual
+		self.acost = sc.scan(float, self.na, self.nr)    # custo da ação
+		self.evalue = sc.scan(float, self.na)            # valor da energia
+		self.recover = sc.scan(float, self.na, self.ny)  # recuperação
+		self.ndeps = sc.scan(int)                        # n dependendias
+		self.deps = [tuple(sc.scan(int, 3)) \
+			for i in range(self.ndeps)]
 		
 	''' Returns a readable format of the instance. '''
 	def toStr(self):
-		s = "# Actions: " + str(self.na) + "\n"
-		s += "# Years: " + str(self.ny) + "\n"
-		s += "# Resources: " + str(self.nr) + "\n"
+		s = "N. Actions: " + str(self.na) + "\n"
+		s += "N. Years: " + str(self.ny) + "\n"
+		s += "N. Resources: " + str(self.nr) + "\n"
 		s += "irr: " + str(self.r) + "\n"
 		s += "G. Market: " + str(self.gmarket) + "\n"
 		s += "Yearly. Goal: " + str(self.ygoal) + "\n"
@@ -110,7 +120,7 @@ class PCOPE:
 		return s
 
 if __name__ == '__main__':
-	p = PCOPE()
-	p.fromPlain(argv[1])
-	print p.toCPLEX()
+	p = PCOPE(argv[1])
+	print p.toStr()
+	#print p.toCPLEX()
 
