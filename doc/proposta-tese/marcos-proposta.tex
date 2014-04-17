@@ -1,0 +1,543 @@
+\documentclass[brazil]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[portuges,brazilian]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{cite} % para quebrar citações que estrapolam a margem
+
+\usepackage[dvipdf]{graphicx}
+\usepackage{amsmath}
+\usepackage[breaklinks,colorlinks=true,linkcolor=black,citecolor=black,urlcolor=black]{hyperref}
+
+\usepackage[portuges]{babel}
+
+\usepackage[ruled,longend,lined,linesnumbered]{algorithm2e}
+
+%\renewcommand{\rmdefault}{put} % Utopia Font
+%\renewcommand{\sfdefault}{put} % Utopia Font
+
+\newcommand{\bigbullet}{\,\begin{picture}(-1,1)(-1,-2)\circle*{5}\end{picture}\ }
+
+% Escrita dos algoritmos
+\SetKwInput{KwIn}{Entrada}
+\SetKwInput{KwOut}{Saída}
+\SetKwFor{While}{enquanto}{faça:}{fim}
+\SetKwFor{For}{para}{faça:}{fim}
+\SetKwBlock{Begin}{início}{fim}
+\SetKwIF{If}{ElseIf}{Else}{se}{então}{senão se}{senão}{fim}
+\SetKw{KwTo}{até}
+
+\pagestyle{plain}
+
+\begin{document}
+
+\begin{titlepage}
+
+\begin{center}
+
+\LARGE{Marcos Daniel Valadão Baroni}
+
+\vspace{40mm}
+
+\LARGE{Algoritmo Híbrido \textit{Intelligent Water Drops} \\ para o Problema da Mochila Multidimensional} \\
+\vspace{5mm}
+\Large{Projeto para Curso de Doutorado em Ciência da Computação}
+
+\vspace{65mm}
+
+\normalsize{Vitória, \today} \\
+%\normalsize{Vitória, 20 de maio de 2013} \\
+
+%\vspace{25mm}
+\vfill
+
+\begin{small}
+Programa de Pós-Graduação em Informática \\
+Centro Tecnológico -- Universidade Federal do Espírito Santo \\
+Av. Fernando Ferrari, 514, Goiabeiras - Vitória - ES \\
+\end{small}
+
+\end{center}
+
+\end{titlepage}
+
+\newpage
+
+\tableofcontents{}
+
+\section{Introdução}
+
+A otimização combinatória é o ramo da computação que
+trata de pro\-ble\-mas cujo objetivo é encontrar um elemento ótimo
+dentre um conjunto finito de elementos~\cite{Schrijver2003}.
+Nos últimos anos o estudo da otimização combinatória tem crescido
+de\-vi\-do ao aparecimento de complexos problemas deste caráter em
+várias áreas, como produção industrial e economia.
+
+O \textit{problema da mochila multidimensional} (ou, em inglês, \textit{multidimensional knapsack problem}
+ou \textit{MKP}) é um problema de otimização combina\-tó\-ria que pode ser aplicado a
+vários problemas práticos, como por exemplo, carregamento de carga~\cite{Shih-1979},
+corte de estoque~\cite{Gilmore-Gomory-1966}, selecão de projetos~\cite{Li-Chiu-Cox-1999}
+e alocação de processadores
+em sistemas distribuídos~\cite{Gavish-Pirckul-1982}.
+
+Por ser de grande relevância e difícil resolução, o MKP tem
+sido bastante estudado.
+Este, pode ser definido pelo problema de otimização seguinte~\cite{Puchinger2010}:
+\begin{align}
+  \textrm{maximizar}
+    \quad & z = \sum_{j=1}^n p_j x_j \\
+  \textrm{sujeito a}
+  	\quad & \sum_{j=1}^n w_{ij}x_j \leq c_i, \quad i=1,\cdots,m, \\
+          & x_j \in \{0,1\}, \quad j=1,\cdots,n.
+\end{align}
+O problema define $n$ elementos e $m$ recursos, cada um com capacidade $c_i > 0$.
+Para a seleção de um elemento $j$ há um lucro $p_j$, mas também um gasto $w_{ij}$ do recurso $i$.
+O objetivo é selecionar um subconjunto de elementos que totalize o maior lucro,
+não ultrapassando as capacidades dos recursos.
+
+No caso em que $m = 1$ o problema é chamado simplesmente de \textit{problema
+da mochila} (knapsack problem).
+Sabe-se que o problema está na classe \textit{NP-completo}, por ser um dos
+21 problemas NP-completos apresentados por Richard Karp em 1972~\cite{Karp-1972, Garey1979}.
+
+Com o crescimento em larga escala dos problemas de otimização combinatória,
+métodos simples utilizados até então para a sua resolução
+tornaram-se inviáveis, devido à complexidade, exigindo assim o desenvolvimento de métodos mais e\-fi\-ci\-en\-tes.
+
+A utilização de métodos exatos para problemas NP-completos garantem otimalidade
+da solução, porém tornam-se inviáveis, na maioria das vezes, mesmo para instâncias de tamanho médio,
+devido ao tempo exponencial necessário para a execução dos métodos.
+Algoritmos de aproximação são capazes de dar garantia na qualidade da solução,
+demandando um menor tempo de execução, porém, são geralmente algoritmos difíceis
+de serem formulados e a garantia de solução dada por vezes não é satisfatória.
+
+Por estes motivos cada vez mais têm-se recorrido às \textit{heurísticas}: métodos não exatos que
+demandam um menor tempo de execução.
+Apesar de não proverem garantia na qualidade de solução, a utilização de heurísticas,
+após os devidos ajustes, tem apresentado em geral resultados satisfatórios.
+
+Além das heurísticas desenvolvidas expecificamente para um determinado problema
+existem ainda as chamadas \textit{metaheurísticas} que são heurísticas com
+um caráter genérico.
+Este caráter genérico possibilita a sua aplicação em vários tipos de problemas,
+geralmente através de poucas adaptações~\cite{Dorigo2013}.
+Podem possuir ainda variações em suas aplicações ou mesmo serem aplicadas
+em conjunto com uma outra heurística, gerando um método híbrido, mais efetivo
+por aliarem as qualidades presentes em cada uma delas~\cite{Blum2003}.
+
+Recentente foi proposta por Hamed Shah-Hosseini uma metaheurística cha\-ma\-da
+\textit{intelligent water drops (IWD)} que baseia-se no comportamento das
+águas ao fluírem através de um rio~\cite{Hosseini-2007}.
+Cada porção de água percorre um caminho no espaço que depende, não só do
+ambiente ao redor, mas também do tamanho e velocidade da porção d'água.
+Ao passar por um caminho, a porção de água modifica o ambiente, podendo
+ganhar velocidade e tamanho ao carregarem um pouco do solo.
+Tem-se no final do processo um caminho traçado da nascente ao ponto em que o rio desagua.
+
+A proposta desta nova metaheurística foi seguida pela sua aplicação ao MKP,
+feita pelo mesmo autor~\cite{Hosseini-2008}, cujo experimento alcançou soluções
+bem próximas ao ótimo e bem competitivas quando comparadas à ou\-tras metaheurísticas
+aplicadas ao MKP por trabalhos conhecidos da literatura.
+
+Devido a sua importância e fácil modelagem o MKP têm sido utilizado ultimamente
+como um \textit{problema teste} na avaliação de novas metaheurísticas.
+O objetivo principal desta proposta é desenvolver uma heurística híbrida
+para a resolução do MKP, aliando a metaheurística IWD a um \textit{algoritmo
+de estimação de distribuição}.
+
+Um algoritmo de estimação de distribuição (AED) é um algoritmo probabilístico
+que propõe encontrar boas soluções para problemas de otimização, com o auxílio
+de um modelo probabilístico, proposto a partir de uma amostra de soluções.
+Detalhes da utilização do AED à metaheurística IWD são apresentados nas próximas seções.
+
+%\textit{algoritmo genético},
+%\textit{colônia de formigas}~\cite{Dorigo-1991} e \textit{ar\-re\-fe\-ci\-men\-to simulado}.
+%Pretendemos analisar e comparar a aplicação de diversas metaheurísticas
+%ao MKP realizando ajustes, propondo melhorias e com\-pa\-ran\-do-as também aos outros métodos
+%de resolução existentes.
+
+Também pretende-se aplicar a heurística desenvolvida aqui a um problema real da
+indústria de distribução de energia elétrica brasileira.
+
+Na Seção seguinte apresentaremos os objetivos deste trabalho.
+Na Seção~\ref{sec:justificativa} apresentaremos a justificativa para a pesquisa.
+Na Seção~\ref{sec:metodologia} trataremos da metodologia que será utilizada no trabalho.
+Na Seção~\ref{sec:cronograma} apresentaremos o cronograma do projeto.
+
+\section{Objetivos}
+\label{sec:objetivos}
+
+%\subsection{Objetivos Gerais}
+
+Esta proposta tem como objetivo o aperfeiçoamento da metaheurística IWD
+aplicado ao MKP, através da utilização de um algoritmo de estimação de distribuição,
+gerando uma heurística híbrida para o problema em questão.
+A heurística será implementada e ajustes e melhorias serão feitas.
+Testes computacionais seguirão a implementação com o objetivo de comparar sua
+eficácia na resolução do MKP à outros métodos já existentes.
+
+Os objetivos específicos do projeto são os seguintes:
+
+\begin{itemize}
+  \item{Realizar ampla revisão bibliográfica sobre o problema tratado (MKP) e os algoritmos envolvidos (IWD e AED);}
+  \item{Implementar a heurística híbrida à resolução do problema, realizando os devidos ajustes;}
+  \item{Propor melhorias à heurística implementada;}
+  \item{Realizar comparações entre a heurística implementada e os métodos de resolução já existentes através de testes computacionais;}
+  \item{Aplicar a heurística a um problema real da indústria de distribuição de e\-ner\-gia elétrica brasileira e comparar com os resultados obtidos pelo método já existente.}
+\end{itemize}
+
+\section{Justificativa}
+\label{sec:justificativa}
+
+\nocite{Martello-1990}
+
+O MKP também pode ser interpretado como uma formulação geral para pro\-ble\-mas de
+programação inteira 0-1 com coeficientes não ne\-ga\-ti\-vos, como é possível
+concluir observando sua definição.
+Dessa forma o MKP pode ser resolvido utilizando-se os métodos exatos já
+conhecidos para tratar o problema de programação inteira 0-1, como o \textit{método
+aditivo de Balas}~\cite{Balas-1965}.
+Porém, devido a complexidade computacional dos métodos exatos, utilizá-los
+torna-se inviável para instâncias do problema de tamanho médio,
+justificando a utilização de heurísticas para sua resolução.
+
+Grande parte das metaheurísticas são inspiradas em comportamentos na\-tu\-rais.
+Dentre as mais conhecidas temos a \textit{busca tabu}~\cite{Glover-2003},
+baseada em um comportamento social, a colônia de formigas, inspirada na
+forma com que as formigas traçam o caminho da colônia até o alimento~\cite{Dorigo-1991},
+o algoritmo genético, este inspirado na forma com que acontece a evolução genética
+nos seres vivos~\cite{Holland-1975} e o ar\-re\-fe\-ci\-men\-to simulado, inspirado numa
+téc\-ni\-ca de aquecimento e resfriamento controlado utilizada na produção de
+alguns ma\-te\-ri\-ais~\cite{Kirkpatrick-1983}.
+
+Em 1998 foi proposto por P. Chu e J. Beasley um algoritmo genético para o MKP~\cite{Chu-Beasley-1998}.
+Neste algoritmo, operadores heurísticos utilizam também conhecimento específico
+do problema para auxiliar no processo evolutivo.
+Um algoritmo de arrefecimento simulado para o MKP é proposto em~\cite{Qian2007}.
+Neste, testes computacionais mostraram que o algoritmo obteve considerável redução
+no tempo de execução, não alcançando porém a mesma
+qualidade de solução, quando comparado ao algoritmo genético proposto por P. Chu e J. Beasley.
+
+Uma das abordagens que têm obtido me\-lho\-res resultados é a abordagem híbrida
+proposta em~\cite{Vasquez2001} e aperfeiçoada em~\cite{Vasquez2005}.
+Nessa abordagem o MKP tem o seu espaço de solução reduzido e particionado,
+através da adição de algumas restrições, as quais fixam o número má\-xi\-mo
+de itens a serem selecionados.
+Limites para estas restrições são calculados, solucionando-se uma versão relaxada
+do problema original.
+Para cada parte do espaço de busca, uma busca tabu é aplicada de forma independente,
+tendo como solução inicial a solução encontrada na versão relaxada do pro\-ble\-ma~\cite{Puchinger2010}.
+
+Em 2002 foi proposto por Stefka Fidanova um algoritmo de colônia de formigas
+para o MKP. Neste, várias informações heurísticas são utilizadas na cons\-tru\-ção
+das soluções~\cite{Fidanova2002}.
+Um outro algoritmo de colônia de formigas foi proposto em~\cite{Liangjun2008},
+associado-o a um procedimento de busca local.
+Já o trabalho apresentado em~\cite{Kong2008} propõe a resolução do MKP, utilizando
+uma versão do algoritmo de colônia de formigas desenvolvida especialmente
+para estruturas de soluções binárias.
+Segundo o relato do trabalho, este apresentou melhores resultados que
+os algoritmos de colônia de formigas convencionais aplicados ao MKP.
+
+Em~\cite{Hanafi2010} um método híbrido é proposto para o MKP, utilizando
+uma abordagem de programação matemática aliada a uma busca por decomposição
+de vizinhança.
+A cada iteração, uma versão relaxada do problema é solucionada para
+guiar a busca por vizinhos.
+Segundo os testes computacionais relatados no trabalho, os resultados
+se comparam às heurísticas relacionadas até o momento como \textit{estado-da-arte}.
+
+Beliczynski Bartlomiej propôs em 2007 uma implementação da metaheurística por 
+\textit{enxame de partículas} para o MKP, alcançando resultados próximos e,
+em alguns casos, iguais as melhores soluções conhecidas para as instâncias
+testadas~\cite{Bartlomiej2007}.
+
+Uma heurística híbrida, utilizando um algoritmo de estimação de distribuição
+em conjunto com uma busca local já foi proposta para a versão multiobjetivo
+do problema da mochila multidimensional~\cite{Li2004}.
+Segundo o trabalho, experimentos computacionais indicaram que a heurística
+híbrida proposta superou vários outros algoritmos, considerados até então
+como \textit{estado-da-arte}.
+Em~\cite{Larra2011} é apresentado, para fins didáticos, um algoritmo de
+estimação de distribuição aplicado ao pro\-ble\-ma da mochila.
+
+Como dito anteriormente o objetivo deste projeto é propor uma heurística híbrida
+para a resolução do MKP, aliando a metaheurística \textit{intelligent water drops} a um
+algoritmo de estimação de distribuição, esperando assim melhores resultados que os
+observados em~\cite{Hosseini-2008}.
+
+O algoritmo \textit{intelligent water drops} é uma metaheurística de caráter
+po\-pu\-la\-cio\-nal, ou seja, a cada passo do algoritmo, um conjunto (ou população) de
+soluções é gerado.
+É também uma heurística construtiva por construir por si só
+soluções completas, não necessitando de receber como entrada uma solução inicial.
+O IWD é inspirado na forma com que porções de águas
+traçam o seu caminho ao saírem de uma nascente até um ponto final onde desaguam.
+Se não houvessem obstáculos no caminho até o seu destino, as porções de águas
+em um rio fariam um caminho em linha reta, por ser o menor caminho de sua origem até o destino.
+Porém, devido aos vários obstáculos existentes no ambiente,
+o caminho real tomado pelas águas é diferente do ideal, possuindo assim voltas e torções.
+É interessante observar que este caminho, de aparência tortuosa, parece ser o
+menor quando considerados os obstáculos existentes no ambiente.
+
+No algoritmo, o ambiente em que as gotas fluem é discreto, sendo modelado como um grafo, cujos
+vértices representam as soluções parciais para o problema e cada aresta, um caminho
+ligando duas soluções.
+A cada iteração do algoritmo, cada gota d'água constrói uma solução, saindo de um
+vértice inicial e chegando a um vértice final.
+
+Cada aresta neste grafo possui uma quantidade de solo.
+Ao passar pela aresta a gota d'água retira parte do solo, carregando-a agora consigo.
+Cada gota d'água possui também uma velocidade: gotas d'água mais velozes
+retiram uma maior quantidade de solo dos caminhos em que passam.
+Simultaneamente, caminhos que possuem em si pouco solo acrescentam mais velocidade
+às gotas que por ele passam.
+Já caminhos que possuem muito solo acrescentam menos velocidade às gotas.
+Ao longo do processo as gotas tendem a escolher caminhos mais fáceis, ou seja,
+que possuam uma menor quantidade de solo.
+
+Uma iteração do algoritmo termina quando todas as gotas d'água chegam numa solução completa.
+A melhor solução construída na iteração é então selecionada para que, a partir dela,
+a quantidade de solo nos caminhos sejam atualizadas.
+O algoritmo se encerra quando alcança uma determinada quantidade de iterações.
+A melhor solução encontrada é então dada como resposta.
+
+Por sua vez, os algoritmos de estimação de distribuição (AED) são algoritmos pro\-ba\-bi\-lís\-ti\-cos
+que trabalham gerando populações de soluções, baseando-se em um modelo
+probabilístico estimado a partir de amostras de soluções selecionadas de
+populações anteriores~\cite{bengoetxeaPHD02}. O algoritmo abaixo descreve um AED.
+
+\begin{algorithm}[H]
+%\setstretch{1.0}
+%\trocafonte
+\DontPrintSemicolon
+	%\SetLine
+	\caption{\bf O algoritmo de estimação de distribuição.}\label{powermetalg}
+	\KwIn{ Número de iterações: $k$}
+	\KwOut{ Solução: $s^*$}
+	\Begin{
+		$M_0 \leftarrow \textrm{distribuição\_uniforme}$ \;
+		$D_0 \leftarrow \textrm{gera\_população}(M_0, R)$ \;
+		$s^* \leftarrow \textrm{melhor\_solução}(D_0)$ \;
+		\For{$i\leftarrow 1$ \KwTo $k$ }{
+			$D^N_{i-1} \leftarrow \textrm{seleciona\_indivíduos}(D_{i-1}, N)$ \;
+			$M_i \leftarrow \textrm{induz\_modelo}(D^N_{i-1})$ \;
+			$D_i \leftarrow \textrm{gera\_população}(M_i, R)$ \;
+			$s^* \leftarrow \textrm{atualiza\_melhor\_solução}(D_i)$ \;
+		}
+		retorna $s^*$ \;
+	}
+\label{alg:aed}
+\end{algorithm}
+
+Primeiramente o algoritmo gera uma população inicial contendo $R$ soluções (linha 3).
+Esta geração inicial é geralmente feita assumindo uma distribuição uniforme
+sobre as variáveis que compõem a solução do problema (linha 2).
+Dentre esta população inicial, a melhor solução é selecionada como melhor solução global (linha 4).
+Num segundo passo, para gerar uma nova população, são selecionadas da população
+anterior $N$ soluções (sendo $N < R$) seguindo um determinado critério (linha 6).
+No próximo passo, é induzido o modelo probabilístico que melhor representa as
+interdependências entre as variáveis da solução (linha 7).
+Os últimos passos são gerar uma nova população, contendo $R$ soluções, a partir do modelo
+probabilístico estimado no passo anterior (linha 8), e atualizar a melhor solução global (linha 9).
+Geralmente, nesta nova população a melhor solução é mantida, sendo necessária
+a geração de apenas $R-1$ soluções.
+O algoritmo então volta ao segundo passo até que o número máximo de iterações é
+alcançado, dando como resposta a melhor solução encontrada (linha 11).
+
+A indução do modelo probabilístico, considerado um procedimento de aprendizagem de máquina,
+é o passo mais importante e crucial para o algoritmo, pois uma representação
+apropriada de tais interdependências é essencial para a ge\-ra\-ção de boas soluções viáveis.
+Assim, ao implementar um AED é importante decidir com cautela o modelo probabilístico a ser utilizado.
+%como, por exemplo \textit{rede bayesiana} ou \textit{rede gaussiana}.
+
+A vantagem do AED sobre outros métodos é registrar explicitamente as interdependências
+entre as diferentes variáveis que compõem a solução do problema, através de um modelo
+probabilístico, ao contrário da maioria das metaheurísticas, que que mantém
+estas interdependências de forma implícita.
+Este registro explícito tende a guiar o processo de busca de forma mais
+\textit{inteligente}, levando a melhores soluções.
+
+A proposta para o desenvolvimento da heurística híbrida para o MKP
+é utilizar um AED para auxiliar a construção das soluções geradas
+por cada gota d'água.
+Após uma primeira iteração completa do IWD,
+algumas melhores soluções são selecionadas da população gerada,
+para que um modelo probabilístico seja proposto.
+Na próxima iteração do IWD, cada gota d'água, ao escolher os caminhos a serem tomados
+para a construção da solução, não só utilizaria informações do ambiente
+(quantidade de solo nos caminhos) mas também informações do modelo probabilístico
+proposto na iteração anterior.
+Desta forma esperamos alcançar melhores soluções para o MKP.
+
+%A busca tabu é uma metaheurística que parte
+%de uma solução inicial e realiza uma busca local através da seleção de alguns movimentos.
+%Após a busca a melhor solução é selecionada e os movimentos utilizados
+%são tempo\-ra\-ria\-men\-te proibidos, evitando o confinamento próximo a um ótimo local.
+%A lista dos movimentos proibidos é chama lista tabu.
+%Em seguida novos movimentos são selecionados e uma nova busca local é executada e assim sucessivamente.
+%Após algumas iterações os movimentos antes proibidos são permitidos novamente.
+%A busca então continua até o fim das iterações.
+%Seu nome faz referência a um comportamento observado no  âmbito social que se
+%assemelha ao procedimento adotado pelo algoritmo.
+%Na sociedade alguns conceitos considerados proibidos (\textit{tabus})
+%tornam-se aceitáveis com o passar do tempo (\textit{quebra de tabu}).
+
+%A metaheurística algotimo genético é inspirada
+%no processo de evolução na\-tu\-ral, em que cada solução é considerada um \textit{indivíduo}.
+%O algoritmo parte de um conjunto de soluções iniciais considerando-o uma \textit{população} inicial.
+%Um novo conjunto de soluções é gerado através de combinações entre as soluções
+%do conjunto corrente (\textit{cruzamentos}) e também pequenas mudanças
+%nas soluções (\textit{mutações}).
+%A cada iteração do algoritmo uma nova população é gerada como sendo uma
+%\textit{evolução} da população anterior.
+%Ao final das i\-te\-ra\-ções a melhor solução encontrada é selecionada.
+
+%A metaheurística da colônia de formigas é inspirada no comportamento
+%das formigas ao planejarem o menor caminho entre a colônia e o alimento.
+%Inicialmente as formigas utilizam um caminho aleatório, deixam um rastro de feromônio,
+%que funciona como um atrativo para outras formigas.
+%Com o passar do tempo o feromônio evapora dos caminhos mais longos, nos quais
+%há um menor trânsito de formigas, mas torna-se mais forte nos caminhos mais curtos.
+%Por fim, atraídas pelo feromônio, as formigas tenderão a utilizar o caminho que
+%possuir o rastro mais forte de feromônio, assumindo este ser o mais curto caminho encontrado.
+
+%No algoritmo, cada formiga constrõe uma solução para o problema.
+%Após a construção, as formigas depositam feromônio sobre os movimentos utilizados
+%na construção da solução.
+%A quantidade de feromônio depositada é baseada na qualidade da solução obtida.
+%Após a primeira iteração as formigas passam a utilizar a quantidade de feromônio
+%existentes nos movimentos para guiar a construção das soluções.
+%Ao fim das iterações a melhor solução encontrada é selecionada.
+
+%A metaheurística chamada arrefecimento simulado é inspirada numa téc\-ni\-ca de
+%aquecimento e resfriamento controlado utilizada na produção de alguns materiais,
+%visando a redução de irregularidades estruturais.
+%A técnica consiste em aquecer o material a uma temperatura bem elevada,
+%de forma que seus átomos gozem de livre movimento devido a elevada energia termodinâmica.
+%Ao resfriar o material de forma lenta e controlada, os átomos do material
+%aos poucos acomodam-se de forma organizada até chegar num estado de precisa
+%organização, quando o material está totamlmente resfriado.
+
+%A partir de uma solução inicial o algoritmo realiza uma busca iterativa por
+%soluções vizinhas, baseada na ``temperatura'' corrente.
+%A cada iteração o algoritmo decide adotar ou não uma solução vizinha como solução
+%corrente com base na diferença entre a qualidade desta solução vizinha e a temperatura corrente.
+%Nos estados iniciais do algoritmo, o sistema, por possuir alta temperatura, aceita
+%eventualmente ``descer'' à uma solução bem pior que a corrente.
+%Porém, à medida que as iterações vão sendo executadas, a temperatura do sistema
+%diminui ficando cada vez mais difícil aceitar uma solução pior.
+%Por fim o algoritmo responde como melhor solução a solução corrente.
+
+%Dammeyer e Voss~\cite{Dammeyer-1993} apresentaram em 1993 uma busca tabu
+%para o MKP, utilizando uma list tabu dinâmica.~\nocite{Chu-Beasley-1998}
+%A implementação foi testada utilizando uma base padrão retirada da literatura.
+%Das 57 configurações do problema, o método encontrou a melhor solução para 41 delas.
+%Aboudi e Jörnsten~\cite{Aboudi-1994} em 1994 combinaram a busca tabu com um método
+%heurístico proposto por Balas e Martin~\cite{Balas-1980} para o problema
+%de programação 0-1, alcançando a melhor solução em 49 das 57 configurações do problema.
+%Uma abordagem semelhante foi apresentada por 
+%Lokketangen, Jörnsten and Storoy~\cite{Lokketangen-1994}, alcançando a melhor
+%solução para 39 das instâncias.
+%Glover e Kochenberger~\cite{Glover-1996} apresentaram em 1996 uma heurística
+%baseada na busca tabu, utilizando um esquema de variação entre fases construtivas
+%(solução corrente viável) e fases destrutivas (solução corrente inviável).
+%O método alcançou a melhor solução em todos os 57 casos.
+%
+%Khuri, Back e Heitkotter~\cite{Khuri-1994} apresentaram em 1994 uma implementação do algoritmo
+%genético para o MKP em que soluções inviáveis eram aceitas na busca.
+%O trabalho divulgou apenas alguns resultados moderados.
+%Thiel e Voss apresentaram~\cite{Thiel-1994} também em 1994 apresentaram um método híbrido
+%entre algoritmo genético e uma heurística baseada em busca local, porém
+%os resultados não foram computacionalmente competitivos.
+
+
+%Resolução do problema, algoritmos exatos, aproximação, heuríticas, metaheurísticas.
+
+%Tempo X Qualidade
+
+Outra motivação para este trabalho é aplicar a solução encontrada a um problema
+real da indústria de distribuição de energia elétrica brasileira.
+O problema em questão é a otimização de investimentos em ações de
+combate a perda de energia na distribuição de energia elétrica.
+Neste problema deve-se maximizar a recuperação de energia em um cenário plurianual
+de investimentos, no qual há uma disponibilidade de orçamento para cada ano do plano de investimentos.
+Cada ação disponível possui um custo e produz uma determinada recuperação de energia.
+Cada orçamento anual corresponde a uma mochila que deve ser preenchida com um conjunto de ações
+de modo a maximizar a energia recuperada globalmente.
+
+\section{Metodologia}
+\label{sec:metodologia}
+
+O início da pesquisa se dará com uma ampla revisão bibliográfica sobre o assunto.
+Serão relacionados trabalhos abordando os principais métodos já propostos para a
+resolução do problema, bem como trabalhos abordando os métodos utilizados (metaheurística IWD e AED).
+Assim que alguns principais trabalhos forem relacionados, será iniciada
+a implementação do método híbrido proposto e dos métodos pré-existentes.
+
+Pequenas baterias de testes seguirão a implementação com o objetivo de
+realizar os ajustes necessários.
+Finalizada a implementação e ajustes do método proposto, os resultados
+serão analisados para que melhorias sejam propostas.
+
+Em seguida, serão reunidas as bases de testes utilizadas
+na literatura, bem como instâncias reais do pro\-ble\-ma.
+Os experimentos computacionais finais serão extensos, visando a me\-lhor observação
+do comportamento da heurística proposta.
+Para isso, novas bases de testes poderão ser geradas, caso seja necessário.
+Os resultados obtidos no trabalho serão comparados aos resultados obtidos pelos métodos
+pré-existentes e aos divulgados na literatura.
+Uma análise estatística será feita sobre os resultados obtidos.
+
+Assim que obtidos e analisados os resultados dos experimentos, estes serão
+relatados em artigos submetidos a eventos e periódicos.
+Os resultados parciais serão apresentados no Exame de Qualificação e na
+Proposta de Doutorado.
+A conclusão do trabalho será apresentada na Tese de Doutorado.
+
+\section{Cronograma}
+\label{sec:cronograma}
+
+A Tabela~\ref{tab:cronograma} apresenta o cronograma do projeto de pesquisa.
+
+\begin{table}[!h]
+\begin{tabular}{l|c|c|c|c|c|c|c|c|}
+  \cline{2-9}
+  & \multicolumn{8}{|c|}{\textbf{Semestres}} \\
+  \hline
+  \multicolumn{1}{|c|}{\textbf{Atividades}}
+    & 1º & 2º & 3º & 4º & 5º & 6º & 7º & 8º \\ \hline
+  \multicolumn{1}{|l|}{Cumprimento de Créditos}
+    & $\bigbullet$ & $\bigbullet$ & $\bigbullet$ & & & & & \\ \hline
+  \multicolumn{1}{|l|}{Revisão Bibliográfica}
+    & $\bigbullet$ & $\bigbullet$ & $\bigbullet$ & & & & & \\ \hline
+  \multicolumn{1}{|l|}{Implementação e Ajustes}
+    & $\bigbullet$ & $\bigbullet$ & $\bigbullet$ & $\bigbullet$ & $\bigbullet$ & $\bigbullet$ & & \\ \hline
+  \multicolumn{1}{|l|}{Obtenção de Bases para Testes}
+    & & $\bigbullet$ & $\bigbullet$ & $\bigbullet$ & & & & \\ \hline
+  \multicolumn{1}{|l|}{Testes Computacionais}
+    & & $\bigbullet$ & $\bigbullet$ & $\bigbullet$ & $\bigbullet$ & $\bigbullet$ & $\bigbullet$ & \\ \hline
+  \multicolumn{1}{|l|}{Análise dos Resultados}
+    & & & $\bigbullet$ & $\bigbullet$ & $\bigbullet$ & $\bigbullet$ & $\bigbullet$ & \\ \hline
+  \multicolumn{1}{|l|}{Redação de Artigos}
+    & & & & $\bigbullet$ & $\bigbullet$ & $\bigbullet$ & $\bigbullet$ & $\bigbullet$ \\ \hline
+  \multicolumn{1}{|l|}{Exame de Qualificação}
+    & & & & $\bigbullet$ & & & & \\ \hline
+  \multicolumn{1}{|l|}{Proposta de Doutorado}
+    & & & & & & $\bigbullet$ & & \\ \hline
+  \multicolumn{1}{|l|}{Tese de Doutorado}
+    & & & & & & & & $\bigbullet$ \\ \hline
+\end{tabular}
+\caption{Cronograma do projeto de pesquisa.}
+\label{tab:cronograma}
+\end{table}
+
+\clearpage
+
+{
+\bibliographystyle{apalike}
+\bibliography{proposta}
+}
+
+\end{document}
+

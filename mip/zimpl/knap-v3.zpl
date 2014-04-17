@@ -7,23 +7,21 @@
 #####################
 
 # Number of actions by given period
-var x[Acs*Pers] integer;
+var x[Acs*Yrs] integer;
 
 
 ####################
 # Others variables #
 ####################
 
-# (Rec) rec[i, j]: Energy recovered by actions 'i' on the jth-period of the
-#   plan
-var rec[Acs*Pers];
+# (Rec) rec[i, j]: Energy recovered by actions 'i' on the jth-period of the plan
+var rec[Acs*Yrs];
 
-# (Rec') rec2[i, j]: Energy recovered by actions 'i' on the jth-period AFTER the
-#   plan
-var rec2[Acs*Pers];
+# (Rec') rec2[i, j]: Energy recovered by actions 'i' on the jth-period AFTER the plan
+var rec2[Acs*Yrs];
 
 # Total cost of all actions executed on a given period
-var cost[Acs*Pers];
+var cost[Acs*Yrs];
 
 
 #############
@@ -31,19 +29,19 @@ var cost[Acs*Pers];
 #############
 # Total energy recovered on Period "k" by action "i"
 subto rec_def:
-  forall <i, k> in Acs*Pers do
-  	sum <k2> in Pers with k2 <= k do
+  forall <i, k> in Acs*Yrs do
+  	sum <k2> in Yrs with k2 <= k do
 		x[i, k2]*e[i, (k-k2+1)] == rec[i, k];
 
 # Total energy recovered on the "k"-th period after plan, by action "i"
 subto rec_def2:
-  forall <i, k> in Acs*Pers do
-  	sum <k2> in Pers with k2 >= k+1 do
+  forall <i, k> in Acs*Yrs do
+  	sum <k2> in Yrs with k2 >= k+1 do
 		x[i, k2]*e[i, (Y*P+k-k2+1)] == rec2[i, k];
 
 # Cost of all actions on period K
 subto cost_def:
-  forall <i, k> in Acs*Pers do
+  forall <i, k> in Acs*Yrs do
     sum <l> in Res do
 	  x[i, k]*c[i, l] == cost[i, k];
 
@@ -88,9 +86,9 @@ subto anual_market:
 	  x[i, k] <= u[i, j];
 
 # PERIODIC Market
-subto periodic_market:
-  forall <i, k> in Acs*Pers do
-	  x[i, k] <= z[i, k];
+#subto periodic_market:
+#  forall <i, k> in Acs*Pers do
+#	  x[i, k] <= z[i, k];
 
 # Dependecy between actions
 subto dependency:
@@ -101,6 +99,11 @@ subto dependency:
 			sum <k3> in Pers with (k3 < k) do
 		 		q*x[i2, k3];
 
+# Min yealy energy recovery
+subto min_recovery:
+	forall <j> in Yrs do
+		sum <i> in Acs do
+			rec[j,i] >= 0.8*g[j];
 
 ######################
 # Objective Function #
