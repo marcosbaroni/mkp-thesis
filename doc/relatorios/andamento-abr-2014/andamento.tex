@@ -24,24 +24,50 @@
 
 %\section{Introdução}
 
-A motivação para o estudo do \emph{Problema de Investimentos em Ações para
-Redução de Perdas Técnicas} surgiu através de um projeto de pesquisa realizado
+A motivação para o estudo do \emph{problema de investimentos em ações para
+redução de perdas técnicas} surgiu durante um projeto de pesquisa realizado
 junto a EDP-Escelsa.
-No contexto deste projeto, a EDP deveria cumprir uma estipulação da ANEEL~\footnote{
-Agência Nacional de Energia Elétrica} alcançando uma meta de perda anual
-estipulada pela ANEEL.
+No contexto do projeto a EDP deveria cumprir uma estipulação da ANEEL~\footnote{
+Agência Nacional de Energia Elétrica} de combate a perda de energia atingindo
+metas anuais de redução perda de energia.
 
-Um dos objetivos do projeto era auxiliar a EDP na
-decisão de um plano plurianual de combate à perda de energia elétrica através
-seleção de \emph{ações de combate a perda de energia} dentre um portfólio de
-ações sob a restrição de orçamentos anuais.
+Na tentativa de atingir essas metas, a EDP montagem de um plano plurianual de
+\emph{ações de combate a perda de energia}, retiradas de um portfolio de ações.
 
-%~\footnote{é considerada energia perdida aquela que não é faturada.}
+Um dos objetivos do projeto era auxiliar a EDP na decisão de um plano plurianual
+de combate à perda de energia
+elétrica através seleção destas ações e da disposição destas ações nos devidos
+anos do planejamento.
 
-Nós estamos interpretando o problema como uma variação (generalização) do
-\emph{Problema da Mochila}.
-Nesta formulação as ações de combate a perda seriam os \emph{itens} a serem
-dispostos nos anos \textit{mochilas} ()
+Em anexo (\texttt{cocoon2014.pdf}) está o último trabalho que escrevemos sobre o problema.
+Na primeira parte da Seção 1 está uma introdução e motivação do problema e na
+primeira parte da Seção 2 está a definição formal do problema.
+
+%Nós temos interpretando o problema como uma generalização do
+%\emph{problema da mochila} em que as ações de combate a perda seriam os
+%\emph{itens}, os anos seriam as \textit{mochilas} (Multi-mochilas).
+%Estas ações consomem recursos de dois fundos diferentes: CAPEX (\textit{capital expenditure})
+%e OPEX (\textit{operational expenditure}).
+%cujos orçamentos seriam as \emph{capacidades} (Multi-dimensional).
+
+Em resumo, temos interpretando o problema como uma generalização do
+{\bf problema da mochila} com as seguintes características:
+\begin{itemize}
+  \item {\bf bounded:} as ações podem ser executadas um número limitado de vezes;
+  \item {\bf multi-knapsack:} as ações devem selecionadas e alocadas em um número
+    variado de anos, cada um possuindo orçamentos independentes;
+  \item {\bf multidimensional:} cada ação consome recursos CAPEX
+    (\textit{capital expenditure}), OPEX (\textit{operational expenditure})
+	ou de ambos;
+  \item {\bf partially-ordered:} pode existir casos em que alocação de uma
+    ação $A$ em um determinado ano depende da alocação de uma ação $B$ no ano
+	anterior;
+\end{itemize}
+
+Para ``complicar'' ainda a modelagem como um problema da mochila, uma ação
+também recupera energia nos anos posteriores a sua execução.
+Isto faz com que a ação ajude a alcançar a meta de outros anos mas sem gastar
+de seus orçamentos.
 
 
 
