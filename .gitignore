@@ -1,7 +1,10 @@
 *~
 *.pyc
 *.swp
-knap.dat
-*.gplot
-scip.set
 *.log
+*.gplot
+knap.dat
+scip.set
+insts/*.tar.gz
+
+

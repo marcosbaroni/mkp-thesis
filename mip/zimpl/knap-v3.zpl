@@ -6,7 +6,7 @@
 # Decision Variable #
 #####################
 
-# Number of actions by given period
+# Number of actions by given year
 var x[Acs*Yrs] integer;
 
 
@@ -14,58 +14,58 @@ var x[Acs*Yrs] integer;
 # Others variables #
 ####################
 
-# (Rec) rec[i, j]: Energy recovered by actions 'i' on the jth-period of the plan
+# (Rec) rec[i, j]: Energy recovered by actions 'i' on the jth-year of the plan
 var rec[Acs*Yrs];
 
-# (Rec') rec2[i, j]: Energy recovered by actions 'i' on the jth-period AFTER the plan
+# (Rec') rec2[i, j]: Energy recovered by actions 'i' on the jth-year AFTER the plan
 var rec2[Acs*Yrs];
 
-# Total cost of all actions executed on a given period
+# Cost from all resources for a given action executed on a given year
 var cost[Acs*Yrs];
 
 
 #############
 # Equations #
 #############
-# Total energy recovered on Period "k" by action "i"
+# Total energy recovered on Year "j" by action "i"
 subto rec_def:
-  forall <i, k> in Acs*Yrs do
-  	sum <k2> in Yrs with k2 <= k do
-		x[i, k2]*e[i, (k-k2+1)] == rec[i, k];
+  forall <i, j> in Acs*Yrs do
+  	sum <j2> in Yrs with j2 <= j do
+		x[i, j2]*e[i, (j-j2+1)] == rec[i, j];
 
-# Total energy recovered on the "k"-th period after plan, by action "i"
+# Total energy recovered on the "j"-th year AFTER plan, by action "i"
 subto rec_def2:
-  forall <i, k> in Acs*Yrs do
-  	sum <k2> in Yrs with k2 >= k+1 do
-		x[i, k2]*e[i, (Y*P+k-k2+1)] == rec2[i, k];
+  forall <i, j> in Acs*Yrs do
+  	sum <j2> in Yrs with j2 >= j+1 do
+		x[i, j2]*e[i, (Y+j-j2+1)] == rec2[i, j];
 
-# Cost of all actions on period K
+# Cost of actions "i" on k-th year
 subto cost_def:
-  forall <i, k> in Acs*Yrs do
+  forall <i, j> in Acs*Yrs do
     sum <l> in Res do
-	  x[i, k]*c[i, l] == cost[i, k];
+	  x[i, j]*c[i, l] == cost[i, j];
 
 ###############
 # Constraints #
 ###############
 
-# Anual Goal
-subto anual_goal:
+# Yearly Goal Constraint
+subto yearly_goal:
   forall <j> in Yrs do
-    sum <i, k> in Acs*YPers[j] do
-	  rec[i, k] <= g[j];
+    sum <i> in Acs do
+	  rec[i, j] <= g[j];
 
-# Global Budgets
+# Global Budgets Constraint
 #subto global_budget:
 #  forall <l> in Res do
 #    sum <i, k> in Acs*Pers do
 #	  x[i, k]*c[i, l] <= o[l];
 
-# Anual Budgets
-subto anual_budget:
+# Yearly Budgets
+subto yearly_budget:
   forall <j, l> in Yrs*Res do
-    sum <i, k> in Acs*YPers[j] do
-	  x[i, k]*c[i, l] <= p[j, l];
+    sum <i> in Acs do
+	  x[i, j]*c[i, l] <= p[j, l];
 
 # PERIODIC Budgets
 #subto PERIODIC_budget:
@@ -76,14 +76,13 @@ subto anual_budget:
 # Global Market
 subto global_market:
   forall <i> in Acs do
-    sum <k> in Pers do
-	  x[i, k] <= m[i];
+    sum <j> in Yrs do
+	  x[i, j] <= m[i];
 
-# Anual Market
-subto anual_market:
+# Yearly Market
+subto yearly_market:
   forall <i, j> in Acs*Yrs do
-    sum <k> in YPers[j] do
-	  x[i, k] <= u[i, j];
+	  x[i, j] <= u[i, j];
 
 # PERIODIC Market
 #subto periodic_market:
@@ -93,27 +92,27 @@ subto anual_market:
 # Dependecy between actions
 subto dependency:
 	forall <i1, i2, q> in D do
-		forall <k> in Pers do
-			sum <k2> in Pers with (k2 < k) do
-				x[i1, k2] <= 
-			sum <k3> in Pers with (k3 < k) do
-		 		q*x[i2, k3];
+		forall <j> in Yrs do
+			sum <j2> in Yrs with (j2 < j) do
+				x[i1, j2] <= 
+			sum <j3> in Yrs with (j3 < j) do
+		 		q*x[i2, j3];
 
 # Min yealy energy recovery
-subto min_recovery:
-	forall <j> in Yrs do
-		sum <i> in Acs do
-			rec[j,i] >= 0.8*g[j];
+#subto min_recovery:
+#	forall <j> in Yrs do
+#		sum <i> in Acs do
+#			rec[j,i] >= 0.8*g[j];
 
 ######################
 # Objective Function #
 ######################
-maximize npv: 
+maximize npv:
 	sum <i> in Acs do
-		sum <k> in Pers do 
-			(rec[i, k]*v[i] - cost[i, k])/((1+r)^k)
+		sum <j> in Yrs do
+			(rec[i, j]*v[i] - cost[i, j])/((1+r)^j)
 	+
 	sum <i> in Acs do
-		sum <k> in Pers do 
-			rec2[i, k]*v[i]/((1+r)^(Y*P+k));
+		sum <j> in Yrs do
+			rec2[i, j]*v[i]/((1+r)^(Y+j));
 
