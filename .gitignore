@@ -1,10 +1,7 @@
 *~
 *.pyc
 *.swp
-*.log
-*.gplot
 knap.dat
+*.gplot
 scip.set
-insts/*.tar.gz
-
-
+*.log
