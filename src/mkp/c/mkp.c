@@ -48,6 +48,31 @@ void mkp_write_to_filename(MKP *mkp, char *filename){
 	return;
 }
 
+MKP *mkp_read_from_gzip(char *filename){
+	char cmd[300];
+	FILE *pipe;
+	MKP *mkp;
+
+	sprintf(cmd, "zcat %s", filename);
+	pipe = popen(cmd, "r");
+	mkp = mkp_read_from_file(pipe);
+	pclose(pipe);
+
+	return mkp;
+}
+
+void mkp_write_to_gzip(MKP *mkp, char *filename){
+	char cmd[300];
+	FILE *pipe;
+
+	sprintf(cmd, "gzip -cf > %s", filename);
+	pipe = popen(cmd, "w");
+	mkp_write_to_file(mkp, pipe);
+	pclose(pipe);
+
+	return;
+}
+
 void mkp_write_to_file(MKP *mkp, FILE *fout){
 	int n, m, i, j, nf;
 
