@@ -1,16 +1,134 @@
 #include <stdlib.h>
-#include <stdout.h>
+#include <stdio.h>
 #include "mkp.h"
 
+double urand(){
+	return rand()/((float)RAND_MAX);
+}
+
 MKP *mkp_read_from_filename(char *filename){
+	FILE *fin = fopen(filename, "r");
+	MKP *mkp = mkp_read_from_file(fin);
+	fclose(fin);
+	return mkp;
 }
 
 MKP *mkp_read_from_file(FILE *fin){
+	int n, m, i, j, nf;
+	MKP *mkp;
+
+	/* Reading sizes */
+	nf = fscanf(fin, "%d", &n);
+	nf = fscanf(fin, "%d", &m);
+
+	/* allocing */
+	mkp = mkp_alloc(n, m);
+
+	/* Reading profits */
+	for( i = 0 ; i < n ; i++ )
+		nf = fscanf(fin, "%lf", &(mkp->p[i]));
+
+	/* Reading weights */
+	for( j = 0 ; j < m ; j++ )
+		for( i = 0 ; i < n ; i++ )
+			nf = fscanf(fin, "%lf", &(mkp->w[j][i]));
+
+	/* Reading capacities */
+	for( j = 0 ; j < m ; j++ )
+		nf = fscanf(fin, "%lf", &(mkp->b[j]));
+
+	 return mkp;
 }
 
-void mkp_printf(FILE *fout, MKP *mkp){
+void mkp_write_to_filename(MKP *mkp, char *filename){
+	FILE *fout = fopen(filename, "w");
+	mkp_write_to_file(mkp, fout);
+	fclose(fout);
+	return;
+}
+
+void mkp_write_to_file(MKP *mkp, FILE *fout){
+	int n, m, i, j, nf;
+
+	n = mkp->n;
+	m = mkp->m;
+
+	/* writing  sizes */
+	fprintf(fout , "%d ", n);
+	fprintf(fout, "%d \n", m);
+
+	/* Writing profits */
+	for( i = 0 ; i < n ; i++ )
+		fprintf(fout, "%f ", mkp->p[i]);
+	fprintf(fout, "\n");
+
+	/* Writing weights */
+	for( j = 0 ; j < m ; j++ ){
+		for( i = 0 ; i < n ; i++ )
+			fprintf(fout, "%lf ", mkp->w[j][i]);
+		fprintf(fout, "\n");
+	}
+
+	/* Writing capacities */
+	for( j = 0 ; j < m ; j++ )
+		fprintf(fout, "%lf ", mkp->b[j]);
+	fprintf(fout, "\n");
+	return;
+}
+
+MKP *mkp_random(int n, int m, int seed){
+	int i, j;
+	double wsum;
+	MKP *mkp;
+	
+	srand(seed);
+
+	mkp = mkp_alloc(n, m);
+
+	/* random profits */
+	for( i = 0 ; i < n ; i++ )
+		mkp->p[i] = urand();
+
+	/* random weights */
+	for( j = 0 ; j < m ; j++){
+		wsum = 0.0;
+		for( i = 0 ; i < n ; i++ )
+			wsum +=  mkp->w[j][i] = urand();
+		/* random capacities [0, 0.5]*sum(w[*,m] )*/
+		mkp->b[j] = wsum*0.5*urand();
+	}
+
+	return mkp;
+}
+
+MKP *mkp_alloc(int n, int m){
+	int j;
+
+	MKP *mkp = (MKP*)malloc(sizeof(MKP));           /* mkp */
+	mkp->p = (double*)malloc(n*sizeof(double));     /* allocing profits */
+	mkp->w = (double**)malloc(m*sizeof(double*));   /* allocing weights */
+	for( j = 0 ; j < m ; j++ )
+		mkp->w[j] = (double*)malloc(n*sizeof(double));
+	mkp->b = (double*)malloc(m*sizeof(double*));    /* allocing capacities */
+
+	mkp->n = n;
+	mkp->m = m;
+
+	return mkp;
 }
 
 void mkp_free(MKP *mkp){
+	int j, m;
+
+	m = mkp->m;
+
+	for( j = 0 ; j < m ; j++ )  /* free weights */
+		free(mkp->w[j]);
+	free(mkp->w);
+	free(mkp->b);              /* free capacities */
+	free(mkp->p);              /* free profits */
+	free(mkp);                 /* free mkp */
+
+	return;
 }
 
