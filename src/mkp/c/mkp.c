@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include "util.h"
 #include "mkp.h"
 
 double urand(){
@@ -128,6 +129,44 @@ void mkp_free(MKP *mkp){
 	free(mkp->b);              /* free capacities */
 	free(mkp->p);              /* free profits */
 	free(mkp);                 /* free mkp */
+
+	return;
+}
+
+void mkp_to_zimpl(MKP *mkp, FILE *fout){
+	int i, j, n, m;
+
+	n = mkp->n;
+	m = mkp->m;
+
+	/* sizes */
+	fprintf(fout, "param n := %d;\n", n);
+	fprintf(fout, "param m := %d;\n", m);
+
+	/* sets */
+	fprintf(fout, "set N := {1 .. %d};\n", n);
+	fprintf(fout, "set M := {1 .. %d};\n", m);
+
+	/* profit */
+	fprintf(fout, "param p[N] :=\n");
+	zimpl_print_array(fout, n, mkp->p);
+
+	/* weights */
+	fprintf(fout, "param w[M*N] :=\n");
+	zimpl_print_matrix(fout, m, n, mkp->w);
+
+	/* capacities */
+	fprintf(fout, "param b[M] :=\n");
+	zimpl_print_array(fout, m, mkp->b);
+
+	/* desicion var */
+	fprintf(fout, "var x[N] binary;\n");
+
+	/* capacities constraint */
+	fprintf(fout, "subto capacities:\nforall <j> in M do\nsum <i> in N do\nx[i]*w[j, i] <= b[j];\n");
+
+	/* objective function */
+	fprintf(fout, "maximize profit:\n sum <i> in N do\n x[i]*p[i];\n");
 
 	return;
 }

@@ -19,7 +19,9 @@ int main(int argc, char **argv){
 	}
 
 	mkp = mkp_random(n, m, time(NULL));
-	mkp_write_to_file(mkp, stdout);
+	//mkp_write_to_file(mkp, stdout);
+	mkp_to_zimpl(mkp, stdout);
+
 	mkp_free(mkp);
 	
 	return 0;

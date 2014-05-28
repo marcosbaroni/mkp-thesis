@@ -15,8 +15,12 @@ MKP *mkp_read_from_filename(char *filename);
 MKP *mkp_read_from_file(FILE *fin);
 void mkp_write_to_filename(MKP *mkp, char *filename);
 void mkp_write_to_file(MKP *mkp, FILE *fout);
+
 MKP *mkp_alloc(int n, int m);
 MKP *mkp_random(int n, int m, int seed);
+
+void mkp_to_zimpl(MKP *mkp, FILE *fout);
+
 /*void mkp_printf(FILE *fout, MKP *mkp);*/
 void mkp_free(MKP *mkp);
 
