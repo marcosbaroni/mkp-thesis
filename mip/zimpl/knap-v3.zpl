@@ -94,10 +94,10 @@ subto anual_market:
 subto dependency:
 	forall <i1, i2, q> in D do
 		forall <k> in Pers do
-			sum <k2> in Pers with (k2 < k) do
-				x[i1, k2] <= 
-			sum <k3> in Pers with (k3 < k) do
-		 		q*x[i2, k3];
+			sum <k2> in Pers with (k2 <= k) do
+				q*x[i1, k2] <= 
+			sum <k3> in Pers with (k3 <= k) do
+		 		x[i2, k3];
 
 # Min yealy energy recovery
 subto min_recovery:
