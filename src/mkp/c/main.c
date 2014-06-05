@@ -35,12 +35,12 @@ void batch1(){
 }
 
 void print_usage(int argc, char **argv){
-	printf("usage ./%s <n> <m>\n", argv[0]);
+	printf("usage %s <n> <m>\n", argv[0]);
 	exit(EXIT_FAILURE);
 }
 
 int main(int argc, char **argv){
-	int n, m;
+	int n, m, *vec;
 	long seed;
 	MKP *mkp;
 
@@ -58,7 +58,13 @@ int main(int argc, char **argv){
 	if(!(n*m))
 		print_usage(argc, argv);
 
-	batch1();
+	n = 0;
+	printf("in %d\n", n); fflush(stdout);
+	vec = parse_int_list(argv[3], &n);
+	printf("out %d\n", n); fflush(stdout);
+	zimpl_print_array(stdout, vec, n);
+
+	free(vec);
 	
 	return 0;
 }
