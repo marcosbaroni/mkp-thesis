@@ -5,11 +5,15 @@
 #include <stdio.h>
 
 /* ZIMPL FORMAT */
-void zimpl_print_matrix(FILE *fout, int nlin, int ncol, double **mat);
-void zimpl_print_array(FILE *fout, int n, double *array);
+void zimpl_print_matrix(FILE *fout, double **mat, int nlin, int ncol);
+void zimpl_print_array(FILE *fout, double *array, int n);
 
 /* GENERAL PARSING */
 int *parse_int_list(char *str, int *n);
+
+/* ZIPING */
+void gzip(FILE *in, FILE *out);
+void gunzip(FILE *in, FILE *out);
 
 #endif
 

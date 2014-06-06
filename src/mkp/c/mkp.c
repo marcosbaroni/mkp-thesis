@@ -102,13 +102,11 @@ void mkp_write_to_file(MKP *mkp, FILE *fout){
 	return;
 }
 
-MKP *mkp_random(int n, int m, int seed){
+MKP *mkp_random(int n, int m){
 	int i, j;
 	double wsum;
 	MKP *mkp;
 	
-	srand(seed);
-
 	mkp = mkp_alloc(n, m);
 
 	/* random profits */
@@ -119,7 +117,7 @@ MKP *mkp_random(int n, int m, int seed){
 	for( j = 0 ; j < m ; j++){
 		wsum = 0.0;
 		for( i = 0 ; i < n ; i++ )
-			wsum +=  mkp->w[j][i] = urand();
+			wsum +=  (mkp->w[j][i] = urand());
 		/* random capacities [0, 0.5]*sum(w[*,m] )*/
 		mkp->b[j] = wsum*0.5*urand();
 	}
@@ -174,15 +172,15 @@ void mkp_to_zimpl(MKP *mkp, FILE *fout){
 
 	/* profit */
 	fprintf(fout, "param p[N] :=\n");
-	zimpl_print_array(fout, n, mkp->p);
+	zimpl_print_array(fout, mkp->p, n);
 
 	/* weights */
 	fprintf(fout, "param w[M*N] :=\n");
-	zimpl_print_matrix(fout, m, n, mkp->w);
+	zimpl_print_matrix(fout, mkp->w, m, n);
 
 	/* capacities */
 	fprintf(fout, "param b[M] :=\n");
-	zimpl_print_array(fout, m, mkp->b);
+	zimpl_print_array(fout, mkp->b, m);
 
 	/* desicion var */
 	fprintf(fout, "var x[N] binary;\n");

@@ -13,7 +13,7 @@ typedef struct MKP{
 
 /*** memory management ***/
 MKP *mkp_alloc(int n, int m);
-MKP *mkp_random(int n, int m, int seed);
+MKP *mkp_random(int n, int m);
 void mkp_free(MKP *mkp);
 /*void mkp_printf(FILE *fout, MKP *mkp);*/
 
