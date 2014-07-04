@@ -4,22 +4,24 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#define NUMBER int
+long *malloc_long_array(int n);
+long **malloc_long_matrix(int n, int m);
 
-int *read_int_array(FILE *in, int n);
-int **read_int_matrix(FILE *in, int n, int m);
+long *read_long_array(FILE *in, int n);
+long **read_long_matrix(FILE *in, int n, int m);
 
 /* Printing */
-int *fprint_int_array(FILE *out, int *array, int n);
-int **fprint_int_matrix(FILE *out, int **mat, int n, int m);
+long *fprint_long_array(FILE *out, long *array, int n);
+long **fprint_long_matrix(FILE *out, long **mat, int n, int m);
+long **fprint_long_matrix_tranlated(FILE *out, long **mat, int n, int m);
 
 /* Freeing */
-void free_int_array(int *array);
-void free_int_matrix(int **mat, int n);
+void free_long_array(long *array);
+void free_long_matrix(long **mat, int n);
 
 /* random NUMBERs */
+long lrand(long bound);
 double drand();
-double irand();
 
 /* ZIMPL FORMAT */
 void zimpl_print_matrix(FILE *fout, double **mat, int nlin, int ncol);

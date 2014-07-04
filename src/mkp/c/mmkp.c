@@ -3,6 +3,10 @@
 #include "util.h"
 #include "mmkp.h"
 
+/*
+ * Reads a MMKP instance from a file, givens its name.
+ *  filename: name of file
+ */
 MMKP *mmkp_read_from_filename(char *filename){
 	FILE *fin = fopen(filename, "r");
 	MMKP *mmkp = mmkp_read_from_file(fin);
@@ -10,8 +14,12 @@ MMKP *mmkp_read_from_filename(char *filename){
 	return mmkp;
 }
 
+/*
+ * Reads a MMKP instance from a FILE.
+ *   fin: input FILE
+ */
 MMKP *mmkp_read_from_file(FILE *fin){
-	int n, m, i, j, nf;
+	int n, m, o, i, j, nf;
 	MMKP *mmkp;
 	mmkp = (MMKP*)malloc(sizeof(MMKP));
 
@@ -25,15 +33,20 @@ MMKP *mmkp_read_from_file(FILE *fin){
 	mmkp->o = o;
 
 	/* Reading profits */
-	mmkp->p = read_NUMBER_array(fin, n);
+	mmkp->p = read_long_array(fin, n);
 	/* Reading weights */
-	mmkp->w = read_NUMBER_matrix(fin, n, m);
+	mmkp->w = read_long_matrix(fin, n, m);
 	/* Reading capacities */
-	mmkp->w = read_NUMBER_matrix(fin, m, o);
+	mmkp->w = read_long_matrix(fin, m, o);
 
 	 return mmkp;
 }
 
+/*
+ * Saves a MMKP instance into a file.
+ *   mmkp: the MMKP instance
+ *   filename: name of the output file
+ */
 void mmkp_write_to_filename(MMKP *mmkp, char *filename){
 	FILE *fout = fopen(filename, "w");
 	mmkp_write_to_file(mmkp, fout);
@@ -41,6 +54,10 @@ void mmkp_write_to_filename(MMKP *mmkp, char *filename){
 	return;
 }
 
+/*
+ * Reads a MMKP instance from a gzipped file.
+ *   filename: name of the file
+ */
 MMKP *mmkp_read_from_gzip(char *filename){
 	char cmd[300];
 	FILE *pipe;
@@ -67,123 +84,152 @@ void mmkp_write_to_gzip(MMKP *mmkp, char *filename){
 }
 
 void mmkp_write_to_file(MMKP *mmkp, FILE *fout){
-	int n, m, i, j, nf;
+	int n, m, o, i, j, nf;
 
 	n = mmkp->n;
 	m = mmkp->m;
+	o = mmkp->o;
 
 	/* writing  sizes */
 	fprintf(fout , "%d ", n);
 	fprintf(fout, "%d \n", m);
+	fprintf(fout, "%d \n", o);
 
 	/* Writing profits */
-	for( i = 0 ; i < n ; i++ )
-		fprintf(fout, "%f ", mmkp->p[i]);
-	fprintf(fout, "\n");
-
+	fprint_long_array(fout, mmkp->p, n);
 	/* Writing weights */
-	for( j = 0 ; j < m ; j++ ){
-		for( i = 0 ; i < n ; i++ )
-			fprintf(fout, "%lf ", mmkp->w[j][i]);
-		fprintf(fout, "\n");
-	}
-
+	fprint_long_matrix(fout, mmkp->w, n, m);
 	/* Writing capacities */
-	for( j = 0 ; j < m ; j++ )
-		fprintf(fout, "%lf ", mmkp->b[j]);
-	fprintf(fout, "\n");
+	fprint_long_matrix(fout, mmkp->b, o, m);
+
 	return;
 }
 
-MMKP *mmkp_random(int n, int m){
+/*
+ * Returns a random MMKP instance.
+ *   n: number of itens
+ *   m: number of dimensions
+ *   o: number of knapsacks
+ *   beta: ratio of knapsack capacity over total weight of itens
+ */
+MMKP *mmkp_random(int n, int m, int o, double beta){
 	int i, j;
 	double wsum;
+	long tot_weights[m];
+
 	MMKP *mmkp;
 	
-	mmkp = mmkp_alloc(n, m);
+	mmkp = mmkp_alloc(n, m, o);
 
-	/* random profits */
+	/* Random profits */
 	for( i = 0 ; i < n ; i++ )
-		mmkp->p[i] = drand();
+		mmkp->p[i] = lrand(MAX_RAND_PROFIT);
 
-	/* random weights */
-	for( j = 0 ; j < m ; j++){
-		wsum = 0.0;
+	/* Random weights */
+	for( j = 0 ; j < m ; j++)
 		for( i = 0 ; i < n ; i++ )
-			wsum +=  (mmkp->w[j][i] = drand());
-		/* random capacities [0, 0.5]*sum(w[*,m] )*/
-		mmkp->b[j] = wsum*0.5*drand();
+			mmkp->w[i][j] = lrand(MAX_RAND_WEIGHT);
+	
+	/* Computing total weight for each dimension */
+	for( j = 0 ; j < m ; j++){
+		tot_weights[j] = 0;
+		for( i = 0 ; i < n ; i++ )
+			tot_weights[j] += mmkp->w[i][j];
 	}
 
 	return mmkp;
 }
 
-MMKP *mmkp_alloc(int n, int m){
+MMKP *mmkp_alloc(int n, int m, int o){
 	int j;
 
-	MMKP *mmkp = (MMKP*)malloc(sizeof(MMKP));           /* mmkp */
-	mmkp->p = (double*)malloc(n*sizeof(double));     /* allocing profits */
-	mmkp->w = (double**)malloc(m*sizeof(double*));   /* allocing weights */
-	for( j = 0 ; j < m ; j++ )
-		mmkp->w[j] = (double*)malloc(n*sizeof(double));
-	mmkp->b = (double*)malloc(m*sizeof(double*));    /* allocing capacities */
+	MMKP *mmkp = (MMKP*)malloc(sizeof(MMKP));
+	mmkp->p = malloc_long_array(n);
+	mmkp->w = malloc_long_matrix(n, m);
+	mmkp->b = malloc_long_matrix(o, m);
 
 	mmkp->n = n;
 	mmkp->m = m;
+	mmkp->o = o;
 
 	return mmkp;
 }
 
+/*
+ * Frees an MMKP from memory.
+ *   mmkp: the MMKP instance
+ */
 void mmkp_free(MMKP *mmkp){
 	int j, m;
 
 	m = mmkp->m;
 
-	for( j = 0 ; j < m ; j++ )  /* free weights */
-		free(mmkp->w[j]);
-	free(mmkp->w);
-	free(mmkp->b);              /* free capacities */
-	free(mmkp->p);              /* free profits */
-	free(mmkp);                 /* free mmkp */
+	free_long_matrix(mmkp->w, mmkp->n);
+	free_long_matrix(mmkp->b, mmkp->o);
+	free(mmkp->p);
+	free(mmkp);
 
 	return;
 }
 
-void mmkp_to_zimpl(MMKP *mmkp, FILE *fout){
-	int i, j, n, m;
+void mmkp_fprint(FILE *out, MMKP *mmkp){
+	int i, j, n, m, o;
 
 	n = mmkp->n;
 	m = mmkp->m;
+	o = mmkp->o;
 
-	/* sizes */
-	fprintf(fout, "param n := %d;\n", n);
-	fprintf(fout, "param m := %d;\n", m);
+	fprintf(out, " Itens: %d\n", mmkp->n);
+	fprintf(out, " Dimen: %d\n", mmkp->m);
+	fprintf(out, " Knapsacks: %d\n", mmkp->o);
 
-	/* sets */
-	fprintf(fout, "set N := {1 .. %d};\n", n);
-	fprintf(fout, "set M := {1 .. %d};\n", m);
+	fprintf(out, " Profits:\n");
+	fprint_long_array(out, mmkp->p, n);
 
-	/* profit */
-	fprintf(fout, "param p[N] :=\n");
-	zimpl_print_array(fout, mmkp->p, n);
+	fprintf(out, " Weights:\n");
+	fprint_long_matrix_tranlated(out, mmkp->w, n, m);
 
-	/* weights */
-	fprintf(fout, "param w[M*N] :=\n");
-	zimpl_print_matrix(fout, mmkp->w, m, n);
-
-	/* capacities */
-	fprintf(fout, "param b[M] :=\n");
-	zimpl_print_array(fout, mmkp->b, m);
-
-	/* desicion var */
-	fprintf(fout, "var x[N] binary;\n");
-
-	/* capacities constraint */
-	fprintf(fout, "subto capacities:\nforall <j> in M do\nsum <i> in N do\nx[i]*w[j, i] <= b[j];\n");
-
-	/* objective function */
-	fprintf(fout, "maximize profit:\n sum <i> in N do\n x[i]*p[i];\n");
+	fprintf(out, " Capacities:\n");
+	fprint_long_matrix(out, mmkp->b, o, m);
 
 	return;
 }
 
+//void mmkp_to_zimpl(MMKP *mmkp, FILE *fout){
+//	int i, j, n, m;
+//
+//	n = mmkp->n;
+//	m = mmkp->m;
+//
+//	/* sizes */
+//	fprintf(fout, "param n := %d;\n", n);
+//	fprintf(fout, "param m := %d;\n", m);
+//
+//	/* sets */
+//	fprintf(fout, "set N := {1 .. %d};\n", n);
+//	fprintf(fout, "set M := {1 .. %d};\n", m);
+//
+//	/* profit */
+//	fprintf(fout, "param p[N] :=\n");
+//	zimpl_print_array(fout, mmkp->p, n);
+//
+//	/* weights */
+//	fprintf(fout, "param w[M*N] :=\n");
+//	zimpl_print_matrix(fout, mmkp->w, m, n);
+//
+//	/* capacities */
+//	fprintf(fout, "param b[M] :=\n");
+//	zimpl_print_array(fout, mmkp->b, m);
+//
+//	/* desicion var */
+//	fprintf(fout, "var x[N] binary;\n");
+//
+//	/* capacities constraint */
+//	fprintf(fout, "subto capacities:\nforall <j> in M do\nsum <i> in N do\nx[i]*w[j, i] <= b[j];\n");
+//
+//	/* objective function */
+//	fprintf(fout, "maximize profit:\n sum <i> in N do\n x[i]*p[i];\n");
+//
+//	return;
+//}
+//

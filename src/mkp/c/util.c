@@ -4,58 +4,93 @@
 
 #define ISNUM(c) ( (c > 47) && (c < 58) )
 
-double irand(int bound){
+/* 
+ * Returns a random long integer non-negative less than <bound>.
+ */
+long lrand(long bound){
 	return (rand() % bound);
 }
 
+/* 
+ * Returns a random double in [0,1[.
+ */
 double drand(){
-	return rand()/((float)RAND_MAX);
+	return rand()/((double)RAND_MAX);
 }
 
-int *read_int_array(FILE *in, int n){
+long *malloc_long_array(int n){
+	long *array;
+
+	array = (long*)malloc(n*sizeof(long));
+
+	return array;
+}
+
+long **malloc_long_matrix(int n, int m){
+	long **mat;
+	int i;
+
+	mat = (long**)malloc(n*sizeof(long*));
+	for( i = 0 ; i < n ; i++ )
+		mat[i] = (long*)malloc(m*sizeof(long));
+
+	return mat;
+}
+
+long *read_long_array(FILE *in, int n){
 	int i, nf;
-	int *array;
-	array = (int*)malloc(n*sizeof(int));
+	long *array;
+	array = (long*)malloc(n*sizeof(long));
 
 	for( i = 0 ; i < n ; i++ )
-		nf = fscanf(in, "%d", &(array[i]));
+		nf = fscanf(in, "%ld", &(array[i]));
 	
 	return array;
 }
 
-int **read_int_matrix(FILE *in, int n, int m){
+long **read_long_matrix(FILE *in, int n, int m){
 	int i, j;
-	int **mat;
+	long **mat;
 
-	mat = (int**)malloc(n*sizeof(int*));
+	mat = (long**)malloc(n*sizeof(long*));
 	
 	for( i = 0 ; i < n ; i++ )
-		mat[i] = read_int_array(in, m);
+		mat[i] = read_long_array(in, m);
 	
 	return mat;
 }
 
-int *fprint_int_array(FILE *out, int *array, int n){
+long *fprint_long_array(FILE *out, long *array, int n){
 	int i;
 	for( i = 0 ; i < n ; i++ )
-		fprintf(out, "%d%s", array[i], (i < n-1) ? " " : "\n" );
+		fprintf(out, "%ld%s", array[i], (i < n-1) ? " " : "\n" );
 	
 	return;
 }
 
-int **fprint_int_matrix(FILE *out, int **mat, int n, int m){
-	int i, j;
+int **fprint_long_matrix(FILE *out, long **mat, int n, int m){
+	int i;
 	for( i = 0 ; i < n ; i++ )
-		fprint_int_array(out, mat[i], m);
+		fprint_long_array(out, mat[i], m);
 	
 	return;
 }
 
-void free_int_array(int *array){
+long **fprint_long_matrix_tranlated(FILE *out, long **mat, int n, int m){
+	int i, j;
+
+	for( j = 0 ; j < m ; j++ )
+		for( i = 0 ; i < n ; i++ )
+			fprintf(out, "%ld%s", mat[i][j], (i < n-1) ? " " : "\n" );
+	
+	return;
+}
+
+void free_long_array(long *array){
 	free(array);
 }
 
-void free_int_matrix(int **mat, int n){
+void free_long_matrix(long **mat, int n){
 	int i;
 	for( i = 0 ; i < n ; i++ )
 		free(mat[i]);
