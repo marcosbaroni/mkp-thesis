@@ -25,7 +25,7 @@ int main(int argc, char **argv){
 	n = atol(argv[1]);
 	m = atol(argv[2]);
 	if(argc > 3) seed = atol(argv[3]);
-	else seed = time(NULL);
+	else seed = getmillis();
 	srand(seed);
 
 	/* check non-zero argmunets */

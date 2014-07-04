@@ -11,6 +11,9 @@ void zimpl_print_array(FILE *fout, double *array, int n);
 /* GENERAL PARSING */
 int *parse_int_list(char *str, int *n);
 
+/* Returns the microsecs from */
+int getmillis();
+
 /* ZIPING */
 void gzip(FILE *in, FILE *out);
 void gunzip(FILE *in, FILE *out);

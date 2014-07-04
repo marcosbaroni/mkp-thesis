@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <sys/time.h>
 
 #define ISNUM(c) ( (c > 47) && (c < 58) )
 
@@ -81,6 +82,15 @@ int *parse_int_list(char *str, int *n){
 	}while( res = sscanf(str, "%d", &(vec[(*n)])) > 0);
 
 	return vec;
+}
+
+int getmillis(){
+	struct timeval tv;
+	struct timezone tz;
+
+	gettimeofday(&tv, &tz);
+
+	return tv.tv_sec*1000+tv.tv_usec;
 }
 
 /* ZIPING */
