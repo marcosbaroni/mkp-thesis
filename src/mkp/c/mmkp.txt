@@ -1,0 +1,16 @@
+<#itens (n)>
+<#dim (m)>
+<#knapsacks(o)>
+
+<profit 1> <profit 2> ... <profit n>
+
+<weight 1 1> <weight 1 2> ... <weight 1 m>
+<weight 2 1> <weight 2 2> ... <weight 2 m>
+...
+<weight n 1> <weight n 2> ... <weight n m>
+
+<capacity 1 1> <capacity 1 2> ... <capacity 1 o>
+<capacity 2 1> <capacity 2 2> ... <capacity 2 o>
+...
+<capacity m 1> <capacity m 2> ... <capacity m o>
+
