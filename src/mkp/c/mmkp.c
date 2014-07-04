@@ -113,9 +113,10 @@ void mmkp_write_to_file(MMKP *mmkp, FILE *fout){
  *   beta: ratio of knapsack capacity over total weight of itens
  */
 MMKP *mmkp_random(int n, int m, int o, double beta){
-	int i, j;
-	double wsum;
+	int i, j, k;
 	long tot_weights[m];
+	double wsum;
+	double *cdist; // capacities distribution
 
 	MMKP *mmkp;
 	
@@ -136,6 +137,18 @@ MMKP *mmkp_random(int n, int m, int o, double beta){
 		for( i = 0 ; i < n ; i++ )
 			tot_weights[j] += mmkp->w[i][j];
 	}
+
+	/* Random capacities (each knapsack has a "global" size
+	 * which is used to set the capacity for each demantion). */
+	cdist = random_normalized_double_array(o);
+
+	for( k = 0 ; k < o ; k++ )
+		printf("%lf ", cdist[o]);
+	printf("\n");
+
+	for( k = 0 ; k < o ; k++ )
+		for( j = 0 ; j < m ; j++ )
+			mmkp->b[k][j] = (long)(cdist[k] * tot_weights[j] * beta);
 
 	return mmkp;
 }
@@ -190,7 +203,7 @@ void mmkp_fprint(FILE *out, MMKP *mmkp){
 	fprint_long_matrix_tranlated(out, mmkp->w, n, m);
 
 	fprintf(out, " Capacities:\n");
-	fprint_long_matrix(out, mmkp->b, o, m);
+	fprint_long_matrix_tranlated(out, mmkp->b, o, m);
 
 	return;
 }

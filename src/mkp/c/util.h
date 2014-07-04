@@ -23,6 +23,8 @@ void free_long_matrix(long **mat, int n);
 long lrand(long bound);
 double drand();
 
+double *random_normalized_double_array(int n);
+
 /* ZIMPL FORMAT */
 void zimpl_print_matrix(FILE *fout, double **mat, int nlin, int ncol);
 void zimpl_print_array(FILE *fout, double *array, int n);

@@ -71,6 +71,8 @@ void in_double_benchmark(int n){
  * */
 int main(int argc, char **argv){
 	MMKP *mmkp;
+	srand(time(NULL));
+
 	mmkp = mmkp_random(10, 3, 2, 0.5);
 
 	mmkp_fprint(stdout, mmkp);

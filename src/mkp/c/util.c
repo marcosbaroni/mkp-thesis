@@ -18,6 +18,28 @@ double drand(){
 	return rand()/((double)RAND_MAX);
 }
 
+/**
+ * Returns a random normalized double array (random numbers totaling 1.0).
+ * Must be freed.
+ * Ex.: [0.19, 0.1, 0.5, 0.21]
+ *   n: length of array
+ */
+double *random_normalized_double_array(int n){
+	int i;
+	double sum, *rarray;
+
+	rarray = (double*)malloc(n*sizeof(double));
+
+	sum = 0.0;
+	for( i = 0 ; i < n ; i++)
+		sum += (rarray[i] = drand());
+	
+	for( i = 0 ; i < n ; i++)
+		rarray[i] /= sum;
+	
+	return rarray;
+}
+
 long *malloc_long_array(int n){
 	long *array;
 
