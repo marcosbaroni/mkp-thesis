@@ -1,83 +1,76 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "util.h"
-#include "mkp.h"
+#include "mmkp.h"
 
-double urand(){
-	return rand()/((float)RAND_MAX);
-}
-
-MKP *mkp_read_from_filename(char *filename){
+MMKP *mmkp_read_from_filename(char *filename){
 	FILE *fin = fopen(filename, "r");
-	MKP *mkp = mkp_read_from_file(fin);
+	MMKP *mmkp = mmkp_read_from_file(fin);
 	fclose(fin);
-	return mkp;
+	return mmkp;
 }
 
-MKP *mkp_read_from_file(FILE *fin){
+MMKP *mmkp_read_from_file(FILE *fin){
 	int n, m, i, j, nf;
-	MKP *mkp;
+	MMKP *mmkp;
+	mmkp = (MMKP*)malloc(sizeof(MMKP));
 
 	/* Reading sizes */
 	nf = fscanf(fin, "%d", &n);
 	nf = fscanf(fin, "%d", &m);
+	nf = fscanf(fin, "%d", &o);
 
-	/* allocing */
-	mkp = mkp_alloc(n, m);
+	mmkp->n = n;
+	mmkp->m = m;
+	mmkp->o = o;
 
 	/* Reading profits */
-	for( i = 0 ; i < n ; i++ )
-		nf = fscanf(fin, "%lf", &(mkp->p[i]));
-
+	mmkp->p = read_NUMBER_array(fin, n);
 	/* Reading weights */
-	for( j = 0 ; j < m ; j++ )
-		for( i = 0 ; i < n ; i++ )
-			nf = fscanf(fin, "%lf", &(mkp->w[j][i]));
-
+	mmkp->w = read_NUMBER_matrix(fin, n, m);
 	/* Reading capacities */
-	for( j = 0 ; j < m ; j++ )
-		nf = fscanf(fin, "%lf", &(mkp->b[j]));
+	mmkp->w = read_NUMBER_matrix(fin, m, o);
 
-	 return mkp;
+	 return mmkp;
 }
 
-void mkp_write_to_filename(MKP *mkp, char *filename){
+void mmkp_write_to_filename(MMKP *mmkp, char *filename){
 	FILE *fout = fopen(filename, "w");
-	mkp_write_to_file(mkp, fout);
+	mmkp_write_to_file(mmkp, fout);
 	fclose(fout);
 	return;
 }
 
-MKP *mkp_read_from_gzip(char *filename){
+MMKP *mmkp_read_from_gzip(char *filename){
 	char cmd[300];
 	FILE *pipe;
-	MKP *mkp;
+	MMKP *mmkp;
 
 	sprintf(cmd, "zcat %s", filename);
 	pipe = popen(cmd, "r");
-	mkp = mkp_read_from_file(pipe);
+	mmkp = mmkp_read_from_file(pipe);
 	pclose(pipe);
 
-	return mkp;
+	return mmkp;
 }
 
-void mkp_write_to_gzip(MKP *mkp, char *filename){
+void mmkp_write_to_gzip(MMKP *mmkp, char *filename){
 	char cmd[300];
 	FILE *pipe;
 
 	sprintf(cmd, "gzip -cf > %s", filename);
 	pipe = popen(cmd, "w");
-	mkp_write_to_file(mkp, pipe);
+	mmkp_write_to_file(mmkp, pipe);
 	pclose(pipe);
 
 	return;
 }
 
-void mkp_write_to_file(MKP *mkp, FILE *fout){
+void mmkp_write_to_file(MMKP *mmkp, FILE *fout){
 	int n, m, i, j, nf;
 
-	n = mkp->n;
-	m = mkp->m;
+	n = mmkp->n;
+	m = mmkp->m;
 
 	/* writing  sizes */
 	fprintf(fout , "%d ", n);
@@ -85,82 +78,82 @@ void mkp_write_to_file(MKP *mkp, FILE *fout){
 
 	/* Writing profits */
 	for( i = 0 ; i < n ; i++ )
-		fprintf(fout, "%f ", mkp->p[i]);
+		fprintf(fout, "%f ", mmkp->p[i]);
 	fprintf(fout, "\n");
 
 	/* Writing weights */
 	for( j = 0 ; j < m ; j++ ){
 		for( i = 0 ; i < n ; i++ )
-			fprintf(fout, "%lf ", mkp->w[j][i]);
+			fprintf(fout, "%lf ", mmkp->w[j][i]);
 		fprintf(fout, "\n");
 	}
 
 	/* Writing capacities */
 	for( j = 0 ; j < m ; j++ )
-		fprintf(fout, "%lf ", mkp->b[j]);
+		fprintf(fout, "%lf ", mmkp->b[j]);
 	fprintf(fout, "\n");
 	return;
 }
 
-MKP *mkp_random(int n, int m){
+MMKP *mmkp_random(int n, int m){
 	int i, j;
 	double wsum;
-	MKP *mkp;
+	MMKP *mmkp;
 	
-	mkp = mkp_alloc(n, m);
+	mmkp = mmkp_alloc(n, m);
 
 	/* random profits */
 	for( i = 0 ; i < n ; i++ )
-		mkp->p[i] = urand();
+		mmkp->p[i] = drand();
 
 	/* random weights */
 	for( j = 0 ; j < m ; j++){
 		wsum = 0.0;
 		for( i = 0 ; i < n ; i++ )
-			wsum +=  (mkp->w[j][i] = urand());
+			wsum +=  (mmkp->w[j][i] = drand());
 		/* random capacities [0, 0.5]*sum(w[*,m] )*/
-		mkp->b[j] = wsum*0.5*urand();
+		mmkp->b[j] = wsum*0.5*drand();
 	}
 
-	return mkp;
+	return mmkp;
 }
 
-MKP *mkp_alloc(int n, int m){
+MMKP *mmkp_alloc(int n, int m){
 	int j;
 
-	MKP *mkp = (MKP*)malloc(sizeof(MKP));           /* mkp */
-	mkp->p = (double*)malloc(n*sizeof(double));     /* allocing profits */
-	mkp->w = (double**)malloc(m*sizeof(double*));   /* allocing weights */
+	MMKP *mmkp = (MMKP*)malloc(sizeof(MMKP));           /* mmkp */
+	mmkp->p = (double*)malloc(n*sizeof(double));     /* allocing profits */
+	mmkp->w = (double**)malloc(m*sizeof(double*));   /* allocing weights */
 	for( j = 0 ; j < m ; j++ )
-		mkp->w[j] = (double*)malloc(n*sizeof(double));
-	mkp->b = (double*)malloc(m*sizeof(double*));    /* allocing capacities */
+		mmkp->w[j] = (double*)malloc(n*sizeof(double));
+	mmkp->b = (double*)malloc(m*sizeof(double*));    /* allocing capacities */
 
-	mkp->n = n;
-	mkp->m = m;
+	mmkp->n = n;
+	mmkp->m = m;
 
-	return mkp;
+	return mmkp;
 }
 
-void mkp_free(MKP *mkp){
+void mmkp_free(MMKP *mmkp){
 	int j, m;
 
-	m = mkp->m;
+	m = mmkp->m;
 
 	for( j = 0 ; j < m ; j++ )  /* free weights */
-		free(mkp->w[j]);
-	free(mkp->w);
-	free(mkp->b);              /* free capacities */
-	free(mkp->p);              /* free profits */
-	free(mkp);                 /* free mkp */
+		free(mmkp->w[j]);
+	free(mmkp->w);
+	free(mmkp->b);              /* free capacities */
+	free(mmkp->p);              /* free profits */
+	free(mmkp);                 /* free mmkp */
 
 	return;
 }
 
-void mkp_to_zimpl(MKP *mkp, FILE *fout){
+void mmkp_to_zimpl(MMKP *mmkp, FILE *fout){
 	int i, j, n, m;
 
-	n = mkp->n;
-	m = mkp->m;
+	n = mmkp->n;
+	m = mmkp->m;
 
 	/* sizes */
 	fprintf(fout, "param n := %d;\n", n);
@@ -172,15 +165,15 @@ void mkp_to_zimpl(MKP *mkp, FILE *fout){
 
 	/* profit */
 	fprintf(fout, "param p[N] :=\n");
-	zimpl_print_array(fout, mkp->p, n);
+	zimpl_print_array(fout, mmkp->p, n);
 
 	/* weights */
 	fprintf(fout, "param w[M*N] :=\n");
-	zimpl_print_matrix(fout, mkp->w, m, n);
+	zimpl_print_matrix(fout, mmkp->w, m, n);
 
 	/* capacities */
 	fprintf(fout, "param b[M] :=\n");
-	zimpl_print_array(fout, mkp->b, m);
+	zimpl_print_array(fout, mmkp->b, m);
 
 	/* desicion var */
 	fprintf(fout, "var x[N] binary;\n");

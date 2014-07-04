@@ -4,6 +4,64 @@
 
 #define ISNUM(c) ( (c > 47) && (c < 58) )
 
+double irand(int bound){
+	return (rand() % bound);
+}
+
+double drand(){
+	return rand()/((float)RAND_MAX);
+}
+
+int *read_int_array(FILE *in, int n){
+	int i, nf;
+	int *array;
+	array = (int*)malloc(n*sizeof(int));
+
+	for( i = 0 ; i < n ; i++ )
+		nf = fscanf(in, "%d", &(array[i]));
+	
+	return array;
+}
+
+int **read_int_matrix(FILE *in, int n, int m){
+	int i, j;
+	int **mat;
+
+	mat = (int**)malloc(n*sizeof(int*));
+	
+	for( i = 0 ; i < n ; i++ )
+		mat[i] = read_int_array(in, m);
+	
+	return mat;
+}
+
+int *fprint_int_array(FILE *out, int *array, int n){
+	int i;
+	for( i = 0 ; i < n ; i++ )
+		fprintf(out, "%d%s", array[i], (i < n-1) ? " " : "\n" );
+	
+	return;
+}
+
+int **fprint_int_matrix(FILE *out, int **mat, int n, int m){
+	int i, j;
+	for( i = 0 ; i < n ; i++ )
+		fprint_int_array(out, mat[i], m);
+	
+	return;
+}
+
+void free_int_array(int *array){
+	free(array);
+}
+
+void free_int_matrix(int **mat, int n){
+	int i;
+	for( i = 0 ; i < n ; i++ )
+		free(mat[i]);
+	free(mat);
+}
+
 /*
  * Prints a double matrix on the ZIMPL MIP modeling language format.
  *   fout - output FILE
