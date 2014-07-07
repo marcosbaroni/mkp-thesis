@@ -18,6 +18,13 @@ double drand(){
 	return rand()/((double)RAND_MAX);
 }
 
+/* 
+ * Returns a random double taken from a normal distribution with mean 0 and
+ * standard deviation 1.
+ */
+double normal_dist(){
+}
+
 /**
  * Returns a random normalized double array (random numbers totaling 1.0).
  * Must be freed.

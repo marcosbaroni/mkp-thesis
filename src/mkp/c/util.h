@@ -19,9 +19,11 @@ long **fprint_long_matrix_tranlated(FILE *out, long **mat, int n, int m);
 void free_long_array(long *array);
 void free_long_matrix(long **mat, int n);
 
-/* random NUMBERs */
+/*** RANDOM NUMBERs ***/
 long lrand(long bound);
 double drand();
+//double normal_dist();
+/**********************/
 
 double *random_normalized_double_array(int n);
 
