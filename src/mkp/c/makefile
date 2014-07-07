@@ -1,7 +1,10 @@
-all: randmkp mkp2zpl
-randmkp: mmkp.o util.o
-	gcc -o randmkp randmkp.c mmkp.c util.c -lm
-mkp2zpl: mmkp.o util.o
-	gcc -o mkp2zpl mkp2zpl.c mmkp.c util.c -lm
+BINDIR="../../../bin"
+all: randmmkp mmkp2zpl
+randmmkp: mmkp.o util.o
+	gcc -o randmmkp randmmkp.c mmkp.c util.c -lm
+	mv randmmkp $(BINDIR)
+mmkp2zpl: mmkp.o util.o
+	gcc -o mmkp2zpl mmkp2zpl.c mmkp.c util.c -lm
+	mv mmkp2zpl $(BINDIR)
 test:
 	gcc -o test test.c util.c mmkp.c -lm

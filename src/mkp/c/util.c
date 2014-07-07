@@ -132,7 +132,7 @@ void free_long_matrix(long **mat, int n){
  *   nlin - number of lines on matrix
  *   ncol - numer of columns on matrix
  *   mat  - the double matrix */
-void zimpl_print_matrix(FILE *fout, double **mat, int nlin, int ncol){
+void zimpl_print_double_matrix(FILE *fout, double **mat, int nlin, int ncol){
 	int i, j;
 	
 	/* header */
@@ -157,11 +157,51 @@ void zimpl_print_matrix(FILE *fout, double **mat, int nlin, int ncol){
  *   fout  - output FILE
  *   n     - number of elements on array
  *   array - the double array */
-void zimpl_print_array(FILE *fout, double *array, int n){
+void zimpl_print_double_array(FILE *fout, double *array, int n){
 	int i;
 	for( i = 0 ; i < n-1 ; i++ )
 		fprintf(fout, "<%d> %lf,\n", i+1, array[i]);
 	fprintf(fout, "<%d> %lf;\n", i+1, array[n-1]);
+
+	return;
+}
+
+/*
+ * Prints a longint matrix on the ZIMPL MIP modeling language format.
+ *   fout - output FILE
+ *   nlin - number of lines on matrix
+ *   ncol - numer of columns on matrix
+ *   mat  - the longint matrix */
+void zimpl_print_long_matrix(FILE *fout, long **mat, int nlin, int ncol){
+	int i, j;
+	
+	/* header */
+	fprintf(fout, "|1");
+	for( i = 1 ; i < ncol ; i++ )
+		fprintf(fout, ",%d", i+1);
+	fprintf(fout, "|\n");
+
+	/* values */
+	for( i = 0 ; i < nlin ; i++ ){
+		fprintf(fout, "|%d|%ld", i+1, mat[i][0]);
+		for( j = 1 ; j < ncol ; j++ )
+			fprintf(fout, ",%ld", mat[i][j]);
+		fprintf(fout, "|\n", mat[i][j]);
+	}
+	fprintf(fout, ";\n");
+	return;
+}
+
+/*
+ * Prints a longint array on the ZIMPL MIP modeling language format.
+ *   fout  - output FILE
+ *   n     - number of elements on array
+ *   array - the longint array */
+void zimpl_print_long_array(FILE *fout, long *array, int n){
+	int i;
+	for( i = 0 ; i < n-1 ; i++ )
+		fprintf(fout, "<%d> %ld,\n", i+1, array[i]);
+	fprintf(fout, "<%d> %ld;\n", i+1, array[n-1]);
 
 	return;
 }

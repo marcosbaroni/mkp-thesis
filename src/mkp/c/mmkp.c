@@ -35,9 +35,9 @@ MMKP *mmkp_read_from_file(FILE *fin){
 	/* Reading profits */
 	mmkp->p = read_long_array(fin, n);
 	/* Reading weights */
-	mmkp->w = read_long_matrix(fin, n, m);
+	mmkp->w = read_long_matrix(fin, m, n);
 	/* Reading capacities */
-	mmkp->w = read_long_matrix(fin, m, o);
+	mmkp->w = read_long_matrix(fin, o, m);
 
 	 return mmkp;
 }
@@ -91,16 +91,16 @@ void mmkp_write_to_file(MMKP *mmkp, FILE *fout){
 	o = mmkp->o;
 
 	/* writing  sizes */
-	fprintf(fout , "%d ", n);
-	fprintf(fout, "%d \n", m);
-	fprintf(fout, "%d \n", o);
+	fprintf(fout , "%d\n", n);
+	fprintf(fout, "%d\n", m);
+	fprintf(fout, "%d\n", o);
 
 	/* Writing profits */
 	fprint_long_array(fout, mmkp->p, n);
 	/* Writing weights */
-	fprint_long_matrix(fout, mmkp->w, n, m);
+	fprint_long_matrix(fout, mmkp->w, m, n);
 	/* Writing capacities */
-	fprint_long_matrix(fout, mmkp->b, o, m);
+	fprint_long_matrix(fout, mmkp->b, m, o);
 
 	return;
 }
@@ -129,13 +129,13 @@ MMKP *mmkp_random(int n, int m, int o, double beta){
 	/* Random weights */
 	for( j = 0 ; j < m ; j++)
 		for( i = 0 ; i < n ; i++ )
-			mmkp->w[i][j] = lrand(MAX_RAND_WEIGHT);
+			mmkp->w[j][i] = lrand(MAX_RAND_WEIGHT);
 	
 	/* Computing total weight for each dimension */
 	for( j = 0 ; j < m ; j++){
 		tot_weights[j] = 0;
 		for( i = 0 ; i < n ; i++ )
-			tot_weights[j] += mmkp->w[i][j];
+			tot_weights[j] += mmkp->w[j][i];
 	}
 
 	/* Random capacities (each knapsack has a "global" size
@@ -143,12 +143,8 @@ MMKP *mmkp_random(int n, int m, int o, double beta){
 	cdist = random_normalized_double_array(o);
 
 	for( k = 0 ; k < o ; k++ )
-		printf("%lf ", cdist[o]);
-	printf("\n");
-
-	for( k = 0 ; k < o ; k++ )
 		for( j = 0 ; j < m ; j++ )
-			mmkp->b[k][j] = (long)(cdist[k] * tot_weights[j] * beta);
+			mmkp->b[j][k] = (long)(cdist[k] * tot_weights[j] * beta);
 
 	return mmkp;
 }
@@ -208,41 +204,58 @@ void mmkp_fprint(FILE *out, MMKP *mmkp){
 	return;
 }
 
-//void mmkp_to_zimpl(MMKP *mmkp, FILE *fout){
-//	int i, j, n, m;
-//
-//	n = mmkp->n;
-//	m = mmkp->m;
-//
-//	/* sizes */
-//	fprintf(fout, "param n := %d;\n", n);
-//	fprintf(fout, "param m := %d;\n", m);
-//
-//	/* sets */
-//	fprintf(fout, "set N := {1 .. %d};\n", n);
-//	fprintf(fout, "set M := {1 .. %d};\n", m);
-//
-//	/* profit */
-//	fprintf(fout, "param p[N] :=\n");
-//	zimpl_print_array(fout, mmkp->p, n);
-//
-//	/* weights */
-//	fprintf(fout, "param w[M*N] :=\n");
-//	zimpl_print_matrix(fout, mmkp->w, m, n);
-//
-//	/* capacities */
-//	fprintf(fout, "param b[M] :=\n");
-//	zimpl_print_array(fout, mmkp->b, m);
-//
-//	/* desicion var */
-//	fprintf(fout, "var x[N] binary;\n");
-//
-//	/* capacities constraint */
-//	fprintf(fout, "subto capacities:\nforall <j> in M do\nsum <i> in N do\nx[i]*w[j, i] <= b[j];\n");
-//
-//	/* objective function */
-//	fprintf(fout, "maximize profit:\n sum <i> in N do\n x[i]*p[i];\n");
-//
-//	return;
-//}
-//
+void mmkp_to_zimpl(MMKP *mmkp, FILE *fout){
+	int i, j, o, n, m;
+
+	n = mmkp->n;
+	m = mmkp->m;
+	o = mmkp->o;
+
+	/* sizes */
+	fprintf(fout, "param n := %d;\n", n);
+	fprintf(fout, "param m := %d;\n", m);
+	fprintf(fout, "param o := %d;\n", o);
+
+	/* sets */
+	fprintf(fout, "set N := {1 .. %d};\n", n);
+	fprintf(fout, "set M := {1 .. %d};\n", m);
+	fprintf(fout, "set O := {1 .. %d};\n", o);
+
+	/* profit */
+	fprintf(fout, "param p[N] :=\n");
+	zimpl_print_long_array(fout, mmkp->p, n);
+
+	/* weights */
+	fprintf(fout, "param w[M*N] :=\n");
+	zimpl_print_long_matrix(fout, mmkp->w, m, n);
+
+	/* capacities */
+	fprintf(fout, "param b[M*O] :=\n");
+	zimpl_print_long_matrix(fout, mmkp->b, m, o);
+
+	/* desicion var */
+	fprintf(fout, "var x[O*N] binary;\n");
+
+	/* capacities constraint */
+	fprintf(fout,
+		"subto capacities:\n\
+			forall <j> in M do\n\
+				sum <k, i> in O*N do\n\
+					x[k, i]*w[j, i] <= b[j];\n");
+
+	/* Single-Knapsack-item constraint */
+	fprintf(fout,
+		"subto singleknapsack:\n\
+			forall <i> in N do\n\
+				sum <k> in O do\n\
+					x[k, i] <= 1;\n");
+
+	/* objective function */
+	fprintf(fout,
+		"maximize profit:\n\
+			sum <k, i> in O*N do\n\
+				x[k, i]*p[i];\n");
+
+	return;
+}
+

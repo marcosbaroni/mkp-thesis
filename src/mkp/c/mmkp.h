@@ -13,8 +13,8 @@ typedef struct MMKP{
 	int m;       /* Number of dimensions */
 	int o;       /* Numer of knapsacks */
 	long *p;   /* Profit of itens [n] */
-	long **w;  /* Weight of itens [n x m] */
-	long **b;  /* Knapsack capacities [o x m] */
+	long **w;  /* Weight of itens [m x n] */
+	long **b;  /* Knapsack capacities [m x o] */
 }MMKP;
 
 /*** memory management ***/

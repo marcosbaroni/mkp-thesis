@@ -28,8 +28,10 @@ double drand();
 double *random_normalized_double_array(int n);
 
 /* ZIMPL FORMAT */
-void zimpl_print_matrix(FILE *fout, double **mat, int nlin, int ncol);
-void zimpl_print_array(FILE *fout, double *array, int n);
+void zimpl_print_double_matrix(FILE *fout, double **mat, int nlin, int ncol);
+void zimpl_print_double_array(FILE *fout, double *array, int n);
+void zimpl_print_long_matrix(FILE *fout, long **mat, int nlin, int ncol);
+void zimpl_print_long_array(FILE *fout, long *array, int n);
 
 /* GENERAL PARSING */
 int *parse_int_list(char *str, int *n);
