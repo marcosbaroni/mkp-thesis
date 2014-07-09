@@ -7,8 +7,7 @@
 int main(){
 	MMKP *mmkp;
 	mmkp = mmkp_read_from_file(stdin);
-	mmkp_to_zimpl(mmkp, stdout);
-	fprintf(stderr, "not working yet\n");
+	mmkp_to_zimpl(stdout, mmkp);
 	mmkp_free(mmkp);
 
 	return 1;

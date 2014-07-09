@@ -31,14 +31,16 @@ int main(int argc, char **argv){
 	if(argc > 5) seed = atol(argv[5]);
 	else seed = getmillis();
 
-	/* initializing random seed */
-	srand(seed);
-
 	/* check non-zero argmunets */
 	if(!(n*m))
 		print_usage(argc, argv);
 
+	/* initializing random seed */
+	srand(seed);
+
+	/* Generating random instance */
 	mmkp = mmkp_random(n, m, o, beta);
+	/* Printing random instance */
 	mmkp_write_to_file(mmkp, stdout);
 	mmkp_free(mmkp);
 	

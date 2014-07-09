@@ -21,7 +21,6 @@ typedef struct MMKP{
 MMKP *mmkp_alloc(int n, int m, int o);
 MMKP *mmkp_random(int n, int m, int o, double beta);
 void mmkp_free(MMKP *mmkp);
-/*void mmkp_printf(FILE *fout, MMKP *mmkp);*/
 
 
 /*** READ/WRITE functions ***/
@@ -34,7 +33,7 @@ void mmkp_write_to_gzip(MMKP *mmkp, char *filename);
 
 /*** Print functions ***/
 void mmkp_fprint(FILE *out, MMKP *mmkp);
-//void mmkp_to_zimpl(MMKP *mmkp, FILE *fout);
+void mmkp_to_zimpl(FILE *fout, MMKP *mmkp);
 
 
 #endif

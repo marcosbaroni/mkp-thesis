@@ -37,7 +37,7 @@ MMKP *mmkp_read_from_file(FILE *fin){
 	/* Reading weights */
 	mmkp->w = read_long_matrix(fin, m, n);
 	/* Reading capacities */
-	mmkp->w = read_long_matrix(fin, o, m);
+	mmkp->b = read_long_matrix(fin, m, o);
 
 	 return mmkp;
 }
@@ -145,6 +145,7 @@ MMKP *mmkp_random(int n, int m, int o, double beta){
 	for( k = 0 ; k < o ; k++ )
 		for( j = 0 ; j < m ; j++ )
 			mmkp->b[j][k] = (long)(cdist[k] * tot_weights[j] * beta);
+	free(cdist);
 
 	return mmkp;
 }
@@ -154,8 +155,8 @@ MMKP *mmkp_alloc(int n, int m, int o){
 
 	MMKP *mmkp = (MMKP*)malloc(sizeof(MMKP));
 	mmkp->p = malloc_long_array(n);
-	mmkp->w = malloc_long_matrix(n, m);
-	mmkp->b = malloc_long_matrix(o, m);
+	mmkp->w = malloc_long_matrix(m, n);
+	mmkp->b = malloc_long_matrix(m, o);
 
 	mmkp->n = n;
 	mmkp->m = m;
@@ -173,8 +174,8 @@ void mmkp_free(MMKP *mmkp){
 
 	m = mmkp->m;
 
-	free_long_matrix(mmkp->w, mmkp->n);
-	free_long_matrix(mmkp->b, mmkp->o);
+	free_long_matrix(mmkp->w, mmkp->m);
+	free_long_matrix(mmkp->b, mmkp->m);
 	free(mmkp->p);
 	free(mmkp);
 
@@ -196,15 +197,15 @@ void mmkp_fprint(FILE *out, MMKP *mmkp){
 	fprint_long_array(out, mmkp->p, n);
 
 	fprintf(out, " Weights:\n");
-	fprint_long_matrix_tranlated(out, mmkp->w, n, m);
+	fprint_long_matrix(out, mmkp->w, m, n);
 
 	fprintf(out, " Capacities:\n");
-	fprint_long_matrix_tranlated(out, mmkp->b, o, m);
+	fprint_long_matrix(out, mmkp->b, m, o);
 
 	return;
 }
 
-void mmkp_to_zimpl(MMKP *mmkp, FILE *fout){
+void mmkp_to_zimpl(FILE *fout, MMKP *mmkp){
 	int i, j, o, n, m;
 
 	n = mmkp->n;
@@ -239,9 +240,9 @@ void mmkp_to_zimpl(MMKP *mmkp, FILE *fout){
 	/* capacities constraint */
 	fprintf(fout,
 		"subto capacities:\n\
-			forall <j> in M do\n\
-				sum <k, i> in O*N do\n\
-					x[k, i]*w[j, i] <= b[j];\n");
+			forall <j, k> in M*O do\n\
+				sum <i> in N do\n\
+					x[k, i]*w[j, i] <= b[j, k];\n");
 
 	/* Single-Knapsack-item constraint */
 	fprintf(fout,

@@ -1,2 +1,0 @@
-#!/bin/bash
-grep "Gap"| sed 's/ //g' | cut -d ':' -f 2| sed 's/%//g'|head -1

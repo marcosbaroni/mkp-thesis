@@ -1,0 +1,18 @@
+#!/bin/bash
+SCIP=scip
+
+# Checkinkg number of arguments
+if [ $# -lt 2 ]; then
+    echo -e "usage:\n $0 <max-time(sec)> <max-gap(%)> [input-file(.lp)]\n"
+    exit 1
+fi
+
+# Getting first arguments
+maxtime=$1
+maxgap=$2
+
+# Checking input source
+if [ $# -gt 2 ]; then
+	if [ 
+fi
+
