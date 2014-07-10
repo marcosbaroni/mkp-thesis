@@ -2,17 +2,42 @@
 SCIP=scip
 
 # Checkinkg number of arguments
-if [ $# -lt 2 ]; then
-    echo -e "usage:\n $0 <max-time(sec)> <max-gap(%)> [input-file(.lp)]\n"
+if [ $# -lt 1 ]; then
+    echo -e "usage:\n $0 <max-time(sec)> [max-gap([0-1])] [input-file(.lp)]\n"
     exit 1
 fi
 
+maxtime="100000.0"
+maxgap="0.0"
+
 # Getting first arguments
-maxtime=$1
-maxgap=$2
+if [ $# -gt 0 ]; then
+	maxtime=$1
+	if [ $# -gt 1 ]; then
+		maxgap=$2
+	fi
+fi
 
 # Checking input source
 if [ $# -gt 2 ]; then
-	if [ 
+	# checking if file exists
+	if [ ! -f $3 ]; then
+		echo "Could not find file $3."
+		exit 1
+	else
+		inputfile=$3
+	fi
+else
+	# No file given, redirecting input to temp file
+	temp=`tempfile`
+	inputfile=$temp.lp
+	tee > $inputfile
+fi
+
+# running SCIP
+$SCIP -c "set limits time $maxtime" -c "set limits gap $maxgap" -c "read $inputfile" -c "opt" -c "quit"
+
+if [ -n $temp ]; then
+    rm $temp*
 fi
 
