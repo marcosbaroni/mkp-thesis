@@ -18,6 +18,9 @@ if [ $# -gt 0 ]; then
 	fi
 fi
 
+temp=`tempfile`
+input=$temp.lp
+
 # Checking input source
 if [ $# -gt 2 ]; then
 	# checking if file exists
@@ -25,19 +28,17 @@ if [ $# -gt 2 ]; then
 		echo "Could not find file $3."
 		exit 1
 	else
-		inputfile=$3
+		echo "Coping"
+		cp $3 $input
 	fi
 else
 	# No file given, redirecting input to temp file
-	temp=`tempfile`
-	inputfile=$temp.lp
-	tee > $inputfile
+	echo "redirecting to $input"
+	tee > $input
 fi
 
 # running SCIP
-$SCIP -c "set limits time $maxtime" -c "set limits gap $maxgap" -c "read $inputfile" -c "opt" -c "quit"
+$SCIP -c "set limits time $maxtime" -c "set limits gap $maxgap" -c "read $input" -c "opt" -c "quit"
 
-if [ -n $temp ]; then
-    rm $temp*
-fi
+rm $temp*
 
