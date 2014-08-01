@@ -260,3 +260,29 @@ void mmkp_to_zimpl(FILE *fout, MMKP *mmkp){
 	return;
 }
 
+MMKPSol *mmkpsol_new(MMKP *mmkp){
+	int i, j, k, n, m, o;
+	long lsum;
+	MMKPSol *mmkpsol;
+
+	n = mmkp->n;
+	m = mmkp->m;
+	o = mmkp->o;
+	
+	/* allocs */
+	mmkpsol = (MMKPSol*)malloc(sizeof(MMKPSol));
+	mmkpsol->x = malloc_long_matrix(o, n);
+	mmkpsol->x_used = malloc_long_array(n);
+	mmkpsol->b_left = malloc_long_matrix(m, o);
+
+	/* assingnments*/
+	init_long_matrix(mmkpsol->x, o, n, 0);
+	init_long_array(mmkpsol->x_used, n, 0);
+	copy_long_matrix(mmkpsol->b_left, mmkp->b, m, o);
+	mmkpsol->obj = 0;
+	mmkpsol->viable = 1;
+	mmkpsol->mmkp = mmkp;
+
+	return mmkpsol;
+}
+

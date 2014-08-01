@@ -35,6 +35,16 @@ void mmkp_write_to_gzip(MMKP *mmkp, char *filename);
 void mmkp_fprint(FILE *out, MMKP *mmkp);
 void mmkp_to_zimpl(FILE *fout, MMKP *mmkp);
 
+typedef struct MMKPSol{
+	int **x;           /* The solution vector [o x n] */
+	long *x_used;      /* If the item is used on any knapsack [n] */
+	long **b_left;     /* Resource left on each knapsack [m x o] */
+	long obj;          /* Objective function */
+	int viable;        /* If solution is viable */
+	MMKP *mmkp;        /* The problem instance */
+}MMKPSol;
+
+MMKPSol *mmkpsol_new(MMKP *mmkp); /* new empty solution */
 
 #endif
 

@@ -55,6 +55,34 @@ long *malloc_long_array(int n){
 	return array;
 }
 
+long *init_long_array(long *array, ing n, long x){
+	int i;
+	for( i = 0 ; i < n ; i++ )
+		array[i] = x;
+	return array;
+}
+
+long *copy_long_array(long *dest, long *src, int n){
+	int i;
+	for( i = 0 ; i < n ; i++ )
+		dest[i] = src[i];
+	return dest;
+}
+
+long *init_long_matrix(long **mat, int n, int m, long x){
+	int i;
+	for( i = 0 ; i < n ; i++ )
+		init_long_array(mat[i], m, x);
+	return mat;
+}
+
+long *copy_long_matrix(long **dest, long **src, int n, int m){
+	int i;
+	for( i = 0 ; i < n ; i++ )
+		copy_long_array(dest[i], src[i], m);
+	return mat;
+}
+
 long **malloc_long_matrix(int n, int m){
 	long **mat;
 	int i;

@@ -5,10 +5,15 @@
 #include <stdio.h>
 
 long *malloc_long_array(int n);
+long *init_long_array(long *array, int n, long x);
+long *copy_long_array(long *dest, long *src, int n);
 long **malloc_long_matrix(int n, int m);
 
 long *read_long_array(FILE *in, int n);
 long **read_long_matrix(FILE *in, int n, int m);
+
+long *init_long_matrix(long **mat, int n, int m, long x);
+long *copy_long_matrix(long **dest, long **src, int n, int m);
 
 /* Printing */
 long *fprint_long_array(FILE *out, long *array, int n);
