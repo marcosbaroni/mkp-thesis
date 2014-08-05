@@ -3,4 +3,4 @@ ZIMPL=zimpl
 temp=`tempfile`
 tee > $temp
 $ZIMPL $temp -v0 -F "grep -v zimpl"
-
+rm $temp
