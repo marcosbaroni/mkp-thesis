@@ -36,7 +36,7 @@ void mmkp_fprint(FILE *out, MMKP *mmkp);
 void mmkp_to_zimpl(FILE *fout, MMKP *mmkp);
 
 typedef struct MMKPSol{
-	int **x;           /* The solution vector [o x n] */
+	long **x;           /* The solution vector [o x n] */
 	long *x_used;      /* If the item is used on any knapsack [n] */
 	long **b_left;     /* Resource left on each knapsack [m x o] */
 	long obj;          /* Objective function */
@@ -45,6 +45,7 @@ typedef struct MMKPSol{
 }MMKPSol;
 
 MMKPSol *mmkpsol_new(MMKP *mmkp); /* new empty solution */
+void mmkpsol_free(MMKPSol *mmkpsol); /* new empty solution */
 
 #endif
 

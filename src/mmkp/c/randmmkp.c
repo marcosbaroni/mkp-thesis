@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "mmkp.h"
-#include "util.h"
+#include "mmkp/mmkp.h"
+#include "mmkp/util.h"
 
 void print_usage(int argc, char **argv){
 	printf("Generates a random instance of MMKP (n, m, o).\n");

@@ -286,3 +286,18 @@ MMKPSol *mmkpsol_new(MMKP *mmkp){
 	return mmkpsol;
 }
 
+void mmkpsol_free(MMKPSol *mmkpsol){
+	int n, m, o;
+
+	n = mmkpsol->mmkp->n;
+	m = mmkpsol->mmkp->m;
+	o = mmkpsol->mmkp->o;
+
+	free_long_matrix(mmkpsol->x, o);
+	free_long_array(mmkpsol->x_used);
+	free_long_matrix(mmkpsol->b_left, m);
+	free(mmkpsol);
+
+	return;
+}
+
