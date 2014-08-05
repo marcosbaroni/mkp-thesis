@@ -5,3 +5,4 @@ knap.dat
 *.gplot
 scip.set
 *.log
+src/mmkp/c/*.o
