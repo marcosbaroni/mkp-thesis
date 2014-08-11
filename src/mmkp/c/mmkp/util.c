@@ -23,6 +23,8 @@ double drand(){
  * standard deviation 1.
  */
 double normal_dist(){
+	fprintf(stderr, "function \"normal_dist\" not implemented yet.\n");
+	return 0.0;
 }
 
 /**
@@ -64,6 +66,10 @@ long *init_long_array(long *array, int n, long x){
 
 long *copy_long_array(long *dest, long *src, int n){
 	int i;
+
+	if(!dest)
+		dest = malloc_long_array(n);
+
 	for( i = 0 ; i < n ; i++ )
 		dest[i] = src[i];
 	return dest;
@@ -74,13 +80,6 @@ long **init_long_matrix(long **mat, int n, int m, long x){
 	for( i = 0 ; i < n ; i++ )
 		init_long_array(mat[i], m, x);
 	return mat;
-}
-
-long **copy_long_matrix(long **dest, long **src, int n, int m){
-	int i;
-	for( i = 0 ; i < n ; i++ )
-		copy_long_array(dest[i], src[i], m);
-	return dest;
 }
 
 long **malloc_long_matrix(int n, int m){
@@ -94,10 +93,21 @@ long **malloc_long_matrix(int n, int m){
 	return mat;
 }
 
-long *read_long_array(FILE *in, int n){
+long **copy_long_matrix(long **dest, long **src, int n, int m){
+	int i;
+
+	if(!dest)
+		dest = malloc_long_matrix(n, m);
+
+	for( i = 0 ; i < n ; i++ )
+		copy_long_array(dest[i], src[i], m);
+	return dest;
+}
+
+long *read_long_array(FILE *in, long *array, int n){
 	int i, nf;
-	long *array;
-	array = (long*)malloc(n*sizeof(long));
+
+	if(!array) array = (long*)malloc(n*sizeof(long));
 
 	for( i = 0 ; i < n ; i++ )
 		nf = fscanf(in, "%ld", &(array[i]));
@@ -105,14 +115,29 @@ long *read_long_array(FILE *in, int n){
 	return array;
 }
 
-long **read_long_matrix(FILE *in, int n, int m){
-	int i, j;
-	long **mat;
+void write_long_array(FILE *out, long *array, int n){
+	int i;
+	for( i = 0 ; i < n-1 ; i++ )
+		fprintf(out, "%ld ", array[i]);
+	fprintf(out, "%ld\n", array[i]);
+	return ;
+}
 
-	mat = (long**)malloc(n*sizeof(long*));
+void write_long_matrix(FILE *out, long **mat, int n, int m){
+	int i;
+	for( i = 0 ; i < n ; i++ )
+		write_long_array(out, mat[i], m);
+
+	return;
+}
+
+long **read_long_matrix(FILE *in, long **mat, int n, int m){
+	int i, j;
+
+	if(!mat) mat = malloc_long_matrix(n, m);
 	
 	for( i = 0 ; i < n ; i++ )
-		mat[i] = read_long_array(in, m);
+		mat[i] = read_long_array(in, mat[i], m);
 	
 	return mat;
 }
@@ -322,6 +347,12 @@ void gzip(FILE *f_in, FILE *f_out){
 	return;
 }
 
+void report_unimplemented_function(){
+	fprintf(stderr, "function \"%s\" not implemented yet.\n",
+		__PRETTY_FUNCTION__);
+}
+
 void gunzip(FILE *in, FILE *out){
+	report_unimplemented_function();
 }
 

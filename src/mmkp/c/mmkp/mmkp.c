@@ -33,11 +33,11 @@ MMKP *mmkp_read_from_file(FILE *fin){
 	mmkp->o = o;
 
 	/* Reading profits */
-	mmkp->p = read_long_array(fin, n);
+	read_long_array(fin, mmkp->p, n);
 	/* Reading weights */
-	mmkp->w = read_long_matrix(fin, m, n);
+	read_long_matrix(fin, mmkp->w, m, n);
 	/* Reading capacities */
-	mmkp->b = read_long_matrix(fin, m, o);
+	read_long_matrix(fin, mmkp->b, m, o);
 
 	 return mmkp;
 }

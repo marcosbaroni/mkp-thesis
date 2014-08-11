@@ -4,32 +4,29 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-long *malloc_long_array(int n);
-long *init_long_array(long *array, int n, long x);
-long *copy_long_array(long *dest, long *src, int n);
+/* LONG ARRAY */
+long *malloc_long_array(int n);                    /* mallocs a long array*/
+long *read_long_array(FILE *in, long *array, int n);
+void write_long_array(FILE *out, long *array, int n);
+long *init_long_array(long *array, int n, long x);   /* init long array */
+long *copy_long_array(long *dest, long *src, int n); /* copy a long array */
+long *fprint_long_array(FILE *out, long *array, int n);
+void free_long_array(long *array);
+
+/* LONG MATRIX*/
 long **malloc_long_matrix(int n, int m);
-
-long *read_long_array(FILE *in, int n);
-long **read_long_matrix(FILE *in, int n, int m);
-
+long **read_long_matrix(FILE *in, long **mat, int n, int m);
+void write_long_matrix(FILE *out, long **mat, int n, int m);
 long **init_long_matrix(long **mat, int n, int m, long x);
 long **copy_long_matrix(long **dest, long **src, int n, int m);
-
-/* Printing */
-long *fprint_long_array(FILE *out, long *array, int n);
 long **fprint_long_matrix(FILE *out, long **mat, int n, int m);
 long **fprint_long_matrix_tranlated(FILE *out, long **mat, int n, int m);
-
-/* Freeing */
-void free_long_array(long *array);
 void free_long_matrix(long **mat, int n);
 
-/*** RANDOM NUMBERs ***/
+/* RANDOM NUMBERs */
 long lrand(long bound);
 double drand();
 //double normal_dist();
-/**********************/
-
 double *random_normalized_double_array(int n);
 
 /* ZIMPL FORMAT */
@@ -41,12 +38,15 @@ void zimpl_print_long_array(FILE *fout, long *array, int n);
 /* GENERAL PARSING */
 int *parse_int_list(char *str, int *n);
 
-/* Returns the microsecs from */
+/* TIMING */
 int getmillis();
 
-/* ZIPING */
+/* INPUT-OUTPUT */
 void gzip(FILE *in, FILE *out);
 void gunzip(FILE *in, FILE *out);
+
+/* MISCELANIOUS */
+void report_unimplemented_function();
 
 #endif
 
