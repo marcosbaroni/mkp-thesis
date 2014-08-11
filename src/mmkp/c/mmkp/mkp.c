@@ -136,3 +136,24 @@ void mkp_to_zimpl(FILE *fout, MKP *mkp){
 	return;
 }
 
+MKPSol *mkpsol_new(MKP *mkp){
+	int i;
+	MKPSol *mkpsol;
+
+	mkpsol = (MKPSol*)malloc(sizeof(MKPSol));
+	mkpsol->x = malloc_long_array(mkp->n);
+	mkpsol->b_left = copy_long_array(mmkp->b_left, mmkp->b, mmkp->m);
+	mkpsol->obj = 0;
+	mkpsol->viable = 1;
+	mkpsol->mmkp = mmkp;
+
+	return mkpsol;
+}
+
+void mkpsol_free(MKPSol *mkpsol){
+	free(mkpsol->x);
+	free(mkpsol->b_left);
+	free(mkpsol);
+	return;
+}
+

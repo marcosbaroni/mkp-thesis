@@ -27,6 +27,7 @@ void mkp_write_to_file(MKP *mkp, FILE *fout);
 void mkp_fprint(FILE *out, MKP *mkp);
 void mkp_to_zimpl(FILE *fout, MKP *mkp);
 
+/*** MKP SOLUTION ***/
 typedef struct MKPSol{
 	long *x;          /* The solution vector [n] */
 	long *b_left;     /* Resource left on the knapsack [m] */
@@ -37,6 +38,8 @@ typedef struct MKPSol{
 
 MKPSol *mkpsol_new(MKP *mkp); /* new empty solution */
 void mkpsol_free(MKPSol *mkpsol); /* new empty solution */
+
+/* MKP TABU SEARCH*/
 
 #endif
 
