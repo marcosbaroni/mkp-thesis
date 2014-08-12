@@ -1,8 +1,7 @@
 #ifndef MKP_H
 #define MKP_H 1
 
-#define MAX_ITEM_PROFIT 100    /* for random generation */
-#define MAX_ITEM_WEIGHT 100    /* for random generation */
+long MAX_MKP_COEFICIENT;    /* for random generation */
 
 typedef struct MKP{
 	int n;       /* Number of itens */

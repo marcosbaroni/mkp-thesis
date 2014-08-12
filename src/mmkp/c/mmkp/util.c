@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/time.h>
+#include <stdarg.h>
 
 #define ISNUM(c) ( (c > 47) && (c < 58) )
 
@@ -208,7 +209,7 @@ void zimpl_print_double_matrix(FILE *fout, double **mat, int nlin, int ncol){
 /*
  * Prints a double array on the ZIMPL MIP modeling language format.
  *   fout  - output FILE
- *   n     - number of elements on array
+ *   n	 - number of elements on array
  *   array - the double array */
 void zimpl_print_double_array(FILE *fout, double *array, int n){
 	int i;
@@ -248,7 +249,7 @@ void zimpl_print_long_matrix(FILE *fout, long **mat, int nlin, int ncol){
 /*
  * Prints a longint array on the ZIMPL MIP modeling language format.
  *   fout  - output FILE
- *   n     - number of elements on array
+ *   n	 - number of elements on array
  *   array - the longint array */
 void zimpl_print_long_array(FILE *fout, long *array, int n){
 	int i;
@@ -347,12 +348,20 @@ void gzip(FILE *f_in, FILE *f_out){
 	return;
 }
 
-void report_unimplemented_function(){
+void unimplemented(){
 	fprintf(stderr, "function \"%s\" not implemented yet.\n",
 		__PRETTY_FUNCTION__);
 }
-
+ 
 void gunzip(FILE *in, FILE *out){
-	report_unimplemented_function();
+	unimplemented();
 }
 
+void error( const char* format, ... ){
+	va_list args;
+	fprintf(stderr, "Error: ");
+	va_start(args, format);
+	vfprintf(stderr, format, args);
+	va_end(args);
+	exit(1);
+}

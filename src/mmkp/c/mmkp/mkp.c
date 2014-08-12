@@ -4,6 +4,8 @@
 #include "util.h"
 #include "mkp.h"
 
+long MAX_MKP_COEFICIENT = 100;    /* for random generation */
+
 /*** memory management ***/
 MKP *mkp_alloc(int n, int m){
 	MKP *mkp;
@@ -29,12 +31,12 @@ MKP *mkp_random(int n, int m, double beta){
 
 	/* profit */
 	for( i = 0 ; i < n ; i++ )
-		mkp->p[i] = lrand(MAX_ITEM_PROFIT);
+		mkp->p[i] = lrand(MAX_MKP_COEFICIENT);
 	/* weight */
 	for( i = 0 ; i < m ; i++ ){
 		lsum = 0;
 		for( j = 0 ; j < n ; j++ )
-			lsum += mkp->w[i][j] = lrand(MAX_ITEM_WEIGHT);
+			lsum += mkp->w[i][j] = lrand(MAX_MKP_COEFICIENT);
 		mkp->b[i] = (long)(floor(lsum*beta));
 	}
 
@@ -51,7 +53,7 @@ void mkp_free(MKP *mkp){
 }
 
 MKP *mkp_read_from_filename(char *filename){
-	report_unimplemented_function();
+	unimplemented();
 
 	return mkp_random(10, 1, 0.5);
 }
@@ -142,10 +144,10 @@ MKPSol *mkpsol_new(MKP *mkp){
 
 	mkpsol = (MKPSol*)malloc(sizeof(MKPSol));
 	mkpsol->x = malloc_long_array(mkp->n);
-	mkpsol->b_left = copy_long_array(mmkp->b_left, mmkp->b, mmkp->m);
+	mkpsol->b_left = copy_long_array(mkpsol->b_left, mkp->b, mkp->m);
 	mkpsol->obj = 0;
 	mkpsol->viable = 1;
-	mkpsol->mmkp = mmkp;
+	mkpsol->mkp = mkp;
 
 	return mkpsol;
 }

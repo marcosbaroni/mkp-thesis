@@ -18,3 +18,4 @@ test:
 	gcc -o test test.c mmkp/util.c mmkp/mmkp.c -lm
 clean:
 	rm -f *.o
+

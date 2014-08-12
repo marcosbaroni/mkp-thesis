@@ -46,7 +46,8 @@ void gzip(FILE *in, FILE *out);
 void gunzip(FILE *in, FILE *out);
 
 /* MISCELANIOUS */
-void report_unimplemented_function();
+void unimplemented();
+void error(const char* format, ...);
 
 #endif
 
