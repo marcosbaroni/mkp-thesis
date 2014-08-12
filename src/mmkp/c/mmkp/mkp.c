@@ -37,7 +37,7 @@ MKP *mkp_random(int n, int m, double beta){
 		lsum = 0;
 		for( j = 0 ; j < n ; j++ )
 			lsum += mkp->w[i][j] = lrand(MAX_MKP_COEFICIENT);
-		mkp->b[i] = (long)(floor(lsum*beta));
+		mkp->b[i] = (long)(ceil(lsum*beta));
 	}
 
 	return mkp;

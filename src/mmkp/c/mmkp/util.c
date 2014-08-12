@@ -9,7 +9,7 @@
  * Returns a random long integer non-negative less than <bound>.
  */
 long lrand(long bound){
-	return (rand() % bound);
+	return (rand() % (bound+1));
 }
 
 /* 
