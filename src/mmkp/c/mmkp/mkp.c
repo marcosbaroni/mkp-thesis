@@ -152,10 +152,27 @@ MKPSol *mkpsol_new(MKP *mkp){
 	return mkpsol;
 }
 
+MKPSol *mkpsol_copy(MKPSol *mkpsol){
+	MKPSol *mkpsol_new;
+
+	mkpsol_new = (MKPSol*)malloc(sizeof(MKPSol));
+	mkpsol_new->x = copy_long_array(NULL, mkpsol->x, mkpsol->mkp->n);
+	mkpsol_new->b_left = copy_long_array(NULL, mkpsol->b_left, mkpsol->mkp->m);
+	mkpsol_new->obj = mkpsol->obj;
+	mkpsol_new->viable = mkpsol->viable;
+	mkpsol_new->mkp = mkpsol->mkp;
+
+	return mkpsol_new;
+}
+
 void mkpsol_free(MKPSol *mkpsol){
 	free(mkpsol->x);
 	free(mkpsol->b_left);
 	free(mkpsol);
 	return;
+}
+
+MKPSol *tabu_mkp(MKPSol *mkpsol){
+	unimplemented();
 }
 

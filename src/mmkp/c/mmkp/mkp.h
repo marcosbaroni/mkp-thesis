@@ -35,10 +35,12 @@ typedef struct MKPSol{
 	MKP *mkp;         /* The problem instance */
 }MKPSol;
 
-MKPSol *mkpsol_new(MKP *mkp); /* new empty solution */
+MKPSol *mkpsol_new(MKP *mkp);     /* new empty solution */
+MKPSol *mkpsol_copy(MKPSol *mkpsol);    /* copies a solution */
 void mkpsol_free(MKPSol *mkpsol); /* new empty solution */
 
 /* MKP TABU SEARCH*/
+MKPSol *tabu_mkp(MKPSol *mkpsol);
 
 #endif
 

@@ -1,4 +1,8 @@
 #!/bin/bash
+##############################################################################
+#  Takes a lp file and solves it on SCIP solver.                             #
+#    If no files is given, reads from standard input.                        #
+##############################################################################
 SCIP=scip
 
 # Checkinkg number of arguments
@@ -35,6 +39,7 @@ else
 	# No file given, redirecting input to temp file
 	echo "redirecting to $input"
 	tee > $input
+	head $input
 fi
 
 # running SCIP
