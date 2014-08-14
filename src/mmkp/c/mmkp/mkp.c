@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <unistd.h>
 #include "util.h"
 #include "mkp.h"
 
@@ -53,9 +54,16 @@ void mkp_free(MKP *mkp){
 }
 
 MKP *mkp_read_from_filename(char *filename){
-	unimplemented();
+	MKP *mkp;
+	FILE *fin;
 
-	return mkp_random(10, 1, 0.5);
+	assert_faccess(filename, R_OK);
+	fin = fopen(filename, "r");
+
+	mkp = mkp_read_from_file(fin);
+	fclose(fin);
+
+	return mkp;
 }
 
 MKP *mkp_read_from_file(FILE *fin){
@@ -77,6 +85,7 @@ MKP *mkp_read_from_file(FILE *fin){
 
 void mkp_write_to_filename(MKP *mkp, char *filename){
 	FILE *fout;
+	assert_faccess(filename, W_OK);
 	fout = fopen(filename, "w");
 	mkp_write_to_file(mkp, fout);
 	return ;
@@ -89,6 +98,52 @@ void mkp_write_to_file(MKP *mkp, FILE *fout){
 	write_long_array(fout, mkp->p, mkp->n);
 	write_long_matrix(fout, mkp->w, mkp->m, mkp->n);
 	write_long_array(fout, mkp->b, mkp->m);
+
+	return;
+}
+
+void mkp_fprint(FILE *fout, MKP *mkp){
+	int i, j, n, m, ndigs[mkp->n+1];
+	char format[20];
+	long max;
+
+	n = mkp->n;
+	m = mkp->m;
+
+	/* Deciding ndigits */
+	for( i = 0 ; i < n ; i++ ){
+		max = max_long_matrix_col(mkp->w, m, n, i);
+		max = MAX(max, mkp->p[i]);
+		ndigs[i] = (int)(ceil(log(max)/log(10.)));
+	}
+	ndigs[n] = (int)(ceil(log(max_long_array(mkp->b, mkp->m)) / log(10.)));
+
+	/* print profits*/
+	for( i = 0 ; i < n ; i++ ){
+		sprintf(format, "%%%dd ", ndigs[i]);
+		fprintf(fout, format, mkp->p[i]);
+	}
+	fprintf(fout, "\n");
+
+	fprintf(fout, "-");
+	for( i = 0 ; i < n+1 ; i++ ){
+		for( j = 0 ; j < ndigs[i] ; j++ )
+			fprintf(fout, "-");
+		fprintf(fout, "-");
+	}
+	fprintf(fout, "\n");
+
+	/* print pesos+capacidades */
+	for( i = 0 ; i < m ; i++ ){
+		for( j = 0 ; j < n ; j++ ){
+			sprintf(format, "%%%dd ", ndigs[j]);
+			fprintf(fout, format, mkp->w[i][j]);
+		}
+		sprintf(format, "%%%dd ", ndigs[n]);
+		//fprintf(fout, "| ");
+		fprintf(fout, format, mkp->b[i]);
+		fprintf(fout, "\n");
+	}
 
 	return;
 }
@@ -152,6 +207,78 @@ MKPSol *mkpsol_new(MKP *mkp){
 	return mkpsol;
 }
 
+MKPSol *mkpsol_add_item(MKPSol *mkpsol, int a){
+	MKP *mkp;
+	int i, m;
+
+	mkp = mkpsol->mkp;
+	m = mkp->m;
+
+	if(mkpsol->x[a]) {
+		fprintf(stderr, "%s error: item %d-th item already in knapsak.\n",
+			__PRETTY_FUNCTION__, a+1);
+		return mkpsol;
+	}
+
+	mkpsol->x[a] = 1;
+	mkpsol->obj += mkp->p[a];
+	for( i = 0 ; i < m ; i++ ){
+		mkpsol->b_left -= mkp->w[i][a];
+		if(mkpsol->b_left <= 0)
+			mkpsol->viable = 0;
+	}
+
+	return mkpsol;
+}
+
+MKPSol *mkpsol_rm_item(MKPSol *mkpsol, int a){
+	MKP *mkp;
+	int i, m;
+
+	mkp = mkpsol->mkp;
+	m = mkp->m;
+
+	if(mkpsol->x[a]) {
+		fprintf(stderr, "%s error: item %d-th item not in knapsak.\n",
+			__PRETTY_FUNCTION__, a+1);
+		return mkpsol;
+	}
+
+	mkpsol->x[a] = 0;
+	mkpsol->obj -= mkp->p[a];
+	for( i = 0 ; i < m ; i++ ){
+		mkpsol->b_left += mkp->w[i][a];
+	}
+
+	return mkpsol;
+}
+
+MKPSol *mkpsol_read_from_filename(char *filename, MKP *mkp){
+	MKPSol *mkpsol;
+	FILE *fin;
+
+	assert_faccess(filename, R_OK);
+	fin = fopen(filename, "r");
+	mkpsol = mkpsol_read_from_file(fin, mkp);
+	fclose(fin);
+
+	return mkpsol;
+}
+
+MKPSol *mkpsol_read_from_file(FILE *fin, MKP *mkp){
+	MKPSol *mkpsol;
+	int i, a, n;
+
+	n = mkp->n;
+	mkpsol = mkpsol_new(mkp);
+	for( i = 0 ; i < n ; i++ ){
+		fscanf(fin, "%d", &a);
+		mkpsol_add_item(mkpsol, a);
+	}
+
+	return mkpsol;
+}
+
 MKPSol *mkpsol_copy(MKPSol *mkpsol){
 	MKPSol *mkpsol_new;
 
@@ -164,6 +291,12 @@ MKPSol *mkpsol_copy(MKPSol *mkpsol){
 
 	return mkpsol_new;
 }
+
+void mkpsol_print(FILE *fout, MKPSol *mkpsol){
+	
+}
+
+
 
 void mkpsol_free(MKPSol *mkpsol){
 	free(mkpsol->x);

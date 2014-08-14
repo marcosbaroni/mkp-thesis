@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <sys/time.h>
 #include <stdarg.h>
+#include "util.h"
 
 #define ISNUM(c) ( (c > 47) && (c < 58) )
 
@@ -76,6 +77,39 @@ long *copy_long_array(long *dest, long *src, int n){
 	return dest;
 }
 
+long max_long_array(long *array, int n){
+	int i;
+	long max;
+
+	max = array[0];
+	for( i = 1 ; i < n ; i++ )
+		if( max < array[i] )
+			max = array[i];
+	return max;
+}
+
+long max_long_matrix_col(long **mat, int n, int m, int col){
+	int i, j;
+	long max;
+
+	max = mat[0][col];
+	for( i = 1 ; i < n ; i++ )
+		if( max < mat[i][col] )
+			max = mat[i][col];
+	return max;
+}
+
+long max_long_matrix_lin(long **mat, int n, int m, int lin){
+	int i, j;
+	long max;
+
+	max = mat[lin][0];
+	for( i = 1 ; i < n ; i++ )
+		if( max < mat[lin][0] )
+			max = mat[lin][0];
+	return max;
+}
+
 long **init_long_matrix(long **mat, int n, int m, long x){
 	int i;
 	for( i = 0 ; i < n ; i++ )
@@ -143,7 +177,7 @@ long **read_long_matrix(FILE *in, long **mat, int n, int m){
 	return mat;
 }
 
-long *fprint_long_array(FILE *out, long *array, int n){
+void *fprint_long_array(FILE *out, long *array, int n){
 	int i;
 	for( i = 0 ; i < n ; i++ )
 		fprintf(out, "%ld%s", array[i], (i < n-1) ? " " : "\n" );
@@ -151,7 +185,7 @@ long *fprint_long_array(FILE *out, long *array, int n){
 	return;
 }
 
-int **fprint_long_matrix(FILE *out, long **mat, int n, int m){
+void **fprint_long_matrix(FILE *out, long **mat, int n, int m){
 	int i;
 	for( i = 0 ; i < n ; i++ )
 		fprint_long_array(out, mat[i], m);
@@ -159,7 +193,7 @@ int **fprint_long_matrix(FILE *out, long **mat, int n, int m){
 	return;
 }
 
-long **fprint_long_matrix_tranlated(FILE *out, long **mat, int n, int m){
+void **fprint_long_matrix_tranlated(FILE *out, long **mat, int n, int m){
 	int i, j;
 
 	for( j = 0 ; j < m ; j++ )
@@ -167,6 +201,19 @@ long **fprint_long_matrix_tranlated(FILE *out, long **mat, int n, int m){
 			fprintf(out, "%ld%s", mat[i][j], (i < n-1) ? " " : "\n" );
 	
 	return;
+}
+
+long get_max_long_matrix(long **mat, int n, int m){
+	int i, j;
+	long max;
+
+	max = mat[0][0];
+	for( i = 0 ; i < n ; i++ )
+		for( j = 0 ; j < m ; j++ )
+			if( max < mat[i][j] )
+				max = mat[i][j];
+
+	return max;
 }
 
 void free_long_array(long *array){
@@ -365,3 +412,11 @@ void error( const char* format, ... ){
 	va_end(args);
 	exit(1);
 }
+
+void assert_faccess(char *filename, int mode){
+	if(access(filename, mode))
+		error("Could not %s file %s.\n",
+			mode == W_OK ? "write" : "read", filename);
+	return;
+}
+
