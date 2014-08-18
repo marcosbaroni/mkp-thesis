@@ -1,0 +1,8 @@
+#!/bin/bash
+##############################################################################
+# sciplog2sol
+#   Extract the solution from the log of SCIP execution (filtering it a bit).
+#
+##############################################################################
+grep "x#" | grep "obj" | sed 's/x#//' | sed 's/#/ /g'| sed 's/\ \{30,\}\+/\ /' | sed 's/([^)]\+)//'
+

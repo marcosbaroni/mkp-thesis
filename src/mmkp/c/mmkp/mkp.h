@@ -47,7 +47,7 @@ void mkpsol_print(FILE *fout, MKPSol *mkpsol);  /* prints a solution */
 void mkpsol_free(MKPSol *mkpsol);               /* new empty solution */
 
 /* MKP TABU SEARCH*/
-MKPSol *tabu_mkp(MKPSol *mkpsol);
+MKPSol *tabu_mkp(MKPSol *mkpsol, int niter);
 
 #endif
 

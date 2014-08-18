@@ -48,8 +48,9 @@ int main(int argc, char **argv){
 	mkp = mkp_random(n, m, beta);
 
 	/* Printing random instance */
-	//mkp_write_to_file(mkp, stdout);
-	mkp_fprint(stdout, mkp);
+	mkp_write_to_file(mkp, stdout);
+	//mkp_fprint(stdout, mkp);
+
 	mkp_free(mkp);
 	
 	return 0;

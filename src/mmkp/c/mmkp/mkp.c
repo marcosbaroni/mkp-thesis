@@ -53,6 +53,19 @@ void mkp_free(MKP *mkp){
 	return;
 }
 
+void mkpsol_write(FILE *fout, MKPSol *mkpsol){
+	int i, n;
+
+	n = mkpsol->mkp->n;
+
+	for( i = 0 ; i < n ; i++ )
+		if(mkpsol->x[i])
+			fprintf(fout, "%d ", i);
+	fprintf(fout, "\n");
+
+	return;
+}
+
 MKP *mkp_read_from_filename(char *filename){
 	MKP *mkp;
 	FILE *fin;
@@ -296,7 +309,7 @@ MKPSol *mkpsol_copy(MKPSol *mkpsol){
 }
 
 void mkpsol_print(FILE *fout, MKPSol *mkpsol){
-	
+	unimplemented();
 }
 
 
@@ -308,7 +321,23 @@ void mkpsol_free(MKPSol *mkpsol){
 	return;
 }
 
-MKPSol *tabu_mkp(MKPSol *mkpsol){
+MKPSol *greedy_mkp(MKP *mkp){
 	unimplemented();
+}
+
+MKPSol *tabu_mkp(MKPSol *mkpsol, int niter){
+	MKPSol *current, *best;
+	int i;
+
+	current = mkpsol_copy(mkpsol);
+	best = mkpsol_copy(mkpsol);
+
+	for( i = 0 ; i < niter ; i++ ){
+		unimplemented();
+	}
+
+	mkpsol_free(current);
+
+	return best;
 }
 
