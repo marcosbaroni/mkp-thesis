@@ -114,7 +114,7 @@ void mkp_fprint(FILE *fout, MKP *mkp){
 	for( i = 0 ; i < n ; i++ ){
 		max = max_long_matrix_col(mkp->w, m, n, i);
 		max = MAX(max, mkp->p[i]);
-		ndigs[i] = (int)(ceil(log(max)/log(10.)));
+		ndigs[i] = 1+(int)(floor(log(max)/log(10.)));
 	}
 	ndigs[n] = (int)(ceil(log(max_long_array(mkp->b, mkp->m)) / log(10.)));
 
@@ -125,22 +125,25 @@ void mkp_fprint(FILE *fout, MKP *mkp){
 	}
 	fprintf(fout, "\n");
 
-	fprintf(fout, "-");
-	for( i = 0 ; i < n+1 ; i++ ){
+	for( i = 0 ; i < n-1 ; i++ ){
 		for( j = 0 ; j < ndigs[i] ; j++ )
 			fprintf(fout, "-");
 		fprintf(fout, "-");
 	}
+	for( j = 0 ; j < ndigs[n-1] ; j++ )
+		fprintf(fout, "-");
 	fprintf(fout, "\n");
 
-	/* print pesos+capacidades */
+	/* print constraints */
 	for( i = 0 ; i < m ; i++ ){
+		/* weights */
 		for( j = 0 ; j < n ; j++ ){
 			sprintf(format, "%%%dd ", ndigs[j]);
 			fprintf(fout, format, mkp->w[i][j]);
 		}
+		/* capacity */
 		sprintf(format, "%%%dd ", ndigs[n]);
-		//fprintf(fout, "| ");
+		fprintf(fout, "| ");
 		fprintf(fout, format, mkp->b[i]);
 		fprintf(fout, "\n");
 	}
