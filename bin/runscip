@@ -43,7 +43,8 @@ else
 fi
 
 # running SCIP
-$SCIP -c "set limits time $maxtime" -c "set limits gap $maxgap" -c "read $input" -c "opt" -c "quit"
+$SCIP -c "set limits time $maxtime" -c "set limits gap $maxgap" -c "read $input" -c "opt" -c "write solution $temp.sol" -c "quit"
+cat $temp.sol
 
 rm $temp*
 
