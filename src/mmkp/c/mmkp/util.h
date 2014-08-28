@@ -37,6 +37,19 @@ double drand();
 //double normal_dist();
 double *random_normalized_double_array(int n);
 
+/* ABSTRACT DATA TYPE */
+typedef (cmp*)(int)(void* a, void *b)... /* STOPPED HERE */
+
+typedef struct AVLNode{
+	void *info;
+	AVLNode *right, *left;
+}AVLNode;
+
+typedef struct AVLTree{
+	AVLNode *root;
+	int n;
+}AVLTree;
+
 /* ZIMPL FORMAT */
 void zimpl_print_double_matrix(FILE *fout, double **mat, int nlin, int ncol);
 void zimpl_print_double_array(FILE *fout, double *array, int n);

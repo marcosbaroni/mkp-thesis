@@ -9,10 +9,8 @@ int main(int argc, char **argv){
 	FILE *input;
 
 	input = stdin;
-	if( argc > 1) {
+	if( argc > 1) 
 		input = fopen(argv[1], "r");
-		printf("file %s\n", argv[1]);
-	}
 
 	mkp = mkp_read_from_file(input);
 	mkp_to_zimpl(stdout, mkp);

@@ -4,15 +4,16 @@
 #    If no files is given, reads from standard input.                        #
 ##############################################################################
 SCIP=scip
+maxtime="100000.0"
+maxgap="0.0"
+temp=`tempfile`
+input=$temp.lp
 
 # Checkinkg number of arguments
 if [ $# -lt 1 ]; then
     echo -e "usage:\n $0 <max-time(sec)> [max-gap([0-1])] [input-file(.lp)]\n"
     exit 1
 fi
-
-maxtime="100000.0"
-maxgap="0.0"
 
 # Getting first arguments
 if [ $# -gt 0 ]; then
@@ -21,9 +22,6 @@ if [ $# -gt 0 ]; then
 		maxgap=$2
 	fi
 fi
-
-temp=`tempfile`
-input=$temp.lp
 
 # Checking input source
 if [ $# -gt 2 ]; then
@@ -39,12 +37,12 @@ else
 	# No file given, redirecting input to temp file
 	echo "redirecting to $input"
 	tee > $input
-	head $input
 fi
 
 # running SCIP
 $SCIP -c "set limits time $maxtime" -c "set limits gap $maxgap" -c "read $input" -c "opt" -c "write solution $temp.sol" -c "quit"
 cat $temp.sol
 
+# cleaning temp files
 rm $temp*
 
