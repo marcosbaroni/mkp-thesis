@@ -1,5 +1,7 @@
 \documentclass{article}
 
+\usepackage{amsmath}
+
 \author{Marcos Daniel Baroni}
 
 \begin{document}
@@ -23,21 +25,61 @@
 % - Instances from other NP-Complete problems are hard?
 %   - What happens with their transition phases.
 
+\begin{abstract}
+This article contains a draft...as a backbone for an article over the
+computational investigation of the hardness the Multidimensional Knapsack
+Problem (MKP) as well as the on performance of algorithms for the solution of
+instances.
+\end{abstract}
+
 \section{Introduction}
 
 % Definição do problema e aplicações
-The multidimensional knapsack problem (MKP) 
+The 0-1 Multidimensional Knapsack Problem (MKP) is a generalization of the Knapsack
+Problem where an item expends more than a single resource type.
+A MKP having $n$ itens and $m$ dimensions can be defined as follows.
 
-% prova da NP-complitude
+\begin{align*}
+  \text{maximize} & \sum_{j=1}^n p_j x_j \\
+  \text{subject to} & \sum_{j=1}^n c_{ij} x_j, \quad i = 1, \ldots, m, \\
+   & x_j \in {0, 1}, \quad j = 1, \ldots, n.
+\end{align*}
+
+The problem can be applied on budget planning scenarios, subset project
+selections, cutting stock problems, task scheduling and allocation of processors
+and databases in distributed computer programs.
+The special case where $m = 1$ is called Knapsack Problem (KP).
+
+In recent years, due its simple definition, wide application and challenging
+difficulty, MKP turned out to be a quite addressed problem for experiments
+with metaheuristics.
+
+% prova da NP-complitude. Prova da não existência de um FPTAS.
 
 % Literatura existente (used for metaheuristics testing, methods, 
 %    benchmark data base)
 
 \section{Algorithms}
+% - EXACT: Branch-and-cut (CPLEX)
+% - DPROG: Bertsimas 2002
+% - PROBL: Dyer 1989
+% - HEURI: (Fleszar 2009?)
 
 \section{Instances}
+% - OR-Library
+% - Uniform[0-1]
+% - Transformation from other NP-Complete problems (???)
 
 \section{Research Questions and Expectations}
+% - Which instances are hard/easy for each algorithm?
+%   - Why are they hard?
+% - Which instances are hard for all algorithms?
+%   - Why are they hard for all?
+% - Instances from other NP-Complete problems are hard?
+%   - What happens with their transition phases.
+%
+% (número limitado de restrições o problema é mais fácil)
+% (coeficientes limitados o problema é mais fácil?)
 
 \end{document}
 
