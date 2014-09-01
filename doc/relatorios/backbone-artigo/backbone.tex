@@ -49,10 +49,14 @@ The problem can be applied on budget planning scenarios, subset project
 selections, cutting stock problems, task scheduling and allocation of processors
 and databases in distributed computer programs.
 The special case where $m = 1$ is called Knapsack Problem (KP).
+Several contributions have been made addressing exact, heuristics, approximation
+and probabilistics approaches for the problem.
 
-In recent years, due its simple definition, wide application and challenging
-difficulty, MKP turned out to be a quite addressed problem for experiments
-with metaheuristics.
+Due its simple definition, wide application and challenging
+difficulty, the MKP turned a quite addressed problem for experiments
+with metaheuristics in recent years.
+Although none of those have exhibit competitive performance compared to
+comercial MIP solvers, at least over the instances existent on literature.
 
 % prova da NP-complitude. Prova da não existência de um FPTAS.
 
@@ -60,15 +64,17 @@ with metaheuristics.
 %    benchmark data base)
 
 \section{Algorithms}
-% - EXACT: Branch-and-cut (CPLEX)
-% - DPROG: Bertsimas 2002
-% - PROBL: Dyer 1989
-% - HEURI: (Fleszar 2009?)
+% - EXACT: Branch-and-cut (CPLEX) / Boussier 2010 \cite{boussier2010multi}
+% - DPROG: Bertsimas 2002 \cite{bertsimas2002approximate}
+% - PROBL: Dyer 1989 \cite{dyer1989probabilistic}
+% - HEURI: Fleszar 2009 \cite{fleszar2009fast}
 
 \section{Instances}
-% - OR-Library
-% - Uniform[0-1]
-% - Transformation from other NP-Complete problems (???)
+% - OR-Library \cite{Chu-Beasley-1998} (\cite{freville1994efficient})
+% - Uniform[0-1] (Dyer 1989) \cite{dyer1989probabilistic}
+% - Transformation from other NP-Complete problems \cite{magazine1984note}, ...
+% - large dimensions (K.n = m?)
+% - Sparse weights
 
 \section{Research Questions and Expectations}
 % - Which instances are hard/easy for each algorithm?
