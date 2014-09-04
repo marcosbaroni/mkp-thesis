@@ -33,34 +33,7 @@ instances.
 \end{abstract}
 
 \section{Introduction}
-
-% Definição do problema e aplicações
-The 0-1 Multidimensional Knapsack Problem (MKP) is a generalization of the Knapsack
-Problem where an item expends more than a single resource type.
-A MKP having $n$ itens and $m$ dimensions can be defined as follows.
-
-\begin{align*}
-  \text{maximize} & \sum_{j=1}^n p_j x_j \\
-  \text{subject to} & \sum_{j=1}^n c_{ij} x_j, \quad i = 1, \ldots, m, \\
-   & x_j \in {0, 1}, \quad j = 1, \ldots, n.
-\end{align*}
-
-The problem can be applied on budget planning scenarios, subset project
-selections, cutting stock problems, task scheduling and allocation of processors
-and databases in distributed computer programs.
-The special case where $m = 1$ is called Knapsack Problem (KP).
-Several contributions have been made addressing exact, heuristics, approximation
-and probabilistics approaches for the problem.
-
-Due its simple definition, wide application and challenging
-difficulty, the MKP turned a quite addressed problem for experiments
-with metaheuristics in recent years.
-Although none of those have exhibit competitive performance compared to
-comercial MIP solvers, at least over the instances existent on literature.
-
-According to literature MKP does not allow a FPTAS (unless $P=NP$).
-% Literatura existente (used for metaheuristics testing, methods, 
-%    benchmark data base), abordagens existentes...
+\label{intro}
 
 % Organização das seções:
 %  - Seção 2 : Últimos algoritmos propostos
@@ -70,15 +43,69 @@ According to literature MKP does not allow a FPTAS (unless $P=NP$).
 %    - as instâncias existentes e resultados até então.
 %  - Seção 4 : Dúvidas e de pesquisa
 
-\section{Algorithms}
-% - EXACT: Branch-and-cut (CPLEX) / Boussier 2010 \cite{boussier2010multi}
-% - DPROG: Bertsimas 2002 \cite{bertsimas2002approximate}
-% - PROBL: Dyer 1989 \cite{dyer1989probabilistic}
-% - HEURI: Fleszar 2009 \cite{fleszar2009fast}
-%
-% Falar um parágrafo sobre cada um deles
+% Definição do problema e aplicações
+The 0-1 Multidimensional Knapsack Problem (MKP) is a generalization of the Knapsack
+Problem where an item expends more than a single resource type.
+A MKP having $n$ itens and $m$ dimensions can be defined as follows.
+
+\begin{align*}
+  \text{maximize} & \sum_{j=1}^n p_j x_j \\
+  \text{subject to} & \sum_{j=1}^n c_{ij} x_j \leq b_i \quad i \in \{1, \ldots, m\}\\
+   & x_j \in \{0, 1\}, \quad j \in \{1, \ldots, n\}.
+\end{align*}
+
+The problem can be applied on budget planning scenarios, subset project
+selections, cutting stock problems, task scheduling and allocation of processors
+and databases in distributed computer programs.
+The problem is a generalization of the well-known Knapsack Problem (KP) in which
+$ m = 1$.
+
+Several contributions have been made addressing exact, heuristic, approximation
+and probabilistic approaches for the MKP.
+The purpose of the work is to evaluate the performance the main approaches
+presented on literature over different instances of the problem and
+iddentify those instances which are hard to solve by all the approaches.
+
+Section \ref{algs} briefly addresses each one of the main approaches for
+solving MKP, Section \ref{insts} discusses about the instances of MKP used on
+literature and Section \ref{questions} presents some research questions 
+we hope to answer with the article.
+
+\section{The main approaches for solving MKP}
+\label{algs}
+Due its simple definition and challenging difficulty, the MKP
+turned a quite addressed problem for experiments with metaheuristics in recent
+years, although few of them have exhibit competitive performance compared to
+comercial MIP solvers (at least for the instances dealed by literature).
+Among the heuristics reporting competitive performance compared to MIP solvers
+the newest ones are the one proposed by Fleszar and Hindi \cite{fleszar2009fast}
+and one proposed by Hanafi and Wilbaut \cite{hanafi2011improved}.
+
+According to literature MKP does not allow a FPTAS (unless $P=NP$) but a PTAS is
+allowed and one was proposed by Frieze and Clarke \cite{frieze1984approximation}.
+Dyer and Frieze \cite{dyer1989probabilistic} proposed a probabilistic which,
+given a $\epsilon > 0$ answers computes the optimal solution for the problem
+with probability at least $1 - \epsilon$ with polynomial time.
+
+At the present moment the most powerful exact method for solving the MKP seems
+to be the multi-level search strategy proposed by Boussier \cite{boussier2010multi}
+which, until now, is the only approach which have found the optimal solution for
+some popular instances with 500 itens and 10 contraints.
 
 \section{Instances}
+\label{insts}
+
+The most popular instances for the MKP are those from the OR-LIBRARY
+and they are used as a reference for state-of-art methods.
+The generation of thoses instances are generaly guided by two parameters: the
+tightness $\delta$ of the knapsacks and the profit-weight correlation of the
+items.
+
+The tightness of a knapsack rules the relative capacity of the knapsack.
+Given a tightness $\delta \in [0,1]$ the capacity $b_i$ is setted to
+$b_i = \delta \sum_{i=1}^n x_i$.  % STOPPED HERE, talking about the impact of
+% tightness on the hardness of the problem...%
+
 % - OR-Library \cite{Chu-Beasley-1998} (\cite{freville1994efficient})
 % - Uniform[0-1] (Dyer 1989) \cite{dyer1989probabilistic}
 % - Transformation from other NP-Complete problems \cite{magazine1984note}, ...
@@ -86,6 +113,7 @@ According to literature MKP does not allow a FPTAS (unless $P=NP$).
 % - Sparse weights
 
 \section{Research Questions and Expectations}
+\label{questions}
 % - Which instances are hard/easy for each algorithm?
 %   - Why are they hard?
 % - Which instances are hard for all algorithms?
@@ -95,6 +123,9 @@ According to literature MKP does not allow a FPTAS (unless $P=NP$).
 %
 % (número limitado de restrições o problema é mais fácil)
 % (coeficientes limitados o problema é mais fácil?)
+
+\bibliographystyle{abbrv}
+\bibliography{../../refs}
 
 \end{document}
 
