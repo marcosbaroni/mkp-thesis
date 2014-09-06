@@ -227,6 +227,73 @@ void free_long_matrix(long **mat, int n){
 	free(mat);
 }
 
+/* AVL TREE */
+AVLNode *avl_node_new(void *a){
+	AVLNode *avl_node;
+	avl_node = (AVLNode*)malloc(sizeof(AVLNode));
+	avl_node->info = a;
+	avl_node->left = NULL;
+	avl_node->right = NULL;
+	avl_node->father = NULL;
+	avl_node->balance = 0;
+
+	return avl_node;
+}
+
+AVLTree *avl_new(cmp* cmp_f){
+	AVLTree *avl;
+	avl = (AVLTree*)malloc(sizeof(AVLTree));
+	avl->cmp_f = cmp_f;
+	avl->fprt_f = NULL;
+	avl->root = NULL;
+	avl->n = 0;
+	avl->height = 0;
+
+	return avl;
+}
+
+AVLTree *avl_set_prt(AVLTree *avl, avl_fprt* fprt_f){
+	avl->fprt_f = fprt_f;
+
+	return avl;
+}
+
+AVLTree *avl_insert(AVLTree *avl, void *a){
+	AVLNode *new_node = avl_node_new(a);
+	avl->height += avl_node_insert(avl, avl->root, new_node);
+	avl->n++;
+	return avl;
+}
+
+int avl_node_insert(AVLTree *avl, AVLNode *node, AVLNode *new_node){
+	int c, grew = 0;
+
+	c = avl->cmp_f(node->info, new_node->info);
+	if(c >= 0){
+		if( !node->right ){
+			node->right = new_node;
+			new_node->father = node;
+			node->balance++;
+			grew = 1;
+		}else{
+			grew = avl_node_insert(avl, node->right, new_node);
+		}
+		node->balance += grew;
+	}{
+		if( !node->left ){
+			node->left = new_node;
+			new_node->father = node;
+			grew = 1;
+		}else{
+			grew = avl_node_insert(avl, node->left, new_node);
+		}
+		node->balance -= grew;
+	}
+	/* STOPPED HERE */
+	return grew;
+}
+
+
 /*
  * Prints a double matrix on the ZIMPL MIP modeling language format.
  *   fout - output FILE

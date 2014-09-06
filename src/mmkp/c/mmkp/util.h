@@ -37,18 +37,30 @@ double drand();
 //double normal_dist();
 double *random_normalized_double_array(int n);
 
-/* ABSTRACT DATA TYPE */
-typedef (cmp*)(int)(void* a, void *b)... /* STOPPED HERE */
+/* AVL TREE */
+typedef (avl_cmp*)(int)(void* a, void *b);     /* compares teo objs*/
+typedef (avl_fprt*)(void)(FILE *out, void* a); /* fprints an obj */
 
 typedef struct AVLNode{
 	void *info;
 	AVLNode *right, *left;
+	AVLNode *father;
+	unsigned char balance;
 }AVLNode;
+
+AVLNode *avl_node_new(void *a);
 
 typedef struct AVLTree{
 	AVLNode *root;
+	avl_cmp *cmp_f;
+	avl_fprt *fprt_f;
 	int n;
+	int height;
 }AVLTree;
+
+AVLTree *avl_new(cmp* cmp_f);
+AVLTree *avl_set_prt(AVLTree *avl, avl_fprt* fprt_f);
+AVLTree *avl_insert(AVLTree *avl, void *a);
 
 /* ZIMPL FORMAT */
 void zimpl_print_double_matrix(FILE *fout, double **mat, int nlin, int ncol);
