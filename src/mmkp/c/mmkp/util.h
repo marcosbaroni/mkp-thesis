@@ -17,6 +17,8 @@ long *copy_long_array(long *dest, long *src, int n); /* copy a long array */
 void *fprint_long_array(FILE *out, long *array, int n);
 void free_long_array(long *array);
 long max_long_array(long *array, int n);         /* max number on array */
+long *random_long_array(int n, long *array, long bound);
+long *qsort_long_array(long *array, int n);
 
 /* LONG MATRIX*/
 long **malloc_long_matrix(int n, int m);

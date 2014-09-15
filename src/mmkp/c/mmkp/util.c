@@ -88,6 +88,52 @@ long max_long_array(long *array, int n){
 	return max;
 }
 
+long *random_long_array(int n, long *array, long bound){
+	long *array;
+	int i;
+
+	if(!array) = (long*)malloc(n*sizeof(long));
+
+	for( i = 0 ; i < n ; i++ )
+		array[i] = lrand(bound);
+	
+	return;
+}
+
+int partition_long_array(array, int a, int b){
+	int i, j;
+	long p, aux;
+	
+	i = a;
+	j = b;
+	p = array[b];
+
+	while( i < j ){
+		while(i < j) if(array[++i] < p){}
+		while(j < b) if(array[--j] >= p){}
+		while(array[j] >= p){j--;}
+		array
+		/* STOPPED HERE */
+	}
+
+	i = a; j = b;
+	return ;
+}
+
+long *sub_qsort_long_array(long *array, int a, int b){
+	int m;
+	if( b - a < 2) return array;
+	m = partition_long_array(array, int a, int b);
+	sub_qsort_long_array(array, a, m-1);
+	sub_qsort_long_array(array, m+1, b);
+	return array;
+}
+
+long *qsort_long_array(long *array, int n){
+	sub_qsort_long_array(long *array, int a, int b);
+	return array;
+}
+
 long max_long_matrix_col(long **mat, int n, int m, int col){
 	int i, j;
 	long max;
