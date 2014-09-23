@@ -5,6 +5,9 @@ knap.dat
 *.gplot
 scip.set
 *.log
+*.aux
+*.bbl
+*.blg
 src/mmkp/c/*.o
 bin/mkp2zpl
 bin/mmkp2zpl
