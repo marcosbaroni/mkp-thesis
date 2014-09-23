@@ -40,13 +40,13 @@ double drand();
 double *random_normalized_double_array(int n);
 
 /* AVL TREE */
-typedef (avl_cmp*)(int)(void* a, void *b);     /* compares teo objs*/
-typedef (avl_fprt*)(void)(FILE *out, void* a); /* fprints an obj */
+typedef int(*avl_cmp)(void*, void*);     /* compares teo objs*/
+typedef void(*avl_fprt)(FILE*, void*) ; /* fprints an obj */
 
 typedef struct AVLNode{
 	void *info;
-	AVLNode *right, *left;
-	AVLNode *father;
+	struct AVLNode *right, *left;
+	struct AVLNode *father;
 	unsigned char balance;
 }AVLNode;
 
@@ -60,7 +60,7 @@ typedef struct AVLTree{
 	int height;
 }AVLTree;
 
-AVLTree *avl_new(cmp* cmp_f);
+AVLTree *avl_new(avl_cmp* cmp_f);
 AVLTree *avl_set_prt(AVLTree *avl, avl_fprt* fprt_f);
 AVLTree *avl_insert(AVLTree *avl, void *a);
 

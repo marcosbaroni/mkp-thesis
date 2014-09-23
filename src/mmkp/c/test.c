@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "mmkp.h"
-#include "util.h"
+#include "mmkp/mmkp.h"
+#include "mmkp/util.h"
 
 /*
  * Sums a bunch of random double numbers and retuns its results.
@@ -66,10 +66,7 @@ void in_double_benchmark(int n){
 	doublesum(n);
 }
 
-/*
- * Tests the speed of int and double sum.
- * */
-int main(int argc, char **argv){
+void teste_mmkp(){
 	MMKP *mmkp;
 	srand(time(NULL));
 
@@ -78,7 +75,30 @@ int main(int argc, char **argv){
 	mmkp_fprint(stdout, mmkp);
 
 	mmkp_free(mmkp);
+}
 
+void teste_qsort(){
+	long *a;
+	int i, n;
+
+	n = 20;
+	a = (long*)malloc(n*sizeof(long));
+
+	for( i = 0 ; i < n ; i++)
+		a[i] = lrand(100);
+	
+	fprint_long_array(stdout, a, 20);
+	qsort_long_array(a, n);
+	fprint_long_array(stdout, a, 20);
+	free(a);
+	return;
+}
+
+/*
+ * Tests the speed of int and double sum.
+ * */
+int main(int argc, char **argv){
+	teste_qsort();
 	return 0;
 }
 

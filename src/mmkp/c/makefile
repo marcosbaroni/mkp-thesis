@@ -15,7 +15,7 @@ mmkp2zpl:
 	gcc -o mmkp2zpl mmkp2zpl.c mmkp/mmkp.c mmkp/util.c -lm
 	mv mmkp2zpl $(BINDIR)
 test:
-	gcc -o test test.c mmkp/util.c mmkp/mmkp.c -lm
+	gcc -o test test.c mmkp/util.c mmkp/subsetsum.c mmkp/mmkp.c -lm
 clean:
 	rm -f *.o
 

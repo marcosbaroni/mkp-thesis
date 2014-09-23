@@ -89,10 +89,9 @@ long max_long_array(long *array, int n){
 }
 
 long *random_long_array(int n, long *array, long bound){
-	long *array;
 	int i;
 
-	if(!array) = (long*)malloc(n*sizeof(long));
+	if(!array) array = (long*)malloc(n*sizeof(long));
 
 	for( i = 0 ; i < n ; i++ )
 		array[i] = lrand(bound);
@@ -100,37 +99,36 @@ long *random_long_array(int n, long *array, long bound){
 	return;
 }
 
-int partition_long_array(array, int a, int b){
+int partition_long_array(long *array, int a, int b){
 	int i, j;
-	long p, aux;
+	long pivot, aux;
 	
-	i = a;
-	j = b;
-	p = array[b];
+	i = a; j = b-1;
+	pivot = array[b];
 
 	while( i < j ){
-		while(i < j) if(array[++i] < p){}
-		while(j < b) if(array[--j] >= p){}
-		while(array[j] >= p){j--;}
-		array
-		/* STOPPED HERE */
+		while( i < j ) if( array[i] > pivot ){break;}
+		while( array[i] <= pivot ){ i++; } /* finding an element higher */
+		aux = array[i]; array[i] = array[j]; array[j] = aux; /* swap */
+		j--;
 	}
+	/* STOPPED HERE */
+	aux = array[b]; array[b] = array[j]; array[j] = aux;
 
-	i = a; j = b;
-	return ;
+	return j;
 }
 
 long *sub_qsort_long_array(long *array, int a, int b){
 	int m;
 	if( b - a < 2) return array;
-	m = partition_long_array(array, int a, int b);
+	m = partition_long_array(array, a, b);
 	sub_qsort_long_array(array, a, m-1);
 	sub_qsort_long_array(array, m+1, b);
 	return array;
 }
 
 long *qsort_long_array(long *array, int n){
-	sub_qsort_long_array(long *array, int a, int b);
+	sub_qsort_long_array(array, 0, n-1);
 	return array;
 }
 
@@ -286,7 +284,7 @@ AVLNode *avl_node_new(void *a){
 	return avl_node;
 }
 
-AVLTree *avl_new(cmp* cmp_f){
+AVLTree *avl_new(avl_cmp* cmp_f){
 	AVLTree *avl;
 	avl = (AVLTree*)malloc(sizeof(AVLTree));
 	avl->cmp_f = cmp_f;
@@ -314,7 +312,7 @@ AVLTree *avl_insert(AVLTree *avl, void *a){
 int avl_node_insert(AVLTree *avl, AVLNode *node, AVLNode *new_node){
 	int c, grew = 0;
 
-	c = avl->cmp_f(node->info, new_node->info);
+	c = (*avl->cmp_f)(node->info, new_node->info);
 	if(c >= 0){
 		if( !node->right ){
 			node->right = new_node;
