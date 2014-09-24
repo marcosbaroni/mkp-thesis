@@ -2,7 +2,7 @@
 
 \usepackage{amsmath}
 
-\title{The expected time on backtrack}
+\title{Estimating the efficiency of backtrack procedures for nonnegative integer programming problems}
 \author{Marcos Daniel Baroni}
 
 % 1: Introduction (and Motivation)
@@ -15,14 +15,15 @@
 %      - \ref{datri1982probabilistic}: Probabilistic analysis of the subset-sum problem
 %      - \ref{martello1984worst}: Worst-case analysis of greedy algorithms for the subset-sum problem
 %      - \ref{lai1993worst}: Worst-case analysis of greedy algorithms for the unbounded knapsack, subset-sum and partition problems
+%
 % 2: The backtrack algorithm (Branch-and-Bound)
 %    - Justify the use of backtrack, and not Dyn. Prog.:
-%      - Possibility of few but high orders items;
-%      - Transformation of ohter NP-Complete probs to produce high orders itens;
 %      - Scaling of rational coeficients yields high order integer coefficients;
+%      - Transformation of ohter NP-Complete probs to produce high orders itens;
 %    - Main (not to say, only) exact approach for exact solution for
 %      combinatorial problems;
 %    - Possible approaches with Relaxation (LP) and Cuts.
+%
 % 3: The Analysis and Research Questions
 %    - Expected behavior of backtrack algorithm on Partition problems:
 %    - Expected number of solutions for the problem;
@@ -31,12 +32,84 @@
 
 \begin{document}
 
-\begin{abstract}
-\end{abstract}
+\maketitle
 
-\section{Introduction}
-\label{intro}
+% \begin{abstract}
+% This article contains brief research proposal on the expected processing
+% time of backtrack procedures for some nonnegative integer
+% programming problems known to be NP-complete.
+% \end{abstract}
 
+%\section{Introduction}
+
+%    - Empirical observation of fast extact solving for major instances of KP;
+%    - Motivate research on, respectively: Partition, SSum, KP and MKP;
+%    - Existent probabilistic analysis for Partition/SSum, KP and MKP;
+%    - Similar work on exact methods for others combinatorial problems;
+%      - Cite "some linear behavior on backtrack algorithms has been observed
+%        for KP, althougth it seems to be hard to prove."
+%      - \cite{datri1982probabilistic}: Probabilistic analysis of the subset-sum problem
+%      - \cite{martello1984worst}: Worst-case analysis of greedy algorithms for the subset-sum problem
+%      - \cite{lai1993worst}: Worst-case analysis of greedy algorithms for the unbounded knapsack, subset-sum and partition problems
+
+During the last decades much effort has been devoted to the search of
+efficient algorithms to solve some well-known NP-hard problems
+Those efforts have led to substantial improvement on heuristics and
+approximate approaches, but no efficient algorithm has been found yet and
+exponential time algorithms is still needed for exact solution.
+
+Despite the exponential time behavior expected for worst cases, empirical
+observations has reported efficient time on average for backtrack algorithms for
+several problems \cite{cheeseman1991really, wilf1984backtrack,
+posa1976hamiltonian, johnson1984np11, purdom1983search}.
+An intersting problem presenting this intriguing behavior (and moreover
+generalizes other several NP-complete problems) is the multidimensional knapsack
+problem (MKP).
+
+The MKP may be defined as follows:
+\begin{align*}
+  \text{maximize} & \sum_{j=1}^n p_j x_j \\
+  \text{subject to} & \sum_{j=1}^n w_{ij} x_j \leq b_i \quad i \in \{1, \ldots, m\}\\
+   & x_j \in \{0, 1\}, \quad j \in \{1, \ldots, n\}.
+\end{align*}
+
+The MKP can be considered as a generalization of other three well-known
+NP-Comple\-te problems~\cite{garey1979}:
+\begin{itemize}
+  \item KNAPSACK PROBLEM (KP): special case of MKP where
+$m = 1$;
+  \item SUBSET SUM PROBLEM (SSP): special case of KP where
+$p_j = w_j$;
+  \item PARTITION PROBLEM (PP): special case of SSP where $b = \lfloor \frac{1}{2}\sum_{i=1}^n w_i \rfloor$.
+\end{itemize}
+All four problems above are NP-complete problems and they will be considered in
+this work as Standard Nonnegative Binary Programing Problems (SNBPPs).
+Efficient average time on backtrack algorithms has been observed in practice for
+those problems but few related theoretical foundation is known.
+
+Dynamic programming is an exact approach which, at first, sounds most attractive
+for SNBPPs since it promises polynomial time for instances with
+coefficients bounded by a constant. However:
+\begin{enumerate}
+  \item[(a)] all theoretical results proving NP-Completeness for SNBPPs pre\-sents
+  instances with exponential coefficients;
+  \item[(b)] eventually small instances having large coefficients
+  (scaled instances from real problems with rational coefficients, for
+  example) may appear for which a backtrack algorithm is more suitable;
+  \item[(c)] backtrack algorithms are used for others combinatorial
+  problems.
+\end{enumerate}
+For those reasons the analysis of backtrack procedures seems to be of great
+relevance.
+
+The main goal of the work is to investigate the expected efficiency of backtrack
+procedures for SNBPPs.
+This will be done by considering at first simpler versions of backtrack algorithms.
+Afterwards more efficient (hence more complex) versions can be analyzed on a
+step-by-step manner.
+
+The paper by Donald Knuth \cite{knuth1975estimating} seems to give helpful
+directions on how to perform the analysis.
 
 \bibliographystyle{abbrv}
 \bibliography{../../refs}
