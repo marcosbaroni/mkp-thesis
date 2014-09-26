@@ -99,28 +99,44 @@ long *random_long_array(int n, long *array, long bound){
 	return;
 }
 
+int is_sorted_long_array(long *array, int n){
+	int i;
+	for( i = 1 ; i < n ; i++ )
+		if( array[i-1] > array[i] )
+			return 0;
+	return 1;
+}
+
 int partition_long_array(long *array, int a, int b){
 	int i, j;
 	long pivot, aux;
 	
-	i = a; j = b-1;
-	pivot = array[b];
+	i = a; j = b+1;
+	pivot = array[a];
 
-	while( i < j ){
-		while( i < j ) if( array[i] > pivot ){break;}
-		while( array[i] <= pivot ){ i++; } /* finding an element higher */
-		aux = array[i]; array[i] = array[j]; array[j] = aux; /* swap */
-		j--;
+	while( 1 ){
+		while( array[++i] < pivot )
+			if( i == b )
+				break;
+		while( pivot < array[--j] )
+			if( j == a )
+				break;
+		if( i >= j )        /* Crossed? */
+			break;
+		aux = array[i];     /* swap */
+		array[i] = array[j];
+		array[j] = aux;
 	}
-	/* STOPPED HERE */
-	aux = array[b]; array[b] = array[j]; array[j] = aux;
+	aux = array[j];     /* place pivot */
+	array[j] = array[a];
+	array[a] = aux;
 
 	return j;
 }
 
 long *sub_qsort_long_array(long *array, int a, int b){
 	int m;
-	if( b - a < 2) return array;
+	if( b <= a ) return array;
 	m = partition_long_array(array, a, b);
 	sub_qsort_long_array(array, a, m-1);
 	sub_qsort_long_array(array, m+1, b);

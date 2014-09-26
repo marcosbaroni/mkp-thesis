@@ -18,6 +18,7 @@ void *fprint_long_array(FILE *out, long *array, int n);
 void free_long_array(long *array);
 long max_long_array(long *array, int n);         /* max number on array */
 long *random_long_array(int n, long *array, long bound);
+int is_sorted_long_array(long *array, int n);
 long *qsort_long_array(long *array, int n);
 
 /* LONG MATRIX*/

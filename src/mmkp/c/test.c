@@ -77,19 +77,23 @@ void teste_mmkp(){
 	mmkp_free(mmkp);
 }
 
-void teste_qsort(){
+void teste_qsort(int n){
 	long *a;
-	int i, n;
+	int i;
 
-	n = 20;
 	a = (long*)malloc(n*sizeof(long));
 
+	srand(time(0));
+
 	for( i = 0 ; i < n ; i++)
-		a[i] = lrand(100);
+		a[i] = lrand(10*n);
 	
-	fprint_long_array(stdout, a, 20);
+	fprint_long_array(stdout, a, n);
 	qsort_long_array(a, n);
-	fprint_long_array(stdout, a, 20);
+	fprint_long_array(stdout, a, n);
+
+	printf("Sorted? %s!\n", is_sorted_long_array(a, n) ? "YES!" : "NO!");
+
 	free(a);
 	return;
 }
@@ -98,7 +102,7 @@ void teste_qsort(){
  * Tests the speed of int and double sum.
  * */
 int main(int argc, char **argv){
-	teste_qsort();
+	teste_qsort( argc > 1 ? atoi(argv[1]) : 20 );
 	return 0;
 }
 
