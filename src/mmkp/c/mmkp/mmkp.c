@@ -33,11 +33,11 @@ MMKP *mmkp_read_from_file(FILE *fin){
 	mmkp->o = o;
 
 	/* Reading profits */
-	read_long_array(fin, mmkp->p, n);
+	long_array_read(fin, mmkp->p, n);
 	/* Reading weights */
-	read_long_matrix(fin, mmkp->w, m, n);
+	long_matrix_read(fin, mmkp->w, m, n);
 	/* Reading capacities */
-	read_long_matrix(fin, mmkp->b, m, o);
+	long_matrix_read(fin, mmkp->b, m, o);
 
 	 return mmkp;
 }
@@ -96,11 +96,11 @@ void mmkp_write_to_file(MMKP *mmkp, FILE *fout){
 	fprintf(fout, "%d\n", o);
 
 	/* Writing profits */
-	fprint_long_array(fout, mmkp->p, n);
+	long_array_fprint(fout, mmkp->p, n);
 	/* Writing weights */
-	fprint_long_matrix(fout, mmkp->w, m, n);
+	long_matrix_fprint(fout, mmkp->w, m, n);
 	/* Writing capacities */
-	fprint_long_matrix(fout, mmkp->b, m, o);
+	long_matrix_fprint(fout, mmkp->b, m, o);
 
 	return;
 }
@@ -154,9 +154,9 @@ MMKP *mmkp_alloc(int n, int m, int o){
 	int j;
 
 	MMKP *mmkp = (MMKP*)malloc(sizeof(MMKP));
-	mmkp->p = malloc_long_array(n);
-	mmkp->w = malloc_long_matrix(m, n);
-	mmkp->b = malloc_long_matrix(m, o);
+	mmkp->p = long_array_malloc(n);
+	mmkp->w = long_matrix_malloc(m, n);
+	mmkp->b = long_matrix_malloc(m, o);
 
 	mmkp->n = n;
 	mmkp->m = m;
@@ -174,8 +174,8 @@ void mmkp_free(MMKP *mmkp){
 
 	m = mmkp->m;
 
-	free_long_matrix(mmkp->w, mmkp->m);
-	free_long_matrix(mmkp->b, mmkp->m);
+	long_matrix_free(mmkp->w, mmkp->m);
+	long_matrix_free(mmkp->b, mmkp->m);
 	free(mmkp->p);
 	free(mmkp);
 
@@ -194,13 +194,13 @@ void mmkp_fprint(FILE *out, MMKP *mmkp){
 	fprintf(out, " Knapsacks: %d\n", mmkp->o);
 
 	fprintf(out, " Profits:\n");
-	fprint_long_array(out, mmkp->p, n);
+	long_array_fprint(out, mmkp->p, n);
 
 	fprintf(out, " Weights:\n");
-	fprint_long_matrix(out, mmkp->w, m, n);
+	long_matrix_fprint(out, mmkp->w, m, n);
 
 	fprintf(out, " Capacities:\n");
-	fprint_long_matrix(out, mmkp->b, m, o);
+	long_matrix_fprint(out, mmkp->b, m, o);
 
 	return;
 }
@@ -212,47 +212,44 @@ void mmkp_to_zimpl(FILE *fout, MMKP *mmkp){
 	m = mmkp->m;
 	o = mmkp->o;
 
-	/* sizes */
-	fprintf(fout, "param n := %d;\n", n);
-	fprintf(fout, "param m := %d;\n", m);
-	fprintf(fout, "param o := %d;\n", o);
+	/* SIZES */
+	fprintf(fout, "param n := %d;\n", n); /* # of itens */
+	fprintf(fout, "param m := %d;\n", m); /* # of dimensions */
+	fprintf(fout, "param o := %d;\n", o); /* # of knapsacks */
 
-	/* sets */
-	fprintf(fout, "set N := {1 .. %d};\n", n);
-	fprintf(fout, "set M := {1 .. %d};\n", m);
-	fprintf(fout, "set O := {1 .. %d};\n", o);
+	/* SETS */
+	fprintf(fout, "set N := {1 .. %d};\n", n); /* itens */
+	fprintf(fout, "set M := {1 .. %d};\n", m); /* dimensions */
+	fprintf(fout, "set O := {1 .. %d};\n", o); /* knapsacks */
 
-	/* profit */
-	fprintf(fout, "param p[N] :=\n");
-	zimpl_print_long_array(fout, mmkp->p, n);
+	/* PARAMETERS*/
+	fprintf(fout, "param p[N] :=\n"); /* profit */
+	long_array_zimpl_print(fout, mmkp->p, n);
 
-	/* weights */
-	fprintf(fout, "param w[M*N] :=\n");
-	zimpl_print_long_matrix(fout, mmkp->w, m, n);
+	fprintf(fout, "param w[M*N] :=\n"); /* weights */
+	long_matrix_zimpl_print(fout, mmkp->w, m, n);
 
-	/* capacities */
-	fprintf(fout, "param b[M*O] :=\n");
-	zimpl_print_long_matrix(fout, mmkp->b, m, o);
+	fprintf(fout, "param b[M*O] :=\n"); /* capacities */
+	long_matrix_zimpl_print(fout, mmkp->b, m, o);
 
-	/* desicion var */
+	/* DECISION VARIABLES */
 	fprintf(fout, "var x[O*N] binary;\n");
 
-	/* capacities constraint */
-	fprintf(fout,
+	/* CONSTRAINTS */
+	fprintf(fout, /* capacities constraint */
 		"subto capacities:\n\
 			forall <j, k> in M*O do\n\
 				sum <i> in N do\n\
 					x[k, i]*w[j, i] <= b[j, k];\n");
 
-	/* Single-Knapsack-item constraint */
-	fprintf(fout,
+	fprintf(fout, /* Single-Knapsack-item constraint */
 		"subto singleknapsack:\n\
 			forall <i> in N do\n\
 				sum <k> in O do\n\
 					x[k, i] <= 1;\n");
 
-	/* objective function */
-	fprintf(fout,
+	/* OBJECTIVE FUNCTION */
+	fprintf(fout, /* total profit of selected itens */
 		"maximize profit:\n\
 			sum <k, i> in O*N do\n\
 				x[k, i]*p[i];\n");
@@ -271,14 +268,14 @@ MMKPSol *mmkpsol_new(MMKP *mmkp){
 	
 	/* allocs */
 	mmkpsol = (MMKPSol*)malloc(sizeof(MMKPSol));
-	mmkpsol->x = malloc_long_matrix(o, n);
-	mmkpsol->x_used = malloc_long_array(n);
-	mmkpsol->b_left = malloc_long_matrix(m, o);
+	mmkpsol->x = long_matrix_malloc(o, n);
+	mmkpsol->x_used = long_array_malloc(n);
+	mmkpsol->b_left = long_matrix_malloc(m, o);
 
 	/* assingnments*/
-	init_long_matrix(mmkpsol->x, o, n, 0);
-	init_long_array(mmkpsol->x_used, n, 0);
-	copy_long_matrix(mmkpsol->b_left, mmkp->b, m, o);
+	long_matrix_init(mmkpsol->x, o, n, 0);
+	long_array_init(mmkpsol->x_used, n, 0);
+	long_matrix_copy(mmkpsol->b_left, mmkp->b, m, o);
 	mmkpsol->obj = 0;
 	mmkpsol->viable = 1;
 	mmkpsol->mmkp = mmkp;
@@ -293,9 +290,9 @@ void mmkpsol_free(MMKPSol *mmkpsol){
 	m = mmkpsol->mmkp->m;
 	o = mmkpsol->mmkp->o;
 
-	free_long_matrix(mmkpsol->x, o);
-	free_long_array(mmkpsol->x_used);
-	free_long_matrix(mmkpsol->b_left, m);
+	long_matrix_free(mmkpsol->x, o);
+	long_array_free(mmkpsol->x_used);
+	long_matrix_free(mmkpsol->b_left, m);
 	free(mmkpsol);
 
 	return;

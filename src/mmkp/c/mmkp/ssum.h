@@ -13,7 +13,8 @@ SSum *ssum_read(FILE *in);
 SSum *ssum_new_random(int n, long bound, double b_ratio);
 void ssum_write(FILE *out, SSum *ssum);
 void ssum_free(SSum *ssum);
-void mmkp_fprint(FILE *out, SSum *sum);
+void ssum_fprint(FILE *out, SSum *sum);
+void ssum_to_zimpl(FILE *fout, SSum *ssum);
 
 /* SubSet-Sum Solution */
 typedef struct SSumSol{

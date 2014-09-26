@@ -7,7 +7,7 @@
 #define ISNUM(c) ( (c > 47) && (c < 58) )
 
 /* 
- * Returns a random long integer non-negative less than <bound>.
+ * Returns a random long integer non-negative from 0 to <bound>.
  */
 long lrand(long bound){
 	return (rand() % (bound+1));
@@ -51,7 +51,7 @@ double *random_normalized_double_array(int n){
 	return rarray;
 }
 
-long *malloc_long_array(int n){
+long *long_array_malloc(int n){
 	long *array;
 
 	array = (long*)malloc(n*sizeof(long));
@@ -59,25 +59,25 @@ long *malloc_long_array(int n){
 	return array;
 }
 
-long *init_long_array(long *array, int n, long x){
+long *long_array_init(long *array, int n, long x){
 	int i;
 	for( i = 0 ; i < n ; i++ )
 		array[i] = x;
 	return array;
 }
 
-long *copy_long_array(long *dest, long *src, int n){
+long *long_array_copy(long *dest, long *src, int n){
 	int i;
 
 	if(!dest)
-		dest = malloc_long_array(n);
+		dest = long_array_malloc(n);
 
 	for( i = 0 ; i < n ; i++ )
 		dest[i] = src[i];
 	return dest;
 }
 
-long max_long_array(long *array, int n){
+long long_array_max(long *array, int n){
 	int i;
 	long max;
 
@@ -88,7 +88,7 @@ long max_long_array(long *array, int n){
 	return max;
 }
 
-long *random_long_array(int n, long *array, long bound){
+long *long_array_random(int n, long *array, long bound){
 	int i;
 
 	if(!array) array = (long*)malloc(n*sizeof(long));
@@ -99,7 +99,7 @@ long *random_long_array(int n, long *array, long bound){
 	return;
 }
 
-int is_sorted_long_array(long *array, int n){
+int long_array_is_sorted(long *array, int n){
 	int i;
 	for( i = 1 ; i < n ; i++ )
 		if( array[i-1] > array[i] )
@@ -107,7 +107,7 @@ int is_sorted_long_array(long *array, int n){
 	return 1;
 }
 
-int partition_long_array(long *array, int a, int b){
+int long_array_partition(long *array, int a, int b){
 	int i, j;
 	long pivot, aux;
 	
@@ -115,40 +115,31 @@ int partition_long_array(long *array, int a, int b){
 	pivot = array[a];
 
 	while( 1 ){
-		while( array[++i] < pivot )
-			if( i == b )
-				break;
-		while( pivot < array[--j] )
-			if( j == a )
-				break;
-		if( i >= j )        /* Crossed? */
-			break;
-		aux = array[i];     /* swap */
-		array[i] = array[j];
-		array[j] = aux;
+		while( array[++i] < pivot ) if( i == b ) break;
+		while( pivot < array[--j] ) if( j == a ) break;
+		if( i >= j ) break;            /* Crossed? */
+		SWAP_LONG(array, i, j);        /* swap */
 	}
-	aux = array[j];     /* place pivot */
-	array[j] = array[a];
-	array[a] = aux;
+	SWAP_LONG(array, j, a);     /* place pivot */
 
 	return j;
 }
 
-long *sub_qsort_long_array(long *array, int a, int b){
+long *long_array_sub_qsort(long *array, int a, int b){
 	int m;
 	if( b <= a ) return array;
-	m = partition_long_array(array, a, b);
-	sub_qsort_long_array(array, a, m-1);
-	sub_qsort_long_array(array, m+1, b);
+	m = long_array_partition(array, a, b);
+	long_array_sub_qsort(array, a, m-1);
+	long_array_sub_qsort(array, m+1, b);
 	return array;
 }
 
-long *qsort_long_array(long *array, int n){
-	sub_qsort_long_array(array, 0, n-1);
+long *long_array_qsort(long *array, int n){
+	long_array_sub_qsort(array, 0, n-1);
 	return array;
 }
 
-long max_long_matrix_col(long **mat, int n, int m, int col){
+long long_matrix_max_col(long **mat, int n, int m, int col){
 	int i, j;
 	long max;
 
@@ -159,7 +150,7 @@ long max_long_matrix_col(long **mat, int n, int m, int col){
 	return max;
 }
 
-long max_long_matrix_lin(long **mat, int n, int m, int lin){
+long long_matrix_max_lin(long **mat, int n, int m, int lin){
 	int i, j;
 	long max;
 
@@ -170,14 +161,14 @@ long max_long_matrix_lin(long **mat, int n, int m, int lin){
 	return max;
 }
 
-long **init_long_matrix(long **mat, int n, int m, long x){
+long **long_matrix_init(long **mat, int n, int m, long x){
 	int i;
 	for( i = 0 ; i < n ; i++ )
-		init_long_array(mat[i], m, x);
+		long_array_init(mat[i], m, x);
 	return mat;
 }
 
-long **malloc_long_matrix(int n, int m){
+long **long_matrix_malloc(int n, int m){
 	long **mat;
 	int i;
 
@@ -188,18 +179,18 @@ long **malloc_long_matrix(int n, int m){
 	return mat;
 }
 
-long **copy_long_matrix(long **dest, long **src, int n, int m){
+long **long_matrix_copy(long **dest, long **src, int n, int m){
 	int i;
 
 	if(!dest)
-		dest = malloc_long_matrix(n, m);
+		dest = long_matrix_malloc(n, m);
 
 	for( i = 0 ; i < n ; i++ )
-		copy_long_array(dest[i], src[i], m);
+		long_array_copy(dest[i], src[i], m);
 	return dest;
 }
 
-long *read_long_array(FILE *in, long *array, int n){
+long *long_array_read(FILE *in, long *array, int n){
 	int i, nf;
 
 	if(!array) array = (long*)malloc(n*sizeof(long));
@@ -210,7 +201,7 @@ long *read_long_array(FILE *in, long *array, int n){
 	return array;
 }
 
-void write_long_array(FILE *out, long *array, int n){
+void long_array_write(FILE *out, long *array, int n){
 	int i;
 	for( i = 0 ; i < n-1 ; i++ )
 		fprintf(out, "%ld ", array[i]);
@@ -218,26 +209,26 @@ void write_long_array(FILE *out, long *array, int n){
 	return ;
 }
 
-void write_long_matrix(FILE *out, long **mat, int n, int m){
+void long_matrix_write(FILE *out, long **mat, int n, int m){
 	int i;
 	for( i = 0 ; i < n ; i++ )
-		write_long_array(out, mat[i], m);
+		long_array_write(out, mat[i], m);
 
 	return;
 }
 
-long **read_long_matrix(FILE *in, long **mat, int n, int m){
+long **long_matrix_read(FILE *in, long **mat, int n, int m){
 	int i, j;
 
-	if(!mat) mat = malloc_long_matrix(n, m);
+	if(!mat) mat = long_matrix_malloc(n, m);
 	
 	for( i = 0 ; i < n ; i++ )
-		mat[i] = read_long_array(in, mat[i], m);
+		mat[i] = long_array_read(in, mat[i], m);
 	
 	return mat;
 }
 
-void *fprint_long_array(FILE *out, long *array, int n){
+void *long_array_fprint(FILE *out, long *array, int n){
 	int i;
 	for( i = 0 ; i < n ; i++ )
 		fprintf(out, "%ld%s", array[i], (i < n-1) ? " " : "\n" );
@@ -245,15 +236,15 @@ void *fprint_long_array(FILE *out, long *array, int n){
 	return;
 }
 
-void **fprint_long_matrix(FILE *out, long **mat, int n, int m){
+void **long_matrix_fprint(FILE *out, long **mat, int n, int m){
 	int i;
 	for( i = 0 ; i < n ; i++ )
-		fprint_long_array(out, mat[i], m);
+		long_array_fprint(out, mat[i], m);
 	
 	return;
 }
 
-void **fprint_long_matrix_tranlated(FILE *out, long **mat, int n, int m){
+void **long_matrix_fprint_tranlated(FILE *out, long **mat, int n, int m){
 	int i, j;
 
 	for( j = 0 ; j < m ; j++ )
@@ -263,7 +254,7 @@ void **fprint_long_matrix_tranlated(FILE *out, long **mat, int n, int m){
 	return;
 }
 
-long get_max_long_matrix(long **mat, int n, int m){
+long long_matrix_get_max(long **mat, int n, int m){
 	int i, j;
 	long max;
 
@@ -276,11 +267,11 @@ long get_max_long_matrix(long **mat, int n, int m){
 	return max;
 }
 
-void free_long_array(long *array){
+void long_array_free(long *array){
 	free(array);
 }
 
-void free_long_matrix(long **mat, int n){
+void long_matrix_free(long **mat, int n){
 	int i;
 	for( i = 0 ; i < n ; i++ )
 		free(mat[i]);
@@ -400,7 +391,7 @@ void zimpl_print_double_array(FILE *fout, double *array, int n){
  *   nlin - number of lines on matrix
  *   ncol - numer of columns on matrix
  *   mat  - the longint matrix */
-void zimpl_print_long_matrix(FILE *fout, long **mat, int nlin, int ncol){
+void long_matrix_zimpl_print(FILE *fout, long **mat, int nlin, int ncol){
 	int i, j;
 	
 	/* header */
@@ -425,7 +416,7 @@ void zimpl_print_long_matrix(FILE *fout, long **mat, int nlin, int ncol){
  *   fout  - output FILE
  *   n	 - number of elements on array
  *   array - the longint array */
-void zimpl_print_long_array(FILE *fout, long *array, int n){
+void long_array_zimpl_print(FILE *fout, long *array, int n){
 	int i;
 	for( i = 0 ; i < n-1 ; i++ )
 		fprintf(fout, "<%d> %ld,\n", i+1, array[i]);

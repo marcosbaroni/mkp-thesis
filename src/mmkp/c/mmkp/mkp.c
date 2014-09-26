@@ -5,16 +5,14 @@
 #include "util.h"
 #include "mkp.h"
 
-long MAX_MKP_COEFICIENT = 100;    /* for random generation */
-
 /*** memory management ***/
 MKP *mkp_alloc(int n, int m){
 	MKP *mkp;
 
 	mkp = (MKP*)malloc(sizeof(MKP));
-	mkp->p = malloc_long_array(n);
-	mkp->w = malloc_long_matrix(m, n);
-	mkp->b = malloc_long_array(n);
+	mkp->p = long_array_malloc(n);
+	mkp->w = long_matrix_malloc(m, n);
+	mkp->b = long_array_malloc(n);
 	mkp->n = n;
 	mkp->m = m;
 
@@ -32,12 +30,12 @@ MKP *mkp_random(int n, int m, double beta){
 
 	/* profit */
 	for( i = 0 ; i < n ; i++ )
-		mkp->p[i] = lrand(MAX_MKP_COEFICIENT);
+		mkp->p[i] = lrand(MAX_COEFFICIENT);
 	/* weight */
 	for( i = 0 ; i < m ; i++ ){
 		lsum = 0;
 		for( j = 0 ; j < n ; j++ )
-			lsum += mkp->w[i][j] = lrand(MAX_MKP_COEFICIENT);
+			lsum += mkp->w[i][j] = lrand(MAX_COEFFICIENT);
 		mkp->b[i] = (long)(ceil(lsum*beta));
 	}
 
@@ -45,7 +43,7 @@ MKP *mkp_random(int n, int m, double beta){
 }
 
 void mkp_free(MKP *mkp){
-	free_long_matrix(mkp->w, mkp->m);
+	long_matrix_free(mkp->w, mkp->m);
 	free(mkp->p);
 	free(mkp->b);
 	free(mkp);
@@ -89,9 +87,9 @@ MKP *mkp_read_from_file(FILE *fin){
 	mkp = mkp_alloc(n, m);
 	mkp->n = n;
 	mkp->m = m;
-	read_long_array(fin, mkp->p, n);
-	read_long_matrix(fin, mkp->w, m, n);
-	read_long_array(fin, mkp->b, n);
+	long_array_read(fin, mkp->p, n);
+	long_matrix_read(fin, mkp->w, m, n);
+	long_array_read(fin, mkp->b, n);
 
 	return mkp;
 }
@@ -108,13 +106,16 @@ void mkp_write_to_file(MKP *mkp, FILE *fout){
 	int i, j;
 
 	fprintf(fout, "%d\n%d\n", mkp->n, mkp->m);
-	write_long_array(fout, mkp->p, mkp->n);
-	write_long_matrix(fout, mkp->w, mkp->m, mkp->n);
-	write_long_array(fout, mkp->b, mkp->m);
+	long_array_write(fout, mkp->p, mkp->n);
+	long_matrix_write(fout, mkp->w, mkp->m, mkp->n);
+	long_array_write(fout, mkp->b, mkp->m);
 
 	return;
 }
 
+/*
+ * Prints a MKP instance on a human friendly format.
+ */
 void mkp_fprint(FILE *fout, MKP *mkp){
 	int i, j, n, m, ndigs[mkp->n+1];
 	char format[20];
@@ -125,11 +126,11 @@ void mkp_fprint(FILE *fout, MKP *mkp){
 
 	/* Deciding ndigits */
 	for( i = 0 ; i < n ; i++ ){
-		max = max_long_matrix_col(mkp->w, m, n, i);
+		max = long_matrix_max_col(mkp->w, m, n, i);
 		max = MAX(max, mkp->p[i]);
-		ndigs[i] = 1+(int)(floor(log(max)/log(10.)));
+		ndigs[i] = 1 + (int)(floor(log(max)/log(10.)));
 	}
-	ndigs[n] = (int)(ceil(log(max_long_array(mkp->b, mkp->m)) / log(10.)));
+	ndigs[n] = (int)(ceil(log(MAX(long_array_max(mkp->b, mkp->m), mkp->m))) / log(10.));
 
 	/* print profits*/
 	for( i = 0 ; i < n ; i++ ){
@@ -180,15 +181,15 @@ void mkp_to_zimpl(FILE *fout, MKP *mkp){
 
 	/* profit */
 	fprintf(fout, "param p[N] :=\n");
-	zimpl_print_long_array(fout, mkp->p, n);
+	long_array_zimpl_print(fout, mkp->p, n);
 
 	/* weights */
 	fprintf(fout, "param w[M*N] :=\n");
-	zimpl_print_long_matrix(fout, mkp->w, m, n);
+	long_matrix_zimpl_print(fout, mkp->w, m, n);
 
 	/* capacities */
 	fprintf(fout, "param b[M] :=\n");
-	zimpl_print_long_array(fout, mkp->b, m);
+	long_array_zimpl_print(fout, mkp->b, m);
 
 	/* desicion var */
 	fprintf(fout, "var x[N] binary;\n");
@@ -214,8 +215,8 @@ MKPSol *mkpsol_new(MKP *mkp){
 	MKPSol *mkpsol;
 
 	mkpsol = (MKPSol*)malloc(sizeof(MKPSol));
-	mkpsol->x = malloc_long_array(mkp->n);
-	mkpsol->b_left = copy_long_array(mkpsol->b_left, mkp->b, mkp->m);
+	mkpsol->x = long_array_malloc(mkp->n);
+	mkpsol->b_left = long_array_copy(mkpsol->b_left, mkp->b, mkp->m);
 	mkpsol->obj = 0;
 	mkpsol->viable = 1;
 	mkpsol->mkp = mkp;
@@ -299,8 +300,8 @@ MKPSol *mkpsol_copy(MKPSol *mkpsol){
 	MKPSol *mkpsol_new;
 
 	mkpsol_new = (MKPSol*)malloc(sizeof(MKPSol));
-	mkpsol_new->x = copy_long_array(NULL, mkpsol->x, mkpsol->mkp->n);
-	mkpsol_new->b_left = copy_long_array(NULL, mkpsol->b_left, mkpsol->mkp->m);
+	mkpsol_new->x = long_array_copy(NULL, mkpsol->x, mkpsol->mkp->n);
+	mkpsol_new->b_left = long_array_copy(NULL, mkpsol->b_left, mkpsol->mkp->m);
 	mkpsol_new->obj = mkpsol->obj;
 	mkpsol_new->viable = mkpsol->viable;
 	mkpsol_new->mkp = mkpsol->mkp;

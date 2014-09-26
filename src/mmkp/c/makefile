@@ -14,6 +14,10 @@ randmmkp:
 mmkp2zpl:
 	gcc -o mmkp2zpl mmkp2zpl.c mmkp/mmkp.c mmkp/util.c -lm
 	mv mmkp2zpl $(BINDIR)
+ssum: randssum
+randssum:
+	gcc -o randssum randssum.c mmkp/util.c mmkp/ssum.c -lm
+	mv randssum $(BINDIR)
 test:
 	gcc -o test test.c mmkp/util.c mmkp/subsetsum.c mmkp/mmkp.c -lm
 clean:

@@ -1,7 +1,7 @@
 #ifndef MKP_H
 #define MKP_H 1
 
-long MAX_MKP_COEFICIENT;    /* for random generation */
+extern long MAX_COEFFICIENT;
 
 /*** MKP PROBLEM INSTANCE ***/
 typedef struct MKP{
