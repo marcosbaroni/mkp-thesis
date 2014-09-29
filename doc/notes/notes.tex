@@ -1,0 +1,61 @@
+\documentclass{article}
+\usepackage{amsmath}
+
+\title{}
+
+\author{Marcos Daniel Baroni}
+
+\begin{document}
+
+\section{Partition}
+\begin{align*}
+  \text{maximize} & \sum_{j=1}^n w_j x_j \\
+  \text{subject to} & \sum_{j=1}^n w_j x_j \leq \frac{1}{2} \sum_{j=1}^n x_j \\
+   & x_j \in \{0, 1\}, \quad j \in \{1, \ldots, n\}.
+\end{align*}
+
+\section{Subset-sum}
+\begin{align*}
+  \text{maximize} & \sum_{j=1}^n w_j x_j \\
+  \text{subject to} & \sum_{j=1}^n w_j x_j \leq b\\
+   & x_j \in \{0, 1\}, \quad j \in \{1, \ldots, n\}.
+\end{align*}
+
+$P_{nb}$: Probability of $n$ numbers has a subset which sums exactly $b$,
+considering $M$ as maximum integer (over uniform distribution).
+\begin{align*}
+  P_{0b} &= 0 \\
+  %P_{1b} &= \left\{
+  %  \begin{array}{l l}
+  %    1/M & \quad \text{, if $0 \leq b \leq M$}\\
+  %    0 & \quad \text{, otherwise}
+  %  \end{array}
+  %\right.\\
+  P_{nb} &= \left\{
+    \begin{array}{l l}
+      1 & \quad \text{, if $b = 0$}\\
+      \frac{1}{M} \sum_{i=1}^M P_{(n-1)(b-i)} & \quad \text{, if $0 < b \leq nM$}\\
+      0 & \quad \text{, otherwise}
+    \end{array}
+  \right.
+\end{align*}
+
+\section{Knapsack}
+\begin{align*}
+  \text{maximize} & \sum_{j=1}^n p_j x_j \\
+  \text{subject to} & \sum_{j=1}^n w_j x_j \leq b\\
+   & x_j \in \{0, 1\}, \quad j \in \{1, \ldots, n\}.
+\end{align*}
+
+\section{Multidimensional Knapsack}
+\begin{align*}
+  \text{maximize} & \sum_{j=1}^n p_j x_j \\
+  \text{subject to} & \sum_{j=1}^n w_{ij} x_j \leq b_i \quad i \in \{1, \ldots, m\}\\
+   & x_j \in \{0, 1\}, \quad j \in \{1, \ldots, n\}.
+\end{align*}
+
+%\bibliographystyle{abbrv}
+%\bibliography{../refs}
+
+\end{document}
+
