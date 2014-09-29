@@ -68,7 +68,7 @@ void ssum_write(FILE *out, SSum *ssum){
 	fprintf(out, "%d\n", ssum->n);
 	for( i = 0 ; i < ssum->n ; i++ )
 		fprintf(out, "%ld ", ssum->w[i]);
-	fprintf(out, "%ld\n", ssum->b);
+	fprintf(out, "\n%ld\n", ssum->b);
 	return ;
 }
 
@@ -124,4 +124,23 @@ void ssum_to_zimpl(FILE *fout, SSum *ssum){
 	
 	return;
 }
+
+/**
+ * Function that outputs a (<n_max>X<b_max>) matrix A[nb] giving the probability
+ *    of a Subset-sum instance with (n+1) vaiables has a subset summing (b+1)
+ *    (considering w_max as maximum weight).
+ * */
+//double **ssum_calc_ptable(double **mat, int n_max, long b_max, long w_max){
+//	int i, j;
+//
+//	if(!mat){   // need to alloc?
+//		mat = (double**)malloc(n_max*sizeof(double*));
+//		for( i = 0 ; i < n_max ; i++)
+//			mat[i] = (double*)malloc(b_max*sizeof(double));
+//	}
+//
+//	for( i = 0 ; i < n_max ; i++ )
+//
+//	return mat;
+//}
 

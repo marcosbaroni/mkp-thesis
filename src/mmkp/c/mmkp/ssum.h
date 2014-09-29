@@ -16,6 +16,8 @@ void ssum_free(SSum *ssum);
 void ssum_fprint(FILE *out, SSum *sum);
 void ssum_to_zimpl(FILE *fout, SSum *ssum);
 
+//double **ssum_calc_ptable(int n_max, long b_max, long w_max);
+
 /* SubSet-Sum Solution */
 typedef struct SSumSol{
 	int x;
