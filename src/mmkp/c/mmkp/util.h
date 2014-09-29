@@ -5,18 +5,13 @@
 #include <stdio.h>
 #include <unistd.h>
 
+#define MAX_COEFFICIENT 1000
+
 #define MAX(x, y) (x > y ? x : y)
 #define MIN(x, y) (x < y ? x : y)
 
-inline void SWAP_LONG(long *array, int a, int b){
-	long aux;
-	aux = array[a];
-	array[a] = array[b];
-	array[b] = aux;
-	return;
-}
+inline void SWAP_LONG(long *array, int a, int b);
 
-long MAX_COEFFICIENT=1000;
 
 /* LONG ARRAY */
 long *long_array_malloc(int n);                      /* mallocs a long array*/

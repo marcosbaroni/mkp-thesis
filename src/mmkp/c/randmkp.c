@@ -6,7 +6,7 @@
 
 void print_usage(int argc, char **argv){
 	printf("Generates a random instance of MKP (n, m).\n");
-	printf(" usage %s <n> <m> [beta=0.5] [seed=<msecs>] [max_coeficient=%ld]\n", argv[0], MAX_COEFFICIENT);
+	printf(" usage %s <n> <m> [beta=0.5] [seed=<msecs>] [max_coeficient=%d]\n", argv[0], MAX_COEFFICIENT);
 	printf("   n: number of itens;\n");
 	printf("   n: number of dimensions;\n");
 	printf("   beta: tightness of knapsack (total itens weight/knapsack capacity);\n");
@@ -16,7 +16,7 @@ void print_usage(int argc, char **argv){
 }
 
 int main(int argc, char **argv){
-	int n, m, o, *vec;
+	int n, m, o, max_coefs, *vec;
 	double beta;
 	long seed = 0;
 	MKP *mkp;
@@ -27,6 +27,7 @@ int main(int argc, char **argv){
 	if(argc < 2)
 		print_usage(argc, argv);
 
+	max_coefs = MAX_COEFFICIENT;
 	/* parsing arguments */
 	n = atol(argv[1]);
 	m = atol(argv[2]);
@@ -34,7 +35,7 @@ int main(int argc, char **argv){
 	else beta = 0.5;
 	if( argc > 4 ) seed = atol(argv[4]);
 	if( !seed ) seed = getmillis();
-	if( argc > 5 ) MAX_COEFFICIENT = atol(argv[5]);
+	if( argc > 5 ) max_coefs = atol(argv[5]);
 	if( ! MAX_COEFFICIENT ) error("MAX_COEFFICIENT must be positive.\n");
 
 	/* check non-zero argmunets */

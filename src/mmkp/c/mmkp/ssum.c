@@ -45,6 +45,7 @@ SSum *ssum_new_random(int n, long bound, double b_ratio){
 	ssum = (SSum*)malloc(sizeof(SSum));
 	ssum->n = n;
 	ssum->w = (long*)malloc(n*sizeof(long));
+	sum = 0;
 	for( i = 0 ; i < n ; i++ ){
 		ssum->w[i] = 1+lrand(bound-1);
 		sum+= ssum->w[i];

@@ -1,8 +1,6 @@
 #ifndef MKP_H
 #define MKP_H 1
 
-extern long MAX_COEFFICIENT;
-
 /*** MKP PROBLEM INSTANCE ***/
 typedef struct MKP{
 	int n;       /* Number of itens */

@@ -6,6 +6,14 @@
 
 #define ISNUM(c) ( (c > 47) && (c < 58) )
 
+inline void SWAP_LONG(long *array, int a, int b){
+	long aux;
+	aux = array[a];
+	array[a] = array[b];
+	array[b] = aux;
+	return;
+}
+
 /* 
  * Returns a random long integer non-negative from 0 to <bound>.
  */
