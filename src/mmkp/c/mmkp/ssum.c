@@ -26,8 +26,8 @@ SSum *ssum_read(FILE *in){
 	ssum = (SSum*)malloc(sizeof(SSum));
 
 	fscanf(in, "%d", &(ssum->n));
-	fscanf(in, "%ld", &(ssum->b));
 	ssum->w = long_array_read(in, NULL, ssum->n);
+	fscanf(in, "%ld", &(ssum->b));
 
 	return ssum;
 }
@@ -105,21 +105,22 @@ void ssum_to_zimpl(FILE *fout, SSum *ssum){
 	/* PARAMETERS */
 	fprintf(fout, "param w[N] :=\n"); /* weights */
 	long_array_zimpl_print(fout, ssum->w, n);
+	fprintf(fout, "param b := %ld;\n", ssum->b);
 
 	/* DECISION VARIABLES */
 	fprintf(fout, "var x[N] binary;\n");
 
 	/* CONSTRAINT */
 	fprintf(fout, /* max sum */
-		"subto capacities:\n\
-			forall <i> in N do\n\
-				x[i]*w[i] <= b;\n");
+"subto capacities:\n\
+	sum <i> in N do\n\
+		x[i]*w[i] <= b;\n");
 
 	/* OBJECTIVE FUNCTION */
 	fprintf(fout, /* total sum of selected itens */
-		"maximize profit:\n\
-			sum <i> in N do\n\
-				x[i]*w[i];\n");
+"maximize profit:\n\
+	sum <i> in N do\n\
+		x[i]*w[i];\n");
 	
 	return;
 }
