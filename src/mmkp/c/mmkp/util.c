@@ -286,6 +286,51 @@ void long_matrix_free(long **mat, int n){
 	free(mat);
 }
 
+Array *array_new(){
+	Array *a;
+	a = (Array*)malloc(sizeof(Array));
+	a->n = 0;
+	a->nmax = 100;
+	a->a = (void**)malloc(a->nmax*sizeof(void));
+
+	return a;
+}
+
+int array_get_size(Array *array){
+	return array->n;
+}
+
+void *array_get_array(Array *array){
+	return array->a;
+}
+
+void *array_get(Array *array, int i){
+	return array->a[i];
+}
+
+void array_applay(Array *a, void(*apl_f)(void*)){
+	int i;
+	for( i = 0 ; i < a->n ; i++ )
+		apl_f(a->a[i]);
+	return;
+}
+
+Array *array_insert(Array *array, void *elem){
+	if(array->n = array->nmax){
+		array->nmax *= 2;
+		array->a = (void**)realloc(array->a, array->nmax*sizeof(void*));
+	}
+	array->a[array->n++] = elem;
+
+	return array;
+}
+
+void array_free(Array *a){
+	free(a->a);
+	free(a);
+	return;
+}
+
 /* AVL TREE */
 AVLNode *avl_node_new(void *a){
 	AVLNode *avl_node;

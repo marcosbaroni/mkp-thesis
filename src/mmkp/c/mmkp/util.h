@@ -39,6 +39,21 @@ long long_matrix_max(long **mat, int n, int m);      /* max number on matrix */
 long long_matrix_max_col(long **mat, int n, int m, int col); /* max elem of column */
 long long_matrix_max_lin(long **mat, int n, int m, int lin); /* max elem of line */
 
+/* ABSTRACT ARRAY */
+typedef struct Array{
+	void **a;
+	int n;
+	int nmax;
+}Array;
+
+Array *array_new();
+int array_get_size(Array *array);
+void *array_get_array(Array *array);
+void *array_get(Array *array, int i);
+void array_applay(Array *a, void(apl_f)(void*));
+Array *array_insert(Array *a, void *elem);
+void array_free(Array *a);
+
 /* RANDOM NUMBERs */
 long lrand(long bound);
 double drand();

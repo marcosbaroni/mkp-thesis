@@ -24,14 +24,23 @@
 $P_{nb}$: Probability of $n$ numbers has a subset which sums exactly $b$,
 considering $M$ as maximum integer (over uniform distribution).
 \begin{align*}
-  P_{0b} &= 0 \\
-  %P_{1b} &= \left\{
-  %  \begin{array}{l l}
-  %    1/M & \quad \text{, if $0 \leq b \leq M$}\\
-  %    0 & \quad \text{, otherwise}
-  %  \end{array}
-  %\right.\\
-  P_{nb} &= \left\{
+  %%% Number of solutions for P-1B %%%
+  T_{1b} &= \left\{
+    \begin{array}{l l}
+      1/M & \quad \text{, if $b \leq M $}\\
+      0 & \quad \text{, otherwise}
+    \end{array}
+  \right. \\
+  %%% Number of solutions for P-2B %%%
+  T_{2b} &= \left\{
+    \begin{array}{l l}
+      2M-2+b & \quad \text{, if $ 0 < b \leq M $}\\
+      2M+1-b & \quad \text{, if $ M < b \leq 2M $}\\
+      0 & \quad \text{, otherwise}
+    \end{array}
+  \right.\\
+  %%% Number of solutions for P-NB %%%
+  T_{nb} &= \left\{
     \begin{array}{l l}
       1 & \quad \text{, if $b = 0$}\\
       \frac{1}{M} \sum_{i=1}^M P_{(n-1)(b-i)} & \quad \text{, if $0 < b \leq nM$}\\

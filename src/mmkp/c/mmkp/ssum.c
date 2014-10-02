@@ -125,6 +125,16 @@ void ssum_to_zimpl(FILE *fout, SSum *ssum){
 	return;
 }
 
+Array *ssum_backtrack(SSum *ssum){
+	int i;
+	Array *sols = array_new();
+
+	return sols;
+}
+
+sub_ssum_backtrack(SSum *ssum, int a){
+}
+
 /**
  * Function that outputs a (<n_max>X<b_max>) matrix A[nb] giving the probability
  *    of a Subset-sum instance with (n+1) vaiables has a subset summing (b+1)
