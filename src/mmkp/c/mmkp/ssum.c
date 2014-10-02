@@ -84,8 +84,23 @@ void ssum_free(SSum *ssum){
 /*
  * Prints a Subset-sum instance on human friendly format.
  */
-void ssumsol_fprint(FILE *out, SSumSol *sumsol){
-	unimplemented();
+void ssumsol_fprint(FILE *out, SSumSol *sol){
+	int i, n, nx;
+	long *w;
+
+	nx = sol->nx;
+	n = sol->ssum->n;
+	w = sol->ssum->w;
+
+	i = 0;
+	for( i = 1 ; i < nx ; i++ )
+		fprintf(out, "%ld + ", w[sol->sel[i]]);
+	fprintf(out, "%ld = %ld", w[sol->sel[i]], sol->sum);
+
+	if( sol->sum != sol->ssum->b )
+		fprintf(out, "(+ %ld = %ld)", sol->ssum->b - sol->sum, sol->sum );
+	fprintf(out, "\n");
+
 	return;
 }
 
@@ -125,14 +140,123 @@ void ssum_to_zimpl(FILE *fout, SSum *ssum){
 	return;
 }
 
-Array *ssum_backtrack(SSum *ssum){
-	int i;
-	Array *sols = array_new();
+SSumSol *ssumsol_new_empty(SSum *ssum){
+	int i, n;
+	SSumSol *sol;
+	
+	n = ssum->n;
+	sol = (SSumSol*)malloc(sizeof(SSumSol));
+	sol->x = (int*)malloc(n*sizeof(int));
+	sol->sel = (int*)malloc(n*sizeof(int));
+	sol->nx = 0;
 
-	return sols;
+	for( i = 0 ; i < n ; i++)
+		sol->x[i] = 0;
+
+	sol->sum = 0;
+	sol->b_left = ssum->b;
+	sol->ssum = ssum;
+
+	return sol;
 }
 
-sub_ssum_backtrack(SSum *ssum, int a){
+void ssumsol_free(SSumSol *ssumsol){
+	free(ssumsol->x);
+	free(ssumsol->sel);
+	free(ssumsol);
+	return;
+}
+
+SSumSol *ssumsol_new(SSum *ssum, int *x){
+	int i, n;
+	SSumSol *sol;
+	n = ssum->n;
+	sol = (SSumSol*)malloc(sizeof(SSumSol));
+	sol->x = (int*)malloc(ssum->n*sizeof(int));
+
+	sol->sum = 0;
+	sol->b_left = ssum->b;
+	sol->ssum = ssum;
+
+	for( i = 0 ; i < n ; i++ ){
+		if( x[i] ){
+			sol->x[i] = 1;
+			sol->b_left -= ssum->w[i];
+			sol->sum += ssum->w[i];
+			sol->sel[sol->nx] = i;
+			sol->nx++;
+		}else{
+			sol->x[i] = 0;
+		}
+	}
+
+	return sol;
+}
+
+Array *ssum_backtrack(SSum *ssum){
+	Array *sols = array_new();
+	int i, n, *x, backtrack;
+	long *w, sum, b_left;
+
+	n = ssum->n;
+	w = ssum->w;
+
+	x = (int*)malloc(n*sizeof(int));
+	for( i = 0 ; i < n ; i ++ )
+		x[i] = 0;
+
+	sum = 0; b_left = ssum->b;
+
+	x[0] = 1;
+	b_left -= w[0];
+	i = 1;
+	backtrack = 0;
+	while( 1 ){
+		/* root reached? */
+		if( i == 0 )
+			if( backtrack )
+				if( x[0] == 0 )
+					break;
+
+		/* if is backtracking */
+		if( backtrack ){
+			if( x[i] ){
+				x[i] = 0;
+				b_left += w[i];
+				backtrack = 0;
+				i++;
+			}else{
+				i--;
+			}
+		/* drilling down the tree. */
+		}else{
+			/* if child is unfeasible. */
+			if( x[i] >= b_left ){
+				i--;
+				backtrack = 1;
+			/* child is feasible. */
+			}else{
+				x[i] = 1;
+				b_left -= w[i];
+				/* if the node is solution */
+				if( !b_left ){
+					array_insert(sols, ssumsol_new(ssum, x));
+					backtrack = 1;
+				/* next variable as target */
+				}else{
+					if( i+1 == n ){
+						backtrack = 1;
+					}else{
+						i++;
+					}
+				}
+			}
+		}
+	}
+
+	free(x);
+
+	return sols;
 }
 
 /**
