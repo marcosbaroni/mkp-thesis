@@ -140,6 +140,17 @@ void ssum_to_zimpl(FILE *fout, SSum *ssum){
 	return;
 }
 
+void ssum_fprint(FILE *out, SSum *ssum){
+	int i, n;
+	n = ssum->n;
+
+	for( i = 0 ; i < n ; i++ )
+		printf("%ld ", ssum->w[i]);
+	printf("[%ld]\n", ssum->b);
+
+	return;
+}
+
 SSumSol *ssumsol_new_empty(SSum *ssum){
 	int i, n;
 	SSumSol *sol;
@@ -172,7 +183,8 @@ SSumSol *ssumsol_new(SSum *ssum, int *x){
 	SSumSol *sol;
 	n = ssum->n;
 	sol = (SSumSol*)malloc(sizeof(SSumSol));
-	sol->x = (int*)malloc(ssum->n*sizeof(int));
+	sol->x = (int*)malloc(n*sizeof(int));
+	sol->sel = (int*)malloc(n*sizeof(int));
 
 	sol->sum = 0;
 	sol->b_left = ssum->b;
@@ -211,7 +223,11 @@ Array *ssum_backtrack(SSum *ssum){
 	b_left -= w[0];
 	i = 1;
 	backtrack = 0;
+	ssum_fprint(stdout, ssum);
 	while( 1 ){
+		//printf("i=%d, b_left=%ld%s\n", i+1, b_left, backtrack ? " Backtrack": "");
+		//fflush(stdout);
+
 		/* root reached? */
 		if( i == 0 )
 			if( backtrack )
@@ -230,12 +246,8 @@ Array *ssum_backtrack(SSum *ssum){
 			}
 		/* drilling down the tree. */
 		}else{
-			/* if child is unfeasible. */
-			if( x[i] >= b_left ){
-				i--;
-				backtrack = 1;
 			/* child is feasible. */
-			}else{
+			if( w[i] <= b_left ){
 				x[i] = 1;
 				b_left -= w[i];
 				/* if the node is solution */
@@ -250,6 +262,10 @@ Array *ssum_backtrack(SSum *ssum){
 						i++;
 					}
 				}
+			/* if child is unfeasible. */
+			}else{
+				i--;
+				backtrack = 1;
 			}
 		}
 	}

@@ -291,7 +291,7 @@ Array *array_new(){
 	a = (Array*)malloc(sizeof(Array));
 	a->n = 0;
 	a->nmax = 100;
-	a->a = (void**)malloc(a->nmax*sizeof(void));
+	a->a = (void**)malloc(a->nmax*sizeof(void*));
 
 	return a;
 }
@@ -316,11 +316,12 @@ void array_applay(Array *a, void(*apl_f)(void*)){
 }
 
 Array *array_insert(Array *array, void *elem){
-	if(array->n = array->nmax){
+	if( array->n == array->nmax ){
 		array->nmax *= 2;
 		array->a = (void**)realloc(array->a, array->nmax*sizeof(void*));
 	}
-	array->a[array->n++] = elem;
+	array->a[array->n] = elem;
+	array->n++;
 
 	return array;
 }

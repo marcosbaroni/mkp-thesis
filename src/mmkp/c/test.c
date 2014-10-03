@@ -27,8 +27,7 @@ void teste_ssum_backtrack(int n){
 	SSumSol *sol;
 	Array *a;
 
-	a = array_new();
-	ssum = ssum_new_random(n, 100, 0.5);
+	ssum = ssum_new_random(n, 10, 0.5);
 
 	a = ssum_backtrack(ssum);
 	nsol = array_get_size(a);
@@ -39,12 +38,16 @@ void teste_ssum_backtrack(int n){
 	}
 
 	array_free(a);
+	ssum_free(ssum);
 
 	return;
 }
 
 int main(int argv, char **argc){
-	teste_ssum_backtrack(20);
+	if( argv > 1 ) srand(atol(argc[1]));
+	else srand(time(0));
+	teste_ssum_backtrack(5);
+
 	return 0;
 }
 

@@ -13,7 +13,7 @@ SSum *ssum_read(FILE *in);
 SSum *ssum_new_random(int n, long bound, double b_ratio);
 void ssum_write(FILE *out, SSum *ssum);
 void ssum_free(SSum *ssum);
-void ssum_fprint(FILE *out, SSum *sum);
+void ssum_fprint(FILE *out, SSum *ssum);
 void ssum_to_zimpl(FILE *fout, SSum *ssum);
 //double **ssum_calc_ptable(int n_max, long b_max, long w_max);
 
