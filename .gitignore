@@ -9,7 +9,6 @@ scip.set
 *.bbl
 *.blg
 src/mmkp/c/*.o
-bin/mkp2zpl
-bin/mmkp2zpl
-bin/randmkp
-bin/randmmkp
+bin/*2zpl
+bin/rand*
+

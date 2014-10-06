@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <sys/time.h>
 #include <stdarg.h>
+#include <string.h>
 #include "util.h"
 
 #define ISNUM(c) ( (c > 47) && (c < 58) )
@@ -36,6 +37,99 @@ double normal_dist(){
 	fprintf(stderr, "function \"normal_dist\" not implemented yet.\n");
 	return 0.0;
 }
+
+int *int_array_malloc(int n){
+	int *array;
+	array = (int*)malloc(n*sizeof(int));
+
+	return array;
+}
+
+int *int_array_read(FILE *in, int *array, int n){
+	int i;
+	array = int_array_malloc(n);
+
+	for( i = 0 ; i < n ; i++ )
+		fscanf(in, "%d", &(array[i]));
+
+	return array;
+}
+
+void int_array_write(FILE *out, int *array, int n){
+	int i;
+
+	if( !array )
+		array = int_array_malloc(n);
+
+	for( i = 0 ; i < n ; i++ )
+		fscanf(out, "%d", &(array[i]));
+
+	return;
+}
+
+int *int_array_init(int *array, int n, int x){
+	int i;
+	for( i = 0 ; i < n ; i++ )
+		array[i] = x;
+
+	return array;
+}
+
+int *int_array_copy(int *dest, int *src, int n){
+	memcpy(dest, src, n*sizeof(int));
+
+	return dest;
+}
+
+void *int_array_fprint(FILE *out, int *array, int n){
+	int i;
+	fprintf(out, "[");
+	for( i = 0 ; i < n-1 ; i++ )
+		fprintf(out, "%d, ", array[i]);
+	if(n) fprintf(out, "%d", array[n-1]);
+	fprintf(out, "]");
+
+	return;
+}
+
+void int_array_free(int *array){
+	free(array);
+	return;
+}
+
+int int_array_max(int *array, int n){
+	int i, max;
+	max = -999999999;
+	for( i = 0 ; i < n ; i++ )
+		if( array[i] > max )
+			max = array[i];
+
+	return max;
+}
+
+int *int_array_random(int n, int *array, int bound){
+	int i;
+	if(!array)
+		array = int_array_malloc(n);
+	for( i = 0 ; i < n ; i++ )
+		array[i] = lrand(bound);
+
+	return array;
+}
+
+int int_array_is_sorted(int *array, int n){
+	int i;
+	for( i = 1 ; i < n ; i++ )
+		if( array[i-1] > array[i] )
+			return 0;
+	return 1;
+}
+
+int *int_array_qsort(int *array, int n){
+	unimplemented();
+	return;
+}
+
 
 /**
  * Returns a random normalized double array (random numbers totaling 1.0).
@@ -213,7 +307,8 @@ void long_array_write(FILE *out, long *array, int n){
 	int i;
 	for( i = 0 ; i < n-1 ; i++ )
 		fprintf(out, "%ld ", array[i]);
-	fprintf(out, "%ld\n", array[i]);
+	if(n) fprintf(out, "%ld", array[n-1]);
+	fprintf(out, "\n");
 	return ;
 }
 
@@ -236,10 +331,13 @@ long **long_matrix_read(FILE *in, long **mat, int n, int m){
 	return mat;
 }
 
-void *long_array_fprint(FILE *out, long *array, int n){
+void long_array_fprint(FILE *out, long *array, int n){
 	int i;
-	for( i = 0 ; i < n ; i++ )
-		fprintf(out, "%ld%s", array[i], (i < n-1) ? " " : "\n" );
+	fprintf(out, "[");
+	for( i = 0 ; i < n-1 ; i++ )
+		fprintf(out, "%ld, ", array[i]);
+	if(n) fprintf(out, "%ld", array[n-1]);
+	fprintf(out, "]\n");
 	
 	return;
 }

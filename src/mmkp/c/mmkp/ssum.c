@@ -48,10 +48,10 @@ SSum *ssum_new_random(int n, long bound, double b_ratio){
 	sum = 0;
 	for( i = 0 ; i < n ; i++ ){
 		ssum->w[i] = 1+lrand(bound-1);
-		sum+= ssum->w[i];
+		sum += ssum->w[i];
 	}
 	
-	long_array_qsort(ssum->w, ssum->n);
+	ssum->w = long_array_qsort(ssum->w, ssum->n);
 	ssum->b = (long)(floor(sum*b_ratio));
 
 	return ssum;
@@ -93,9 +93,10 @@ void ssumsol_fprint(FILE *out, SSumSol *sol){
 	w = sol->ssum->w;
 
 	i = 0;
-	for( i = 1 ; i < nx ; i++ )
+	for( i = 0 ; i < nx-1 ; i++ )
 		fprintf(out, "%ld + ", w[sol->sel[i]]);
-	fprintf(out, "%ld = %ld", w[sol->sel[i]], sol->sum);
+	if(nx) fprintf(out, "%ld", w[sol->sel[i]]);
+	fprintf(out, " = %ld", sol->sum);
 
 	if( sol->sum != sol->ssum->b )
 		fprintf(out, "(+ %ld = %ld)", sol->ssum->b - sol->sum, sol->sum );
@@ -182,6 +183,7 @@ SSumSol *ssumsol_new(SSum *ssum, int *x){
 	int i, n;
 	SSumSol *sol;
 	n = ssum->n;
+
 	sol = (SSumSol*)malloc(sizeof(SSumSol));
 	sol->x = (int*)malloc(n*sizeof(int));
 	sol->sel = (int*)malloc(n*sizeof(int));
@@ -206,10 +208,12 @@ SSumSol *ssumsol_new(SSum *ssum, int *x){
 }
 
 Array *ssum_backtrack(SSum *ssum){
-	Array *sols = array_new();
+	Array *sols;
+	SSumSol *sol;
 	int i, n, *x, backtrack;
 	long *w, sum, b_left;
 
+	sols = array_new();
 	n = ssum->n;
 	w = ssum->w;
 
@@ -217,7 +221,8 @@ Array *ssum_backtrack(SSum *ssum){
 	for( i = 0 ; i < n ; i ++ )
 		x[i] = 0;
 
-	sum = 0; b_left = ssum->b;
+	sum = 0;
+	b_left = ssum->b;
 
 	x[0] = 1;
 	b_left -= w[0];
@@ -225,9 +230,6 @@ Array *ssum_backtrack(SSum *ssum){
 	backtrack = 0;
 	ssum_fprint(stdout, ssum);
 	while( 1 ){
-		//printf("i=%d, b_left=%ld%s\n", i+1, b_left, backtrack ? " Backtrack": "");
-		//fflush(stdout);
-
 		/* root reached? */
 		if( i == 0 )
 			if( backtrack )
@@ -236,7 +238,7 @@ Array *ssum_backtrack(SSum *ssum){
 
 		/* if is backtracking */
 		if( backtrack ){
-			if( x[i] ){
+			if( x[i] > 0 ){
 				x[i] = 0;
 				b_left += w[i];
 				backtrack = 0;
@@ -251,8 +253,10 @@ Array *ssum_backtrack(SSum *ssum){
 				x[i] = 1;
 				b_left -= w[i];
 				/* if the node is solution */
-				if( !b_left ){
-					array_insert(sols, ssumsol_new(ssum, x));
+				if( b_left == 0 ){
+					sol = ssumsol_new(ssum, x);
+					array_insert(sols, sol);
+					free(x); return sols;
 					backtrack = 1;
 				/* next variable as target */
 				}else{

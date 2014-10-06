@@ -22,7 +22,7 @@ ssum2zpl:
 	gcc -o ssum2zpl ssum2zpl.c mmkp/util.c mmkp/ssum.c -lm
 	mv ssum2zpl $(BINDIR)
 test:
-	gcc -o test test.c mmkp/util.c mmkp/ssum.c mmkp/mmkp.c -lm
+	gcc -o test test.c mmkp/util.c mmkp/ssum.c mmkp/mmkp.c -lm -g
 clean:
 	rm -f *.o
 

@@ -21,13 +21,18 @@ void teste_qsort(){
 	return;
 }
 
-void teste_ssum_backtrack(int n){
-	int i, nsol;
+void teste_ssum_backtrack(int argc, char **argv){
+	int i, n, nsol;
 	SSum *ssum;
 	SSumSol *sol;
 	Array *a;
 
-	ssum = ssum_new_random(n, 10, 0.5);
+	n = 10;
+	srand(time(0));
+	if( argc > 1 ) n = atoll(argv[1]);
+	if( argc > 2 ) srand(atoll(argv[2]));
+
+	ssum = ssum_new_random(n, 100, 0.5);
 
 	a = ssum_backtrack(ssum);
 	nsol = array_get_size(a);
@@ -44,9 +49,7 @@ void teste_ssum_backtrack(int n){
 }
 
 int main(int argv, char **argc){
-	if( argv > 1 ) srand(atol(argc[1]));
-	else srand(time(0));
-	teste_ssum_backtrack(5);
+	teste_ssum_backtrack(argv, argc);
 
 	return 0;
 }
