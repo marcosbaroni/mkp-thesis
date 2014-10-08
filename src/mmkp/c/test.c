@@ -26,19 +26,28 @@ void teste_ssum_backtrack(int argc, char **argv){
 	SSum *ssum;
 	SSumSol *sol;
 	Array *a;
+	long long wmax;
+
+	if( argc < 2 ){
+		printf("usage.: %s <n> [wmax=1000] [seed=time]\n", argv[0]);
+		return;
+	}
 
 	n = 10;
 	srand(time(0));
-	if( argc > 1 ) n = atoll(argv[1]);
-	if( argc > 2 ) srand(atoll(argv[2]));
+	wmax = 1000;
+	if( argc > 1 ) n = atoll(argv[1]);       /* number of itens */
+	if( argc > 2 ) wmax = atoll(argv[2]);    /* number of itens */
+	if( argc > 3 ) srand(atoll(argv[3]));    /* random seed     */
 
-	ssum = ssum_new_random(n, 100, 0.5);
+	ssum = ssum_new_random(n, wmax , 0.5);
 
-	a = ssum_backtrack(ssum);
+	a = ssum_backtrack(ssum, 1);
 	nsol = array_get_size(a);
+	printf("%d solutions.\n", nsol);
 	for( i = 0 ; i < nsol ; i++ ){
 		sol = (SSumSol*)array_get(a, i);
-		ssumsol_fprint(stdout, sol);
+		//ssumsol_fprint(stdout, sol);
 		ssumsol_free(sol);
 	}
 

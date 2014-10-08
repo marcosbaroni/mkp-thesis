@@ -26,8 +26,8 @@ SSum *ssum_read(FILE *in){
 	ssum = (SSum*)malloc(sizeof(SSum));
 
 	fscanf(in, "%d", &(ssum->n));
-	ssum->w = long_array_read(in, NULL, ssum->n);
-	fscanf(in, "%ld", &(ssum->b));
+	ssum->w = long_long_array_read(in, NULL, ssum->n);
+	fscanf(in, "%lld", &(ssum->b));
 
 	return ssum;
 }
@@ -37,22 +37,22 @@ SSum *ssum_read(FILE *in){
  * n: number of itens
  * boudnd: size of
  */
-SSum *ssum_new_random(int n, long bound, double b_ratio){
+SSum *ssum_new_random(int n, long long bound, double b_ratio){
 	SSum *ssum;
-	long sum;
+	long long sum;
 	int i;
 
 	ssum = (SSum*)malloc(sizeof(SSum));
 	ssum->n = n;
-	ssum->w = (long*)malloc(n*sizeof(long));
+	ssum->w = long_long_array_malloc(n);
 	sum = 0;
 	for( i = 0 ; i < n ; i++ ){
-		ssum->w[i] = 1+lrand(bound-1);
+		ssum->w[i] = 1+llrand(bound-1);
 		sum += ssum->w[i];
 	}
 	
-	ssum->w = long_array_qsort(ssum->w, ssum->n);
-	ssum->b = (long)(floor(sum*b_ratio));
+	ssum->w = long_long_array_qsort(ssum->w, ssum->n);
+	ssum->b = (long long)(floor(sum*b_ratio));
 
 	return ssum;
 }
@@ -67,8 +67,8 @@ void ssum_write(FILE *out, SSum *ssum){
 	int i;
 	fprintf(out, "%d\n", ssum->n);
 	for( i = 0 ; i < ssum->n ; i++ )
-		fprintf(out, "%ld ", ssum->w[i]);
-	fprintf(out, "\n%ld\n", ssum->b);
+		fprintf(out, "%lld ", ssum->w[i]);
+	fprintf(out, "\n%lld\n", ssum->b);
 	return ;
 }
 
@@ -86,7 +86,7 @@ void ssum_free(SSum *ssum){
  */
 void ssumsol_fprint(FILE *out, SSumSol *sol){
 	int i, n, nx;
-	long *w;
+	long long *w;
 
 	nx = sol->nx;
 	n = sol->ssum->n;
@@ -94,12 +94,12 @@ void ssumsol_fprint(FILE *out, SSumSol *sol){
 
 	i = 0;
 	for( i = 0 ; i < nx-1 ; i++ )
-		fprintf(out, "%ld + ", w[sol->sel[i]]);
-	if(nx) fprintf(out, "%ld", w[sol->sel[i]]);
-	fprintf(out, " = %ld", sol->sum);
+		fprintf(out, "%lld + ", w[sol->sel[i]]);
+	if(nx) fprintf(out, "%lld", w[sol->sel[i]]);
+	fprintf(out, " = %lld", sol->sum);
 
 	if( sol->sum != sol->ssum->b )
-		fprintf(out, "(+ %ld = %ld)", sol->ssum->b - sol->sum, sol->sum );
+		fprintf(out, "(+ %lld = %lld)", sol->ssum->b - sol->sum, sol->sum );
 	fprintf(out, "\n");
 
 	return;
@@ -120,8 +120,8 @@ void ssum_to_zimpl(FILE *fout, SSum *ssum){
 
 	/* PARAMETERS */
 	fprintf(fout, "param w[N] :=\n"); /* weights */
-	long_array_zimpl_print(fout, ssum->w, n);
-	fprintf(fout, "param b := %ld;\n", ssum->b);
+	long_long_array_zimpl_print(fout, ssum->w, n);
+	fprintf(fout, "param b := %lld;\n", ssum->b);
 
 	/* DECISION VARIABLES */
 	fprintf(fout, "var x[N] binary;\n");
@@ -146,8 +146,8 @@ void ssum_fprint(FILE *out, SSum *ssum){
 	n = ssum->n;
 
 	for( i = 0 ; i < n ; i++ )
-		printf("%ld ", ssum->w[i]);
-	printf("[%ld]\n", ssum->b);
+		printf("%lld ", ssum->w[i]);
+	printf("[%lld]\n", ssum->b);
 
 	return;
 }
@@ -187,6 +187,7 @@ SSumSol *ssumsol_new(SSum *ssum, int *x){
 	sol = (SSumSol*)malloc(sizeof(SSumSol));
 	sol->x = (int*)malloc(n*sizeof(int));
 	sol->sel = (int*)malloc(n*sizeof(int));
+	sol->nx = 0;
 
 	sol->sum = 0;
 	sol->b_left = ssum->b;
@@ -207,11 +208,14 @@ SSumSol *ssumsol_new(SSum *ssum, int *x){
 	return sol;
 }
 
-Array *ssum_backtrack(SSum *ssum){
+/*
+ * enumerate: to enumerate all existent solutions.
+ * */
+Array *ssum_backtrack(SSum *ssum, int enumerate){
 	Array *sols;
 	SSumSol *sol;
 	int i, n, *x, backtrack;
-	long *w, sum, b_left;
+	long long *w, sum, b_left;
 
 	sols = array_new();
 	n = ssum->n;
@@ -229,7 +233,9 @@ Array *ssum_backtrack(SSum *ssum){
 	i = 1;
 	backtrack = 0;
 	ssum_fprint(stdout, ssum);
+	/* Perform backtrack search */
 	while( 1 ){
+		//printf(" i = %d, b_left= %ld%s\n", i, b_left, backtrack?", *backtrack":""); fflush(stdout);
 		/* root reached? */
 		if( i == 0 )
 			if( backtrack )
@@ -242,10 +248,13 @@ Array *ssum_backtrack(SSum *ssum){
 				x[i] = 0;
 				b_left += w[i];
 				backtrack = 0;
-				i++;
-			}else{
-				i--;
-			}
+				/* if fixed variable was the last one... */
+				if( i+1 == n){
+					backtrack = 1;
+					/* find the immediately not fixed var to mark as backtrack*/
+					while( x[i] == 0 && i ) i--;
+				}else i++;
+			}else i--;
 		/* drilling down the tree. */
 		}else{
 			/* child is feasible. */
@@ -256,7 +265,10 @@ Array *ssum_backtrack(SSum *ssum){
 				if( b_left == 0 ){
 					sol = ssumsol_new(ssum, x);
 					array_insert(sols, sol);
-					free(x); return sols;
+					if( !enumerate ){
+						free(x);
+						return sols;
+					}
 					backtrack = 1;
 				/* next variable as target */
 				}else{

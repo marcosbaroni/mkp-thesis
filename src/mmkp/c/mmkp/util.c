@@ -15,11 +15,30 @@ inline void SWAP_LONG(long *array, int a, int b){
 	return;
 }
 
+inline void SWAP_LONG_LONG(long long *array, int a, int b){
+	long long aux;
+	aux = array[a];
+	array[a] = array[b];
+	array[b] = aux;
+	return;
+}
+
 /* 
  * Returns a random long integer non-negative from 0 to <bound>.
  */
 long lrand(long bound){
-	return (rand() % (bound+1));
+	return labs(((rand() << 16) + rand()) % (bound+1));
+}
+
+/* 
+ * Returns a random long long integer non-negative from 0 to <bound>.
+ */
+long long llrand(long long bound){
+	return llabs(
+		((rand() << 16) |
+		 (rand() << 32) |
+		 (rand() << 48) |
+		  rand()) % (bound+1));
 }
 
 /* 
@@ -153,6 +172,9 @@ double *random_normalized_double_array(int n){
 	return rarray;
 }
 
+/*******************************************************************************
+ *                                LONG ARRAY                                   *
+*******************************************************************************/
 long *long_array_malloc(int n){
 	long *array;
 
@@ -189,6 +211,27 @@ long long_array_max(long *array, int n){
 			max = array[i];
 	return max;
 }
+
+long *long_array_read(FILE *in, long *array, int n){
+	int i, nf;
+
+	if(!array) array = (long*)malloc(n*sizeof(long));
+
+	for( i = 0 ; i < n ; i++ )
+		nf = fscanf(in, "%ld", &(array[i]));
+	
+	return array;
+}
+
+void long_array_write(FILE *out, long *array, int n){
+	int i;
+	for( i = 0 ; i < n-1 ; i++ )
+		fprintf(out, "%ld ", array[i]);
+	if(n) fprintf(out, "%ld", array[n-1]);
+	fprintf(out, "\n");
+	return ;
+}
+
 
 long *long_array_random(int n, long *array, long bound){
 	int i;
@@ -241,6 +284,165 @@ long *long_array_qsort(long *array, int n){
 	return array;
 }
 
+void long_array_fprint(FILE *out, long *array, int n){
+	int i;
+	fprintf(out, "[");
+	for( i = 0 ; i < n-1 ; i++ )
+		fprintf(out, "%ld, ", array[i]);
+	if(n) fprintf(out, "%ld", array[n-1]);
+	fprintf(out, "]\n");
+	
+	return;
+}
+
+void long_array_free(long *array){
+	free(array);
+}
+
+/*
+ * Prints a longint array on the ZIMPL MIP modeling language format.
+ *   fout  - output FILE
+ *   n	 - number of elements on array
+ *   array - the longint array */
+void long_array_zimpl_print(FILE *fout, long *array, int n){
+	int i;
+	for( i = 0 ; i < n-1 ; i++ )
+		fprintf(fout, "<%d> %ld,\n", i+1, array[i]);
+	fprintf(fout, "<%d> %ld;\n", i+1, array[n-1]);
+
+	return;
+}
+
+/*******************************************************************************
+ *                             LONG LONG ARRAY                                 *
+*******************************************************************************/
+long long *long_long_array_malloc(int n){
+	long long *array;
+
+	array = (long long*)malloc(n*sizeof(long long));
+
+	return array;
+}
+
+long long *long_long_array_init(long long *array, int n, long long x){
+	int i;
+	for( i = 0 ; i < n ; i++ )
+		array[i] = x;
+	return array;
+}
+
+long long *long_long_array_copy(long long *dest, long long *src, int n){
+	int i;
+
+	if(!dest)
+		dest = long_long_array_malloc(n);
+
+	for( i = 0 ; i < n ; i++ )
+		dest[i] = src[i];
+	return dest;
+}
+
+long long *long_long_array_read(FILE *in, long long *array, int n){
+	int i, nf;
+
+	if(!array) array = (long long*)malloc(n*sizeof(long long));
+
+	for( i = 0 ; i < n ; i++ )
+		nf = fscanf(in, "%lld", &(array[i]));
+	
+	return array;
+}
+
+void long_long_array_write(FILE *out, long long *array, int n){
+	int i;
+	for( i = 0 ; i < n-1 ; i++ )
+		fprintf(out, "%lld ", array[i]);
+	if(n) fprintf(out, "%lld", array[n-1]);
+	fprintf(out, "\n");
+	return ;
+}
+
+
+long long long_long_array_max(long long *array, int n){
+	int i;
+	long long max;
+
+	max = array[0];
+	for( i = 1 ; i < n ; i++ )
+		if( max < array[i] )
+			max = array[i];
+	return max;
+}
+
+long long *long_long_array_random(int n, long long *array, long long bound){
+	int i;
+
+	if(!array) array = (long long*)malloc(n*sizeof(long long));
+
+	for( i = 0 ; i < n ; i++ )
+		array[i] = llrand(bound);
+	
+	return;
+}
+
+int long_long_array_is_sorted(long long *array, int n){
+	int i;
+	for( i = 1 ; i < n ; i++ )
+		if( array[i-1] > array[i] )
+			return 0;
+	return 1;
+}
+
+int long_long_array_partition(long long *array, int a, int b){
+	int i, j;
+	long long pivot, aux;
+	
+	i = a; j = b+1;
+	pivot = array[a];
+
+	while( 1 ){
+		while( array[++i] < pivot ) if( i == b ) break;
+		while( pivot < array[--j] ) if( j == a ) break;
+		if( i >= j ) break;            /* Crossed? */
+		SWAP_LONG_LONG(array, i, j);        /* swap */
+	}
+	SWAP_LONG_LONG(array, j, a);     /* place pivot */
+
+	return j;
+}
+
+long long *long_long_array_sub_qsort(long long *array, int a, int b){
+	int m;
+	if( b <= a ) return array;
+	m = long_long_array_partition(array, a, b);
+	long_long_array_sub_qsort(array, a, m-1);
+	long_long_array_sub_qsort(array, m+1, b);
+	return array;
+}
+
+long long *long_long_array_qsort(long long *array, int n){
+	long_long_array_sub_qsort(array, 0, n-1);
+	return array;
+}
+
+/*
+ * Prints a long long int array on the ZIMPL MIP modeling language format.
+ *   fout  - output FILE
+ *   n	 - number of elements on array
+ *   array - the longint array */
+void long_long_array_zimpl_print(FILE *fout, long long *array, int n){
+	int i;
+	for( i = 0 ; i < n-1 ; i++ )
+		fprintf(fout, "<%d> %lld,\n", i+1, array[i]);
+	fprintf(fout, "<%d> %lld;\n", i+1, array[n-1]);
+
+	return;
+}
+
+
+/*******************************************************************************
+ *                                LONG MATRIX                                  *
+*******************************************************************************/
 long long_matrix_max_col(long **mat, int n, int m, int col){
 	int i, j;
 	long max;
@@ -292,26 +494,6 @@ long **long_matrix_copy(long **dest, long **src, int n, int m){
 	return dest;
 }
 
-long *long_array_read(FILE *in, long *array, int n){
-	int i, nf;
-
-	if(!array) array = (long*)malloc(n*sizeof(long));
-
-	for( i = 0 ; i < n ; i++ )
-		nf = fscanf(in, "%ld", &(array[i]));
-	
-	return array;
-}
-
-void long_array_write(FILE *out, long *array, int n){
-	int i;
-	for( i = 0 ; i < n-1 ; i++ )
-		fprintf(out, "%ld ", array[i]);
-	if(n) fprintf(out, "%ld", array[n-1]);
-	fprintf(out, "\n");
-	return ;
-}
-
 void long_matrix_write(FILE *out, long **mat, int n, int m){
 	int i;
 	for( i = 0 ; i < n ; i++ )
@@ -329,17 +511,6 @@ long **long_matrix_read(FILE *in, long **mat, int n, int m){
 		mat[i] = long_array_read(in, mat[i], m);
 	
 	return mat;
-}
-
-void long_array_fprint(FILE *out, long *array, int n){
-	int i;
-	fprintf(out, "[");
-	for( i = 0 ; i < n-1 ; i++ )
-		fprintf(out, "%ld, ", array[i]);
-	if(n) fprintf(out, "%ld", array[n-1]);
-	fprintf(out, "]\n");
-	
-	return;
 }
 
 void **long_matrix_fprint(FILE *out, long **mat, int n, int m){
@@ -371,10 +542,6 @@ long long_matrix_get_max(long **mat, int n, int m){
 				max = mat[i][j];
 
 	return max;
-}
-
-void long_array_free(long *array){
-	free(array);
 }
 
 void long_matrix_free(long **mat, int n){
@@ -564,20 +731,6 @@ void long_matrix_zimpl_print(FILE *fout, long **mat, int nlin, int ncol){
 }
 
 /*
- * Prints a longint array on the ZIMPL MIP modeling language format.
- *   fout  - output FILE
- *   n	 - number of elements on array
- *   array - the longint array */
-void long_array_zimpl_print(FILE *fout, long *array, int n){
-	int i;
-	for( i = 0 ; i < n-1 ; i++ )
-		fprintf(fout, "<%d> %ld,\n", i+1, array[i]);
-	fprintf(fout, "<%d> %ld;\n", i+1, array[n-1]);
-
-	return;
-}
-
-/*
  * Parses a list of integers (format exemplified below) returning its array of integer.
  *   If the input string is not well formates, returns NULL.
  *   Ex.: "[1,2,3,4]"
@@ -687,6 +840,12 @@ void assert_faccess(char *filename, int mode){
 	if(access(filename, mode))
 		error("Could not %s file %s.\n",
 			mode == W_OK ? "write" : "read", filename);
+	return;
+}
+
+void debug(char *msg){
+	fprintf(stderr, "%s", msg);
+	fflush(stderr);
 	return;
 }
 

@@ -11,16 +11,17 @@
 #define MIN(x, y) (x < y ? x : y)
 
 inline void SWAP_LONG(long *array, int a, int b);
+inline void SWAP_LONG_LONG(long long *array, int a, int b);
 
 /* INT ARRAY */
-int *int_array_malloc(int n);                      /* mallocs a int array*/
+int *int_array_malloc(int n);                    /* mallocs a int array*/
 int *int_array_read(FILE *in, int *array, int n);
 void int_array_write(FILE *out, int *array, int n);
 int *int_array_init(int *array, int n, int x);   /* init int array */
 int *int_array_copy(int *dest, int *src, int n); /* copy a int array */
 void *int_array_fprint(FILE *out, int *array, int n);
 void int_array_free(int *array);
-int int_array_max(int *array, int n);         /* max number on array */
+int int_array_max(int *array, int n);            /* max number on array */
 int *int_array_random(int n, int *array, int bound);
 int int_array_is_sorted(int *array, int n);
 int *int_array_qsort(int *array, int n);
@@ -38,6 +39,20 @@ long long_array_max(long *array, int n);         /* max number on array */
 long *long_array_random(int n, long *array, long bound);
 int long_array_is_sorted(long *array, int n);
 long *long_array_qsort(long *array, int n);
+
+/* LONG LONG ARRAY */
+long long *long_long_array_malloc(int n);                      /* mallocs a long array*/
+long long *long_long_array_read(FILE *in, long long *array, int n);
+void long_long_array_write(FILE *out, long long *array, int n);
+long long *long_long_array_init(long long *array, int n, long long x);   /* init long array */
+long long *long_long_array_copy(long long *dest, long long *src, int n); /* copy a long array */
+void long_long_array_write(FILE *out, long long *array, int n);
+void long_long_array_fprint(FILE *out, long long *array, int n);
+void long_long_array_free(long long *array);
+long long long_long_array_max(long long *array, int n);         /* max number on array */
+long long *long_long_array_random(int n, long long *array, long long bound);
+int long_long_array_is_sorted(long long *array, int n);
+long long *long_long_array_qsort(long long *array, int n);
 
 /* LONG MATRIX*/
 long **long_matrix_malloc(int n, int m);
@@ -118,6 +133,7 @@ void gunzip(FILE *in, FILE *out);
 void unimplemented();
 void error(const char* format, ...);
 void assert_faccess(char *filename, int mode);
+void debug(char *msg);
 
 #endif
 

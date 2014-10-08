@@ -6,7 +6,7 @@
 
 void print_usage(int argc, char **argv){
 	printf("Generates a random instance of MKP (n, m).\n");
-	printf(" usage %s <n> <m> [beta=0.5] [seed=<msecs>] [max_coeficient=%d]\n", argv[0], MAX_COEFFICIENT);
+	printf(" usage: %s <n> <m> [beta=0.5] [seed=<msecs>] [max_coeficient=%d]\n", argv[0], MAX_COEFFICIENT);
 	printf("   n: number of itens;\n");
 	printf("   n: number of dimensions;\n");
 	printf("   beta: tightness of knapsack (total itens weight/knapsack capacity);\n");
