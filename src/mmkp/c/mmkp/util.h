@@ -13,6 +13,8 @@
 inline void SWAP_LONG(long *array, int a, int b);
 inline void SWAP_LONG_LONG(long long *array, int a, int b);
 
+void findent(FILE *fout, int times, char c);
+
 /* INT ARRAY */
 int *int_array_malloc(int n);                    /* mallocs a int array*/
 int *int_array_read(FILE *in, int *array, int n);
@@ -53,6 +55,10 @@ long long long_long_array_max(long long *array, int n);         /* max number on
 long long *long_long_array_random(int n, long long *array, long long bound);
 int long_long_array_is_sorted(long long *array, int n);
 long long *long_long_array_qsort(long long *array, int n);
+int *long_long_array_count_digits(long long *array, int n);
+
+/* INT MATRIX */
+int *int_matrix_max_cols(int **mat, int n, int m); /* max elems of EACH COLUMN */
 
 /* LONG MATRIX*/
 long **long_matrix_malloc(int n, int m);
@@ -64,8 +70,8 @@ void **long_matrix_fprint(FILE *out, long **mat, int n, int m);
 void **long_matrix_fprint_tranlated(FILE *out, long **mat, int n, int m);
 void long_matrix_free(long **mat, int n);
 long long_matrix_max(long **mat, int n, int m);      /* max number on matrix */
-long long_matrix_max_col(long **mat, int n, int m, int col); /* max elem of column */
-long long_matrix_max_lin(long **mat, int n, int m, int lin); /* max elem of line */
+long long_matrix_max_col(long **mat, int n, int m, int col); /* max elem of given column */
+long long_matrix_max_lin(long **mat, int n, int m, int lin); /* max elem of given line */
 
 /* ABSTRACT ARRAY */
 typedef struct Array{
@@ -84,6 +90,7 @@ void array_free(Array *a);
 
 /* RANDOM NUMBERs */
 long lrand(long bound);
+long long llrand(long long bound);
 double drand();
 //double normal_dist();
 double *random_normalized_double_array(int n);

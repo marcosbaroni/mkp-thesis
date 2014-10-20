@@ -3,6 +3,7 @@
 #include <string.h>
 #include "mmkp/util.h"
 #include "mmkp/ssum.h"
+#include "mmkp/kp.h"
 
 void teste_qsort(){
 	long *a;
@@ -57,8 +58,23 @@ void teste_ssum_backtrack(int argc, char **argv){
 	return;
 }
 
-int main(int argv, char **argc){
-	teste_ssum_backtrack(argv, argc);
+void test_kp_fprintf(int argc, char** argv){
+	KP *kp;
+
+	srand(time(NULL));
+
+	kp = kp_new_random(10, 0.6, 1000);
+	kp = kp_qsort_by_density(kp);
+	kp_fprintf(stdout, kp);
+
+	kp_free(kp);
+
+	return;
+}
+
+int main(int argc, char **argv){
+	//teste_ssum_backtrack(argc, argv);
+	test_kp_fprintf(argc, argv);
 
 	return 0;
 }

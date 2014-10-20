@@ -4,18 +4,21 @@
 #include "util.h"
 
 typedef struct KP{
-	int n;
-	long long *w;
-	long long *p;
-	long long b;
+	int n;           /* n. of itens */
+	long long *w;    /* weight of itens*/
+	long long *p;    /* profit of itens*/
+	long long b;     /* capacity */
+	double *density; /* "profit density" of itens */
 }KP;
 
+KP *kp_new_random(int n, double tightness, long long bound);
 KP *kp_read_file(char *filename);
 KP *kp_read(FILE *in);
 void kp_write(FILE *out, KP *kp);
 void kp_free(KP *kp);
 void kp_fprintf(FILE *out, KP *kp);
 void kp_to_zimpl(FILE *out, KP *kp);
+KP *kp_qsort_by_density(KP *kp);
 
 /* SubSet-Sum Solution */
 typedef struct KPSol{
@@ -25,17 +28,18 @@ typedef struct KPSol{
 	long long p;      /* current total profit */
 	long long b_left; /* units left to sum (0, if "complete" solution) */
 	KP *kp;
-}KP;
+}KPSol;
 
-KPSol *ssumsol_read_file(char *filename);
-KPSol *ssumsol_read(FILE *in);
-KPSol *ssumsol_new_empty(KP *kp);
-KPSol *ssumsol_new(SSum *ssum, int *x);
-void ssumsol_write(FILE *in, KPSol *kpsol);
-void ssumsol_free(KPSol *kpsol);
-void ssumsol_fprint(FILE *out, KPSol *kpsol);
+KPSol *kpsol_read_file(char *filename);
+KPSol *kpsol_read(FILE *in);
+KPSol *kpsol_new_empty(KP *kp);
+KPSol *kpsol_new(KP *kp, int *x);
+void kpsol_write(FILE *in, KPSol *kpsol);
+void kpsol_free(KPSol *kpsol);
+void kpsol_fprint(FILE *out, KPSol *kpsol);
 
 /* Enumerate all KP solutions (backtrack alg) */
 Array *kp_backtrack(KP *kp, int enumerate);
+
 #endif
 

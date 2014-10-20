@@ -3,9 +3,16 @@
 #include <sys/time.h>
 #include <stdarg.h>
 #include <string.h>
+#include <math.h>
 #include "util.h"
 
 #define ISNUM(c) ( (c > 47) && (c < 58) )
+
+void findent(FILE *fout, int times, char c){
+	while( times-- )
+		fprintf(fout, "%c", c);
+	return;
+}
 
 inline void SWAP_LONG(long *array, int a, int b){
 	long aux;
@@ -263,9 +270,9 @@ int long_array_partition(long *array, int a, int b){
 		while( array[++i] < pivot ) if( i == b ) break;
 		while( pivot < array[--j] ) if( j == a ) break;
 		if( i >= j ) break;            /* Crossed? */
-		SWAP_LONG(array, i, j);        /* swap */
+		SWAP_LONG(array, i, j);        /* swap i-j */
 	}
-	SWAP_LONG(array, j, a);     /* place pivot */
+	SWAP_LONG(array, j, a);     /* place pivot (swap j-a) */
 
 	return j;
 }
@@ -439,6 +446,44 @@ void long_long_array_zimpl_print(FILE *fout, long long *array, int n){
 	return;
 }
 
+/*
+ * Count the digits for each number on array.
+ * (This is a helper for pretty printers)
+ *
+ * Ex.: input: [0, 13, 2, 24, 1904, 013, 3442]
+ *     output: [1, 2, 1, 2, 3, 2, 4]
+ */
+int *long_long_array_count_digits(long long *array, int n){
+	int i;
+	int *digits;
+
+	digits = (int*)malloc(n*sizeof(int));
+	for( i = 0 ; i < n ; i++){
+		digits[i] = logl(((double)array[i]+1))/log(10);
+	}
+
+	return digits;
+}
+
+/*******************************************************************************
+ *                                INT MATRIX                                   *
+*******************************************************************************/
+/* Return max elems of EACH COLUMN. */
+int *int_matrix_max_cols(int **mat, int n, int m){
+	int i, j, max, *maxs;
+
+	maxs = (int*)malloc(m*sizeof(int));
+
+	for( i = 0 ; i < m ; i++ ){
+		max = -32760;
+		for( j = 0 ; j < n ; j++ )
+			if( mat[j][i] > max )
+				max = mat[j][i];
+		maxs[i] = max;
+	}
+
+	return maxs;
+}
 
 /*******************************************************************************
  *                                LONG MATRIX                                  *
