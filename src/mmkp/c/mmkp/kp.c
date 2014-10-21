@@ -233,7 +233,22 @@ Array *kp_backtrack(KP *kp, int enumerate){
 				if( x[0] == 0 )
 					break;
 		if( backtrack ){
+			/* if is setted  */
+			if( x[i] > 0){
+				x[i] = 0;
+				b_left += w[i];
+				profit -= p[i];
+				backtrack = 0;
+				/* if fixed variable was the last available */
+				if( i+1 == n ){
+					backtrack = 1;
+					/* find the immediately not fixed var to mark as backtrack */
+					while( x[i] == 0 && i ) i--;
+				}else i++;
+			}else i--;
+		/* drilling down the tree */
 		}else{
+			/* if child is feasible */
 			if( w[i] <= b_left ){
 				x[i] = 1;
 				b_left -= w[i];
@@ -245,8 +260,7 @@ Array *kp_backtrack(KP *kp, int enumerate){
 					array_empty(sols);
 					array_insert(kpsol_new(kp, x));
 				}
-				/* TODO */
-			}else{
+			/* TODO */
 			}
 		}
 	}

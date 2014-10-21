@@ -251,7 +251,7 @@ Array *ssum_backtrack(SSum *ssum, int enumerate){
 				x[i] = 0;
 				b_left += w[i];
 				backtrack = 0;
-				/* if fixed variable was the last one... */
+				/* if fixed variable was the last available */
 				if( i+1 == n){
 					backtrack = 1;
 					/* find the immediately not fixed var to mark as backtrack*/
