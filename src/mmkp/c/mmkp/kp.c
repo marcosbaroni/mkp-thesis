@@ -169,3 +169,88 @@ KP *kp_qsort_by_density(KP *kp){
 	return kp;
 }
 
+KPSol *kpsol_new_empty(KP *kp){
+	KPSol *kpsol;
+
+	kpsol = (KPSol*)malloc(sizeof(KPSOL));
+	kpsol->x = (int*)malloc(kp->n*sizeof(int));
+	kpsol->sel = (int*)malloc(kp->n*sizeof(int));
+	kpsol->nx = 0;
+	kpsol->p = 0;
+	kpsol->b_left = kp->b;
+	kpsol->kp = kp;
+
+	return kpsol;
+}
+
+KPSol *kpsol_new(KP *kp, int *x){
+	int i, n;
+	KPSol *kpsol;
+
+	n = kp->n;
+	kpsol = kpsol_new_empty(kp);
+
+	for( i = 0 ; i < n ; i++ ){
+		if( x[i] ){
+			kpsol->x[i] = 1;
+			kpsol->sel[kpsol->nx++] = i;
+			kpsol->p += kp->p[i];
+			kpsol->b_left -= kp->w[i];
+		}
+	}
+
+	return kpsol;
+}
+
+/* Enumerate all KP solutions (backtrack alg) */
+Array *kp_backtrack(KP *kp, int enumerate){
+	int i, n, backtrack, *x;
+	long long *w, *p, b, b_left, profit, best_profit;
+	double *dens;
+	Array *sols;
+
+	/* problem variables */
+	n = kp->n;
+	w = kp->w;
+	p = kp->p;
+	b = kp->b;
+	dens = kp->density;
+	/* auxiliary */
+
+	/* solution */
+	x = (int)malloc(n*sizeof(int));
+	sols = array_new();
+	b_left = b;
+	profit = 0;
+
+	backtrack = 0;
+	i = 0;
+	/* search! */
+	while( 1 ){
+		/* root reached? */
+		if( i == 0 )
+			if( backtrack )
+				if( x[0] == 0 )
+					break;
+		if( backtrack ){
+		}else{
+			if( w[i] <= b_left ){
+				x[i] = 1;
+				b_left -= w[i];
+				profit += p[i];
+				/* if node is solution */
+				if( profit > best_profit ){
+					/* clean solutions */
+					array_apply(sols, kpsol_free);
+					array_empty(sols);
+					array_insert(kpsol_new(kp, x));
+				}
+				/* TODO */
+			}else{
+			}
+		}
+	}
+
+	return sols;
+}
+

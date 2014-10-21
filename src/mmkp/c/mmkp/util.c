@@ -618,7 +618,7 @@ void *array_get(Array *array, int i){
 	return array->a[i];
 }
 
-void array_applay(Array *a, void(*apl_f)(void*)){
+void array_apply(Array *a, void(*apl_f)(void*)){
 	int i;
 	for( i = 0 ; i < a->n ; i++ )
 		apl_f(a->a[i]);
@@ -634,6 +634,11 @@ Array *array_insert(Array *array, void *elem){
 	array->n++;
 
 	return array;
+}
+
+Array *array_empty(Array *a){
+	a->n = 0;
+	return a;
 }
 
 void array_free(Array *a){

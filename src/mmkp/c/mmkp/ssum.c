@@ -221,17 +221,20 @@ Array *ssum_backtrack(SSum *ssum, int enumerate){
 	n = ssum->n;
 	w = ssum->w;
 
+	/* solution */
 	x = (int*)malloc(n*sizeof(int));
 	for( i = 0 ; i < n ; i ++ )
 		x[i] = 0;
 
+	/* empty solution */
 	sum = 0;
 	b_left = ssum->b;
 
+	/* first element on sum */
 	x[0] = 1;
 	b_left -= w[0];
-	i = 1;
-	backtrack = 0;
+	backtrack = 0; /* not backtracking (attempting push of variables) */
+	i = 1;         /* attempting the push of second variable */
 	ssum_fprint(stdout, ssum);
 	/* Perform backtrack search */
 	while( 1 ){

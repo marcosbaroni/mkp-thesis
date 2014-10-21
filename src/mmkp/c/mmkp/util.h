@@ -84,8 +84,9 @@ Array *array_new();
 int array_get_size(Array *array);
 void *array_get_array(Array *array);
 void *array_get(Array *array, int i);
-void array_applay(Array *a, void(apl_f)(void*));
+void array_apply(Array *a, void(apl_f)(void*));
 Array *array_insert(Array *a, void *elem);
+Array *array_empty(Array *a);
 void array_free(Array *a);
 
 /* RANDOM NUMBERs */
