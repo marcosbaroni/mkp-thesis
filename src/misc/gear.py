@@ -78,58 +78,135 @@ propTypes = [
 
 #####################################################
 # Items types
-# (<acronym>, <name of item>, <standart list of properties>)
+# (<acronym>, <name of item>, <standard list of properties>)
+#
+#   <standard list of properties>:
+#     (<type acronym>, <hi>, <lo>)
 #####################################################
 itensTypes = [
 	("HE","Helm", [
+		("PA", , ),
+		("CC", , ),
+		("AR", , ),
+		(),
 		(),
 		(),
 		()]),
 	("PA","Pauldrons", [
+		("PA", , ),
+		("VT", , ),
+		(),
+		(),
 		(),
 		(),
 		()]),
 	("AM","Amulet", [
+		("PA", , ),
+		("VT", , ),
+		(),
+		(),
+		(),
+		(),
 		(),
 		(),
 		()]),
 	("CH","Chest", [
+		("PA", , ),
+		("VT", , ),
+		(),
+		(),
+		(),
+		(),
 		(),
 		(),
 		()]),
 	("BR","Bracer", [
+		("PA", , ),
+		("VT", , ),
+		(),
+		(),
+		(),
+		(),
 		(),
 		(),
 		()]),
 	("GL","Glove", [
+		("PA", , ),
+		("VT", , ),
+		(),
+		(),
+		(),
+		(),
 		(),
 		(),
 		()]),
 	("BE","Belt", [
+		("PA", , ),
+		("VT", , ),
+		(),
+		(),
+		(),
+		(),
 		(),
 		(),
 		()]),
 	("R1","Ring1", [
+		("PA", , ),
+		("VT", , ),
+		(),
+		(),
+		(),
+		(),
 		(),
 		(),
 		()]),
 	("R2","Ring2", [
+		("PA", , ),
+		("VT", , ),
+		(),
+		(),
+		(),
+		(),
 		(),
 		(),
 		()]),
 	("PA","Pants", [
+		("PA", , ),
+		("VT", , ),
+		(),
+		(),
+		(),
+		(),
 		(),
 		(),
 		()]),
 	("WE","Weapon", [
+		("PA", , ),
+		("VT", , ),
+		(),
+		(),
+		(),
+		(),
 		(),
 		(),
 		()]),
 	("OF","Offhand", [
+		("PA", , ),
+		("VT", , ),
+		(),
+		(),
+		(),
+		(),
 		(),
 		(),
 		()]),
 	("BO","Boots", [
+		("PA", , ),
+		("VT", , ),
+		(),
+		(),
+		(),
+		(),
 		(),
 		(),
 		()])
@@ -141,27 +218,89 @@ itensTypes = [
 class Status:
 	def __init__(self):
 		# base status
-		self.pattri = 0    # Primary attributes
-		self.vitaly = 0    # Vitality
-		self.lifepc = 1.0  # Life %
-		self.crithc = 0.05 # Critical Hit Chance
-		self.crithd = 0.5  # Critial Hit Damage
-		self.atcksp = 1.0  # Increased Attack Speed
-		self.killxp = 0    # Kill Experience
-		self.goldfd = 0    # Gold Find
-		self.eledmg = 1.0  # Elemental Damage
-		self.skldmg = 1.0  # Skill Damage
-		self.allres =      # All Resistance
-		self.armorr = 0    # Armor
-		self.basdmg = 0    # Base Damage
+		self.pattri = None # Primary attributes
+		self.vitaly = None # Vitality
+		self.lifepc = None # Life %
+		self.crithc = None # Critical Hit Chance
+		self.crithd = None # Critial Hit Damage
+		self.atcksp = None # Increased Attack Speed
+		self.killxp = None # Kill Experience
+		self.goldfd = None # Gold Find
+		self.eledmg = None # Elemental Damage
+		self.skldmg = None # Skill Damage
+		self.allres = None # All Resistance
+		self.armorr = None # Armor
+		self.basdmg = None # Base Damage
+
 		# metrics
-		self.dmg = 0       # Damage
-		self.sdm = 1.0     # Skill Damage
+		self.dmg = 0       # Damage (DPS)
 		self.edm = 1.0     # Elemental Damage
-		self.mdm = 1.0     # Skill+Elemental Damage
-		self.ats = 1.0     # Hits per Seconds
-		self.tgs = 0       # Toughness
+		self.sdm = 1.0     # Skill Damage (Ex.: Fetish Army)
+		self.mdm = 1.0     # Skill+Elemental Damage (Ex.: Poison Skills)
 		self.htp = 0       # HitPoints
+		self.tgs = 0       # Toughness
+
+	# Initialize the atributes based on "naked/fixed" status
+	def stdInitialize():
+		# Initial (Lvl 70 Char)
+		self.pattri = 40    # Primary attributes
+		self.vitaly = 40    # Vitality
+		self.lifepc = 1.0   # Life %
+		self.crithc = 0.05  # Critical Hit Chance
+		self.crithd = 0.5   # Critial Hit Damage
+		self.atcksp = 1.0   # Increased Attack Speed
+		self.killxp = 0     # Kill Experience
+		self.goldfd = 1.0   # Gold Find
+		self.eledmg = 1.0   # Elemental Damage
+		self.skldmg = 1.0   # Skill Damage
+		self.allres = 10    # All Resistance    <----   TODO add resist from intelig
+		self.armorr = 10    # Armor
+		self.basdmg = 1     # Base Damage
+	
+		# From Paragon Points
+		self.pattri += 0    # Primary attributes
+		self.vitaly += 0    # Vitality
+		self.lifepc += 0.0  # Life %
+		self.crithc += 0.0  # Critical Hit Chance
+		self.crithd += 0.5  # Critial Hit Damage
+		self.atcksp += 0.2  # Increased Attack Speed
+		self.killxp += 0    # Kill Experience
+		self.goldfd += 0.0  # Gold Find
+		self.allres += 0    # All Resistance
+		self.armorr += 0    # Armor
+	
+		# From Sockets
+		self.pattri += 260*(3+2)  # from chest and pants
+		self.lifepc += .23        # from helm
+
+		# From Armor pieces
+		aq = 0.5 # armors quality
+		#              min                       max
+		self.armorr += 660*(1-aq) + aq*759 # from helm
+		self.armorr += 586*(1-aq) + aq*674 # from pauldrons
+		self.armorr += 660*(1-aq) + aq*759 # from chest
+		self.armorr += 366*(1-aq) + aq*421 # from bracer
+		self.armorr += 513*(1-aq) + aq*590 # from gloves
+		self.armorr += 440*(1-aq) + aq*506 # from belt
+		self.armorr += 660*(1-aq) + aq*759 # from pants
+		self.armorr += 513*(1-aq) + aq*590 # from boots
+
+	# Compute metrics values
+	def recompute(self):
+		self.dmg =
+			self.basdmg \                       # base
+			*(self.pattri/100 +1) \             # primary attr
+			*self.atcksp \                      # attack speed
+			*(1 + self.crithc*self.crithd)      # critical
+		self.edm = self.dmg*(1+self.eledmg)
+		self.sdm = self.dmg*(1+self.skldmg)
+		self.mdm = self.edm*(1+self.skldmg)
+		self.htp = self.vitaly*4*self.lifepc    # TODO: check hp/vit rate
+		self.tgs =
+			self.htp \                          # hit points
+			*(self.armorr/(self.armorr+3500)) \ # armor
+			*(self.allres/(self.allres+350))    # all resist
+
 
 #####################################################
 # An item instance.
@@ -202,3 +341,13 @@ class Property:
 	def removeProp(self):
 		setattr(self.status, getattr(self.status, self.attrname) - self.value)
 
+
+#####################################################
+# Main
+#####################################################
+def main():
+	status = Status()
+	status.stdInitialize()  # set standard initial status
+
+if __name__ == '__main__':
+	main()
