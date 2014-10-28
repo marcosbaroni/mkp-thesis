@@ -95,6 +95,7 @@ void int_array_write(FILE *out, int *array, int n){
 
 int *int_array_init(int *array, int n, int x){
 	int i;
+	if(!array) array = (int*)malloc(n*sizeof(int));
 	for( i = 0 ; i < n ; i++ )
 		array[i] = x;
 

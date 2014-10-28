@@ -202,10 +202,24 @@ KPSol *kpsol_new(KP *kp, int *x){
 	return kpsol;
 }
 
+/*
+ * Computes solution of LP Relaxation.  */
+long long lp_bound(
+	long long *w,     /* weight of itens */
+	long long *p,     /* profit of itens */
+	int k,            /* last fixed item */
+	long long b_left, /* capacity left */
+	int *x){          /* current node (solution) */
+	int i;
+	i = k+1;
+	while();
+}
+
 /* Enumerate all KP solutions (backtrack alg) */
 Array *kp_backtrack(KP *kp, int enumerate){
 	int i, n, backtrack, *x;
 	long long *w, *p, b, b_left, profit, best_profit;
+	double lp_profit;
 	double *dens;
 	Array *sols;
 
@@ -218,7 +232,7 @@ Array *kp_backtrack(KP *kp, int enumerate){
 	/* auxiliary */
 
 	/* solution */
-	x = (int)malloc(n*sizeof(int));
+	x = int_array_init(NULL, n, 0);
 	sols = array_new();
 	b_left = b;
 	profit = 0;
@@ -264,6 +278,8 @@ Array *kp_backtrack(KP *kp, int enumerate){
 			}
 		}
 	}
+
+	free(x);
 
 	return sols;
 }
