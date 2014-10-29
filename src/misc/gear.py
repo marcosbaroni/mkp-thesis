@@ -53,170 +53,144 @@
 # - Offhand
 # - Boots
 #####################################################
-from enum import Enum
-Animal = Enum('Animal', 'ant bee cat dog')
+
+def fst(x): x[0]
+def snd(x): x[1]
 
 #####################################################
 # Properties types
-# (<acronym>, <name of property>, <status attribute modified>)
+# {<acronym>: (<name of property>, <status attribute modified>)}
 #####################################################
-propTypes = [
-	("PA", "Primary attributes", 'pattri'),
-	("VT", "Vitality", 'vitaly'),
-	("LF", "Life %", 'lifepc'),
-	("CC", "Critical Hit Chance", 'crithc'),
-	("CD", "Critial Hit Damage", 'crithd'),
-	("AS", "Increased Attack Speed", 'atcksp'),
-	("KE", "Kill Experience", 'killxp'),
-	("GF", "Gold Find", 'goldfd'),
-	("ED", "Elemental Damage", 'eledmg'),
-	("SD", "Skill Damage", 'skldmg'),
-	("AR", "All Resistance", 'allres'),
-	("AM", "Armor", 'armorr'),
-	("BD", "Base Damage", 'basdmg')
-]
+propTypes = {
+	"AM": ("Armor", 'armorr'),
+	"AR": ("All Resistance", 'allres'),
+	"AS": ("Increased Attack Speed", 'atcksp'),
+	"BD": ("Base Damage", 'basdmg'),
+	"CC": ("Critical Hit Chance", 'crithc'),
+	"CD": ("Critial Hit Damage", 'crithd'),
+	"ED": ("Elemental Damage", 'eledmg'),
+	"GF": ("Gold Find", 'goldfd'),
+	"KE": ("Kill Experience", 'killxp'),
+	"LF": ("Life %", 'lifepc'),
+	"PA": ("Primary attributes", 'pattri'),
+	"SD": ("Skill Damage", 'skldmg'),
+	"VT": ("Vitality", 'vitaly')
+}
+propTypesDic = propTypes
 
 #####################################################
 # Items types
-# (<acronym>, <name of item>, <standard list of properties>)
+# (<acronym>, <name of item>, <num of free properties>, <standard list of properties>)
 #
 #   <standard list of properties>:
 #     (<type acronym>, <hi>, <lo>)
 #####################################################
 itensTypes = [
-	("HE","Helm", [
-		("PA", , ),
-		("CC", , ),
-		("AR", , ),
-		(),
-		(),
-		(),
-		()]),
-	("PA","Pauldrons", [
-		("PA", , ),
-		("VT", , ),
-		(),
-		(),
-		(),
-		(),
-		()]),
-	("AM","Amulet", [
-		("PA", , ),
-		("VT", , ),
-		(),
-		(),
-		(),
-		(),
-		(),
-		(),
-		()]),
-	("CH","Chest", [
-		("PA", , ),
-		("VT", , ),
-		(),
-		(),
-		(),
-		(),
-		(),
-		(),
-		()]),
-	("BR","Bracer", [
-		("PA", , ),
-		("VT", , ),
-		(),
-		(),
-		(),
-		(),
-		(),
-		(),
-		()]),
-	("GL","Glove", [
-		("PA", , ),
-		("VT", , ),
-		(),
-		(),
-		(),
-		(),
-		(),
-		(),
-		()]),
-	("BE","Belt", [
-		("PA", , ),
-		("VT", , ),
-		(),
-		(),
-		(),
-		(),
-		(),
-		(),
-		()]),
-	("R1","Ring1", [
-		("PA", , ),
-		("VT", , ),
-		(),
-		(),
-		(),
-		(),
-		(),
-		(),
-		()]),
-	("R2","Ring2", [
-		("PA", , ),
-		("VT", , ),
-		(),
-		(),
-		(),
-		(),
-		(),
-		(),
-		()]),
-	("PA","Pants", [
-		("PA", , ),
-		("VT", , ),
-		(),
-		(),
-		(),
-		(),
-		(),
-		(),
-		()]),
-	("WE","Weapon", [
-		("PA", , ),
-		("VT", , ),
-		(),
-		(),
-		(),
-		(),
-		(),
-		(),
-		()]),
-	("OF","Offhand", [
-		("PA", , ),
-		("VT", , ),
-		(),
-		(),
-		(),
-		(),
-		(),
-		(),
-		()]),
-	("BO","Boots", [
-		("PA", , ),
-		("VT", , ),
-		(),
-		(),
-		(),
-		(),
-		(),
-		(),
-		()])
+	("HE","Helm", 3, [  # +socket
+		("AM", 373, 595),
+		("AR", 91, 100),
+		("CC", 4.5, 6.0),
+		("LF", 10, 15),
+		("PA", 626, 750),
+		("VT", 626, 750)]),
+	("PA","Pauldrons", 4, [
+		("AM", 373, 397),
+		("AR", 91, 100),
+		("LF", 10, 15),
+		("PA", 416, 500),
+		("SD", 10, 15),
+		("VT", 416, 500)]),
+	("AM","Amulet", 3, [  # +socket
+		("AM", 559, 595),
+		("AR", 91, 100),
+		("BD", 70, 140),
+		("CC", 8, 10),
+		("CD", 51, 100),
+		("ED", 15, 20),
+		("LF", 14, 18),
+		("PA", 626, 750),
+		("VT", 626, 750)]),
+	("CH","Chest", 3, [ # +socket
+		("AM", 373, 397),
+		("LF", 10, 15),
+		("PA", 416, 500),
+		("SD", 10, 15),
+		("VT", 416, 500)]),
+	("BR","Bracer", 4, [
+		("AM", 373, 397),
+		("AR", 91, 100),
+		("AS", 5, 7),
+		("CD", 26, 50),
+		("LF", 10, 15),
+		("PA", 416, 500),
+		("VT", 416, 500)]),
+	("GL","Glove", 4, [
+		("AM", 373, 397),
+		("AS", 5, 7),
+		("CC", 8, 10),
+		("CD", 26, 50),
+		("PA", 626, 750),
+		("VT", 626, 750)]),
+	("BE","Belt", 4, [
+		("AM", 373, 397),
+		("AR", 91, 100),
+		("AS", 5, 7),
+		("CD", 26, 50),
+		("LF", 10, 15),
+		("PA", 416, 500),
+		("VT", 416, 500)]),
+	("R1","Ring1", 3, [ # +socket
+		("AM", 373, 397),
+		("AR", 91, 100),
+		("AS", 5, 7),
+		("BD", 70, 140),
+		("CC", 4.5, 6.0),
+		("CD", 25, 50),
+		("LF", 10, 15),
+		("PA", 416, 500),
+		("VT", 416, 500)]),
+	("R2","Ring2", 3, [ # +socket
+		("AM", 373, 397),
+		("AR", 91, 100),
+		("AS", 5, 7),
+		("BD", 70, 140),
+		("CC", 4.5, 6.0),
+		("CD", 25, 50),
+		("LF", 10, 15),
+		("PA", 416, 500),
+		("VT", 416, 500)]),
+	("PA","Pants", 3, [ # +socket
+		("AM", 373, 595),
+		("ED", 15, 20),
+		("PA", 416, 500),
+		("VT", 416, 500)]),
+	("WE","Weapon", 3, [   # +Sckt +%Dmg
+		("AS", 5, 7),  # Dmg against elite (5.0 - 8.0)
+		("PA", 626, 750),
+		("VT", 626, 750)]),
+	("OF","Offhand", 4, [ # +dmg
+		("CC", 8, 10), # Dmg against elite (5.0 - 8.0)
+		("LF", 10, 15),
+		("PA", 626, 750),
+		("SD", 10, 15),
+		("VT", 626, 750)]),
+	("BO","Boots", 3, [ # +mov speed
+		("AM", 373, 397),
+		("PA", 416, 500),
+		("VT", 416, 500)]),
 ]
+itensTypesDic = dict(zip([fst(x) for x in itensTypes], [snd(x) for x in itensTypes]))
 
 #####################################################
 # The Status instance
 #####################################################
 class Status:
 	def __init__(self):
+		# itens from gear
+		self.gear = {}
+		for (ac, name, maxprop, props) in itensTypes:
+			self.gear[ac] = Item(name, maxprop, props, self)
+
 		# base status
 		self.pattri = None # Primary attributes
 		self.vitaly = None # Vitality
@@ -241,10 +215,10 @@ class Status:
 		self.tgs = 0       # Toughness
 
 	# Initialize the atributes based on "naked/fixed" status
-	def stdInitialize():
+	def stdInitialize(self):
 		# Initial (Lvl 70 Char)
-		self.pattri = 40    # Primary attributes
-		self.vitaly = 40    # Vitality
+		self.pattri = 77    # Primary attributes
+		self.vitaly = 77    # Vitality
 		self.lifepc = 1.0   # Life %
 		self.crithc = 0.05  # Critical Hit Chance
 		self.crithd = 0.5   # Critial Hit Damage
@@ -270,7 +244,7 @@ class Status:
 		self.armorr += 0    # Armor
 	
 		# From Sockets
-		self.pattri += 260*(3+2)  # from chest and pants
+		self.pattri += 280*(3+2)  # from chest and pants
 		self.lifepc += .23        # from helm
 
 		# From Armor pieces
@@ -285,21 +259,45 @@ class Status:
 		self.armorr += 660*(1-aq) + aq*759 # from pants
 		self.armorr += 513*(1-aq) + aq*590 # from boots
 
+		# From Dex and Str
+		self.armorr += 77*2
+
+		# From weapon
+		self.basdmg += 412   # TODO: set right value of weapon base damage
+
 	# Compute metrics values
 	def recompute(self):
-		self.dmg =
-			self.basdmg \                       # base
-			*(self.pattri/100 +1) \             # primary attr
-			*self.atcksp \                      # attack speed
-			*(1 + self.crithc*self.crithd)      # critical
-		self.edm = self.dmg*(1+self.eledmg)
-		self.sdm = self.dmg*(1+self.skldmg)
-		self.mdm = self.edm*(1+self.skldmg)
-		self.htp = self.vitaly*4*self.lifepc    # TODO: check hp/vit rate
-		self.tgs =
-			self.htp \                          # hit points
-			*(self.armorr/(self.armorr+3500)) \ # armor
-			*(self.allres/(self.allres+350))    # all resist
+		# DPS
+		self.dmg = self.basdmg*self.atcksp            # base * attckSpeed
+		self.dmg *= (self.pattri/100 +1)              # primary attr
+		self.dmg *= (1 + self.crithc*self.crithd)     # critical
+
+		self.edm = self.dmg*(1+self.eledmg)           # elemental dmg
+		self.sdm = self.dmg*(1+self.skldmg)           # skill dmg
+		self.mdm = self.edm*self.skldmg               # elem+skill dmg
+		self.htp = 80*self.vitaly*self.lifepc         # hit points
+
+		# Toughness
+		self.tgs = self.htp                           # hit points
+		self.tgs *= (self.armorr/(self.armorr+3500))  # armor
+		self.tgs *= (self.allres/(self.allres+350))   # all resist
+	
+	def __str__(self):
+		s = " Status:\n"
+		s += " - Damage: " + str(self.dmg) + "\n"
+		s += "   - Crit. Hit Chance: " + str(self.crithc) + "%" + "\n"
+		s += "   - Crit. Hit Damage: +" + str(self.crithd) + "%" + "\n"
+		s += "   - Attack Speed: +" + str(self.atcksp) + "\n"
+		s += " - Toughness: " + str(self.tgs) + "\n"
+		s += "   - All Resist: " + str(self.allres) + "\n"
+		s += "   - Armor: " + str(self.armorr) + "\n"
+		s += " - HitPoints: " + str(self.htp) + "\n"
+		s += " - P. Attribute: " + str(self.pattri) + "\n"
+		s += " - Vitality: " + str(self.vitaly) + "\n"
+		s += " Gear:" + "\n"
+		for i in self.gear.values():
+			s += str(i) + "\n"
+		return s
 
 
 #####################################################
@@ -307,17 +305,40 @@ class Status:
 #  Ex.: Helm
 #####################################################
 class Item:
-	def __init__(self, name, maxprop, props):
+	#########################################################
+	# Contructor
+	#  name: Name of item
+	#  maxprop: max number of selected properties (int)
+	#  props: set of available properties [(<ac>, <lo>, <hi>)]
+	#########################################################
+	def __init__(self, name, maxprop, props, status):
 		self.name = name          # its name
-		self.maxprop = maxprops   # max number of properties
-		self.props = props        # list of available properties
+		self.maxprop = maxprop    # max number of properties
+		self. status = status     # status owning the item
+		self.props = {}
+		for (pac, lo, hi) in props:
+			name = propTypes[pac][0]
+			attrname = propTypes[pac][1]
+			self.props[pac] = Property(name, attrname, lo, hi, self)
+	
+	def __str__(self):
+		s = " - " + self.name + "\n"
+		s += "\n".join(["  - " + str(p) for p in self.props.values()])
+		return s
 
 #####################################################
 # An item property
 #  Ex.: +Vitality
 #####################################################
 class Property:
-	# Constructor
+	#########################################################
+	# Contructor
+	#  name: Name of property (string)
+	#  attrname: Name of attribute it modefies
+	#  lo: lowest value for the property
+	#  hi: highest value for the property
+	#  item: the item, owner of the property
+	#########################################################
 	def __init__(self, name, attrname, lo, hi, item):
 		self.name = name               # name of property
 		self.attrname = attrname       # name of the status attribute it modifies
@@ -340,7 +361,16 @@ class Property:
 	# Remove the property from status
 	def removeProp(self):
 		setattr(self.status, getattr(self.status, self.attrname) - self.value)
+	
+	def __str__(self):
+		return self.name + ": " + str(self.value)
 
+def Tabu(status):
+	# build move list
+	mvlist = []
+	for (iac, i) in status.gear.items:
+		for (pac, p) in i.props:
+			mvlist.add((iac, p.ac))
 
 #####################################################
 # Main
@@ -348,6 +378,9 @@ class Property:
 def main():
 	status = Status()
 	status.stdInitialize()  # set standard initial status
+	status.recompute()
+	print str(status)
 
 if __name__ == '__main__':
 	main()
+
