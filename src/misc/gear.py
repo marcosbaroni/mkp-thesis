@@ -269,7 +269,7 @@ class Status:
 	def recompute(self):
 		# DPS
 		self.dmg = self.basdmg*self.atcksp            # base * attckSpeed
-		self.dmg *= (self.pattri/100 +1)              # primary attr
+		self.dmg *= (self.pattri/100. +1)             # primary attr
 		self.dmg *= (1 + self.crithc*self.crithd)     # critical
 
 		self.edm = self.dmg*(1+self.eledmg)           # elemental dmg
@@ -279,24 +279,26 @@ class Status:
 
 		# Toughness
 		self.tgs = self.htp                           # hit points
-		self.tgs *= (self.armorr/(self.armorr+3500))  # armor
-		self.tgs *= (self.allres/(self.allres+350))   # all resist
+		self.tgs *= 1./(1. - self.armorr/(self.armorr+3500.))  # armor
+		self.tgs *= 1./(1. - self.allres/(self.allres+350.))   # all resist
 	
-	def __str__(self):
+	def __str__(self, print_gear=False):
 		s = " Status:\n"
-		s += " - Damage: " + str(self.dmg) + "\n"
-		s += "   - Crit. Hit Chance: " + str(self.crithc) + "%" + "\n"
-		s += "   - Crit. Hit Damage: +" + str(self.crithd) + "%" + "\n"
+		s += " - Damage: " + ("%.2f" % self.dmg) + "\n"
+		s += "   - P. Attribute: " + str(self.pattri) + "\n"
 		s += "   - Attack Speed: +" + str(self.atcksp) + "\n"
-		s += " - Toughness: " + str(self.tgs) + "\n"
+		s += "   - +Crit. Hit Chance: " + str(self.crithc) + "%" + "\n"
+		s += "   - +Crit. Hit Damage: +" + str(self.crithd*100.) + "%" + "\n"
+		s += " - Toughness: " + ("%.2f" % self.tgs) + "\n"
+		s += "   - HitPoints: " + ("%.0f" % self.htp) + "\n"
+		s += "   - Vitality: " + str(self.vitaly) + "\n"
+		s += "   - +Life%: " + ("%.2f" % self.lifepc) + "\n"
 		s += "   - All Resist: " + str(self.allres) + "\n"
-		s += "   - Armor: " + str(self.armorr) + "\n"
-		s += " - HitPoints: " + str(self.htp) + "\n"
-		s += " - P. Attribute: " + str(self.pattri) + "\n"
-		s += " - Vitality: " + str(self.vitaly) + "\n"
-		s += " Gear:" + "\n"
-		for i in self.gear.values():
-			s += str(i) + "\n"
+		s += "   - Armor: " + str("%.0f" % self.armorr) + "\n"
+		if print_gear:
+			s += " Gear:" + "\n"
+			for i in self.gear.values():
+				s += str(i) + "\n"
 		return s
 
 
@@ -314,13 +316,30 @@ class Item:
 	def __init__(self, name, maxprop, props, status):
 		self.name = name          # its name
 		self.maxprop = maxprop    # max number of properties
-		self. status = status     # status owning the item
+		self.status = status      # status owning the item
+		self.nActivedProps = 0    # current value of actived prop
+		self.propSelection = []
 		self.props = {}
 		for (pac, lo, hi) in props:
 			name = propTypes[pac][0]
 			attrname = propTypes[pac][1]
 			self.props[pac] = Property(name, attrname, lo, hi, self)
+		self.propActived = [False]*len(self.props)
 	
+	#########################################################
+	# Activate the given property.
+	#   pa: Property Acronym
+	#########################################################
+	def activateProp(self, pa):
+		
+
+	#########################################################
+	# Deactivate the given property.
+	#   pa: Property Acronym
+	#########################################################
+	def deactivateProp(self, pa):
+		pass
+
 	def __str__(self):
 		s = " - " + self.name + "\n"
 		s += "\n".join(["  - " + str(p) for p in self.props.values()])
