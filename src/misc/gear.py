@@ -53,6 +53,7 @@
 # - Offhand
 # - Boots
 #####################################################
+from random import randint
 
 def fst(x): x[0]
 def snd(x): x[1]
@@ -318,31 +319,46 @@ class Item:
 		self.maxprop = maxprop    # max number of properties
 		self.status = status      # status owning the item
 		self.nActivedProps = 0    # current value of actived prop
-		self.propSelection = []
 		self.props = {}
 		for (pac, lo, hi) in props:
 			name = propTypes[pac][0]
 			attrname = propTypes[pac][1]
-			self.props[pac] = Property(name, attrname, lo, hi, self)
-		self.propActived = [False]*len(self.props)
+			self.props[pac] = Property(pac, name, attrname, lo, hi, self)
 	
 	#########################################################
 	# Activate the given property.
-	#   pa: Property Acronym
+	#   pac: Property Acronym
 	#########################################################
-	def activateProp(self, pa):
-		
+	def activateProp(self, pac):
+		if not self.propActived[pac]:
+			self.prop[pac].applyProp()
+			self.nActivedProps += 1
+			self.propActived[pac] = True
 
 	#########################################################
 	# Deactivate the given property.
-	#   pa: Property Acronym
+	#   pac: Property Acronym
 	#########################################################
-	def deactivateProp(self, pa):
-		pass
+	def deactivateProp(self, pac):
+		if self.propActived[pac]:
+			self.prop[pac].removeProp()
+			self.nActivedProps -= 1
+			self.propActived[pac] = False
+
+	#########################################################
+	# Shuffle its actived properties.
+	#########################################################
+	def shuffleActivedProps(self):
+		for p in self.props.values:
+			if p.actived:
+				p.removeProp()
+				p.actived = False
+		np = len(self.props)
+		# TODO: shufle properties....
 
 	def __str__(self):
 		s = " - " + self.name + "\n"
-		s += "\n".join(["  - " + str(p) for p in self.props.values()])
+		s += "\n".join(["  - " + str(p) for p in self.props.values() if self.propActived[p.ac]])
 		return s
 
 #####################################################
@@ -358,7 +374,8 @@ class Property:
 	#  hi: highest value for the property
 	#  item: the item, owner of the property
 	#########################################################
-	def __init__(self, name, attrname, lo, hi, item):
+	def __init__(self, ac, name, attrname, lo, hi, item):
+		self.ac = ac                   # property acronym
 		self.name = name               # name of property
 		self.attrname = attrname       # name of the status attribute it modifies
 		self.lo = lo                   # lower possible value for the property
@@ -367,6 +384,7 @@ class Property:
 		self.value = lo                # the value of the property
 		self.item = item               # the item owner of the property
 		self.status = item.status      # the status instance
+		self.actived = False           # If property is actived on its item
 	
 	# Set the quality of property (how good it is)
 	def setQuality(self, quality=0.5):
@@ -398,7 +416,7 @@ def main():
 	status = Status()
 	status.stdInitialize()  # set standard initial status
 	status.recompute()
-	print str(status)
+	print(str(status))
 
 if __name__ == '__main__':
 	main()
