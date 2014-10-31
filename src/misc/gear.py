@@ -38,7 +38,7 @@
 #  - prop_arm: Armor
 #  - prop_bdm: Base Damage
 #
-# Itens:
+# Items:
 # - Helm
 # - Pauldrons
 # - Amulet
@@ -54,6 +54,7 @@
 # - Boots
 #####################################################
 from random import randint
+from copy import copy
 
 def fst(x): x[0]
 def snd(x): x[1]
@@ -86,7 +87,7 @@ propTypesDic = propTypes
 #   <standard list of properties>:
 #     (<type acronym>, <hi>, <lo>)
 #####################################################
-itensTypes = [
+itemsTypes = [
 	("HE","Helm", 3, [  # +socket
 		("AM", 373, 595),
 		("AR", 91, 100),
@@ -180,17 +181,17 @@ itensTypes = [
 		("PA", 416, 500),
 		("VT", 416, 500)]),
 ]
-itensTypesDic = dict(zip([fst(x) for x in itensTypes], [snd(x) for x in itensTypes]))
+itemsTypesDic = dict(zip([fst(x) for x in itemsTypes], [snd(x) for x in itemsTypes]))
 
 #####################################################
 # The Status instance
 #####################################################
 class Status:
 	def __init__(self):
-		# itens from gear
+		# items from gear
 		self.gear = {}
-		for (ac, name, maxprop, props) in itensTypes:
-			self.gear[ac] = Item(name, maxprop, props, self)
+		for (ac, name, maxprop, props) in itemsTypes:
+			self.gear[ac] = Item(ac, name, maxprop, props, self)
 
 		# base status
 		self.pattri = None # Primary attributes
@@ -266,6 +267,10 @@ class Status:
 		# From weapon
 		self.basdmg += 412   # TODO: set right value of weapon base damage
 		self.crithd += 1.30 # from weapon gem
+	
+	def shuffleItemsProperties(self):
+		for i in self.gear.values():
+			i.shuffleProps()
 
 	# Compute metrics values
 	def recompute(self):
@@ -284,7 +289,7 @@ class Status:
 		self.tgs *= 1./(1. - self.armorr/(self.armorr+3500.))  # armor
 		self.tgs *= 1./(1. - self.allres/(self.allres+350.))   # all resist
 	
-	def __str__(self, print_gear=False):
+	def format(self, print_gear=False):
 		s = " Status:\n"
 		s += " - Damage: " + ("%.2f" % self.dmg) + "\n"
 		s += "   - P. Attribute: " + str(self.pattri) + "\n"
@@ -303,6 +308,10 @@ class Status:
 				s += str(i) + "\n"
 		return s
 
+	def __str__(self):
+		return self.format()
+
+
 
 #####################################################
 # An item instance.
@@ -315,11 +324,12 @@ class Item:
 	#  maxprop: max number of selected properties (int)
 	#  props: set of available properties [(<ac>, <lo>, <hi>)]
 	#########################################################
-	def __init__(self, name, maxprop, props, status):
+	def __init__(self, ac, name, maxprop, props, status):
 		self.name = name          # its name
 		self.maxprop = maxprop    # max number of properties
 		self.status = status      # status owning the item
 		self.nActivedProps = 0    # current value of actived prop
+		self.ac = ac              # The acronym
 		self.props = {}
 		for (pac, lo, hi) in props:
 			name = propTypes[pac][0]
@@ -332,9 +342,7 @@ class Item:
 	#########################################################
 	def activateProp(self, pac):
 		if not self.propActived[pac]:
-			self.prop[pac].applyProp()
-			self.nActivedProps += 1
-			self.propActived[pac] = True
+			self.prop[pac].activate()
 
 	#########################################################
 	# Deactivate the given property.
@@ -342,27 +350,30 @@ class Item:
 	#########################################################
 	def deactivateProp(self, pac):
 		if self.propActived[pac]:
-			self.prop[pac].removeProp()
-			self.nActivedProps -= 1
-			self.propActived[pac] = False
+			self.prop[pac].deactivate()
 
 	#########################################################
 	# Shuffle its actived properties.
 	#########################################################
-	def shuffleActivedProps(self):
+	def shuffleProps(self):
 		ps = self.props.values()
+		nmax = self.maxprop
 		for p in ps:
 			if p.actived:
-				p.removeProp() # remove from status
-				p.actived = False
-		np = len(self.props)
-		for i in range(self.maxprop):
-			self.activateRandomProp()
+				p.deactivate() # remove from status
+		# Random activation
+		l = range(0, len(ps))
+		random.shuffle(l)
+		for i in l[0:nmax]:
+			ps[i].activate()
+
+	def format(self, allProps=False):
+		s = " - " + self.name + "\n"
+		s += "\n".join(["  - " + str(p) for p in self.props.values() if self.propActived[p.ac] or allProps])
+		return s
 
 	def __str__(self):
-		s = " - " + self.name + "\n"
-		s += "\n".join(["  - " + str(p) for p in self.props.values() if self.propActived[p.ac]])
-		return s
+		return self.format()
 
 #####################################################
 # An item property
@@ -387,7 +398,7 @@ class Property:
 		self.value = lo                # the value of the property
 		self.item = item               # the item owner of the property
 		self.status = item.status      # the status instance
-		self.actived = False           # If property is actived on its item
+		self.active = False           # If property is actived on its item
 	
 	# Set the quality of property (how good it is)
 	def setQuality(self, quality=0.5):
@@ -395,22 +406,43 @@ class Property:
 		self.value = self.lo + (self.hi - self.hi)/self.quality
 	
 	# Apply the property on status
-	def applyProp(self):
+	def activate(self):
+		self.item.nActivedProps += 1
 		setattr(self.status, getattr(self.status, self.attrname) + self.value)
+		self.active = True
 
-	# Remove the property from status
-	def removeProp(self):
+	# Deactivate the property from the item status
+	def deactivate(self):
 		setattr(self.status, getattr(self.status, self.attrname) - self.value)
+		self.item.nActivedProps -= 1
+		self.active = False
 	
 	def __str__(self):
 		return self.name + ": " + str(self.value)
 
-def Tabu(status):
-	# build move list
-	mvlist = []
-	for (iac, i) in status.gear.items:
-		for (pac, p) in i.props:
-			mvlist.add((iac, p.ac))
+	def BogoSearch(self):
+		self.recompute()
+		bestDmg = status.dmg
+		# Some steps...
+		for k in range(1, 100):
+			# for each item
+			for i in self.gear.values():
+				originalItem = copy(i)
+				bestItem = i
+				# some shuffles on properties
+				for i in range(10):
+					i.shuffleItemsProperties()
+					self.recompute()
+					if self.dmg > bestDmg:
+						bestDmg = self.dmg
+						bestItem = 
+
+	def Tabu(self):
+		# build move list
+		mvlist = []
+		for (iac, i) in status.gear.items:
+			for (pac, p) in i.props:
+				mvlist.add((iac, p.ac))
 
 #####################################################
 # Main
@@ -418,8 +450,6 @@ def Tabu(status):
 def main():
 	status = Status()
 	status.stdInitialize()  # set standard initial status
-	status.recompute()
-	print(str(status))
 
 if __name__ == '__main__':
 	main()
