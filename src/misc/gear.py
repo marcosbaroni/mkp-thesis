@@ -265,6 +265,7 @@ class Status:
 
 		# From weapon
 		self.basdmg += 412   # TODO: set right value of weapon base damage
+		self.crithd += 1.30 # from weapon gem
 
 	# Compute metrics values
 	def recompute(self):
@@ -349,12 +350,14 @@ class Item:
 	# Shuffle its actived properties.
 	#########################################################
 	def shuffleActivedProps(self):
-		for p in self.props.values:
+		ps = self.props.values()
+		for p in ps:
 			if p.actived:
-				p.removeProp()
+				p.removeProp() # remove from status
 				p.actived = False
 		np = len(self.props)
-		# TODO: shufle properties....
+		for i in range(self.maxprop):
+			self.activateRandomProp()
 
 	def __str__(self):
 		s = " - " + self.name + "\n"
@@ -420,4 +423,3 @@ def main():
 
 if __name__ == '__main__':
 	main()
-
