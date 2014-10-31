@@ -53,7 +53,7 @@
 # - Offhand
 # - Boots
 #####################################################
-from random import randint
+from random import randint, shuffle
 from copy import copy
 
 def fst(x): x[0]
@@ -91,90 +91,90 @@ itemsTypes = [
 	("HE","Helm", 3, [  # +socket
 		("AM", 373, 595),
 		("AR", 91, 100),
-		("CC", 4.5, 6.0),
-		("LF", 10, 15),
+		("CC", 0.045, 0.06),
+		("LF", 0.1, 0.15),
 		("PA", 626, 750),
 		("VT", 626, 750)]),
 	("PA","Pauldrons", 4, [
 		("AM", 373, 397),
 		("AR", 91, 100),
-		("LF", 10, 15),
+		("LF", 0.1, 0.15),
 		("PA", 416, 500),
-		("SD", 10, 15),
+		("SD", 0.1, 0.15),
 		("VT", 416, 500)]),
 	("AM","Amulet", 3, [  # +socket
 		("AM", 559, 595),
 		("AR", 91, 100),
 		("BD", 70, 140),
-		("CC", 8, 10),
-		("CD", 51, 100),
-		("ED", 15, 20),
-		("LF", 14, 18),
+		("CC", 0.08, 0.01),
+		("CD", 0.51, 1.),
+		("ED", 0.15, 0.20),
+		("LF", 0.14, 0.18),
 		("PA", 626, 750),
 		("VT", 626, 750)]),
 	("CH","Chest", 3, [ # +socket
 		("AM", 373, 397),
-		("LF", 10, 15),
+		("LF", 0.1, 0.15),
 		("PA", 416, 500),
-		("SD", 10, 15),
+		("SD", 0.1, 0.15),
 		("VT", 416, 500)]),
 	("BR","Bracer", 4, [
 		("AM", 373, 397),
 		("AR", 91, 100),
-		("AS", 5, 7),
-		("CD", 26, 50),
-		("LF", 10, 15),
+		("AS", 0.05, 0.07),
+		("CD", 0.26, 0.5),
+		("LF", 0.1, 0.15),
 		("PA", 416, 500),
 		("VT", 416, 500)]),
 	("GL","Glove", 4, [
 		("AM", 373, 397),
-		("AS", 5, 7),
-		("CC", 8, 10),
-		("CD", 26, 50),
+		("AS", 0.05, 0.07),
+		("CC", 0.08, 0.01),
+		("CD", 0.26, 0.5),
 		("PA", 626, 750),
 		("VT", 626, 750)]),
 	("BE","Belt", 4, [
 		("AM", 373, 397),
 		("AR", 91, 100),
-		("AS", 5, 7),
-		("CD", 26, 50),
-		("LF", 10, 15),
+		("AS", 0.05, 0.07),
+		("CD", 0.26, 0.5),
+		("LF", 0.10, 0.15),
 		("PA", 416, 500),
 		("VT", 416, 500)]),
 	("R1","Ring1", 3, [ # +socket
 		("AM", 373, 397),
 		("AR", 91, 100),
-		("AS", 5, 7),
+		("AS", 0.05, 0.07),
 		("BD", 70, 140),
-		("CC", 4.5, 6.0),
-		("CD", 25, 50),
-		("LF", 10, 15),
+		("CC", 0.045, 0.06),
+		("CD", 0.25, 0.5),
+		("LF", 0.1, 0.15),
 		("PA", 416, 500),
 		("VT", 416, 500)]),
 	("R2","Ring2", 3, [ # +socket
 		("AM", 373, 397),
 		("AR", 91, 100),
-		("AS", 5, 7),
+		("AS", 0.05, 0.07),
 		("BD", 70, 140),
-		("CC", 4.5, 6.0),
-		("CD", 25, 50),
-		("LF", 10, 15),
+		("CC", 0.045, 0.06),
+		("CD", 0.25, 0.5),
+		("LF", 0.1, 0.15),
 		("PA", 416, 500),
 		("VT", 416, 500)]),
 	("PA","Pants", 3, [ # +socket
 		("AM", 373, 595),
-		("ED", 15, 20),
+		("ED", 0.15, 0.20),
 		("PA", 416, 500),
 		("VT", 416, 500)]),
 	("WE","Weapon", 3, [   # +Sckt +%Dmg
-		("AS", 5, 7),  # Dmg against elite (5.0 - 8.0)
+		("AS", 0.05, 0.07),  # Dmg against elite (5.0 - 8.0)
 		("PA", 626, 750),
 		("VT", 626, 750)]),
 	("OF","Offhand", 4, [ # +dmg
-		("CC", 8, 10), # Dmg against elite (5.0 - 8.0)
-		("LF", 10, 15),
+		("CC", 0.08, 0.01), # Dmg against elite (5.0 - 8.0)
+		("LF", 0.1, 0.15),
 		("PA", 626, 750),
-		("SD", 10, 15),
+		("SD", 0.1, 0.15),
 		("VT", 626, 750)]),
 	("BO","Boots", 3, [ # +mov speed
 		("AM", 373, 397),
@@ -265,7 +265,7 @@ class Status:
 		self.armorr += 77*2
 
 		# From weapon
-		self.basdmg += 412   # TODO: set right value of weapon base damage
+		self.basdmg += 1100   # TODO: set right value of weapon base damage
 		self.crithd += 1.30 # from weapon gem
 	
 	def shuffleItemsProperties(self):
@@ -311,6 +311,31 @@ class Status:
 	def __str__(self):
 		return self.format()
 
+	def bogoSearch(self):
+		self.recompute()
+		bestDmg = self.dmg
+		print(self)
+		# Some steps...
+		for k in range(1, 200):
+			for i in self.gear.values():        # for each item
+				currentDmg = self.dmg
+				originalItem = copy(i)
+				bestItem = i
+				for k2 in range(10):             # shuffles itens properties
+					i.shuffleProps()
+					self.recompute()
+					if self.dmg > currentDmg:   # if config of item is the best
+						currentDmg = self.dmg
+						bestItem = copy(i)
+				self.gear[i.ac] = bestItem    # update old item for improved
+		print(self)
+
+	def Tabu(self):
+		# build move list
+		mvlist = []
+		for (iac, i) in status.gear.items:
+			for (pac, p) in i.props:
+				mvlist.add((iac, p.ac))
 
 
 #####################################################
@@ -359,11 +384,11 @@ class Item:
 		ps = self.props.values()
 		nmax = self.maxprop
 		for p in ps:
-			if p.actived:
+			if p.active:
 				p.deactivate() # remove from status
 		# Random activation
 		l = range(0, len(ps))
-		random.shuffle(l)
+		shuffle(l)
 		for i in l[0:nmax]:
 			ps[i].activate()
 
@@ -407,42 +432,20 @@ class Property:
 	
 	# Apply the property on status
 	def activate(self):
-		self.item.nActivedProps += 1
-		setattr(self.status, getattr(self.status, self.attrname) + self.value)
-		self.active = True
+		if not self.active:
+			self.item.nActivedProps += 1
+			setattr(self.status, self.attrname, getattr(self.status, self.attrname) + self.value)
+			self.active = True
 
 	# Deactivate the property from the item status
 	def deactivate(self):
-		setattr(self.status, getattr(self.status, self.attrname) - self.value)
-		self.item.nActivedProps -= 1
-		self.active = False
+		if self.active:
+			setattr(self.status, self.attrname, getattr(self.status, self.attrname) - self.value)
+			self.item.nActivedProps -= 1
+			self.active = False
 	
 	def __str__(self):
 		return self.name + ": " + str(self.value)
-
-	def BogoSearch(self):
-		self.recompute()
-		bestDmg = status.dmg
-		# Some steps...
-		for k in range(1, 100):
-			# for each item
-			for i in self.gear.values():
-				originalItem = copy(i)
-				bestItem = i
-				# some shuffles on properties
-				for i in range(10):
-					i.shuffleItemsProperties()
-					self.recompute()
-					if self.dmg > bestDmg:
-						bestDmg = self.dmg
-						bestItem = 
-
-	def Tabu(self):
-		# build move list
-		mvlist = []
-		for (iac, i) in status.gear.items:
-			for (pac, p) in i.props:
-				mvlist.add((iac, p.ac))
 
 #####################################################
 # Main
@@ -450,6 +453,7 @@ class Property:
 def main():
 	status = Status()
 	status.stdInitialize()  # set standard initial status
+	status.bogoSearch()
 
 if __name__ == '__main__':
 	main()
