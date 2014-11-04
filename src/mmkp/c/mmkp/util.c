@@ -45,7 +45,7 @@ long long llrand(long long bound){
 		((rand() << 16) |
 		 (rand() << 32) |
 		 (rand() << 48) |
-		  rand()) % (bound+1));
+		  rand()) % (bound))+1;
 }
 
 /* 
@@ -103,6 +103,7 @@ int *int_array_init(int *array, int n, int x){
 }
 
 int *int_array_copy(int *dest, int *src, int n){
+	if(!dest) dest = (int*)malloc(n*sizeof(int));
 	memcpy(dest, src, n*sizeof(int));
 
 	return dest;

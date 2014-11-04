@@ -82,12 +82,14 @@ void kp_fprintf(FILE *out, KP *kp){
 	dens = kp->density;
 
 	llsum = 0;
+	fprintf(out, "   i |     p |     w |    p/w\n");
+	fprintf(out, "-----+-------+-------+---------\n");
 	for( i = 0 ; i < n ; i++ ){
-		fprintf(out, "% 5lld | % 5lld | (%.3lf)\n", p[i], w[i], dens[i]);
+		fprintf(out, "% 4d | % 5lld | % 5lld | (%.3lf)\n", i+1, p[i], w[i], dens[i]);
 		llsum += w[i];
 	}
 	findent(out, 6, ' ');
-	fprintf(out, "| % 5lld (%.3lf)\n", b, b/((double)llsum));
+	fprintf(out, "       | % 5lld (%.3lf)\n", b, b/((double)llsum));
 
 	return;
 }
@@ -172,7 +174,7 @@ KP *kp_qsort_by_density(KP *kp){
 KPSol *kpsol_new_empty(KP *kp){
 	KPSol *kpsol;
 
-	kpsol = (KPSol*)malloc(sizeof(KPSOL));
+	kpsol = (KPSol*)malloc(sizeof(KPSol));
 	kpsol->x = (int*)malloc(kp->n*sizeof(int));
 	kpsol->sel = (int*)malloc(kp->n*sizeof(int));
 	kpsol->nx = 0;
@@ -202,44 +204,114 @@ KPSol *kpsol_new(KP *kp, int *x){
 	return kpsol;
 }
 
-/*
- * Computes solution of LP Relaxation.  */
-long long lp_bound(
-	long long *w,     /* weight of itens */
-	long long *p,     /* profit of itens */
-	int k,            /* last fixed item */
-	long long b_left, /* capacity left */
-	int *x){          /* current node (solution) */
-	int i;
-	i = k+1;
-	while();
+void kpsol_free(KPSol *kpsol){
+	free(kpsol->x);
+	free(kpsol->sel);
+	free(kpsol);
+	return;
 }
 
-/* Enumerate all KP solutions (backtrack alg) */
+void kpsol_fprint(FILE *out, KPSol *kpsol){
+	int i;
+	fprintf(out, "%lld\n", kpsol->p);
+	for( i = 0 ; i < kpsol->nx ; i++ )
+		fprintf(out, "%d%s", kpsol->sel[i]+1, (i+1 == kpsol->nx) ? "\n": " ");
+	return;
+}
+
+/* Enumerate all KP solutions (backtrack alg)
+ *
+ * while (k <= n) and (b_left > w[i]):
+ *     x[i] = 1            "select k-th item"
+ *     profit += p[i]         "update profit"
+ *     b_left -= w[i]         "update weight"
+ *     i++                 "proceed to next item"
+ * if (i > n):
+ *     x_best = x          "best found (otherwise would be backtracked before)
+ * //else:
+ * //    x[i] = 0          "??? set 0"
+ * while (lp_bound <= best_profit): "if solut. cant be improved on current branch"
+ *     while (i != 0) and (x[i] == 0):   "backtrack: find previous selected item"
+ *         i--
+ *     if (i == 0):          "root reached"
+ *         return best_x;    "HALTS!"
+ *     x[i] = 0              "deselect the item (update bound!!!)"
+ *     b_left += w[i]
+ *     profit -= p[i]
+ * i++
+ */
 Array *kp_backtrack(KP *kp, int enumerate){
-	int i, n, backtrack, *x;
-	long long *w, *p, b, b_left, profit, best_profit;
-	double lp_profit;
-	double *dens;
-	Array *sols;
+	int i, j, n;
+	int backtrack;            /* if algorithm is backtracking */
+	int *x;                   /* current solution */
+	int *best_x;              /* best solution found */
+	long long *w, *p, b;      /* auxiliary (instance of problem) */
+	long long best_profit;    /* profit of best solution found */
+	long long b_left;         /* resource left (current solution) */
+	long long profit;         /* profit of current solution */
+	double lp_bound, b_aux;   /* profit of the LP-relax on current solution */
+	double *dens;             /* profit density of itens */
+	Array *sols;              /* Array os solutions found */
 
-	/* problem variables */
-	n = kp->n;
-	w = kp->w;
-	p = kp->p;
-	b = kp->b;
-	dens = kp->density;
-	/* auxiliary */
+	/* problem variables (n, w, p, b, density) */
+	n = kp->n; w = kp->w; p = kp->p; b = kp->b; dens = kp->density;
 
-	/* solution */
+	/* initialization */
 	x = int_array_init(NULL, n, 0);
+	best_x = int_array_copy(NULL, x, n);
 	sols = array_new();
 	b_left = b;
-	profit = 0;
-
-	backtrack = 0;
+	best_profit = profit = 0;
+	lp_bound = 0.0;
 	i = 0;
-	/* search! */
+	backtrack = 0;
+
+	/* search 0.2 */
+	while(1){
+		/* DRILLING LEFT TREE... */
+		while( i <= n && b_left >= w[i] ){
+			x[i] = 1;
+			lp_bound = profit += p[i];
+			b_left -= w[i];
+			i++;
+			printf("x[%d] = 1, profit = %lld, b_left = %lld\n", i, profit, b_left); 
+		}
+		/* new best solution */
+		if(profit > best_profit){
+			printf("*new best: %lld\n", profit);
+			best_x = int_array_copy(best_x, x, n);
+			best_profit = profit;
+		}
+		/* BACKTRACKING ? */
+		while( lp_bound <= best_profit ){  /* while lp_bound is not good enough */
+			while( i != 0 && x[i] == 0) i--;
+			if( i == 0 ){ /* root reached */
+				sols = array_insert(sols, kpsol_new(kp, best_x));
+				free(x);
+				free(best_x);
+				return sols;
+			}
+			x[i] = 0;
+			b_left += w[i];
+			profit -= p[i];
+			/* TODO: update lp_bound */
+			b_aux = b_left;
+			j = i+1;
+			while(b_aux){
+				if( b_aux >= w[j] ){
+					lp_bound += p[j];
+					b_aux -= w[j];
+				}else{
+					lp_bound += p[j]*w[j]/(double)b_aux;
+					b_aux = 0;
+				}
+			}
+		}
+		i++;
+	}
+
+
+	/* search! 0.1-beta */
 	while( 1 ){
 		/* root reached? */
 		if( i == 0 )
@@ -270,9 +342,9 @@ Array *kp_backtrack(KP *kp, int enumerate){
 				/* if node is solution */
 				if( profit > best_profit ){
 					/* clean solutions */
-					array_apply(sols, kpsol_free);
+					array_apply(sols, (void(*)(void*))kpsol_free);
 					array_empty(sols);
-					array_insert(kpsol_new(kp, x));
+					array_insert(sols, kpsol_new(kp, x));
 				}
 			/* TODO */
 			}

@@ -60,10 +60,13 @@ void teste_ssum_backtrack(int argc, char **argv){
 
 void test_kp_fprintf(int argc, char** argv){
 	KP *kp;
+	int n;
 
 	srand(time(NULL));
+	if( argc > 2) n = atol(argv[1]);
+	else n = 10;
 
-	kp = kp_new_random(10, 0.6, 1000);
+	kp = kp_new_random(n, 0.6, 1000);
 	kp = kp_qsort_by_density(kp);
 	kp_fprintf(stdout, kp);
 
@@ -72,9 +75,42 @@ void test_kp_fprintf(int argc, char** argv){
 	return;
 }
 
+void test_kp_backtrack(int argc, char** argv){
+	KP *kp;
+	FILE *kpout;
+	KPSol *kpsol;
+	Array *array;
+	int n;
+
+	if( argc > 1) n = atol(argv[1]);
+	else n = 10;
+
+	/* random seed */
+	srand(time(NULL));
+
+	/* random KP */
+	kp = kp_new_random(n, 0.5, 1000);
+	kp = kp_qsort_by_density(kp);
+	kp_fprintf(stdout, kp);
+
+	kpout = fopen("/tmp/kp/kp.zpl", "w");
+	kp_to_zimpl(kpout, kp);
+	fclose(kpout);
+
+	/* solve KP */
+	array = kp_backtrack(kp, 0);
+	kpsol = array_get(array, 0);
+	kpsol_fprint(stdout, kpsol);
+
+	/* free */
+	kpsol_free(kpsol);
+	kp_free(kp);
+
+	return;
+}
+
 int main(int argc, char **argv){
-	//teste_ssum_backtrack(argc, argv);
-	test_kp_fprintf(argc, argv);
+	test_kp_backtrack(argc, argv);
 
 	return 0;
 }

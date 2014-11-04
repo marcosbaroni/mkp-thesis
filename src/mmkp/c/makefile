@@ -1,5 +1,18 @@
 BINDIR="../../../bin"
-all: mkp mmkp ssum
+all: kpmkp mmkp ssum
+kp: kp2zpl randkp kpbt kpinfo
+kpinfo:
+	gcc -o kpinfo kpinfo.c mmkp/kp.c mmkp/util.c -lm
+	mv kpinfo $(BINDIR)
+kp2zpl:
+	gcc -o kp2zpl kp2zpl.c mmkp/kp.c mmkp/util.c -lm
+	mv kp2zpl $(BINDIR)
+kpbt:
+	gcc -o kpbt kpbt.c mmkp/kp.c mmkp/util.c -lm
+	mv kpbt $(BINDIR)
+randkp:
+	gcc -o randkp randkp.c mmkp/kp.c mmkp/util.c -lm
+	mv randkp $(BINDIR)
 mkp: randmkp mkp2zpl
 randmkp:
 	gcc -o randmkp randmkp.c mmkp/mkp.c mmkp/util.c -lm

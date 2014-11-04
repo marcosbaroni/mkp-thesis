@@ -16,6 +16,7 @@ inline void SWAP_LONG_LONG(long long *array, int a, int b);
 void findent(FILE *fout, int times, char c);
 
 /* INT ARRAY */
+typedef void(*array_apply_f)(void*);
 int *int_array_malloc(int n);                    /* mallocs a int array*/
 int *int_array_read(FILE *in, int *array, int n);
 void int_array_write(FILE *out, int *array, int n);
