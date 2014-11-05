@@ -73,7 +73,7 @@ void kp_free(KP *kp){
 void kp_fprintf(FILE *out, KP *kp){
 	double *dens;
 	int i, n;
-	long long *p, *w, b, llsum;
+	long long *p, *w, b, llsum, profit;
 
 	n = kp->n;
 	p = kp->p;
@@ -82,11 +82,18 @@ void kp_fprintf(FILE *out, KP *kp){
 	dens = kp->density;
 
 	llsum = 0;
-	fprintf(out, "   i |     p |     w |    p/w\n");
-	fprintf(out, "-----+-------+-------+---------\n");
+	profit = 0;
+	fprintf(out, "   i |     p |     w |    p/w| profit | b_left\n");
+	fprintf(out, "-----+-------+-------+-------+--------+-------\n");
 	for( i = 0 ; i < n ; i++ ){
-		fprintf(out, "% 4d | % 5lld | % 5lld | (%.3lf)\n", i+1, p[i], w[i], dens[i]);
+		profit += p[i];
 		llsum += w[i];
+		fprintf(out, "% 4d |", i+1);
+		fprintf(out, "% 6lld |", p[i]);
+		fprintf(out, "% 6lld |", w[i]);
+		fprintf(out, " %5.1lf |", dens[i]);
+		fprintf(out, "% 7lld |", profit);
+		fprintf(out, "% 7lld\n", b-llsum);
 	}
 	findent(out, 6, ' ');
 	fprintf(out, "       | % 5lld (%.3lf)\n", b, b/((double)llsum));
@@ -95,7 +102,7 @@ void kp_fprintf(FILE *out, KP *kp){
 }
 
 void kp_to_zimpl(FILE *fout, KP *kp){
-	int n, i;
+	int n;
 	n = kp->n;
 
 	/* SIZES */
@@ -157,7 +164,7 @@ int kp_partition_by_density(KP *kp, int a, int b){
 }
 
 KP *kp_sub_qsort_by_density(KP *kp, int a, int b){
-	int m, n;
+	int m;
 	if( b <= a ) return kp;
 	m = kp_partition_by_density(kp, a, b);
 	kp_sub_qsort_by_density(kp, a, m-1);
@@ -249,6 +256,7 @@ Array *kp_backtrack(KP *kp, int enumerate){
 	long long best_profit;    /* profit of best solution found */
 	long long b_left;         /* resource left (current solution) */
 	long long profit;         /* profit of current solution */
+	long long count;          /* counter, for number of nodes */
 	double lp_bound, b_aux;   /* profit of the LP-relax on current solution */
 	double *dens;             /* profit density of itens */
 	Array *sols;              /* Array os solutions found */
@@ -257,55 +265,79 @@ Array *kp_backtrack(KP *kp, int enumerate){
 	n = kp->n; w = kp->w; p = kp->p; b = kp->b; dens = kp->density;
 
 	/* initialization */
-	x = int_array_init(NULL, n, 0);
-	best_x = int_array_copy(NULL, x, n);
+	x = int_array_malloc(n);
+	x = int_array_init(x, n, 0);
+	best_x = int_array_malloc(n);
+	best_x = int_array_copy(best_x, x, n);
 	sols = array_new();
 	b_left = b;
 	best_profit = profit = 0;
 	lp_bound = 0.0;
 	i = 0;
 	backtrack = 0;
+	count = 0;
 
 	/* search 0.2 */
 	while(1){
 		/* DRILLING LEFT TREE... */
-		while( i <= n && b_left >= w[i] ){
+		while( i < n && b_left >= w[i] ){
 			x[i] = 1;
-			lp_bound = profit += p[i];
 			b_left -= w[i];
+			profit += p[i];
 			i++;
-			printf("x[%d] = 1, profit = %lld, b_left = %lld\n", i, profit, b_left); 
 		}
 		/* new best solution */
-		if(profit > best_profit){
-			printf("*new best: %lld\n", profit);
+		if( profit > best_profit ){
 			best_x = int_array_copy(best_x, x, n);
 			best_profit = profit;
 		}
-		/* BACKTRACKING ? */
-		while( lp_bound <= best_profit ){  /* while lp_bound is not good enough */
-			while( i != 0 && x[i] == 0) i--;
-			if( i == 0 ){ /* root reached */
+		/*** UPDATE LP_BOUND ***/
+		count++;
+		lp_bound = (double)profit;
+		b_aux = b_left;
+		j = i+1;
+		while( b_aux && j < n ){ /* while knapsack is not full... */
+			if( b_aux >= w[j] ){  /* if can fit whole next item */
+				lp_bound += p[j];
+				b_aux -= w[j];
+			}else{                /* split item */
+				lp_bound += p[j]*w[j]/(double)b_aux;
+				b_aux = 0;
+			}
+			j++;
+		}
+		/***********************/
+		/* BACKTRACKING... */
+		while( lp_bound <= (double)best_profit ){  /* while lp_bound is not good enough */
+			/* BACKTRACKING... */
+			while( (i > 0) && (x[i] == 0)) i--;
+			if( i == 0 ){       /* root reached. halt! */
+				printf("%lld;%lld\n", count, best_profit);
 				sols = array_insert(sols, kpsol_new(kp, best_x));
 				free(x);
 				free(best_x);
 				return sols;
 			}
+			/* DRILLING RIGHT TREE */
 			x[i] = 0;
 			b_left += w[i];
 			profit -= p[i];
-			/* TODO: update lp_bound */
+
+			/*** UPDATE LP_BOUND ***/
+			count++;
 			b_aux = b_left;
 			j = i+1;
-			while(b_aux){
-				if( b_aux >= w[j] ){
+			while( b_aux && j < n ){ /* while knapsack is not full... */
+				if( b_aux >= w[j] ){  /* if can fit whole next item */
 					lp_bound += p[j];
 					b_aux -= w[j];
-				}else{
+				}else{                /* split item */
 					lp_bound += p[j]*w[j]/(double)b_aux;
 					b_aux = 0;
 				}
+				j++;
 			}
+			/***********************/
 		}
 		i++;
 	}

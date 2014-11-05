@@ -43,8 +43,8 @@ long lrand(long bound){
 long long llrand(long long bound){
 	return llabs(
 		((rand() << 16) |
-		 (rand() << 32) |
-		 (rand() << 48) |
+		 ((long long)rand() << 32) |
+		 ((long long)rand() << 48) |
 		  rand()) % (bound))+1;
 }
 
@@ -95,7 +95,8 @@ void int_array_write(FILE *out, int *array, int n){
 
 int *int_array_init(int *array, int n, int x){
 	int i;
-	if(!array) array = (int*)malloc(n*sizeof(int));
+	if(array == NULL)
+		array = int_array_malloc(n);
 	for( i = 0 ; i < n ; i++ )
 		array[i] = x;
 
@@ -103,13 +104,15 @@ int *int_array_init(int *array, int n, int x){
 }
 
 int *int_array_copy(int *dest, int *src, int n){
+	int i;
 	if(!dest) dest = (int*)malloc(n*sizeof(int));
-	memcpy(dest, src, n*sizeof(int));
+	for( i = 0 ; i < n ; i++ )
+		dest[i] = src[i];
 
 	return dest;
 }
 
-void *int_array_fprint(FILE *out, int *array, int n){
+void int_array_fprint(FILE *out, int *array, int n){
 	int i;
 	fprintf(out, "[");
 	for( i = 0 ; i < n-1 ; i++ )
@@ -250,7 +253,7 @@ long *long_array_random(int n, long *array, long bound){
 	for( i = 0 ; i < n ; i++ )
 		array[i] = lrand(bound);
 	
-	return;
+	return array;
 }
 
 int long_array_is_sorted(long *array, int n){
@@ -263,7 +266,7 @@ int long_array_is_sorted(long *array, int n){
 
 int long_array_partition(long *array, int a, int b){
 	int i, j;
-	long pivot, aux;
+	long pivot;
 	
 	i = a; j = b+1;
 	pivot = array[a];
@@ -391,7 +394,7 @@ long long *long_long_array_random(int n, long long *array, long long bound){
 	for( i = 0 ; i < n ; i++ )
 		array[i] = llrand(bound);
 	
-	return;
+	return array;
 }
 
 int long_long_array_is_sorted(long long *array, int n){
@@ -404,7 +407,7 @@ int long_long_array_is_sorted(long long *array, int n){
 
 int long_long_array_partition(long long *array, int a, int b){
 	int i, j;
-	long long pivot, aux;
+	long long pivot;
 	
 	i = a; j = b+1;
 	pivot = array[a];
@@ -491,7 +494,7 @@ int *int_matrix_max_cols(int **mat, int n, int m){
  *                                LONG MATRIX                                  *
 *******************************************************************************/
 long long_matrix_max_col(long **mat, int n, int m, int col){
-	int i, j;
+	int i;
 	long max;
 
 	max = mat[0][col];
@@ -502,7 +505,7 @@ long long_matrix_max_col(long **mat, int n, int m, int col){
 }
 
 long long_matrix_max_lin(long **mat, int n, int m, int lin){
-	int i, j;
+	int i;
 	long max;
 
 	max = mat[lin][0];
@@ -550,7 +553,7 @@ void long_matrix_write(FILE *out, long **mat, int n, int m){
 }
 
 long **long_matrix_read(FILE *in, long **mat, int n, int m){
-	int i, j;
+	int i;
 
 	if(!mat) mat = long_matrix_malloc(n, m);
 	
@@ -560,7 +563,7 @@ long **long_matrix_read(FILE *in, long **mat, int n, int m){
 	return mat;
 }
 
-void **long_matrix_fprint(FILE *out, long **mat, int n, int m){
+void long_matrix_fprint(FILE *out, long **mat, int n, int m){
 	int i;
 	for( i = 0 ; i < n ; i++ )
 		long_array_fprint(out, mat[i], m);
@@ -568,7 +571,7 @@ void **long_matrix_fprint(FILE *out, long **mat, int n, int m){
 	return;
 }
 
-void **long_matrix_fprint_tranlated(FILE *out, long **mat, int n, int m){
+void long_matrix_fprint_tranlated(FILE *out, long **mat, int n, int m){
 	int i, j;
 
 	for( j = 0 ; j < m ; j++ )
@@ -736,7 +739,7 @@ void zimpl_print_double_matrix(FILE *fout, double **mat, int nlin, int ncol){
 		fprintf(fout, "|%d|%lf", i+1, mat[i][0]);
 		for( j = 1 ; j < ncol ; j++ )
 			fprintf(fout, ",%lf", mat[i][j]);
-		fprintf(fout, "|\n", mat[i][j]);
+		fprintf(fout, "|\n");
 	}
 	fprintf(fout, ";\n");
 	return;
@@ -776,7 +779,7 @@ void long_matrix_zimpl_print(FILE *fout, long **mat, int nlin, int ncol){
 		fprintf(fout, "|%d|%ld", i+1, mat[i][0]);
 		for( j = 1 ; j < ncol ; j++ )
 			fprintf(fout, ",%ld", mat[i][j]);
-		fprintf(fout, "|\n", mat[i][j]);
+		fprintf(fout, "|\n");
 	}
 	fprintf(fout, ";\n");
 	return;
@@ -790,7 +793,7 @@ void long_matrix_zimpl_print(FILE *fout, long **mat, int nlin, int ncol){
  *   n   - size of returning array
  *   (FUNCTION BEST SUITED FOR SMALL ARRAYS) */
 int *parse_int_list(char *str, int *n){
-	int i, len, nmax, res;
+	int len, nmax, res;
 	int *vec;
 	char c;
 

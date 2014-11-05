@@ -85,11 +85,10 @@ void ssum_free(SSum *ssum){
  * Prints a Subset-sum instance on human friendly format.
  */
 void ssumsol_fprint(FILE *out, SSumSol *sol){
-	int i, n, nx;
+	int i, nx;
 	long long *w;
 
 	nx = sol->nx;
-	n = sol->ssum->n;
 	w = sol->ssum->w;
 
 	i = 0;
@@ -109,7 +108,7 @@ void ssumsol_fprint(FILE *out, SSumSol *sol){
  * Outputs an Subset-sum instance on ZIMPL linear programming modeling format.
  */
 void ssum_to_zimpl(FILE *fout, SSum *ssum){
-	int n, i;
+	int n;
 	n = ssum->n;
 
 	/* SIZES */
@@ -215,7 +214,7 @@ Array *ssum_backtrack(SSum *ssum, int enumerate){
 	Array *sols;
 	SSumSol *sol;
 	int i, n, *x, backtrack;
-	long long *w, sum, b_left;
+	long long *w, b_left;
 
 	sols = array_new();
 	n = ssum->n;
@@ -227,7 +226,6 @@ Array *ssum_backtrack(SSum *ssum, int enumerate){
 		x[i] = 0;
 
 	/* empty solution */
-	sum = 0;
 	b_left = ssum->b;
 
 	/* first element on sum */

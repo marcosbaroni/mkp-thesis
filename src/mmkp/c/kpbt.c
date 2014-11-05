@@ -29,14 +29,14 @@ int main(int argc, char **argv){
 	FILE *input;
 	Array *sols;
 
-	if(argv > 1) input = fopen(argv[1], "r");
+	if(argc > 1) input = fopen(argv[1], "r");
 	else input = stdin;
 
 	kp = kp_read(input);
 	fclose(input);
 	sols = kp_backtrack(kp, 0);
 	kpsol = array_get(sols, 0);
-	kpsol_fprint(stdout, kpsol);
+	//kpsol_fprint(stdout, kpsol);
 
 	array_apply(sols, (array_apply_f)kpsol_free);
 	array_free(sols);

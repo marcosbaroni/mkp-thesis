@@ -22,7 +22,7 @@ int *int_array_read(FILE *in, int *array, int n);
 void int_array_write(FILE *out, int *array, int n);
 int *int_array_init(int *array, int n, int x);   /* init int array */
 int *int_array_copy(int *dest, int *src, int n); /* copy a int array */
-void *int_array_fprint(FILE *out, int *array, int n);
+void int_array_fprint(FILE *out, int *array, int n);
 void int_array_free(int *array);
 int int_array_max(int *array, int n);            /* max number on array */
 int *int_array_random(int n, int *array, int bound);
@@ -51,6 +51,7 @@ long long *long_long_array_init(long long *array, int n, long long x);   /* init
 long long *long_long_array_copy(long long *dest, long long *src, int n); /* copy a long array */
 void long_long_array_write(FILE *out, long long *array, int n);
 void long_long_array_fprint(FILE *out, long long *array, int n);
+void long_long_array_zimpl_print(FILE *fout, long long *array, int n);
 void long_long_array_free(long long *array);
 long long long_long_array_max(long long *array, int n);         /* max number on array */
 long long *long_long_array_random(int n, long long *array, long long bound);
@@ -67,8 +68,8 @@ long **long_matrix_read(FILE *in, long **mat, int n, int m);
 void long_matrix_write(FILE *out, long **mat, int n, int m);
 long **long_matrix_init(long **mat, int n, int m, long x);
 long **long_matrix_copy(long **dest, long **src, int n, int m);
-void **long_matrix_fprint(FILE *out, long **mat, int n, int m);
-void **long_matrix_fprint_tranlated(FILE *out, long **mat, int n, int m);
+void long_matrix_fprint(FILE *out, long **mat, int n, int m);
+void long_matrix_fprint_tranlated(FILE *out, long **mat, int n, int m);
 void long_matrix_free(long **mat, int n);
 long long_matrix_max(long **mat, int n, int m);      /* max number on matrix */
 long long_matrix_max_col(long **mat, int n, int m, int col); /* max elem of given column */
