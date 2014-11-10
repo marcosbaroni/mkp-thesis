@@ -36,7 +36,7 @@ int main(int argc, char **argv){
 	fclose(input);
 	sols = kp_backtrack(kp, 0);
 	kpsol = array_get(sols, 0);
-	//kpsol_fprint(stdout, kpsol);
+	printf("%d;%lld;%lld;%lld\n", kpsol->kp->n, kpsol->find_steps, kpsol->proof_steps, kpsol->profit);
 
 	array_apply(sols, (array_apply_f)kpsol_free);
 	array_free(sols);

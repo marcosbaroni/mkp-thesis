@@ -12,5 +12,8 @@ defs/          # Pasta com documentos sobre definicções relacionadas ao proble
 insts/         # Pacote com instâncias geradas;
 experiments/   # Pasta que abriga os resultados dos experimentos. Cada subpasta
                  é um experimento;
-misc/          # Demais arquivos relacionados.
+misc/          # Demais arquivos relacionados;
+script/        # Pasta que contém diversos scripts. Em sua raiz, os scripts de
+                 propositos gerais. Em subpastas, os dedicados a um determinado
+				 experimento;
 

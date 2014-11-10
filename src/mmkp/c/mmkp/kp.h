@@ -25,15 +25,17 @@ typedef struct KPSol{
 	int *x;           /* decision variable    */
 	int *sel;         /* selected variables   */
 	int nx;           /* number of selected itens */
-	long long p;      /* current total profit */
+	long long profit; /* current total profit */
 	long long b_left; /* units left to sum (0, if "complete" solution) */
+	long long find_steps;  /* steps needed to find solution (ps.: custom metric) */
+	long long proof_steps;  /* steps to prove optimality (ps.: custom metric) */
 	KP *kp;
 }KPSol;
 
 KPSol *kpsol_read_file(char *filename);
 KPSol *kpsol_read(FILE *in);
 KPSol *kpsol_new_empty(KP *kp);
-KPSol *kpsol_new(KP *kp, int *x);
+KPSol *kpsol_new(KP *kp, int *x, long long steps, long long proof_steps);
 void kpsol_write(FILE *in, KPSol *kpsol);
 void kpsol_free(KPSol *kpsol);
 void kpsol_fprint(FILE *out, KPSol *kpsol);

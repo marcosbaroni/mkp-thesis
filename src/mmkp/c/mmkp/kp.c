@@ -185,25 +185,29 @@ KPSol *kpsol_new_empty(KP *kp){
 	kpsol->x = (int*)malloc(kp->n*sizeof(int));
 	kpsol->sel = (int*)malloc(kp->n*sizeof(int));
 	kpsol->nx = 0;
-	kpsol->p = 0;
+	kpsol->profit = 0;
 	kpsol->b_left = kp->b;
 	kpsol->kp = kp;
+	kpsol->find_steps = 0;
+	kpsol->proof_steps = 0;
 
 	return kpsol;
 }
 
-KPSol *kpsol_new(KP *kp, int *x){
+KPSol *kpsol_new(KP *kp, int *x, long long find_steps, long long proof_steps){
 	int i, n;
 	KPSol *kpsol;
 
 	n = kp->n;
 	kpsol = kpsol_new_empty(kp);
+	kpsol->find_steps = find_steps;
+	kpsol->proof_steps = proof_steps;
 
 	for( i = 0 ; i < n ; i++ ){
 		if( x[i] ){
 			kpsol->x[i] = 1;
 			kpsol->sel[kpsol->nx++] = i;
-			kpsol->p += kp->p[i];
+			kpsol->profit += kp->p[i];
 			kpsol->b_left -= kp->w[i];
 		}
 	}
@@ -220,7 +224,7 @@ void kpsol_free(KPSol *kpsol){
 
 void kpsol_fprint(FILE *out, KPSol *kpsol){
 	int i;
-	fprintf(out, "%lld\n", kpsol->p);
+	fprintf(out, "%lld\n", kpsol->profit);
 	for( i = 0 ; i < kpsol->nx ; i++ )
 		fprintf(out, "%d%s", kpsol->sel[i]+1, (i+1 == kpsol->nx) ? "\n": " ");
 	return;
@@ -257,6 +261,7 @@ Array *kp_backtrack(KP *kp, int enumerate){
 	long long b_left;         /* resource left (current solution) */
 	long long profit;         /* profit of current solution */
 	long long count;          /* counter, for number of nodes */
+	long long best_count;     /* number of steps when best was found */
 	double lp_bound, b_aux;   /* profit of the LP-relax on current solution */
 	double *dens;             /* profit density of itens */
 	Array *sols;              /* Array os solutions found */
@@ -265,7 +270,8 @@ Array *kp_backtrack(KP *kp, int enumerate){
 	n = kp->n; w = kp->w; p = kp->p; b = kp->b; dens = kp->density;
 
 	/* initialization */
-	x = int_array_malloc(n);
+	//x = int_array_malloc(n);
+	x = (int*)malloc(n*sizeof(int));
 	x = int_array_init(x, n, 0);
 	best_x = int_array_malloc(n);
 	best_x = int_array_copy(best_x, x, n);
@@ -277,21 +283,21 @@ Array *kp_backtrack(KP *kp, int enumerate){
 	backtrack = 0;
 	count = 0;
 
-	/* search 0.2 */
 	while(1){
-		/* DRILLING LEFT TREE... */
+		/* DRILLING LEFT TREE. */
 		while( i < n && b_left >= w[i] ){
 			x[i] = 1;
 			b_left -= w[i];
 			profit += p[i];
 			i++;
 		}
-		/* new best solution */
+		/* NEW BEST SOLUTION */
 		if( profit > best_profit ){
+			best_count = count;
 			best_x = int_array_copy(best_x, x, n);
 			best_profit = profit;
 		}
-		/*** UPDATE LP_BOUND ***/
+		/* UPDATE LP_BOUND */
 		count++;
 		lp_bound = (double)profit;
 		b_aux = b_left;
@@ -306,28 +312,25 @@ Array *kp_backtrack(KP *kp, int enumerate){
 			}
 			j++;
 		}
-		/***********************/
-		/* BACKTRACKING... */
+		/* BACKTRACKING: (i: index of item which was about to insert) */
 		while( lp_bound <= (double)best_profit ){  /* while lp_bound is not good enough */
-			/* BACKTRACKING... */
-			while( (i > 0) && (x[i] == 0)) i--;
-			if( i == 0 ){       /* root reached. halt! */
-				printf("%lld;%lld\n", count, best_profit);
-				sols = array_insert(sols, kpsol_new(kp, best_x));
+			if( i == 0 ){             /* root reached. halt! */
+				sols = array_insert(sols, kpsol_new(kp, best_x, best_count, count));
 				free(x);
 				free(best_x);
 				return sols;
-			}
-			/* DRILLING RIGHT TREE */
+			}else do i--;
+			while( (i > 0) && (x[i] == 0));
+			/* DRILL RIGHT TREE */
 			x[i] = 0;
 			b_left += w[i];
 			profit -= p[i];
 
-			/*** UPDATE LP_BOUND ***/
+			/* UPDATE LP_BOUND */
 			count++;
 			b_aux = b_left;
 			j = i+1;
-			while( b_aux && j < n ){ /* while knapsack is not full... */
+			while( b_aux && j < n ){  /* while knapsack is not full... */
 				if( b_aux >= w[j] ){  /* if can fit whole next item */
 					lp_bound += p[j];
 					b_aux -= w[j];
@@ -337,53 +340,11 @@ Array *kp_backtrack(KP *kp, int enumerate){
 				}
 				j++;
 			}
-			/***********************/
 		}
 		i++;
 	}
 
-
-	/* search! 0.1-beta */
-	while( 1 ){
-		/* root reached? */
-		if( i == 0 )
-			if( backtrack )
-				if( x[0] == 0 )
-					break;
-		if( backtrack ){
-			/* if is setted  */
-			if( x[i] > 0){
-				x[i] = 0;
-				b_left += w[i];
-				profit -= p[i];
-				backtrack = 0;
-				/* if fixed variable was the last available */
-				if( i+1 == n ){
-					backtrack = 1;
-					/* find the immediately not fixed var to mark as backtrack */
-					while( x[i] == 0 && i ) i--;
-				}else i++;
-			}else i--;
-		/* drilling down the tree */
-		}else{
-			/* if child is feasible */
-			if( w[i] <= b_left ){
-				x[i] = 1;
-				b_left -= w[i];
-				profit += p[i];
-				/* if node is solution */
-				if( profit > best_profit ){
-					/* clean solutions */
-					array_apply(sols, (void(*)(void*))kpsol_free);
-					array_empty(sols);
-					array_insert(sols, kpsol_new(kp, x));
-				}
-			/* TODO */
-			}
-		}
-	}
-
-	free(x);
+	printf(" done.");fflush(stdout);
 
 	return sols;
 }

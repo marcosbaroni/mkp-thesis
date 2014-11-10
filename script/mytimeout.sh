@@ -1,3 +1,7 @@
+###############################################################################
+# Script to abort a command after a given time is passed and it didnt return
+#   (a custom message is printed)
+###############################################################################
 if [[ $# -le 2 ]] ; then
 	echo "usage ./mytimeout <time> <abort message> <command>"
 	echo " <time>: #s for seconds"

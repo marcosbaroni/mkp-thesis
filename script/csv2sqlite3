@@ -1,0 +1,34 @@
+#!/bin/bash
+################################################################################
+# Script to load a .csv file (semicolon as separator) into a Sqlite3 Database
+#   file.
+################################################################################
+# Checkinkg number of arguments
+if [ $# -lt 1 ]; then
+    echo -e "usage:\n $0 <input: CSV file> <output: Sqlite3 DB file>\n"
+    exit 1
+fi
+
+# Getting arguments
+inputfile=$1
+outputfile=$2
+
+# checking if inputfile exists
+if [ ! -f $inputfile ]; then
+	echo "Could not find file $inputfile."
+	exit 1
+fi
+
+sqlfile=`tempfile`
+datafile=`tempfile`
+commands=`tempfile`
+tail -n +1 $1 > $datafile
+# Printing create statement
+header=`head -1 $inputfile|sed 's/;/, /g'`
+echo "CREATE TABLE tabela ($header);" >> $sqlfile
+echo ".separator ';'" >> $sqlfile
+echo ".import $inputfile tabela" >> $sqlfile
+echo ".quit" >> $sqlfile
+cat $sqlfile
+sqlite3 $outputfile < $sqlfile
+
