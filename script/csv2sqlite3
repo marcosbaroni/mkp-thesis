@@ -21,9 +21,14 @@ fi
 
 sqlfile=`tempfile`
 datafile=`tempfile`
-tail -n +2 $1 > $datafile
-# Printing create statement
-header=`head -1 $inputfile|sed 's/;/, /g'`
+aux=`tempfile`
+tail -n +3 $1 > $datafile
+
+# assembling schema of sql table
+head -1 $inputfile|sed 's/;/\n/g' > ${aux}1                   # names of columns
+tail -n +2 $inputfile|head -1 |sed 's/;/,\n/g' > ${aux}2      # types of columns
+header=`paste -d ' ' ${aux}1 ${aux}2 | sed ':a;N;$!ba;s/\n/ /g'`  # statment
+
 echo "CREATE TABLE tabela ($header);" >> $sqlfile
 echo ".separator ';'" >> $sqlfile
 echo ".import $datafile tabela" >> $sqlfile
