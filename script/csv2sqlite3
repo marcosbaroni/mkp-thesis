@@ -21,14 +21,14 @@ fi
 
 sqlfile=`tempfile`
 datafile=`tempfile`
-commands=`tempfile`
-tail -n +1 $1 > $datafile
+tail -n +2 $1 > $datafile
 # Printing create statement
 header=`head -1 $inputfile|sed 's/;/, /g'`
 echo "CREATE TABLE tabela ($header);" >> $sqlfile
 echo ".separator ';'" >> $sqlfile
-echo ".import $inputfile tabela" >> $sqlfile
+echo ".import $datafile tabela" >> $sqlfile
 echo ".quit" >> $sqlfile
-cat $sqlfile
 sqlite3 $outputfile < $sqlfile
+
+rm $sqlfile $datafile
 
