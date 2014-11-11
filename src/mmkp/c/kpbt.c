@@ -27,7 +27,6 @@ int main(int argc, char **argv){
 	KP *kp;
 	KPSol *kpsol;
 	FILE *input;
-	Array *sols;
 	int i, n, nx, *x, last, first, split;
 	long long b_left;
 
@@ -36,18 +35,31 @@ int main(int argc, char **argv){
 
 	kp = kp_read(input);
 	fclose(input);
-	sols = kp_backtrack(kp, 0);
-	kpsol = array_get(sols, 0);
+	kpsol = kp_backtrack(kp, 0);
 
 	n = kpsol->kp->n;
-	x = kpsol->x;
 	nx = kpsol->nx;
-	/* TODO: following lines "not that safe"... */
+	x = kpsol->x;
+	/* finding split item */
 	for( split = 0, b_left = kpsol->kp->b ;
 		b_left > 0 ;
 		b_left -= kpsol->kp->w[split++] ){}
-	for( i = 0 ; x[i] ; i++ ){} first = i;
-	for( i = n ; !(x[i]) ; i-- ){} last = i;
+	i = 0;
+	/* finding first variable setted to 0 */
+	while( i < n){
+		if( !x[i] )
+			break;
+		i++;
+	}
+	first = i;
+	/* finding last variable setted to 1 */
+	i = n-1;
+	while( i ){
+		if( x[i] )
+			break;
+		i--;
+	}
+	last = i;
 
 	/* printing results */
 	printf("%d;", kpsol->kp->n);          /* number of items*/
@@ -57,11 +69,12 @@ int main(int argc, char **argv){
 	printf("%d;", split+1);               /* split */
 	printf("%d;", first+1);               /* first variable setted to 1 */
 	printf("%d;", last+1);                /* last variable setted to 0 */
-	printf("%d\n", nx);                   /* selected */
-	
+	printf("%d;", nx);                    /* # of selected variable */
+	for( i = 0 ; i < n ; i++ )            /* the solution */
+		printf("%d", kpsol->x[i]);
+	printf("\n");
 
-	array_apply(sols, (array_apply_f)kpsol_free);
-	array_free(sols);
+	kpsol_free(kpsol);
 	kp_free(kp);
 
 	return 0;

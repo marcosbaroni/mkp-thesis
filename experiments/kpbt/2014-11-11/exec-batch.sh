@@ -13,7 +13,7 @@ fi
 inputdir=$1
 outfile=$2
 
-echo "nitems;found;proof;profit;split;first;last;selected" > $outfile
+echo "nitems;found;proof;profit;split;first;last;selected;solution" > $outfile
 for n in `seq 10 30`
 do
 	echo $n

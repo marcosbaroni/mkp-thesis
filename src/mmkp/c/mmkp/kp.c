@@ -209,7 +209,8 @@ KPSol *kpsol_new(KP *kp, int *x, long long find_steps, long long proof_steps){
 			kpsol->sel[kpsol->nx++] = i;
 			kpsol->profit += kp->p[i];
 			kpsol->b_left -= kp->w[i];
-		}
+		}else
+			kpsol->x[i] = 0;
 	}
 
 	return kpsol;
@@ -251,7 +252,7 @@ void kpsol_fprint(FILE *out, KPSol *kpsol){
  *     profit -= p[i]
  * i++
  */
-Array *kp_backtrack(KP *kp, int enumerate){
+KPSol *kp_backtrack(KP *kp, int enumerate){
 	int i, j, n;
 	int backtrack;            /* if algorithm is backtracking */
 	int *x;                   /* current solution */
@@ -264,18 +265,16 @@ Array *kp_backtrack(KP *kp, int enumerate){
 	long long best_count;     /* number of steps when best was found */
 	double lp_bound, b_aux;   /* profit of the LP-relax on current solution */
 	double *dens;             /* profit density of itens */
-	Array *sols;              /* Array os solutions found */
+	KPSol *kpsol;
 
 	/* problem variables (n, w, p, b, density) */
 	n = kp->n; w = kp->w; p = kp->p; b = kp->b; dens = kp->density;
 
 	/* initialization */
-	//x = int_array_malloc(n);
-	x = (int*)malloc(n*sizeof(int));
+	x = int_array_malloc(n);
 	x = int_array_init(x, n, 0);
 	best_x = int_array_malloc(n);
 	best_x = int_array_copy(best_x, x, n);
-	sols = array_new();
 	b_left = b;
 	best_profit = profit = 0;
 	lp_bound = 0.0;
@@ -315,10 +314,10 @@ Array *kp_backtrack(KP *kp, int enumerate){
 		/* BACKTRACKING: (i: index of item which was about to insert) */
 		while( lp_bound <= (double)best_profit ){  /* while lp_bound is not good enough */
 			if( i == 0 ){             /* root reached. halt! */
-				sols = array_insert(sols, kpsol_new(kp, best_x, best_count, count));
+				kpsol = kpsol_new(kp, best_x, best_count, count);
 				free(x);
 				free(best_x);
-				return sols;
+				return kpsol;
 			}else do i--;
 			while( (i > 0) && (x[i] == 0));
 			/* DRILL RIGHT TREE */
@@ -344,8 +343,6 @@ Array *kp_backtrack(KP *kp, int enumerate){
 		i++;
 	}
 
-	printf(" done.");fflush(stdout);
-
-	return sols;
+	return kpsol;
 }
 
