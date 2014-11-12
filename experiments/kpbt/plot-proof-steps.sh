@@ -14,7 +14,7 @@ set xlabel "N. of items"
 set ylabel "Steps"
 set yrange [1:*]
 set logscale y
-plot "$data" u 1:2 title "Avg. of 1000", 2**(x) t "2^x"
+plot "$data" u 1:2 title "Avg. of 1000", 2**x t "2^x", 1.76**(x+3) t "1.76^(x+3)"
 !
 
 # gnuplot <<!
