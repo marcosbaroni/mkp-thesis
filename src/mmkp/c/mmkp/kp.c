@@ -252,7 +252,7 @@ void kpsol_fprint(FILE *out, KPSol *kpsol){
  *     profit -= p[i]
  * i++
  */
-KPSol *kp_backtrack(KP *kp, int enumerate){
+KPSol *kp_backtrack(KP *kp, int enumerate, long long upper_bound){
 	int i, j, n;
 	int backtrack;            /* if algorithm is backtracking */
 	int *x;                   /* current solution */
@@ -295,6 +295,13 @@ KPSol *kp_backtrack(KP *kp, int enumerate){
 			best_count = count;
 			best_x = int_array_copy(best_x, x, n);
 			best_profit = profit;
+			if( best_profit >= upper_bound){
+				/* Found a good enough */
+				kpsol = kpsol_new(kp, best_x, best_count, count);
+				free(x);
+				free(best_x);
+				return kpsol;
+			}
 		}
 		/* UPDATE LP_BOUND */
 		count++;
