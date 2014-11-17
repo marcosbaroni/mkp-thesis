@@ -1,21 +1,36 @@
 #!/bin/bash
 
 data=$1
-output=$2
+term=svg
 
 gnuplot <<!
-set term pngcairo
+# PLOTING CURVE OF PROOF
+set term $term
 set datafile separator ";"
-set output "$output"
+set output "proof.$term"
+set style data linespoints
+set grid
+set logscale y
+set title "KP Proof Steps"
+set xlabel "N. of items"
+set ylabel "Steps"
+set yrange [1:*]
+plot "$data" u 1:2 title "Avg. of 1000", 2**x t "2^x", 1.76**(x+3) t "1.76^(x+3)"
+# PLOTING CURVE OF FINDING
+unset logscale y
+set term $term
+set datafile separator ";"
+set output "find.$term"
 set style data linespoints
 set grid
 set title "KP Proof Steps"
 set xlabel "N. of items"
 set ylabel "Steps"
 set yrange [1:*]
-set logscale y
-plot "$data" u 1:2 title "Avg. of 1000", 2**x t "2^x", 1.76**(x+3) t "1.76^(x+3)"
+plot "$data" u 1:3 title "Avg. of 1000"
 !
+
+
 
 # gnuplot <<!
 # set terminal pngcairo  transparent font "arial,10" size 600, 400 

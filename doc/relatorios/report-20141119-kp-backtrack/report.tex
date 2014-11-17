@@ -1,0 +1,62 @@
+\documentclass{article}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+\title{Report...}
+\author{Marcos Daniel Baroni}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Objetivo: Apresentar resumidamente os resultados dos testes que fiz sobre
+%  tempo esperado do backtrack para o KP;
+%  - Comentar sobre artigos:
+%    - [1] "On the avrg diff between the solutions to LP and IP KPs"; (comentário, qualidade de solução)
+%    - [2] "On finding the Exact Solution of 0-1 KP";
+%    - [3] "Random KP in Expected PTime";
+%  (- Lembrar que KP:
+%     1. é NP-Completo para coeficientes ilimitados;
+%     2. admite FPTAS em número de itens;)
+%  - Apresentar o algoritmo backtrack para o KP;
+%  - Apresentar algoritmo de Programação Dinâmica 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Seção 1: O KP (FPTAS, NP-Completeness, polinomial expectance, )
+%    Definição do problema/relaxação LP;
+%    Algoritmo Greedy para a relaxação e diferença entre soluções [1];
+% Seção 2: O algoritmo de backtrack ()
+%    Apresentação 
+% Seção 3: O algoritmo de Prog. Dinamica de Beier
+% Seção 4: Resultados
+%    *Curva1: Nós abertos até encontrar a melhor (polinomial);
+%    *Curva2: Nós abertos até provar a melhor (conjectura: 1.8^(x-3) );
+%    [2] Citar probabilidade de encontrar a melhor solução;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+\maketitle
+
+\begin{align*}
+  \text{maximize} & \sum_{j=1}^n p_j x_j \\
+  \text{subject to} & \sum_{j=1}^n w_j x_j \leq b \\
+   & x_j \in \{0, 1\}, \quad j \in \{1, \ldots, n\}.
+\end{align*}
+
+\begin{displaymath}
+  \frac{p_1}{w_1} \geqslant
+  \frac{p_2}{w_2} \geqslant
+  \ldots \geqslant
+  \frac{p_n}{w_n}
+\end{displaymath}
+
+\section{}
+\section{}
+\section{}
+
+\bibliographystyle{abbrv}
+\bibliography{../../refs}
+
+\end{document}
+
