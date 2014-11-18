@@ -4,15 +4,17 @@
 #    If no files is given, reads from standard input.                        #
 ##############################################################################
 SCIP=scip
-maxtime="100000.0"
+maxtime="60.0"
 maxgap="0.0"
 temp=`tempfile`
 input=$temp.lp
 
 # Checkinkg number of arguments
-if [ $# -lt 1 ]; then
-    echo -e "usage:\n $0 <max-time(sec)> [max-gap([0-1])] [input-file(.lp)]\n"
-    exit 1
+if [ $# -gt 1 ]; then
+	if [ "$1" -eq "--help" ]; then
+        echo -e "usage:\n $0 [<max-time(sec)>=60.0] [max-gap([0-1])=0.0] [input-file(.lp)]\n"
+        exit 1
+	fi
 fi
 
 # Getting first arguments
