@@ -4,6 +4,10 @@
 #include "mmkp/kp.h"
 #include "mmkp/util.h"
 
+#ifndef INF
+#define INF 10000000000000
+#endif
+
 void print_usage(int argc, char **argv){
 	FILE *out;
 
@@ -23,7 +27,7 @@ void print_usage(int argc, char **argv){
 	return;
 }
 
-int main(int argc, char **argv){
+int run_backtrack(int argc, char **argv){
 	KP *kp;
 	KPSol *kpsol;
 	FILE *input;
@@ -35,7 +39,7 @@ int main(int argc, char **argv){
 
 	kp = kp_read(input);
 	fclose(input);
-	kpsol = kp_backtrack(kp, 0);
+	kpsol = kp_backtrack(kp, 0, INF);
 
 	n = kpsol->kp->n;
 	nx = kpsol->nx;
@@ -78,5 +82,66 @@ int main(int argc, char **argv){
 	kp_free(kp);
 
 	return 0;
+}
+
+int backtrack_find_best(int argc, char **argv){
+	KP *kp;
+	KPSol *kpsol;
+	FILE *input;
+	int i, n, nx, *x, last, first, split;
+	long long b_left;
+	long long best_profit;
+
+	best_profit = atoll(argv[1]);
+
+	kp = kp_read(stdin);
+	kpsol = kp_backtrack(kp, 0, best_profit);
+
+	n = kpsol->kp->n;
+	nx = kpsol->nx;
+	x = kpsol->x;
+	/* finding split item */
+	for( split = 0, b_left = kpsol->kp->b ;
+		b_left > 0 ;
+		b_left -= kpsol->kp->w[split++] ){}
+	i = 0;
+	/* finding first variable setted to 0 */
+	while( i < n){
+		if( !x[i] )
+			break;
+		i++;
+	}
+	first = i;
+	/* finding last variable setted to 1 */
+	i = n-1;
+	while( i ){
+		if( x[i] )
+			break;
+		i--;
+	}
+	last = i;
+
+	/* printing results */
+	printf("%d;", kpsol->kp->n);          /* number of items*/
+	printf("%lld;", kpsol->find_steps);   /* steps to find */
+	printf("%lld;", kpsol->proof_steps);  /* steps to proof */
+	printf("%lld;", kpsol->profit);       /* profit */
+	printf("%d;", split+1);               /* split */
+	printf("%d;", first+1);               /* first variable setted to 1 */
+	printf("%d;", last+1);                /* last variable setted to 0 */
+	printf("%d;", nx);                    /* # of selected variable */
+	for( i = 0 ; i < n ; i++ )            /* the solution */
+		printf("%d", kpsol->x[i]);
+	printf("\n");
+
+	kpsol_free(kpsol);
+	kp_free(kp);
+
+	return 0;
+}
+
+int main(int argc, char **argv){
+	//return run_backtrack(argc, argv);
+	return backtrack_find_best(argc, argv);
 }
 
