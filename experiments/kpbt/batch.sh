@@ -43,7 +43,7 @@ do
 		cat $kptmp
 		num=`cat $kptmp | $KP2ZPL | $ZPL2LP | $RUNSCIP | $SCIP2SUMMARY | cut -d ';' -f 1`
 		num=`python -c "print(int(float("$num")));"`
-		$KPBT $kptmp
+		$KPBT $num $kptmp
 	done
 done
 rm $kptmp

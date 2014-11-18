@@ -92,9 +92,30 @@ int backtrack_find_best(int argc, char **argv){
 	long long b_left;
 	long long best_profit;
 
+	/* checking input */
+	if(argc < 2){
+		fprintf(stdout, "usage: %s <upper bound> [kp instance file]\n", argv[0]);
+		fprintf(stdout, "   If input file not given, read from stdin.\n", argv[0]);
+		fprintf(stdout, "   Output format: <1>;<2>;<3>;<4>;<5>;<6>;<7>;<8>;<9>\n");
+		fprintf(stdout, "     1. <n of items>\n");
+		fprintf(stdout, "     2. <steps to find>\n");
+		fprintf(stdout, "     3. <steps to prove>\n");
+		fprintf(stdout, "     4. <profit>\n");
+		fprintf(stdout, "     5. <split item>\n");
+		fprintf(stdout, "     6. <1st var set 1>\n");
+		fprintf(stdout, "     7. <last var set 0>\n");
+		fprintf(stdout, "     8. <n of select vars>\n");
+		fprintf(stdout, "     9. <the solution>\n");
+		return 1;
+	}
+
+	input = stdin;
+	if(argc > 2) input = fopen(argv[2], "r");
+
 	best_profit = atoll(argv[1]);
 
-	kp = kp_read(stdin);
+	kp = kp_read(input);
+	fclose(input);
 	kpsol = kp_backtrack(kp, 0, best_profit);
 
 	n = kpsol->kp->n;
