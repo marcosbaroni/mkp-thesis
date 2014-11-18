@@ -2,6 +2,10 @@
 
 \usepackage{amsmath}
 \usepackage{amssymb}
+\usepackage[linesnumbered,lined,ruled]{algorithm2e}
+
+\newtheorem{mydef}{Definition}
+\let\emph\textbf
 
 \title{Report...}
 \author{Marcos Daniel Baroni}
@@ -20,7 +24,6 @@
 %  - Apresentar algoritmo de Programação Dinâmica 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Seção 1: O KP (FPTAS, NP-Completeness, polinomial expectance, )
 %    Definição do problema/relaxação LP;
@@ -38,11 +41,19 @@
 
 \maketitle
 
+
+
 \begin{align*}
   \text{maximize} & \sum_{j=1}^n p_j x_j \\
   \text{subject to} & \sum_{j=1}^n w_j x_j \leq b \\
    & x_j \in \{0, 1\}, \quad j \in \{1, \ldots, n\}.
 \end{align*}
+
+\section{}
+
+\section{The Backtracking Approach}
+\cite{lueker1998average}
+\cite{horowitz1978fundamentals}
 
 \begin{displaymath}
   \frac{p_1}{w_1} \geqslant
@@ -51,9 +62,46 @@
   \frac{p_n}{w_n}
 \end{displaymath}
 
-\section{}
-\section{}
-\section{}
+\newpage
+
+\section{The Nemhauser-Ullmann Algorithm}
+
+A brute force method to solve the knapsack problem is to enumerate all possible subsets over the $n$ items.
+In order to reduce the search space, a domination concept is used which is usually attributed to Weingartner and Ness~\cite{weingartner1967methods}.
+\begin{mydef}[Domination]
+A subset $S \in [n]$ with weight $w(S) = \sum_{i \in S} w_i$  and profit $p(S) = \sum_{i \in S} p_i$
+\emph{dominates} another subset $T \subseteq [n]$ if $w(S) \leqslant w(T)$ and $p(S) \geqslant p(T)$.
+\end{mydef}
+
+For simplicity assume that no two subsets have the same profit.
+Then no subset dominated by another subset can be an optimal solution to the knapsack problem, regardless of the specified knapsack capacity.
+Consequently, it suffices to consider those sets that are not dominated by any other set.
+
+Using this concept Nemhauser and Ullmann~\cite{nemhauser1969discrete} introduce an elegant
+algorithm computing a list of all dominating sets in an iterative manner:
+
+\begin{algorithm}[H]
+ \SetKwInOut{Input}{Input}
+ \SetKwInOut{Output}{Output}
+ \Input{a KP instance}
+ \Output{list $S(n)$ of all dominating sets}
+ $S(0) \leftarrow \emptyset $\;
+ \For{$i\leftarrow 1$ \KwTo $n$}{
+   $S'(i) \leftarrow S(i-1)\; \cup \big\{ s \cup \{i\} \,\big|\, s \in S(i-1)\big\}$\;
+   $S(i) \leftarrow \big\{ dominates\big(s, S'(i)\big) \,\big|\, s \in S'(i) \big\}$\;
+ }
+ \caption{The Nemhauser-Ullmann Algorithm}
+\end{algorithm}
+
+Let $S(i)$ be the sequence of dominating subsets over the items $1, \ldots, i$.
+%The sets in $S(i)$ are assumed to be listed in increasing order of their weights.
+Given $S(i-1)$, the sequence $S(i)$ can be computed as follows:
+First duplicate all subsets in $S(i-1)$ and then add item $i$ to each of the duplicated sets (line 3).
+Now we compute $S(i)$ by removing the sets dominated by any other set (line 4).
+The $dominates(s, S)$ procedure checks if subset $s$ dominates all others subsets in $S$.
+The result is the ordered sequence $S(i)$ of dominating sets over the items $1, \ldots, i$.
+
+Beier and V{\"o}cking \cite{beier2003random}...
 
 \bibliographystyle{abbrv}
 \bibliography{../../refs}
