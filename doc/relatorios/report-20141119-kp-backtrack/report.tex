@@ -1,8 +1,10 @@
 \documentclass{article}
 
+\usepackage{graphicx}
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage[linesnumbered,lined,ruled]{algorithm2e}
+\usepackage[skip=2pt,labelfont=bf]{caption}
 
 \newtheorem{mydef}{Definition}
 \let\emph\textbf
@@ -88,22 +90,51 @@ algorithm (Algorithm~\ref{alg:nu}) computing a list of all dominating sets in an
  $S(0) \leftarrow \emptyset $\;
  \For{$i\leftarrow 1$ \KwTo $n$}{
    $S'(i) \leftarrow S(i-1)\; \cup \big\{ s \cup \{i\} \,\big|\, s \in S(i-1)\big\}$\;
-   $S(i) \leftarrow \big\{ dominates\big(s, S'(i)\big) \,\big|\, s \in S'(i) \big\}$\;
+   %$S(i) \leftarrow \big\{ s \,\big|\, s \in S'(i), dominates\big(s, S'(i)\big) \big\}$\;
+   $S(i) \leftarrow \big\{ s \in S'(i) \,\big|\, dominates\big(s, S'(i)\big) \big\}$\;
+   %$S(i) \leftarrow \emptyset $\;
+   %\ForEach{$ s \in S'(i)$}{
+   %   \If{$ dominates\big(s, S'(i)\big)$}{
+   %      $S(i) \leftarrow S(i) \cup \{s\}$\;
+   %  }
+   %}
  }
  \caption{The Nemhauser-Ullmann Algorithm}
  \label{alg:nu}
 \end{algorithm}
 
-Let $S(i)$ be the sequence of dominating subsets over the items $1, \ldots, i$.
-%The sets in $S(i)$ are assumed to be listed in increasing order of their weights.
-Given $S(i-1)$, the sequence $S(i)$ can be computed as follows:
-First duplicate all subsets in $S(i-1)$ and then add item $i$ to each of the duplicated sets (line 3).
-Now we compute $S(i)$ by removing the sets dominated by any other set (line 4).
+%Let $S(i)$ be the sequence of dominating subsets over the items $1, \ldots, i$.
+%Given $S(i-1)$, the sequence $S(i)$ can be computed as follows:
+%Now we compute $S(i)$ by selecting just the dominating sets in $S'(i)$ (line 4).
+This algorithm can be viewed as a sparse dynamic programming approach which,
+at each iteration duplicates all subsets in $S(i-1)$ and then adds item $i$
+to each of the duplicated subsets (line 3).
 The $dominates(s, S)$ procedure checks if subset $s$ dominates all others subsets in $S$.
-The result is the ordered sequence $S(i)$ of dominating sets over the items $1, \ldots, i$.
-This algorithm can be viewed as a sparse dynamic programming approach.
+The dominated subsets are then {\it filtered} (line 4).
+The result is the ordered sequence $S(n)$ of dominating subsets over the items $1, \ldots, n$.
 
-Considering this algorithm Beier and V{\"o}cking~\cite{beier2003random}
+Figure~\ref{fig:pareto} graphically represents profit and weight values for
+dominating sets of (a) an intermediate solution $S(i)$,
+(b) its next solution $S(i+1)$ and (c) an optimal solution for a small random instance.
+
+If we denote $q(i)$ the upper bound on the number of dominating sets over items in
+$1, \ldots, i$, at each iteration the algorithm computes $S(i)$ over $S(i-1)$ in $O\big(q(i)\big)$ time.
+The total running time of the algorithm is then $O\big(n \cdot q(n)\big)$.
+Now the challenge in the analysis is to estimate the number of dominating sets.
+
+Beier and V{\"o}cking~\cite{beier2003random} addressed this analysis considering
+sets of items with adversary weights and randomly drawn profits.
+They could deduce that for the uniform distribution, for example, the expected
+number of dominating sets is $E[q] = O(n^3)$ leading to an expected running
+time of $O(n^4)$.
+
+\begin{figure}
+  \includegraphics[width=\textwidth]{pareto}
+  \caption{Graphical representation of dominating sets for
+  (a) an intermediate solution $S(i)$, (b) its next solution $S(i+1)$. and
+  (c) an optimal solution for a small random instance.}
+  \label{fig:pareto}
+\end{figure}
 
 \bibliographystyle{abbrv}
 \bibliography{../../refs}
