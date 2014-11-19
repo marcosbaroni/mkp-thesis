@@ -1,6 +1,7 @@
 \documentclass{article}
 
 \usepackage{graphicx}
+\usepackage{xfrac}
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage[linesnumbered,lined,ruled]{algorithm2e}
@@ -41,35 +42,74 @@
 
 \begin{document}
 
-\maketitle
+%\maketitle
 
+\section{The knapsack problem}
 
-
-\begin{align*}
-  \text{maximize} & \sum_{j=1}^n p_j x_j \\
-  \text{subject to} & \sum_{j=1}^n w_j x_j \leq b \\
-   & x_j \in \{0, 1\}, \quad j \in \{1, \ldots, n\}.
-\end{align*}
-
-\section{}
-
-\section{The Backtracking Approach}
-\cite{lueker1998average}
-\cite{horowitz1978fundamentals}
-
+In this report we consider the $0/1$ knapsack problem which can be defined as follows:
+given $n$ positive weights $w_i$, $n$ positive profits $p_i$ and a positive
+number $b$ which is the knapsack capacity, this problem calls for choosing a
+subset $s \in [n]$ such that
 \begin{displaymath}
-  \frac{p_1}{w_1} \geqslant
-  \frac{p_2}{w_2} \geqslant
-  \ldots \geqslant
-  \frac{p_n}{w_n}
+  max \sum_{i \in s} p_i x_i \qquad \text{subject to} \qquad
+  \sum_{i \in s} w_i x_i \leqslant b
 \end{displaymath}
+The $x$ constute a $0/1$ valued vector.
+To facilitate greedy procedures we can consider the items is sorted in
+nondecreasing order of {\it profit density}:
+  ${p_1 \over w_1} \geqslant {p_2 \over w_2} \geqslant \ldots \geqslant {p_n \over w_n}$.
+
+
+\section{The backtracking approach}
+The backtrack procedure is a general technique used to solve combinatorial
+problems dealing with search for a set of solutions or an optimal
+solution satisfying some constraint.
+
+In order to apply the backtrack method the desired solution must (a) be
+expressible as an $n$-tuple $(x_1, x_2, \ldots, x_n)$ where $x_i$ are chosen
+from some finite set $S_i$ and (b) shares a property $P_n(x_1, \ldots, x_n)$
+such that $P_{k+1}(x_1, \ldots, x_k, x_{k+1})$ implies $P_{k}(x_1, \ldots, x_k)$
+for $0 \leqslant k \leqslant n$.
+
+The backtrack procedure consists of enumerating all solutions $(x_1, \ldots, x_n)$
+to the original problem by cosidering all partial solutions $(x_1, \ldots, x_k)$
+that satisfy $P_k$.
+If a partial solution $(x_1, \ldots, x_k)$ does not satisfying $P_k$; hence by induction,
+no extended sequence $(x_1, \ldots, x_k, \ldots, x_n)$ can satisfy $P_n$.
+
+A backtrack procedure for the knapsack problem can be developed using the linear
+relaxation of the problem for computing and upper bound~\cite{horowitz1978fundamentals}.
+The solution for linear relaxation of a given partial solution is given by
+the greedy algorithm (Algorithm~\ref{alg:greedy}).
+
+\begin{algorithm}[H]
+ \SetKwInOut{Input}{Input}
+ \SetKwInOut{Output}{Output}
+ \SetKwComment{Comment}{}{}
+ \Input{ a partial solution $(x_1, \ldots, x_k)$ }
+ \Output{ the LP upper bound $p_{lp}$}
+ $b_{lp} \leftarrow b$\;
+ $p_{lp} \leftarrow 0$\;
+ \For(\tcc*[f]{compute current profit and weight}){$i \leftarrow 1$ \KwTo $k$}{
+ 	$b_{lp} \leftarrow b_{lp} + x_i \cdot w_i$;
+ 	$p_{lp} \leftarrow p_{lp} + x_i \cdot p_i$\;
+ }
+ \While(\tcc*[f]{greedily filling knapsack}){$b_{left} \geqslant w_i$}{
+ 	$b_{lp} \leftarrow b_{lp} + w_i$;
+ 	$p_{lp} \leftarrow p_{lp} + p_i$;
+	$i \leftarrow i+1$\;
+ }
+ $p_{lp} \leftarrow p_{lp} + p_i.\frac{b_{lp}}{w_i}$\tcc*[f]{fitting the split item}
+ \caption{Computes profit of LP-relaxation of a partial solution}
+ \label{alg:greedy}
+\end{algorithm}
 
 \newpage
 
-\section{The Nemhauser-Ullmann Algorithm}
+\section{The Nemhauser-Ullmann algorithm}
 
 A brute force method to solve the knapsack problem is to enumerate all possible subsets over the $n$ items.
-In order to reduce the search space, a domination concept is used which is usually attributed to Weingartner and Ness~\cite{weingartner1967methods}.
+In order to reduce the search space, a domination concept can be used which is usually attributed to Weingartner and Ness~\cite{weingartner1967methods}.
 \begin{mydef}[Domination]
 A subset $S \in [n]$ with weight $w(S) = \sum_{i \in S} w_i$  and profit $p(S) = \sum_{i \in S} p_i$
 \emph{dominates} another subset $T \subseteq [n]$ if $w(S) \leqslant w(T)$ and $p(S) \geqslant p(T)$.
@@ -91,7 +131,7 @@ algorithm (Algorithm~\ref{alg:nu}) computing a list of all dominating sets in an
  \For{$i\leftarrow 1$ \KwTo $n$}{
    $S'(i) \leftarrow S(i-1)\; \cup \big\{ s \cup \{i\} \,\big|\, s \in S(i-1)\big\}$\;
    %$S(i) \leftarrow \big\{ s \,\big|\, s \in S'(i), dominates\big(s, S'(i)\big) \big\}$\;
-   $S(i) \leftarrow \big\{ s \in S'(i) \,\big|\, dominates\big(s, S'(i)\big) \big\}$\;
+   $S(i) \leftarrow \big\{ s \in S'(i) \,\big|\, \mathsf{dominates}\big(s, S'(i)\big) \big\}$\;
    %$S(i) \leftarrow \emptyset $\;
    %\ForEach{$ s \in S'(i)$}{
    %   \If{$ dominates\big(s, S'(i)\big)$}{
@@ -106,14 +146,14 @@ algorithm (Algorithm~\ref{alg:nu}) computing a list of all dominating sets in an
 %Let $S(i)$ be the sequence of dominating subsets over the items $1, \ldots, i$.
 %Given $S(i-1)$, the sequence $S(i)$ can be computed as follows:
 %Now we compute $S(i)$ by selecting just the dominating sets in $S'(i)$ (line 4).
-This algorithm can be viewed as a sparse dynamic programming approach which,
+This algorithm can be viewed as a sparse dynamic programming approach which
 at each iteration duplicates all subsets in $S(i-1)$ and then adds item $i$
 to each of the duplicated subsets (line 3).
-The $dominates(s, S)$ procedure checks if subset $s$ dominates all others subsets in $S$.
+The $\mathsf{dominates}$ procedure checks if subset $s$ dominates all others subsets in $S'(i)$.
 The dominated subsets are then {\it filtered} (line 4).
 The result is the ordered sequence $S(n)$ of dominating subsets over the items $1, \ldots, n$.
 
-Figure~\ref{fig:pareto} graphically represents profit and weight values for
+Figure~\ref{fig:pareto} graphically represents profits and weights for
 dominating sets of (a) an intermediate solution $S(i)$,
 (b) its next solution $S(i+1)$ and (c) an optimal solution for a small random instance.
 
