@@ -1,5 +1,6 @@
 \documentclass{article}
 
+\usepackage[margin=1.5in]{geometry}
 \usepackage{graphicx}
 \usepackage{xfrac}
 \usepackage{amsmath}
@@ -10,7 +11,7 @@
 \newtheorem{mydef}{Definition}
 \let\emph\textbf
 
-\title{Report...}
+\title{A study of two exact algorithms for the knapsack problem}
 \author{Marcos Daniel Baroni}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -42,9 +43,29 @@
 
 \begin{document}
 
-%\maketitle
+\maketitle
+
+This brief study was inspired by a comment about backtracking approach for knapsack problem
+by Lueker in \cite{lueker1982average} 
+saying:
+
+\vspace*{10pt}
+\begin{minipage}{5in}
+``{\it When applied to randomly generated data, this approach, which always yields the
+exact optimum, seems to run very rapidly even for large values of $N$; in fact,
+it seems possible that its expected time is polynomial in $N$. A proof of this
+would be very interesting, but probably difficult}''.
+\end{minipage}
+\vspace*{10pt}
+
+The knapsack problem is briefly introduced in Section~\ref{sec:kp}.
+The backtrack algorithm for the knapsack problem and some experimental results
+is presented in Section~\ref{sec:backtrack}.
+A sparse dynamic programming approach for the knapsack problem is presented in
+Section~\ref{sec:dp}.
 
 \section{The knapsack problem}
+\label{sec:kp}
 
 In this report we consider the $0/1$ knapsack problem which can be defined as follows:
 given $n$ positive weights $w_i$, $n$ positive profits $p_i$ and a positive
@@ -54,13 +75,13 @@ subset $s \in [n]$ such that
   max \sum_{i \in s} p_i x_i \qquad \text{subject to} \qquad
   \sum_{i \in s} w_i x_i \leqslant b
 \end{displaymath}
-The $x$ constute a $0/1$ valued vector.
+The $x$ constitutes a $0/1$ valued vector.
 To facilitate greedy procedures we can consider the items is sorted in
 nondecreasing order of {\it profit density}:
   ${p_1 \over w_1} \geqslant {p_2 \over w_2} \geqslant \ldots \geqslant {p_n \over w_n}$.
 
-
 \section{The backtracking approach}
+\label{sec:backtrack}
 The backtrack procedure is a general technique used to solve combinatorial
 problems dealing with search for a set of solutions or an optimal
 solution satisfying some constraint.
@@ -72,13 +93,22 @@ such that $P_{k+1}(x_1, \ldots, x_k, x_{k+1})$ implies $P_{k}(x_1, \ldots, x_k)$
 for $0 \leqslant k \leqslant n$.
 
 The backtrack procedure consists of enumerating all solutions $(x_1, \ldots, x_n)$
-to the original problem by cosidering all partial solutions $(x_1, \ldots, x_k)$
+to the original problem by computing all partial solutions $(x_1, \ldots, x_k)$
 that satisfy $P_k$.
 If a partial solution $(x_1, \ldots, x_k)$ does not satisfying $P_k$; hence by induction,
 no extended sequence $(x_1, \ldots, x_k, \ldots, x_n)$ can satisfy $P_n$.
 
-A backtrack procedure for the knapsack problem can be developed using the linear
-relaxation of the problem for computing and upper bound~\cite{horowitz1978fundamentals}.
+In the case of knapsack problem, each partial solution $(x_1, \ldots, x_k)$ can be
+viewed as a subproblem whose variables $x_1, \ldots, x_k$ are fixed while $x_{k+1}, \ldots,
+x_n$ are free.
+For each subproblem a relaxed version can be derived
+replacing the integrality contraints of the free variables
+by the linear relaxation constraint $x_i \in [0, 1]$.
+This relaxation is called {\it linear relaxation}.
+The linear relaxation can be used to prune its respective partial solution:
+whenever its optimal value is not better than the best optimal solution found so far,
+the respective partial solution is pruned and the algorithm backtracks.
+
 The solution for linear relaxation of a given partial solution is given by
 the greedy algorithm (Algorithm~\ref{alg:greedy}).
 
@@ -104,12 +134,19 @@ the greedy algorithm (Algorithm~\ref{alg:greedy}).
  \label{alg:greedy}
 \end{algorithm}
 
-\newpage
+Figure~\ref{fig:experiment} shows experimental results on the number of partial
+solutions computed by the backtrack algorithm.
+The continuous line is the average number over 1000 random instances,
+the dotted line is the total number of possible solutions and
+the dashed line is the conjectured curve for the observed experimental results;
+(a) shows the number of computed solutions to find the optimal solution and
+(b) shows the number of computed solutions to prove its optimality.
 
 \section{The Nemhauser-Ullmann algorithm}
-
-A brute force method to solve the knapsack problem is to enumerate all possible subsets over the $n$ items.
-In order to reduce the search space, a domination concept can be used which is usually attributed to Weingartner and Ness~\cite{weingartner1967methods}.
+\label{sec:dp}
+%A brute force method to solve the knapsack problem is to enumerate all possible subsets over the $n$ items.
+In order to reduce the search space of a knapsack problem instance, a domination
+concept can be used which is usually attributed to Weingartner and Ness~\cite{weingartner1967methods}.
 \begin{mydef}[Domination]
 A subset $S \in [n]$ with weight $w(S) = \sum_{i \in S} w_i$  and profit $p(S) = \sum_{i \in S} p_i$
 \emph{dominates} another subset $T \subseteq [n]$ if $w(S) \leqslant w(T)$ and $p(S) \geqslant p(T)$.
@@ -168,13 +205,22 @@ They could deduce that for the uniform distribution, for example, the expected
 number of dominating sets is $E[q] = O(n^3)$ leading to an expected running
 time of $O(n^4)$.
 
-\begin{figure}
+\begin{figure}[h]
+  \includegraphics[width=\textwidth]{find-proof}
+  \caption{Number of computed nodes (partial solutions) (a) to find the optimal solution
+  and (b) to prove its optimality.}
+  \label{fig:experiment}
+\end{figure}
+
+\begin{figure}[h]
   \includegraphics[width=\textwidth]{pareto}
   \caption{Graphical representation of dominating sets for
   (a) an intermediate solution $S(i)$, (b) its next solution $S(i+1)$. and
   (c) an optimal solution for a small random instance.}
   \label{fig:pareto}
 \end{figure}
+
+\newpage 
 
 \bibliographystyle{abbrv}
 \bibliography{../../refs}
