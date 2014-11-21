@@ -42,6 +42,7 @@ void kpsol_fprint(FILE *out, KPSol *kpsol);
 
 /* Enumerate all KP solutions (backtrack alg) */
 KPSol *kp_backtrack(KP *kp, int enumerate, long long upper_bound);
+KPSol *kp_dymprog(KP *kp);
 
 #endif
 

@@ -690,29 +690,33 @@ AVLTree *avl_insert(AVLTree *avl, void *a){
 	return avl;
 }
 
+/* Recursively inserts a node in the proper place.
+ * return: if 'node' had grown.
+ */
 int avl_node_insert(AVLTree *avl, AVLNode *node, AVLNode *new_node){
 	int c, grew = 0;
 
+	/* INSERTING NODE */
 	c = (*avl->cmp_f)(node->info, new_node->info);
-	if(c >= 0){
-		if( !node->right ){
+	if(c >= 0){             /* insert in RIGHT tree */
+		if( !node->right ){ /* new leaf on RIGHT subtree */
 			node->right = new_node;
 			new_node->father = node;
 			node->balance++;
 			grew = 1;
-		}else{
+		}else{              /* recursuvely insert in right tree */
 			grew = avl_node_insert(avl, node->right, new_node);
+			node->balance += grew;
 		}
-		node->balance += grew;
-	}{
-		if( !node->left ){
+	}{                      /* insert in LEFT tree */
+		if( !node->left ){  /* new leaf on LEFT subtree */
 			node->left = new_node;
 			new_node->father = node;
 			grew = 1;
 		}else{
 			grew = avl_node_insert(avl, node->left, new_node);
+			node->balance -= grew;
 		}
-		node->balance -= grew;
 	}
 	/* STOPPED HERE */
 	return grew;

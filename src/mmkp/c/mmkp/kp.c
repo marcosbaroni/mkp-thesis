@@ -353,3 +353,19 @@ KPSol *kp_backtrack(KP *kp, int enumerate, long long upper_bound){
 	return kpsol;
 }
 
+KPSol *kp_dymprog(KP *kp){
+	int n, i;
+	long long *w, *p, b;
+	KPSol *kpsol;
+
+	n = kp->n;
+	w = kp->w;
+	p = kp->p;
+	n = kp->b;
+
+	for(i = 0 ; i < n ; i++){
+	}
+
+	return kpsol;
+}
+
