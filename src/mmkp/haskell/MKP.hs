@@ -91,7 +91,7 @@ mkp2 = ([
 	(755, [197, 063])],
 	[601, 1041])
 
-main = getContents >>= return.show.readMKP >>= print
+main = getContents >>= return.show.solve.readMKP >>= print
 
 ---------------------------- INPUT/OUTPUT --------------------------------------
 subGroup :: [a] -> Int -> [[a]]
