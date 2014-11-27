@@ -1,35 +1,44 @@
-import Data.List (delete) 
+import Data.List (delete, sortBy)
+import Data.Ord (comparing)
 import Data.String (words) 
 
 ----------------------------- DATA TYPES ---------------------------------------
 type Number = Double
 
 -- | An MKP item
---      (profit, capacities)
+--      tuple: (profit, capacities)
 type Item = (Number, [Number])
 
 -- | The MKP instance representation
---      (list of items, capacities)
+--      tuple: (list of items, capacities)
 type MKP = ([Item], [Number])
 
 -- | The MKP solution representation 
---      (selected itens, profit, weights)
+--      tuple: (selected itens, profit, weights)
 type MKPSolution = ([Int], Number, [Number])
+
+-- | Insert the given item on a MKP solution, updating its profit and weights.
+addItem :: Item -> Int -> MKPSolution -> MKPSolution
+addItem (itemProfit, itemWeights) idx (solIdxs, solProfit, solWeights) = (solIdxs', solProfit', solWeight')
+	where
+	solIdxs' = solIdxs ++ [idx]
+	solProfit' = solProfit + itemProfit
+	solWeight' = map (uncurry (+)) $ zip itemWeights solWeights
 --------------------------------------------------------------------------------
 
-
 -------------------------- DOMINATING SETS  ------------------------------------
--- | Answes if the first set dominates the second set.
+-- | Answer if the first set dominates the second.
 dominates :: MKPSolution -> MKPSolution -> Bool
-dominates (_, p1, c1) (_, p2, c2) = betterProfit || dominateWeights
+dominates (_, p1, cs1) (_, p2, cs2) = betterProfit || dominateWeights
 	where
 	betterProfit = (p1 > p2)
-	dominateWeights = or $ map (uncurry (<)) $ (zip c1 c2)
+	dominateWeights = or $ map (uncurry (<)) $ (zip cs1 cs2)
 
 -- | Returns all dominating sets of a MKP instance.
 domSets :: MKP -> [MKPSolution]
 domSets (items, _) = domSets' 1 items []
 	where
+	-- recusrively computes dominating sets
 	domSets' _ [] set = set
 	domSets' idx (it:items) sets = domSets' (idx+1) items newSets
 		where
@@ -37,13 +46,19 @@ domSets (items, _) = domSets' 1 items []
 		merged  = sets ++ map (addItem it idx) sets ++ [([idx], fst it, snd it)]
 --------------------------------------------------------------------------------
 
--- | Insert the given item on a MKP solution.
-addItem :: Item -> Int -> MKPSolution -> MKPSolution
-addItem (p, ws) idx (items, pSol, wSol) = (newItems, newP, newW)
+
+---------------------------------- SOLVING MKP ---------------------------------
+-- | Solves the MKP using domating sets generation.
+--     Among the feasible sets the most protitable is selected.
+solve :: MKP -> MKPSolution
+solve mkp = optimum
 	where
-	newItems = idx:items
-	newP = pSol+p
-	newW = map (uncurry (+)) $ zip ws wSol
+	getProfit (_, p, _) = p
+	dummySet = ([], 0, snd mkp)   -- for filtering
+	feasibles = filter (not.(dominates dummySet)) $ domSets mkp
+	optimum = head $ reverse $ sortBy (comparing getProfit) feasibles
+--------------------------------------------------------------------------------
+
 
 ---------------------------------------------
 -- 10
@@ -67,6 +82,16 @@ mkp1 = ([
 	(474, [474, 454])],
 	[2398, 2639])
 
+mkp2 :: MKP
+mkp2 = ([
+	(576, [508, 260]),
+	(269, [241, 236]),
+	(451, [134, 951]),
+	(620, [121, 572]),
+	(755, [197, 063])],
+	[601, 1041])
+
+main = print $ solve $ mkp2
 
 ---------------------------- INPUT/OUTPUT --------------------------------------
 readMKP :: String -> MKP
