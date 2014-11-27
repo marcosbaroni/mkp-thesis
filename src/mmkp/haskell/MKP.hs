@@ -1,4 +1,4 @@
-import Data.List (delete, sortBy)
+import Data.List (delete, sortBy, transpose)
 import Data.Ord (comparing)
 import Data.String (words) 
 
@@ -91,11 +91,22 @@ mkp2 = ([
 	(755, [197, 063])],
 	[601, 1041])
 
-main = print $ solve $ mkp2
+main = getContents >>= return.show.readMKP >>= print
 
 ---------------------------- INPUT/OUTPUT --------------------------------------
-readMKP :: String -> MKP
-readMKP str = undefined
+subGroup :: [a] -> Int -> [[a]]
+subGroup ls n = sub' ls n []
 	where
-	nums = words str
+	sub' [] n rs = rs
+	sub' ls n rs = sub' (drop n ls) n (rs ++ [take n ls])
+
+readMKP :: String -> MKP
+readMKP str = (zip profits weights, capacities)
+	where
+	ws = words str
+	(n, m) = (read $ ws!!0, read $ ws!!1)
+	nums = map read $ drop 2 ws
+	profits = take n nums
+	weights = transpose $ subGroup (take (n*m) $ drop n nums) n
+	capacities = drop ((n*m)+n) nums
 --------------------------------------------------------------------------------
