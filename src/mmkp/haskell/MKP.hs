@@ -91,15 +91,15 @@ mkp2 = ([
 	(755, [197, 063])],
 	[601, 1041])
 
-main = getContents >>= return.show.solve.readMKP >>= print
-
 ---------------------------- INPUT/OUTPUT --------------------------------------
+-- | Split elements of a list in sublists of a given length. (Auxiliary function)
 subGroup :: [a] -> Int -> [[a]]
 subGroup ls n = sub' ls n []
 	where
 	sub' [] n rs = rs
 	sub' ls n rs = sub' (drop n ls) n (rs ++ [take n ls])
 
+-- | Parses a MKP instance.
 readMKP :: String -> MKP
 readMKP str = (zip profits weights, capacities)
 	where
@@ -110,3 +110,16 @@ readMKP str = (zip profits weights, capacities)
 	weights = transpose $ subGroup (take (n*m) $ drop n nums) n
 	capacities = drop ((n*m)+n) nums
 --------------------------------------------------------------------------------
+
+---------------------------- MAIN PROGRAM --------------------------------------
+-- | Reads a MKP instance from stdin and prints its optimun solution using 
+--     adapted Nemhauser-Ullman algorithm.
+optMKP = getContents >>= return.show.solve.readMKP >>= print
+
+-- | Reads a MKP instance from stdin and prints the total number of
+--     dominating sets.
+domSetsSize = getContents >>= return.length.domSets.readMKP >>= print
+
+main = domSetsSize
+--------------------------------------------------------------------------------
+
