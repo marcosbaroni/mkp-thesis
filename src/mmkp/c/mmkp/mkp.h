@@ -1,13 +1,15 @@
 #ifndef MKP_H
 #define MKP_H 1
 
+#include "util.h"
+
 /*** MKP PROBLEM INSTANCE ***/
 typedef struct MKP{
 	int n;       /* Number of itens */
 	int m;       /* Number of dimensions */
-	long *p;     /* Profit of itens [n] */
-	long **w;    /* Weight of itens [m x n] */
-	long *b;     /* Knapsack capacities [m] */
+	long long *p;     /* Profit of itens [n] */
+	long long **w;    /* Weight of itens [m x n] */
+	long long *b;     /* Knapsack capacities [m] */
 }MKP;
 
 /*** Memory Management ***/
@@ -28,13 +30,14 @@ void mkp_to_zimpl(FILE *fout, MKP *mkp);
 
 /*** MKP SOLUTION ***/
 typedef struct MKPSol{
-	long *x;          /* The solution vector [n] */
-	long *b_left;     /* Resource left on the knapsack [m] */
-	long obj;         /* Objective function */
-	int viable;       /* If solution is viable */
-	MKP *mkp;         /* The problem instance */
+	int *x;                /* The solution vector [n] */
+	long long *b_left;     /* Resource left on the knapsack [m] */
+	long long obj;         /* Objective function */
+	int viable;            /* If solution is viable */
+	MKP *mkp;              /* The problem instance */
 }MKPSol;
 
+/*** MKP SOLUTION FUNCTIONS ***/
 MKPSol *mkpsol_new(MKP *mkp);                   /* new empty solution */
 MKPSol *mkpsol_add_item(MKPSol *mkpsol, int a); /* add item */
 MKPSol *mkpsol_rm_item(MKPSol *mkpsol, int a);  /* remove item */
@@ -46,6 +49,9 @@ void mkpsol_free(MKPSol *mkpsol);               /* new empty solution */
 
 /* MKP TABU SEARCH*/
 MKPSol *tabu_mkp(MKPSol *mkpsol, int niter);
+
+/* MKP NEMHAUSER-ULLMAN */
+Array *mkp_nemull(MKP *mkp);
 
 #endif
 

@@ -75,6 +75,19 @@ long long_matrix_max(long **mat, int n, int m);      /* max number on matrix */
 long long_matrix_max_col(long **mat, int n, int m, int col); /* max elem of given column */
 long long_matrix_max_lin(long **mat, int n, int m, int lin); /* max elem of given line */
 
+/* LONG LONG MATRIX */
+long long **long_long_matrix_malloc(int n, int m);
+long long **long_long_matrix_read(FILE *in, long long **mat, int n, int m);
+void long_long_matrix_write(FILE *out, long long **mat, int n, int m);
+long long **long_long_matrix_init(long long **mat, int n, int m, long long x);
+long long **long_long_matrix_copy(long long **dest, long long **src, int n, int m);
+void long_long_matrix_fprint(FILE *out, long long **mat, int n, int m);
+void long_long_matrix_fprint_tranlated(FILE *out, long long **mat, int n, int m);
+void long_long_matrix_free(long long **mat, int n);
+long long long_long_matrix_max(long long **mat, int n, int m);      /* max number on matrix */
+long long long_long_matrix_max_col(long long **mat, int n, int m, int col); /* max elem of given column */
+long long long_long_matrix_max_lin(long long **mat, int n, int m, int lin); /* max elem of given line */
+
 /* ABSTRACT ARRAY */
 typedef struct Array{
 	void **a;
@@ -128,6 +141,7 @@ void zimpl_print_double_matrix(FILE *fout, double **mat, int nlin, int ncol);
 void zimpl_print_double_array(FILE *fout, double *array, int n);
 void long_matrix_zimpl_print(FILE *fout, long **mat, int nlin, int ncol);
 void long_array_zimpl_print(FILE *fout, long *array, int n);
+void long_long_matrix_zimpl_print(FILE *fout, long long **mat, int nlin, int ncol);
 
 /* GENERAL PARSING */
 int *parse_int_list(char *str, int *n);

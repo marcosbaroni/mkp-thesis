@@ -374,6 +374,16 @@ void long_long_array_write(FILE *out, long long *array, int n){
 	return ;
 }
 
+void long_long_array_fprint(FILE *out, long long *array, int n){
+	int i;
+	fprintf(out, "[");
+	for( i = 0 ; i < n-1 ; i++ )
+		fprintf(out, "%lld, ", array[i]);
+	if(n) fprintf(out, "%lld", array[n-1]);
+	fprintf(out, "]\n");
+	
+	return;
+}
 
 long long long_long_array_max(long long *array, int n){
 	int i;
@@ -601,6 +611,143 @@ void long_matrix_free(long **mat, int n){
 	free(mat);
 }
 
+/*******************************************************************************
+*                      LONG LONG MATRIX                                        *
+*******************************************************************************/
+/* MALLOC */
+long long **long_long_matrix_malloc(int n, int m){
+	long long **mat;
+	int i;
+
+	mat = (long long**)malloc(n*sizeof(long long*));
+	for( i = 0 ; i < n ; i++ )
+		mat[i] = (long long*)malloc(m*sizeof(long long));
+
+	return mat;
+}
+
+/* COPY */
+long long **long_long_matrix_copy(long long **dest, long long **src, int n, int m){
+	int i;
+
+	if(!dest)
+		dest = long_long_matrix_malloc(n, m);
+
+	for( i = 0 ; i < n ; i++ )
+		long_long_array_copy(dest[i], src[i], m);
+	return dest;
+}
+
+/* WRITE */
+void long_long_matrix_write(FILE *out, long long **mat, int n, int m){
+	int i;
+	for( i = 0 ; i < n ; i++ )
+		long_long_array_write(out, mat[i], m);
+
+	return;
+}
+
+/* READ */
+long long **long_long_matrix_read(FILE *in, long long **mat, int n, int m){
+	int i;
+
+	if(!mat) mat = long_long_matrix_malloc(n, m);
+	
+	for( i = 0 ; i < n ; i++ )
+		mat[i] = long_long_array_read(in, mat[i], m);
+	
+	return mat;
+}
+
+/* FPRINT */
+void long_long_matrix_fprint(FILE *out, long long **mat, int n, int m){
+	int i;
+	for( i = 0 ; i < n ; i++ )
+		long_long_array_fprint(out, mat[i], m);
+	
+	return;
+}
+
+/* FRPINT (TRANSLATED) */
+void long_long_matrix_fprint_tranlated(FILE *out, long long **mat, int n, int m){
+	int i, j;
+
+	for( j = 0 ; j < m ; j++ )
+		for( i = 0 ; i < n ; i++ )
+			fprintf(out, "%lld%s", mat[i][j], (i < n-1) ? " " : "\n" );
+	
+	return;
+}
+
+/* GET MAX ELEMENT */
+long long long_long_matrix_get_max(long long **mat, int n, int m){
+	int i, j;
+	long long max;
+
+	max = mat[0][0];
+	for( i = 0 ; i < n ; i++ )
+		for( j = 0 ; j < m ; j++ )
+			if( max < mat[i][j] )
+				max = mat[i][j];
+
+	return max;
+}
+
+/* FREE */
+void long_long_matrix_free(long long **mat, int n){
+	int i;
+	for( i = 0 ; i < n ; i++ )
+		free(mat[i]);
+	free(mat);
+}
+
+/* GET MAX ELEMENT OF A GIVEN COLUMN */
+long long long_long_matrix_max_col(long long **mat, int n, int m, int col){
+	int i;
+	long long max;
+
+	max = mat[0][col];
+	for( i = 1 ; i < n ; i++ )
+		if( max < mat[i][col] )
+			max = mat[i][col];
+	return max;
+}
+
+/* GET MAX ELEMENT OF A GIVEN LINE */
+long long long_long_matrix_max_lin(long long **mat, int n, int m, int lin){
+	int i;
+	long long max;
+
+	max = mat[lin][0];
+	for( i = 1 ; i < n ; i++ )
+		if( max < mat[lin][0] )
+			max = mat[lin][0];
+	return max;
+}
+
+void long_long_matrix_zimpl_print(FILE *fout, long long **mat, int nlin, int ncol){
+	int i, j;
+	
+	/* header */
+	fprintf(fout, "|1");
+	for( i = 1 ; i < ncol ; i++ )
+		fprintf(fout, ",%d", i+1);
+	fprintf(fout, "|\n");
+
+	/* values */
+	for( i = 0 ; i < nlin ; i++ ){
+		fprintf(fout, "|%d|%lld", i+1, mat[i][0]);
+		for( j = 1 ; j < ncol ; j++ )
+			fprintf(fout, ",%lld", mat[i][j]);
+		fprintf(fout, "|\n");
+	}
+	fprintf(fout, ";\n");
+	return;
+}
+
+/*******************************************************************************
+*                            ARRAY                                             *
+*******************************************************************************/
 Array *array_new(){
 	Array *a;
 	a = (Array*)malloc(sizeof(Array));
