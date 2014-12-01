@@ -19,6 +19,9 @@ void print_usage(int argc, char **argv){
 int execute_nemullman_mkp(int argc, char **argv){
 	MKP *mkp;
 	FILE *input;
+	Array *dom_sets;
+	MKPSol *best_sol, *sol;
+	int i, n;
 
 	input = stdin;
 	if(argc > 1) input = fopen(argv[1], "r");
@@ -26,8 +29,22 @@ int execute_nemullman_mkp(int argc, char **argv){
 	mkp = mkp_read_from_file(input);
 	fclose(input);
 
-	mkp_fprint(stdout, mkp);
+	dom_sets = mkp_nemull(mkp);
 
+	n = array_get_size(dom_sets);
+
+	//best_sol = array_get(dom_sets, 0);
+	//for( i = 1 ; i < n ; i++ ){
+	//	sol = array_get(dom_sets, i);
+	//	if( sol->feasible && sol->obj > best_sol->obj)
+	//		best_sol = sol;
+	//}
+
+	//printf("%lld\n", best_sol->obj);
+	printf("%d\n", n);
+
+	array_apply(dom_sets, (void(*)(void *))mkpsol_free);
+	array_free(dom_sets);
 	mkp_free(mkp);
 
 	return 0;

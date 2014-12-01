@@ -215,10 +215,10 @@ MKPSol *mkpsol_new(MKP *mkp){
 	MKPSol *mkpsol;
 
 	mkpsol = (MKPSol*)malloc(sizeof(MKPSol));
-	mkpsol->x = int_array_malloc(mkp->n);
-	mkpsol->b_left = long_long_array_copy(mkpsol->b_left, mkp->b, mkp->m);
+	mkpsol->x = int_array_init(NULL, mkp->n, 0);
+	mkpsol->b_left = long_long_array_copy(NULL, mkp->b, mkp->m);
 	mkpsol->obj = 0;
-	mkpsol->viable = 1;
+	mkpsol->feasible = 1;
 	mkpsol->mkp = mkp;
 
 	return mkpsol;
@@ -240,9 +240,9 @@ MKPSol *mkpsol_add_item(MKPSol *mkpsol, int a){
 	mkpsol->x[a] = 1;
 	mkpsol->obj += mkp->p[a];
 	for( i = 0 ; i < m ; i++ ){
-		mkpsol->b_left -= mkp->w[i][a];
-		if(mkpsol->b_left <= 0)
-			mkpsol->viable = 0;
+		mkpsol->b_left[i] -= mkp->w[i][a];
+		if(mkpsol->b_left[i] <= 0)
+			mkpsol->feasible = 0;
 	}
 
 	return mkpsol;
@@ -303,14 +303,48 @@ MKPSol *mkpsol_copy(MKPSol *mkpsol){
 	mkpsol_new->x = int_array_copy(NULL, mkpsol->x, mkpsol->mkp->n);
 	mkpsol_new->b_left = long_long_array_copy(NULL, mkpsol->b_left, mkpsol->mkp->m);
 	mkpsol_new->obj = mkpsol->obj;
-	mkpsol_new->viable = mkpsol->viable;
+	mkpsol_new->feasible = mkpsol->feasible;
 	mkpsol_new->mkp = mkpsol->mkp;
 
 	return mkpsol_new;
 }
 
-void mkpsol_print(FILE *fout, MKPSol *mkpsol){
-	unimplemented();
+int mkpsol_dominated_by(MKPSol *ms1, MKPSol *ms2){
+	int i, m;
+
+	m = ms1->mkp->m;
+	for( i = 0 ; i < m ; i++ )
+		if( ms1->b_left[i] > ms2->b_left[i] )
+			return 0;
+	return( ms2->obj > ms1->obj );
+}
+
+int mkpsol_dominates(MKPSol *ms1, MKPSol *ms2){
+	int i, m;
+
+	m = ms1->mkp->m;
+	if( ms1->obj <= ms2->obj ) return 0;
+	for( i = 0 ; i < m ; i++ )
+		if( ms1->b_left[i] < ms2->b_left[i] )
+			return 0;
+	return 1;
+}
+
+void mkpsol_fprint(FILE *fout, MKPSol *mkpsol){
+	long long *b;
+	int i, n, m;
+
+	b = mkpsol->mkp->b;
+	m = mkpsol->mkp->m;
+	n = mkpsol->mkp->n;
+
+	fprintf(fout, "%lld;[", mkpsol->obj);
+	for( i = 0 ; i < m ; i++)
+		fprintf(fout, "%lld%s", mkpsol->b_left[i], i+1==m?"];":",");
+	for( i = 0 ; i < n ; i++)
+		fprintf(fout, "%d", mkpsol->x[i]);
+	fprintf(fout, "\n");
+	return;
 }
 
 
@@ -346,24 +380,62 @@ MKPSol *tabu_mkp(MKPSol *mkpsol, int niter){
  * Nemhauser-Ullman Algorithm for MKP.
  * */
 Array *mkp_nemull(MKP *mkp){
-	Array *sols;
-	MKPSol *mkpsols;
-	int n, m;
+	Array *dom_sets, *merged_sets;
+	MKPSol *new_sol, *old_sol;
+	int n, m, i, j, k, n_dom_sets, n_merged_sets, is_dominant;
 	long long **w, *p, *b;
 
-	/* binding instance values */
+	/* initializing sets */
+	dom_sets = array_new();
+	merged_sets = array_new();
+
 	n = mkp->n;
-	m = mkp->m;
-	p = mkp->p;
-	w = mkp->w;
-	b = mkp->b;
-
-	sols = array_new();
-
 	for( i = 0 ; i < n ; i++ ){
-		
+		/* generating new sets from old ones */
+		n_dom_sets = array_get_size(dom_sets);
+		for( j = 0 ; j < n_dom_sets ; j++ ){
+			old_sol = array_get(dom_sets, j);
+			new_sol = mkpsol_copy(old_sol);          /* copy solution */
+			mkpsol_add_item(new_sol, i);             /* add new item */
+			array_insert(merged_sets, old_sol);      /* insert old solution */
+			array_insert(merged_sets, new_sol);      /* insert new solution */
+		}
+		/* the i-th item alone is a candidate set */
+		new_sol = mkpsol_new(mkp);
+		mkpsol_add_item(new_sol, i);
+		array_insert(merged_sets, new_sol);
+
+		/* now emptying the dom sets */
+		dom_sets = array_empty(dom_sets);
+
+		/* checking dominance of each set */
+		for( j = 0 ; j < array_get_size(merged_sets); j++ ){
+			new_sol = array_get(merged_sets, j);
+			is_dominant = 1;
+			/* scan all the present */
+			for( k = 0 ; k < array_get_size(merged_sets) && is_dominant ; k++ ){
+				old_sol = array_get(merged_sets, k);
+				//mkpsol_fprint(stdout, old_sol);
+				//printf("%sominates: \n", mkpsol_dominates(old_sol, new_sol)?"D":"Does not d");
+				//mkpsol_fprint(stdout, new_sol);
+				//is_dominant = !mkpsol_dominated_by(new_sol, old_sol);
+				is_dominant = !mkpsol_dominates(old_sol, new_sol);
+			}
+			/* the solution is dominating? */
+			if( is_dominant )
+				array_insert(dom_sets, new_sol);
+			else{
+				mkpsol_free(new_sol);
+				array_remove(merged_sets, j);
+				j--;
+			}
+		}
+		/* empty the merged set struct */
+		merged_sets = array_empty(merged_sets);
 	}
 
-	return sols;
+	array_free(merged_sets);
+
+	return dom_sets;
 }
 

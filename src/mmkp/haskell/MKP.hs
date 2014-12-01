@@ -27,9 +27,9 @@ addItem (itemProfit, itemWeights) idx (solIdxs, solProfit, solWeights) = (solIdx
 --------------------------------------------------------------------------------
 
 -------------------------- DOMINATING SETS  ------------------------------------
--- | Answer if the first set dominates the second.
-dominates :: MKPSolution -> MKPSolution -> Bool
-dominates (_, p1, cs1) (_, p2, cs2) = betterProfit || dominateWeights
+-- | Answer if the first set is not dominated by the second.
+notDominatedBy :: MKPSolution -> MKPSolution -> Bool
+notDominatedBy (_, p1, cs1) (_, p2, cs2) = betterProfit || dominateWeights
 	where
 	betterProfit = (p1 > p2)
 	dominateWeights = or $ map (uncurry (<)) $ (zip cs1 cs2)
@@ -42,7 +42,7 @@ domSets (items, _) = domSets' 1 items []
 	domSets' _ [] set = set
 	domSets' idx (it:items) sets = domSets' (idx+1) items newSets
 		where
-		newSets = [x | x <- merged, and $ map (dominates x) (delete x merged)]
+		newSets = [x | x <- merged, and $ map (notDominatedBy x) (delete x merged)]
 		merged  = sets ++ map (addItem it idx) sets ++ [([idx], fst it, snd it)]
 --------------------------------------------------------------------------------
 
@@ -55,7 +55,7 @@ solve mkp = optimum
 	where
 	getProfit (_, p, _) = p
 	dummySet = ([], 0, snd mkp)   -- for filtering
-	feasibles = filter (not.(dominates dummySet)) $ domSets mkp
+	feasibles = filter (not.(notDominatedBy dummySet)) $ domSets mkp
 	optimum = head $ reverse $ sortBy (comparing getProfit) feasibles
 --------------------------------------------------------------------------------
 

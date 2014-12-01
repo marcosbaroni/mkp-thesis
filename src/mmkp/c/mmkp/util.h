@@ -99,10 +99,12 @@ Array *array_new();
 int array_get_size(Array *array);
 void *array_get_array(Array *array);
 void *array_get(Array *array, int i);
-void array_apply(Array *a, void(apl_f)(void*));
-Array *array_insert(Array *a, void *elem);
-Array *array_empty(Array *a);
-void array_free(Array *a);
+void array_apply(Array *array, void(apl_f)(void*));
+void array_sort(Array *array, int(*compar)(void *, void *));
+Array *array_insert(Array *array, void *elem);
+Array *array_remove(Array *array, int a);
+Array *array_empty(Array *array);
+void array_free(Array *array);
 
 /* RANDOM NUMBERs */
 long lrand(long bound);
@@ -157,6 +159,7 @@ void gunzip(FILE *in, FILE *out);
 void unimplemented();
 void error(const char* format, ...);
 void assert_faccess(char *filename, int mode);
+void myassert(int express);
 void debug(char *msg);
 
 #endif

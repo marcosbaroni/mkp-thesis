@@ -33,7 +33,7 @@ typedef struct MKPSol{
 	int *x;                /* The solution vector [n] */
 	long long *b_left;     /* Resource left on the knapsack [m] */
 	long long obj;         /* Objective function */
-	int viable;            /* If solution is viable */
+	int feasible;            /* If solution is feasible*/
 	MKP *mkp;              /* The problem instance */
 }MKPSol;
 
@@ -44,7 +44,9 @@ MKPSol *mkpsol_rm_item(MKPSol *mkpsol, int a);  /* remove item */
 MKPSol *mkpsol_copy(MKPSol *mkpsol);            /* copies a solution */
 MKPSol *mkpsol_read_from_filename(char *filename, MKP *mkp);
 MKPSol *mkpsol_read_from_file(FILE *fin, MKP *mkp);
-void mkpsol_print(FILE *fout, MKPSol *mkpsol);  /* prints a solution */
+//int mkpsol_dominated_by(MKPSol *mkpsol1, MKPSol *mkpsol2); /* if 1st is dominated by 2nd */
+int mkpsol_dominates(MKPSol *ms1, MKPSol *ms2);
+void mkpsol_fprint(FILE *fout, MKPSol *mkpsol);  /* prints a solution */
 void mkpsol_free(MKPSol *mkpsol);               /* new empty solution */
 
 /* MKP TABU SEARCH*/

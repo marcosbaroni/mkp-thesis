@@ -105,7 +105,7 @@ int *int_array_init(int *array, int n, int x){
 
 int *int_array_copy(int *dest, int *src, int n){
 	int i;
-	if(!dest) dest = (int*)malloc(n*sizeof(int));
+	if(!dest) dest = (int*)int_array_malloc(n*sizeof(int));
 	for( i = 0 ; i < n ; i++ )
 		dest[i] = src[i];
 
@@ -777,6 +777,10 @@ void array_apply(Array *a, void(*apl_f)(void*)){
 	return;
 }
 
+void array_sort(Array *a, int(*compar)(void *, void *)){
+	unimplemented();
+}
+
 Array *array_insert(Array *array, void *elem){
 	if( array->n == array->nmax ){
 		array->nmax *= 2;
@@ -785,6 +789,14 @@ Array *array_insert(Array *array, void *elem){
 	array->a[array->n] = elem;
 	array->n++;
 
+	return array;
+}
+
+Array *array_remove(Array *array, int a){
+	myassert( a < array->n );
+
+	array->a[a] = array->a[array->n-1];
+	array->n--;
 	return array;
 }
 
@@ -1047,6 +1059,13 @@ void assert_faccess(char *filename, int mode){
 		error("Could not %s file %s.\n",
 			mode == W_OK ? "write" : "read", filename);
 	return;
+}
+
+void myassert(int express){
+	if(!express){
+		fprintf(stderr, "Fatal error on function %s: condition not meet!\n", __PRETTY_FUNCTION__);
+		exit(1);
+	}
 }
 
 void debug(char *msg){
