@@ -432,6 +432,7 @@ Array *mkp_nemull(MKP *mkp){
 		}
 		/* empty the merged set struct */
 		merged_sets = array_empty(merged_sets);
+		fprintf(stderr, "%d;%d;%d\n", i+1, mkp->m, array_get_size(dom_sets));
 	}
 
 	array_free(merged_sets);

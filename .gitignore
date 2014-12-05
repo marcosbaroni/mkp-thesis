@@ -11,4 +11,8 @@ scip.set
 src/mmkp/c/*.o
 bin/*2zpl
 bin/rand*
+bin/kpbt
+bin/mkp-domsets
+bin/mkp-nu
+bin/kpinfo
 
