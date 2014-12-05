@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <unistd.h>
 
-#define MAX_COEFFICIENT 1000
+#define MAX_COEFFICIENT 1000000
 
 #define MAX(x, y) (x > y ? x : y)
 #define MIN(x, y) (x < y ? x : y)

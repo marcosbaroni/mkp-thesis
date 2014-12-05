@@ -39,6 +39,7 @@ set style line 3 lt 3 lw 3 lc rgb "dark-green"
 set style line 4 lt 4 lw 3 lc rgb "dark-yellow"
 set style line 5 lt 5 lw 3 lc rgb "orange"
 set grid
+set yrange [*:10000000]
 set logscale y
 set title "N. of Dom. Sets generated from m-KP using Nemhauser-Ullman Algorithm"
 set xlabel "Size of instance"
