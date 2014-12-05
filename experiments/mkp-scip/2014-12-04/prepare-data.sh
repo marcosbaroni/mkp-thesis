@@ -16,7 +16,8 @@ outputdat=$2
 temp=`tempfile`
 echo "n;m;opt;gap;time" > $temp
 echo "int;int;double;double;double" >> $temp
-shift 2
+shift
+shift
 cat $@ >> $temp
 
 csv2sqlite3 $temp $outputdb

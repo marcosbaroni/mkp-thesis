@@ -43,7 +43,7 @@ set logscale y
 set title "N. of Dom. Sets generated from m-KP using Nemhauser-Ullman Algorithm"
 set xlabel "Size of instance"
 set ylabel "N. of dom. sets"
-plot 2.0**x+10 ls 1 t "1.6^x", \
+plot 2.0**x+10 ls 1 t "2^x", \
  "$data" u 1:5 ls 2 title "m=5", \
  "$data" u 1:4 ls 3 title "m=4", \
  "$data" u 1:3 ls 4 title "m=3", \
