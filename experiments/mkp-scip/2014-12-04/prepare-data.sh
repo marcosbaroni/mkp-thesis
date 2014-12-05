@@ -20,21 +20,20 @@ shift 2
 cat $@ >> $temp
 
 csv2sqlite3 $temp $outputdb
-sqlite $<<!
-	.mode csv
-	.separator ';'
-	.output ${temp}1
-	select n, avg(time) from tabela where m=1 group bt n order by n;
-	.output ${temp}2
-	select n, avg(time) from tabela where m=2 group bt n order by n;
-	.output ${temp}3
-	select n, avg(time) from tabela where m=3 group bt n order by n;
-	.output ${temp}4
-	select n, avg(time) from tabela where m=4 group bt n order by n;
-	.output ${temp}5
-	select n, avg(time) from tabela where m=5 group bt n order by n;
+sqlite $outputdb<<!
+.mode csv
+.separator ';'
+.output ${temp}1
+select n, avg(time) from tabela where m=1 group by n order by n;
+.output ${temp}2
+select avg(time) from tabela where m=2 group by n order by n;
+.output ${temp}3
+select avg(time) from tabela where m=3 group by n order by n;
+.output ${temp}4
+select avg(time) from tabela where m=4 group by n order by n;
+.output ${temp}5
+select avg(time) from tabela where m=5 group by n order by n;
 !
-
-paste -d ';' ${temp}1 ${temp}2 ${temp}3 ${temp}4 ${temp}5 | cut -d ';' -f 1 2 4 6 8 10 > $outputdat
+paste -d ';' ${temp}1 ${temp}2 ${temp}3 ${temp}4 ${temp}5 > $outputdat
 rm ${temp}*
 
