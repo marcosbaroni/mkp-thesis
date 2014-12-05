@@ -3,7 +3,11 @@ PATH=$PATH:../../../bin
 
 if [ $# -lt 3 ]
 then
-	echo -e "usage:\n$0 <output.db> <output.dat> <input1.csv> [input2.csv] ... [input.csv]"
+	echo -e "usage:\n\t$0 <output.db> <output.dat> <input1.csv> [input2.csv] ... [input.csv]\n"
+	echo -e "This program prepares the data (for plotting) from a database file,"
+	echo -e "executing the proper selects for each \"m\" size"
+	echo -e "and \"pastes\" the results on a single file (output.dat) for plotting"
+	echo -e "(each line may be a \"m\" value)."
 	exit 1
 fi
 
