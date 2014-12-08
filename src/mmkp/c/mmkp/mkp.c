@@ -241,7 +241,7 @@ MKPSol *mkpsol_add_item(MKPSol *mkpsol, int a){
 	mkpsol->obj += mkp->p[a];
 	for( i = 0 ; i < m ; i++ ){
 		mkpsol->b_left[i] -= mkp->w[i][a];
-		if(mkpsol->b_left[i] <= 0)
+		if(mkpsol->b_left[i] < 0LL)
 			mkpsol->feasible = 0;
 	}
 
@@ -415,11 +415,8 @@ Array *mkp_nemull(MKP *mkp){
 			/* scan all the present */
 			for( k = 0 ; k < array_get_size(merged_sets) && is_dominant ; k++ ){
 				old_sol = array_get(merged_sets, k);
-				//mkpsol_fprint(stdout, old_sol);
-				//printf("%sominates: \n", mkpsol_dominates(old_sol, new_sol)?"D":"Does not d");
-				//mkpsol_fprint(stdout, new_sol);
-				//is_dominant = !mkpsol_dominated_by(new_sol, old_sol);
-				is_dominant = !mkpsol_dominates(old_sol, new_sol);
+				is_dominant &= !mkpsol_dominates(old_sol, new_sol);
+				is_dominant &= new_sol->feasible;
 			}
 			/* the solution is dominating? */
 			if( is_dominant )
@@ -432,7 +429,6 @@ Array *mkp_nemull(MKP *mkp){
 		}
 		/* empty the merged set struct */
 		merged_sets = array_empty(merged_sets);
-		fprintf(stderr, "%d;%d;%d\n", i+1, mkp->m, array_get_size(dom_sets));
 	}
 
 	array_free(merged_sets);

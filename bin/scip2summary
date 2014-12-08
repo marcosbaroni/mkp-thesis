@@ -1,9 +1,11 @@
 #!/bin/bash
 while read aux
 do
+	#ob=$ob`echo $aux | grep "Primal Bound"|sed 's/\ \+/\ /g'|cut -d ' ' -f 4`
 	ob=$ob`echo $aux | grep "Primal Bound"|sed 's/\ \+/\ /g'|cut -d ' ' -f 4`
 	gp=$gp`echo $aux | grep "Gap"| sed 's/ //g' | cut -d ':' -f 2| sed 's/%//g'|head -1`
 	tm=$tm`echo $aux | grep "Solving Time (sec)"| sed 's/ //g'|cut -d ':' -f 2`
 done
+ob=`python -c "from sys import argv;print(float(float(\"$ob\")))"`
 echo ${ob}";"${gp}";"${tm}
 
