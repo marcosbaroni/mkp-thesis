@@ -408,24 +408,19 @@ Array *mkp_nemull(MKP *mkp){
 		/* now emptying the dom sets */
 		dom_sets = array_empty(dom_sets);
 
-		/* checking dominance of each set */
+		/* filtering: checking dominance of each set */
 		for( j = 0 ; j < array_get_size(merged_sets); j++ ){
 			new_sol = array_get(merged_sets, j);
 			is_dominant = 1;
-			/* scan all the present */
+			/* scan all current sets */
 			for( k = 0 ; k < array_get_size(merged_sets) && is_dominant ; k++ ){
 				old_sol = array_get(merged_sets, k);
 				is_dominant &= !mkpsol_dominates(old_sol, new_sol);
-				is_dominant &= new_sol->feasible;
+				is_dominant &= new_sol->feasible;  /* only feasible sets */
 			}
 			/* the solution is dominating? */
-			if( is_dominant )
-				array_insert(dom_sets, new_sol);
-			else{
-				mkpsol_free(new_sol);
-				array_remove(merged_sets, j);
-				j--;
-			}
+			if( is_dominant ) array_insert(dom_sets, new_sol);         /* add */
+			else{ mkpsol_free(new_sol); array_remove(merged_sets, j--);}/* rm */
 		}
 		/* empty the merged set struct */
 		merged_sets = array_empty(merged_sets);

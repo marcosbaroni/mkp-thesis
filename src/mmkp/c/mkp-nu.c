@@ -44,7 +44,7 @@ int execute_nemullman_mkp(int argc, char **argv){
 			best_sol = sol;
 	}
 
-	printf("%lld;%d;%lf\n", best_sol->obj, array_get_size(dom_sets), ((cf-c0)*1./CLOCKS_PER_SEC));
+	printf("%lld;%d;%.3lf\n", best_sol->obj, array_get_size(dom_sets), ((cf-c0)*1./CLOCKS_PER_SEC));
 
 	array_apply(dom_sets, (void(*)(void *))mkpsol_free);
 	array_free(dom_sets);
