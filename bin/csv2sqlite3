@@ -1,11 +1,21 @@
 #!/bin/bash
+
 ################################################################################
 # Script to load a .csv file (semicolon as separator) into a Sqlite3 Database
 #   file.
 ################################################################################
+
 # Checkinkg number of arguments
 if [ $# -lt 1 ]; then
     echo -e "usage:\n $0 <input: CSV file> <output: Sqlite3 DB file>\n"
+    echo -e "   The csv file must be on format like the example:"
+    echo -e "tablename"
+    echo -e "name;age;height"
+    echo -e "string;int;float"
+    echo -e "marcos;20;1.80"
+    echo -e "daniel;22;1.85"
+    echo -e "..."
+    echo -e "baroni;25;1.86"
     exit 1
 fi
 
@@ -25,13 +35,14 @@ aux=`tempfile`
 tail -n +3 $1 > $datafile
 
 # assembling schema of sql table
-head -1 $inputfile|sed 's/;/\n/g' > ${aux}1                   # names of columns
-tail -n +2 $inputfile|head -1 |sed 's/;/,\n/g' > ${aux}2      # types of columns
-header=`paste -d ' ' ${aux}1 ${aux}2 | sed ':a;N;$!ba;s/\n/ /g'`  # statment
+tablename=`head -1 $inputfile`                                # table name
+tail -n +2 $inputfile|head -1 |sed 's/;/\n/g' > ${aux}1       # names of columns
+tail -n +3 $inputfile|head -1 |sed 's/;/,\n/g' > ${aux}2      # types of columns
+header=`paste -d ' ' ${aux}1 ${aux}2 | sed ':a;N;$!ba;s/\n/ /g'`  # for sql statment
 
-echo "CREATE TABLE tabela ($header);" >> $sqlfile
+echo "CREATE TABLE $tablename ($header);" >> $sqlfile
 echo ".separator ';'" >> $sqlfile
-echo ".import $datafile tabela" >> $sqlfile
+echo ".import $datafile $tablename " >> $sqlfile
 echo ".quit" >> $sqlfile
 sqlite3 $outputfile < $sqlfile
 
