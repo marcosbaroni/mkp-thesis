@@ -39,6 +39,7 @@ typedef struct MKPSol{
 
 /*** MKP SOLUTION FUNCTIONS ***/
 MKPSol *mkpsol_new(MKP *mkp);                   /* new empty solution */
+MKPSol *mkpsol_new_random(MKP *mkp);                /* new random solution */
 MKPSol *mkpsol_add_item(MKPSol *mkpsol, int a); /* add item */
 MKPSol *mkpsol_rm_item(MKPSol *mkpsol, int a);  /* remove item */
 MKPSol *mkpsol_copy(MKPSol *mkpsol);            /* copies a solution */
@@ -54,6 +55,9 @@ MKPSol *tabu_mkp(MKPSol *mkpsol, int niter);
 
 /* MKP NEMHAUSER-ULLMAN */
 Array *mkp_nemull(MKP *mkp);
+
+/* DES interface implementation */
+
 
 #endif
 

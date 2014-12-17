@@ -161,6 +161,18 @@ int *int_array_qsort(int *array, int n){
 	return;
 }
 
+int *int_array_shuffle(int *array, int n){
+	int i, idx, aux;
+	for( i = 0 ; i < n ; i++ ){
+		idx = lrand(n-i);
+		aux = array[idx];
+		array[idx] = array[i];
+		array[i] = aux;
+	}
+
+	return array;
+}
+
 
 /**
  * Returns a random normalized double array (random numbers totaling 1.0).

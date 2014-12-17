@@ -28,6 +28,7 @@ int int_array_max(int *array, int n);            /* max number on array */
 int *int_array_random(int n, int *array, int bound);
 int int_array_is_sorted(int *array, int n);
 int *int_array_qsort(int *array, int n);
+int *int_array_shuffle(int *array, int n);
 
 /* LONG ARRAY */
 long *long_array_malloc(int n);                      /* mallocs a long array*/
@@ -109,7 +110,7 @@ void array_free(Array *array);
 /* RANDOM NUMBERs */
 long lrand(long bound);
 long long llrand(long long bound);
-double drand();
+double drand();                          /* Returns a random double in [0,1[. */
 //double normal_dist();
 double *random_normalized_double_array(int n);
 

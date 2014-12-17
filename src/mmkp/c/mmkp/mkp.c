@@ -165,8 +165,9 @@ void mkp_fprint(FILE *fout, MKP *mkp){
 	return;
 }
 
-void mkp_to_zimpl(FILE *fout, MKP *mkp){
+void mkp_to_zimpl(FILE *fout, MKP *mkp, double max_opt, double capacity_scale){
 	int i, j, n, m;
+	double *b;
 
 	n = mkp->n;
 	m = mkp->m;
@@ -187,6 +188,8 @@ void mkp_to_zimpl(FILE *fout, MKP *mkp){
 	fprintf(fout, "param w[M*N] :=\n");
 	long_long_matrix_zimpl_print(fout, mkp->w, m, n);
 
+	b = (double*)malloc(sizeof(double));
+	for( i = 0 ; )
 	/* capacities */
 	fprintf(fout, "param b[M] :=\n");
 	long_long_array_zimpl_print(fout, mkp->b, m);
@@ -222,6 +225,27 @@ MKPSol *mkpsol_new(MKP *mkp){
 	mkpsol->mkp = mkp;
 
 	return mkpsol;
+}
+
+MKPSol *mkpsol_new_random(MKP *mkp){
+	MKPSol *sol = mkpsol_new(mkp);
+	int n;
+	int *idxs;
+
+	n = mkp->n;
+	idx = (int*)malloc(n*sizeof(int));
+	for( i = 0 ; i < n ; i++ )
+		idx[i] = i;
+
+	idx = int_array_shuffle(idx, n);
+
+	for( i = 0 ; i < n ; i++ ){
+		sol = mkpsol_add_item(sol, idx[i]);
+		if(!sol->feasible)
+			mkpsol_rm_item(sol, idx[i]);
+	}
+
+	return sol;
 }
 
 MKPSol *mkpsol_add_item(MKPSol *mkpsol, int a){
@@ -429,5 +453,61 @@ Array *mkp_nemull(MKP *mkp){
 	array_free(merged_sets);
 
 	return dom_sets;
+}
+
+/*******************************************************************************
+*       DES interface implementation
+*******************************************************************************/
+/* activate */
+double mkp_des_activate(double trust, int val, double step){
+	double prob;
+
+	/*step *= step;*/
+	prob = val ? 1.0-trust : trust;
+	prob = prob*step + 0.5*(1.0-step);
+
+	return prob;
+}
+
+/* set */
+MKPSol *mkp_des_set(MKPSol *sol, int a, int val){
+	if( mkpsol->x[a] != val ){
+		if(val) mkpsol_rm_item(sol, a);
+		else mkpsol_add_item(sol, a);
+	}
+
+	return sol
+}
+/* get */
+int mkp_des_get(MKPSol *sol, int a){
+	return mkpsol->x[a];
+}
+/* obj */
+double mkp_des_obj(MKPSol *sol){
+	return sol->obj;
+}
+/* feasible*/
+int mkp_des_feasible(MKPSol *sol){
+	return sol->feasible;
+}
+/* new solution */
+MKPSol *mkp_des_new_solution(MKP *mkp){
+	return mkpsol_new_random(mkp);
+}
+
+DES_Interface *mkp_des_interface(){
+	DES_Interface *desi;
+
+	desi = (DES_Interface*)malloc(sizeof(DES_Interface));
+	desi->des_activate = mkp_des_activate;
+	desi->des_get = mkp_des_get;
+	desi->des_set = mkp_des_set;
+	desi->des_obj = mkp_des_obj;
+	desi->des_feasible = mkp_des_feasible;
+	desi->des_new_solution = mkp_des_new_solution;
+	desi->des_copy_solution = mkpsol_copy;
+	desi->des_free_solution = mkpsol_free;
+
+	return desi;
 }
 
