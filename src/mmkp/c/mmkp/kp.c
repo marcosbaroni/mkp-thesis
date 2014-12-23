@@ -206,7 +206,7 @@ int kpsol_get(KPSol *sol, int a){
 }
 
 KPSol *kpsol_set(KPSol *sol, int a, int val){
-	if(sol->x[a] == val){
+	if(!sol->x[a] == !val){
 		fprintf(stderr, "%s error: %d-th variable is already set to %d.\n",
 			__PRETTY_FUNCTION__, a+1, val);
 		return sol;
@@ -220,6 +220,10 @@ KPSol *kpsol_set(KPSol *sol, int a, int val){
 
 long long kpsol_get_profit(KPSol *sol){
 	return sol->profit;
+}
+
+double kpsol_get_obj(KPSol *sol){
+	return ((double)sol->profit);
 }
 
 int kpsol_feasible(KPSol *sol){
@@ -241,7 +245,7 @@ KPSol *kpsol_add(KPSol *sol, int a){
 }
 
 KPSol *kpsol_rm(KPSol *sol, int a){
-	if( sol->x[a] ) {
+	if( !sol->x[a] ) {
 		fprintf(stderr, "%s error: item %d-th item not in knapsak.\n",
 			__PRETTY_FUNCTION__, a+1);
 		return sol;
@@ -308,7 +312,7 @@ KPSol *kpsol_copy(KPSol *kpsol){
 
 	new = kpsol_new_empty(kp);
 	new->x = (int*)memcpy(new->x, kpsol->x, kp->n*sizeof(int));
-	new->sel = (int*)memcpy(new->x, kpsol->x, kp->n*sizeof(int));
+	new->sel = (int*)memcpy(new->sel, kpsol->sel, kp->n*sizeof(int));
 	new->nx = kpsol->nx;
 	new->profit = kpsol->profit;
 	new->b_left = kpsol->b_left;
@@ -328,9 +332,9 @@ void kpsol_free(KPSol *kpsol){
 
 void kpsol_fprint(FILE *out, KPSol *kpsol){
 	int i;
-	fprintf(out, "%lld\n", kpsol->profit);
-	for( i = 0 ; i < kpsol->nx ; i++ )
-		fprintf(out, "%d%s", kpsol->sel[i]+1, (i+1 == kpsol->nx) ? "\n": " ");
+	for( i = 0 ; i < kpsol->kp->n ; i++ )
+		fprintf(out, "%d", kpsol->x[i]);
+	fprintf(out, " (%lld)\n", kpsol->profit);
 	return;
 }
 
@@ -480,7 +484,7 @@ DES_Interface *kp_des_interface(){
 	desi->des_activate = NULL;
 	desi->des_set = (des_set_f)kpsol_set;
 	desi->des_get = (des_get_f)kpsol_get;
-	desi->des_obj = (des_obj_f)kpsol_get_profit;
+	desi->des_obj = (des_obj_f)kpsol_get_obj;
 	desi->des_feasible = (des_feasible_f)kpsol_feasible;
 	desi->des_new_solution = (des_new_solution_f)kpsol_new_random;
 	desi->des_copy_solution = (des_copy_solution_f)kpsol_copy;

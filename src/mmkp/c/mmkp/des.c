@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include "util.h"
 #include "des.h"
 
 /* Returns the probability of changing the variable value, based on trust of that
@@ -50,22 +51,17 @@ void *des( DES_Interface *desi, double *trust, void *problem, int nvars, int pop
 	sols = (void**)malloc(popsize*sizeof(void*));
 	for( i = 0 ; i < popsize ; i++ )
 		sols[i] = desi->des_new_solution(problem);
-	printf("initated\n"); fflush(stdout);
 
 	/* assume best solution */
 	best_obj = desi->des_obj(sols[0]);
 	best_sol = desi->des_copy_solution(sols[0]);
-	printf("best recorded\n"); fflush(stdout);
 	
 	for( i = 0 ; i < niter ; i++ ){
-		printf("iter %d...\n", i); fflush(stdout);
 		/* update each individual */
 		for( j = 0 ; j < popsize ; j++ ){
-			printf(" indiv %d...\n", j);
 			sol = sols[j];
 			/* for each variable */
 			for( k = 0 ; k < nvars ; k++ ){
-				printf("  var %d...\n", k);
 				/* probability for changing value */
 				val = desi->des_get(sol, k);
 				prob = desi->des_activate(
@@ -77,12 +73,15 @@ void *des( DES_Interface *desi, double *trust, void *problem, int nvars, int pop
 			}
 			/* check if is best */
 			obj = desi->des_obj(sol);
+			printf("obj:%lf best:%lf\n", obj, best_obj);
 			if( obj > best_obj ){
 				desi->des_free_solution(best_sol);
 				best_sol = desi->des_copy_solution(sol);
 				best_obj = obj;
 			}
+			kpsol_fprint(stdout, sol);
 		}
+		printf("\n");
 	}
 
 	/* free */

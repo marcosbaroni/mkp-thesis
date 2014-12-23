@@ -164,7 +164,7 @@ int *int_array_qsort(int *array, int n){
 int *int_array_shuffle(int *array, int n){
 	int i, idx, aux;
 	for( i = 0 ; i < n ; i++ ){
-		idx = lrand(n-i);
+		idx = lrand(n-i-1);
 		aux = array[idx];
 		array[idx] = array[i];
 		array[i] = aux;
