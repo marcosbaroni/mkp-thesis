@@ -484,7 +484,7 @@ int mkp_des_get(MKPSol *sol, int a){
 }
 /* obj */
 double mkp_des_obj(MKPSol *sol){
-	return sol->obj;
+	return double(sol->obj);
 }
 /* feasible*/
 int mkp_des_feasible(MKPSol *sol){

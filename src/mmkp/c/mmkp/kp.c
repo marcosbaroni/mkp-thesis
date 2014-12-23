@@ -1,4 +1,5 @@
 #include <math.h>
+#include <string.h>
 #include "kp.h"
 
 KP *kp_new_random(int n, double tightness, long long bound){
@@ -179,11 +180,17 @@ KP *kp_qsort_by_density(KP *kp){
 }
 
 KPSol *kpsol_new_empty(KP *kp){
+	int i, n;
 	KPSol *kpsol;
+	n = kp->n;
 
 	kpsol = (KPSol*)malloc(sizeof(KPSol));
-	kpsol->x = (int*)malloc(kp->n*sizeof(int));
-	kpsol->sel = (int*)malloc(kp->n*sizeof(int));
+	kpsol->x = (int*)malloc(n*sizeof(int));
+	kpsol->sel = (int*)malloc(n*sizeof(int));
+	for( i = 0 ; i < n ; i++ ){
+		kpsol->x[i] = 0;
+		kpsol->sel[i] = 0;
+	}
 	kpsol->nx = 0;
 	kpsol->profit = 0;
 	kpsol->b_left = kp->b;
@@ -192,6 +199,59 @@ KPSol *kpsol_new_empty(KP *kp){
 	kpsol->proof_steps = 0;
 
 	return kpsol;
+}
+
+int kpsol_get(KPSol *sol, int a){
+	return(sol->x[a]);
+}
+
+KPSol *kpsol_set(KPSol *sol, int a, int val){
+	if(sol->x[a] == val){
+		fprintf(stderr, "%s error: %d-th variable is already set to %d.\n",
+			__PRETTY_FUNCTION__, a+1, val);
+		return sol;
+	}
+	
+	if( val ) kpsol_add(sol, a);
+	else kpsol_rm(sol, a);
+
+	return sol;
+}
+
+long long kpsol_get_profit(KPSol *sol){
+	return sol->profit;
+}
+
+int kpsol_feasible(KPSol *sol){
+	return (sol->b_left >= 0);
+}
+
+KPSol *kpsol_add(KPSol *sol, int a){
+	if( sol->x[a] ){
+		fprintf(stderr, "%s error: item %d-th item already in knapsak.\n",
+			__PRETTY_FUNCTION__, a+1);
+		return sol;
+	}
+
+	sol->x[a] = 1;
+	sol->b_left -= sol->kp->w[a];
+	sol->profit += sol->kp->p[a];
+
+	return sol;
+}
+
+KPSol *kpsol_rm(KPSol *sol, int a){
+	if( sol->x[a] ) {
+		fprintf(stderr, "%s error: item %d-th item not in knapsak.\n",
+			__PRETTY_FUNCTION__, a+1);
+		return sol;
+	}
+
+	sol->x[a] = 0;
+	sol->b_left += sol->kp->w[a];
+	sol->profit -= sol->kp->p[a];
+
+	return sol;
 }
 
 KPSol *kpsol_new(KP *kp, int *x, long long find_steps, long long proof_steps){
@@ -214,6 +274,49 @@ KPSol *kpsol_new(KP *kp, int *x, long long find_steps, long long proof_steps){
 	}
 
 	return kpsol;
+}
+
+KPSol *kpsol_new_random(KP *kp){
+	KPSol *sol;
+	int i, n, *idxs;
+
+	/* new empty sol*/
+	sol = kpsol_new_empty(kp);
+
+	/* generating a shuffled index array */
+	n = kp->n;
+	idxs = (int*)malloc(n*sizeof(int));
+	for( i = 0 ; i < n ; i++ )
+		idxs[i] = i;
+	idxs = int_array_shuffle(idxs, n);
+
+	/* random filling knapsack */
+	for( i = 0 ; i < n ; i++ )
+		if( sol->b_left >= kp->w[idxs[i]] )
+			kpsol_add(sol, idxs[i]);
+
+	free(idxs);
+
+	return sol;
+}
+
+KPSol *kpsol_copy(KPSol *kpsol){
+	KP *kp;
+	KPSol *new;
+
+	kp = kpsol->kp;
+
+	new = kpsol_new_empty(kp);
+	new->x = (int*)memcpy(new->x, kpsol->x, kp->n*sizeof(int));
+	new->sel = (int*)memcpy(new->x, kpsol->x, kp->n*sizeof(int));
+	new->nx = kpsol->nx;
+	new->profit = kpsol->profit;
+	new->b_left = kpsol->b_left;
+	new->find_steps = kpsol->find_steps;
+	new->proof_steps = kpsol->proof_steps;
+	new->kp = kp;
+
+	return new;
 }
 
 void kpsol_free(KPSol *kpsol){
@@ -367,5 +470,22 @@ KPSol *kp_dymprog(KP *kp){
 	}
 
 	return kpsol;
+}
+
+DES_Interface *kp_des_interface(){
+	DES_Interface *desi;
+
+	desi = (DES_Interface*)malloc(sizeof(DES_Interface));
+
+	desi->des_activate = NULL;
+	desi->des_set = (des_set_f)kpsol_set;
+	desi->des_get = (des_get_f)kpsol_get;
+	desi->des_obj = (des_obj_f)kpsol_get_profit;
+	desi->des_feasible = (des_feasible_f)kpsol_feasible;
+	desi->des_new_solution = (des_new_solution_f)kpsol_new_random;
+	desi->des_copy_solution = (des_copy_solution_f)kpsol_copy;
+	desi->des_free_solution = (des_free_solution_f)kpsol_free;
+
+	return desi;
 }
 

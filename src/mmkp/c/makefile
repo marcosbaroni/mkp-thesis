@@ -1,7 +1,7 @@
 BINDIR="../../../bin"
-CFLAGS=-lm -O3 -Wno-unused-result
+CFLAGS=-lm -O3 -Wno-unused-result -g
 all: kp mkp mmkp ssum
-kp: kp2zpl randkp kpbt kpinfo
+kp: kp2zpl randkp kpbt kpinfo kpdes
 kpinfo:
 	gcc -o kpinfo kpinfo.c mmkp/kp.c mmkp/util.c $(CFLAGS)
 	mv kpinfo $(BINDIR)
@@ -14,6 +14,9 @@ kpbt:
 randkp:
 	gcc -o randkp randkp.c mmkp/kp.c mmkp/util.c $(CFLAGS)
 	mv randkp $(BINDIR)
+kpdes:
+	gcc -o kp-des kp-des.c mmkp/kp.c mmkp/util.c mmkp/des.c $(CFLAGS)
+	mv kp-des $(BINDIR)
 mkp: randmkp mkp2zpl mkp-nu
 randmkp:
 	gcc -o randmkp randmkp.c mmkp/mkp.c mmkp/util.c $(CFLAGS)
