@@ -19,7 +19,7 @@ double des_std_activate(double trust, double steps, int n){
 	double act_degree, min_chance, prob;
 
 	min_chance = 0.5;
-	act_degree = steps;
+	act_degree = sigmoid((steps-0.5)*6);
 
 	prob = act_degree*(1. - trust) + min_chance*(1. - act_degree);
 	prob = (prob/(float)n)*(log((float)n)/log(2));
@@ -41,7 +41,7 @@ double des_std_activate(double trust, double steps, int n){
 void *des( DES_Interface *desi, double *trust, void *problem, int nvars, int popsize, int niter){
 	void **sols;
 	void *best_sol, *sol;
-	double prob, best_obj, obj;
+	double prob, best_fitness, fitness;
 	int i, j, k, val;
 
 	/* checking if activate solution is set */
@@ -53,7 +53,7 @@ void *des( DES_Interface *desi, double *trust, void *problem, int nvars, int pop
 		sols[i] = desi->des_new_solution(problem);
 
 	/* assume best solution */
-	best_obj = desi->des_obj(sols[0]);
+	best_fitness = desi->des_fitness(sols[0]);
 	best_sol = desi->des_copy_solution(sols[0]);
 	
 	for( i = 0 ; i < niter ; i++ ){
@@ -71,17 +71,19 @@ void *des( DES_Interface *desi, double *trust, void *problem, int nvars, int pop
 				if( drand() < prob )
 					desi->des_set(sol, k, 1-val);
 			}
+			/* repair, if needed */
+			if(!desi->des_feasible(sol))
+				sol = desi->des_repair(sol);
 			/* check if is best */
-			obj = desi->des_obj(sol);
-			printf("obj:%lf best:%lf\n", obj, best_obj);
-			if( obj > best_obj ){
+			fitness = desi->des_fitness(sol);
+			//printf("fitness:%lf best:%lf\n", fitness, best_fitness);
+			if( fitness > best_fitness ){
 				desi->des_free_solution(best_sol);
 				best_sol = desi->des_copy_solution(sol);
-				best_obj = obj;
+				best_fitness = fitness;
 			}
-			kpsol_fprint(stdout, sol);
+			//kpsol_fprint(stdout, sol);
 		}
-		printf("\n");
 	}
 
 	/* free */

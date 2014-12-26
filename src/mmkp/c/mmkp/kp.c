@@ -9,12 +9,14 @@ KP *kp_new_random(int n, double tightness, long long bound){
 
 	kp = (KP*)malloc(sizeof(KP));
 	kp->n = n;
+	kp->idxs = (int*)malloc(n*sizeof(int));
 	kp->w = (long long*)malloc(n*sizeof(long long));
 	kp->p = (long long*)malloc(n*sizeof(long long));
 	kp->density = (double*)malloc(n*sizeof(double));
 
 	wsum = 0;
 	for( i = 0 ; i < n ; i++ ){
+		kp->idxs[i] = i;
 		kp->w[i] = llrand(bound);
 		kp->p[i] = llrand(bound);
 		kp->density[i] = kp->p[i]/((double)kp->w[i]);
@@ -49,8 +51,11 @@ KP *kp_read(FILE *in){
 	fscanf(in, "%lld", &(kp->b));
 	kp->density = (double*)malloc(n*sizeof(double));
 
-	for( i = 0 ; i < n ; i++ )
+	kp->idxs = (int*)malloc(n*sizeof(int));
+	for( i = 0 ; i < n ; i++ ){
 		kp->density[i] = kp->p[i]/((double)kp->w[i]);
+		kp->idxs[i] = i;
+	}
 
 	return kp;
 }
@@ -67,6 +72,7 @@ void kp_free(KP *kp){
 	free(kp->p);
 	free(kp->w);
 	free(kp->density);
+	free(kp->idxs);
 	free(kp);
 	return;
 }
@@ -222,8 +228,22 @@ long long kpsol_get_profit(KPSol *sol){
 	return sol->profit;
 }
 
-double kpsol_get_obj(KPSol *sol){
+double kpsol_get_fitness(KPSol *sol){
 	return ((double)sol->profit);
+}
+
+KPSol *kpsol_repair(KPSol *kpsol){
+	int i, n, *idxs;
+
+	idxs = kpsol->kp->idxs;
+	n = kpsol->kp->n;
+
+	int_array_shuffle(idxs, n);
+	for( i = 0 ; kpsol->b_left < 0 ; i++ )
+		if( kpsol->x[idxs[i]] )
+			kpsol_rm(kpsol, idxs[i]);
+
+	return kpsol;
 }
 
 int kpsol_feasible(KPSol *sol){
@@ -484,8 +504,9 @@ DES_Interface *kp_des_interface(){
 	desi->des_activate = NULL;
 	desi->des_set = (des_set_f)kpsol_set;
 	desi->des_get = (des_get_f)kpsol_get;
-	desi->des_obj = (des_obj_f)kpsol_get_obj;
+	desi->des_fitness = (des_fitness_f)kpsol_get_fitness;
 	desi->des_feasible = (des_feasible_f)kpsol_feasible;
+	desi->des_repair = (des_repair_f)kpsol_repair;
 	desi->des_new_solution = (des_new_solution_f)kpsol_new_random;
 	desi->des_copy_solution = (des_copy_solution_f)kpsol_copy;
 	desi->des_free_solution = (des_free_solution_f)kpsol_free;

@@ -162,6 +162,7 @@ void error(const char* format, ...);
 void assert_faccess(char *filename, int mode);
 void myassert(int express);
 void debug(char *msg);
+double sigmoid(double x);             /* logistic sigmoid */
 
 #endif
 

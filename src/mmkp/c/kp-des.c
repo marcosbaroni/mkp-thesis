@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <math.h>
 #include "mmkp/kp.h"
 #include "mmkp/des.h"
 
@@ -20,12 +21,22 @@ void print_usage(int argc, char **argv){
  * */
 double *get_probs(KP *kp){
 	int i, n;
-	double *probs;
+	double *probs, mind, maxd, x;
 
 	n = kp->n;
 	probs = (double*)malloc(n*sizeof(double));
-	for( i = 0 ; i < n ; i++ )
-		probs[i] = 0.5;
+	mind = 9999999.0;
+	maxd = 0.0;
+	for( i = 0 ; i < n ; i++ ){
+		if( kp->density[i] < mind ) mind = kp->density[i];
+		if( kp->density[i] > maxd ) maxd = kp->density[i];
+	}
+
+	for( i = 0 ; i < n ; i++ ){
+		x = kp->density[i];
+		probs[i] = 1./(1+pow(M_E, (-(x-0.5)*12)));
+		//printf("%.3lf\n", probs[i]);
+	}
 
 	return probs;
 }
@@ -64,7 +75,8 @@ int execute_kp_des(int argc, char **argv){
 	secs = ((cf-c0)*1./CLOCKS_PER_SEC);
 
 	/* print result */
-	printf("%lld\n", sol->profit);
+	//printf("%lld\n", sol->profit);
+	kpsol_fprint(stdout, sol);
 
 	/* frees */
 	kpsol_free(sol);

@@ -7,7 +7,7 @@
 /* Interface
  *  1 - modifing rule of chance throught method iterations "typedef (double)(*des_activate)(double, double)"
  *  2 - set[0-1] function "typedef (void*)(*des_set)(void *, int);"
- *  3 - objective function "typedef double(*des_obj)(void*);"
+ *  3 - fitness function "typedef double(*des_fitness)(void*);"
  *  4 - feasibility function "typedef inf(*des_feasible)(void*)";
  * Call: des(
  *  - Problem
@@ -33,8 +33,11 @@ typedef void* (*des_set_f)(void *, int, int);
 /* callback for getting the value of a given variable */
 typedef int (*des_get_f)(void *, int);
 
-/* returns the objective function of solution */
-typedef double (*des_obj_f)(void*);
+/* returns the fitness function of solution */
+typedef double (*des_fitness_f)(void*);
+
+/* repair function to be used on non feasible solutions */
+typedef void* (*des_repair_f)(void*);
 
 /* returns if solution is feasible */
 typedef int (*des_feasible_f)(void*);
@@ -52,7 +55,8 @@ typedef struct DES_Interface{
 	des_activate_f des_activate;
 	des_set_f des_set;
 	des_get_f des_get;
-	des_obj_f des_obj;
+	des_fitness_f des_fitness;
+	des_repair_f des_repair;
 	des_feasible_f des_feasible;
 	des_new_solution_f des_new_solution;
 	des_copy_solution_f des_copy_solution;

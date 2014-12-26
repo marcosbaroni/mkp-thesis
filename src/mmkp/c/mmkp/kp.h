@@ -10,6 +10,7 @@ typedef struct KP{
 	long long *p;    /* profit of itens*/
 	long long b;     /* capacity */
 	double *density; /* "profit density" of itens */
+	int *idxs;       /* list of idx (no order) */
 }KP;
 
 KP *kp_new_random(int n, double tightness, long long bound);
