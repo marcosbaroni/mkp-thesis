@@ -215,7 +215,8 @@ void mkp_to_zimpl(FILE *fout, MKP *mkp, double max_opt, double capacity_scale, c
 		fprintf(fout, "param maxobj := %lf;\n", max_opt);
 
 	/* desicion var */
-	fprintf(fout, "var x[N] binary;\n");
+	if(linear) fprintf(fout, "var x[N] real >= 0 <= 1;\n");
+	else fprintf(fout, "var x[N] binary;\n");
 
 	/* capacities constraint */
 	fprintf(fout,
