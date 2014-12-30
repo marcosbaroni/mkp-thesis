@@ -4,15 +4,20 @@
 #include <unistd.h>
 #include "util.h"
 #include "mkp.h"
+#include "des.h"
 
 /*** memory management ***/
 MKP *mkp_alloc(int n, int m){
+	int i;
 	MKP *mkp;
 
 	mkp = (MKP*)malloc(sizeof(MKP));
 	mkp->p = long_long_array_malloc(n);
 	mkp->w = long_long_matrix_malloc(m, n);
 	mkp->b = long_long_array_malloc(n);
+	mkp->idxs = (int*)malloc(n*sizeof(int));
+	for( i = 0 ; i < n ; i++ )
+		mkp->idxs[i] = i;
 	mkp->n = n;
 	mkp->m = m;
 
@@ -46,6 +51,7 @@ void mkp_free(MKP *mkp){
 	long_long_matrix_free(mkp->w, mkp->m);
 	free(mkp->p);
 	free(mkp->b);
+	free(mkp->idxs);
 	free(mkp);
 
 	return;
@@ -78,7 +84,7 @@ MKP *mkp_read_from_filename(char *filename){
 }
 
 MKP *mkp_read_from_file(FILE *fin){
-	int n, m;
+	int i, n, m;
 	MKP *mkp;
 	
 	fscanf(fin, "%d", &n);
@@ -90,6 +96,9 @@ MKP *mkp_read_from_file(FILE *fin){
 	long_long_array_read(fin, mkp->p, n);
 	long_long_matrix_read(fin, mkp->w, m, n);
 	long_long_array_read(fin, mkp->b, n);
+	mkp->idxs = (int*)malloc(n*sizeof(int));
+	for( i = 0 ; i < n ; i++ )
+		mkp->idxs[i] = i;
 
 	return mkp;
 }
@@ -165,12 +174,14 @@ void mkp_fprint(FILE *fout, MKP *mkp){
 	return;
 }
 
-void mkp_to_zimpl(FILE *fout, MKP *mkp, double max_opt, double capacity_scale){
+void mkp_to_zimpl(FILE *fout, MKP *mkp, double max_opt, double capacity_scale, char linear){
 	int i, j, n, m;
 	double *b;
+	double total_profit;
 
 	n = mkp->n;
 	m = mkp->m;
+	total_profit = (double)long_long_array_sum(mkp->p, n);
 
 	/* sizes */
 	fprintf(fout, "param n := %d;\n", n);
@@ -188,11 +199,20 @@ void mkp_to_zimpl(FILE *fout, MKP *mkp, double max_opt, double capacity_scale){
 	fprintf(fout, "param w[M*N] :=\n");
 	long_long_matrix_zimpl_print(fout, mkp->w, m, n);
 
+	/* scaling */
+	if(capacity_scale == 0.0)
+		capacity_scale = 1.0;
 	b = (double*)malloc(sizeof(double));
-	for( i = 0 ; )
+	for( i = 0 ; i < n ; i++ )
+		b[i] = mkp->b[i]*capacity_scale;
+
 	/* capacities */
 	fprintf(fout, "param b[M] :=\n");
-	long_long_array_zimpl_print(fout, mkp->b, m);
+	double_array_zimpl_print(fout, b, m);
+
+	/* max objective (optional) */
+	if( max_opt < total_profit )
+		fprintf(fout, "param maxobj := %lf;\n", max_opt);
 
 	/* desicion var */
 	fprintf(fout, "var x[N] binary;\n");
@@ -203,6 +223,13 @@ void mkp_to_zimpl(FILE *fout, MKP *mkp, double max_opt, double capacity_scale){
 			forall <j> in M do\n\
 				sum <i> in N do\n\
 					x[i]*w[j, i] <= b[j];\n");
+
+	/* objective constraint (optional) */
+	if( max_opt < total_profit )
+		fprintf(fout,
+			"subto maxprofit:\n\
+				sum <i> in N do\n\
+					x[i]*p[i] <= maxobj;\n");
 
 	/* objective function */
 	fprintf(fout,
@@ -229,20 +256,16 @@ MKPSol *mkpsol_new(MKP *mkp){
 
 MKPSol *mkpsol_new_random(MKP *mkp){
 	MKPSol *sol = mkpsol_new(mkp);
-	int n;
-	int *idxs;
+	int i, n;
 
 	n = mkp->n;
-	idx = (int*)malloc(n*sizeof(int));
-	for( i = 0 ; i < n ; i++ )
-		idx[i] = i;
 
-	idx = int_array_shuffle(idx, n);
+	mkp->idxs = int_array_shuffle(mkp->idxs, n);
 
 	for( i = 0 ; i < n ; i++ ){
-		sol = mkpsol_add_item(sol, idx[i]);
+		sol = mkpsol_add_item(sol, mkp->idxs[i]);
 		if(!sol->feasible)
-			mkpsol_rm_item(sol, idx[i]);
+			mkpsol_rm_item(sol, mkp->idxs[i]);
 	}
 
 	return sol;
@@ -408,12 +431,12 @@ Array *mkp_nemull(MKP *mkp){
 	MKPSol *new_sol, *old_sol;
 	int n, m, i, j, k, n_dom_sets, n_merged_sets, is_dominant;
 	long long **w, *p, *b;
+	n = mkp->n;
 
 	/* initializing sets */
 	dom_sets = array_new();
 	merged_sets = array_new();
 
-	n = mkp->n;
 	for( i = 0 ; i < n ; i++ ){
 		/* generating new sets from old ones */
 		n_dom_sets = array_get_size(dom_sets);
@@ -470,43 +493,60 @@ double mkp_des_activate(double trust, int val, double step){
 }
 
 /* set */
-MKPSol *mkp_des_set(MKPSol *sol, int a, int val){
+MKPSol *mkpsol_set(MKPSol *mkpsol, int a, int val){
 	if( mkpsol->x[a] != val ){
-		if(val) mkpsol_rm_item(sol, a);
-		else mkpsol_add_item(sol, a);
+		if(val) mkpsol_rm_item(mkpsol, a);
+		else mkpsol_add_item(mkpsol, a);
 	}
 
-	return sol
+	return mkpsol;
 }
+
 /* get */
-int mkp_des_get(MKPSol *sol, int a){
+int mkpsol_get(MKPSol *mkpsol, int a){
 	return mkpsol->x[a];
 }
 /* obj */
-double mkp_des_obj(MKPSol *sol){
-	return double(sol->obj);
+double mkpsol_des_fitness(MKPSol *mkpsol){
+	return (double)mkpsol->obj;
 }
 /* feasible*/
-int mkp_des_feasible(MKPSol *sol){
-	return sol->feasible;
+int mkpsol_feasible(MKPSol *mkpsol){
+	return mkpsol->feasible;
 }
 /* new solution */
 MKPSol *mkp_des_new_solution(MKP *mkp){
 	return mkpsol_new_random(mkp);
+}
+MKPSol *mkpsol_repair(MKPSol *mkpsol){
+	int i, n, *idxs;
+	n = mkpsol->mkp->n;
+
+	/* shuffling itens */
+	idxs = mkpsol->mkp->idxs;
+	idxs = int_array_shuffle(idxs, n);
+
+	/* unpacking */
+	for( i = 0 ; i < n && !mkpsol->feasible ; i++ )
+		if( mkpsol->x[idxs[i]] )
+			mkpsol_rm_item(mkpsol, idxs[i]);
+	
+	return mkpsol;
 }
 
 DES_Interface *mkp_des_interface(){
 	DES_Interface *desi;
 
 	desi = (DES_Interface*)malloc(sizeof(DES_Interface));
-	desi->des_activate = mkp_des_activate;
-	desi->des_get = mkp_des_get;
-	desi->des_set = mkp_des_set;
-	desi->des_obj = mkp_des_obj;
-	desi->des_feasible = mkp_des_feasible;
-	desi->des_new_solution = mkp_des_new_solution;
-	desi->des_copy_solution = mkpsol_copy;
-	desi->des_free_solution = mkpsol_free;
+	desi->des_activate = NULL;
+	desi->des_set = (des_set_f)mkpsol_set;
+	desi->des_get = (des_get_f)mkpsol_get;
+	desi->des_fitness = (des_fitness_f)mkpsol_des_fitness;
+	desi->des_feasible = (des_feasible_f)mkpsol_feasible;
+	desi->des_repair = (des_repair_f)mkpsol_repair;
+	desi->des_new_solution = (des_new_solution_f)mkpsol_new_random;
+	desi->des_copy_solution = (des_copy_solution_f)mkpsol_copy;
+	desi->des_free_solution = (des_free_solution_f)mkpsol_free;
 
 	return desi;
 }

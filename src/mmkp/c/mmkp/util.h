@@ -59,6 +59,7 @@ long long *long_long_array_random(int n, long long *array, long long bound);
 int long_long_array_is_sorted(long long *array, int n);
 long long *long_long_array_qsort(long long *array, int n);
 int *long_long_array_count_digits(long long *array, int n);
+long long long_long_array_sum(long long *array, int n);
 
 /* INT MATRIX */
 int *int_matrix_max_cols(int **mat, int n, int m); /* max elems of EACH COLUMN */
@@ -88,6 +89,9 @@ void long_long_matrix_free(long long **mat, int n);
 long long long_long_matrix_max(long long **mat, int n, int m);      /* max number on matrix */
 long long long_long_matrix_max_col(long long **mat, int n, int m, int col); /* max elem of given column */
 long long long_long_matrix_max_lin(long long **mat, int n, int m, int lin); /* max elem of given line */
+
+/* DOUBLE ARRAY */
+double double_array_sum(double *array, int n);
 
 /* ABSTRACT ARRAY */
 typedef struct Array{
@@ -140,8 +144,8 @@ AVLTree *avl_set_prt(AVLTree *avl, avl_fprt* fprt_f);
 AVLTree *avl_insert(AVLTree *avl, void *a);
 
 /* ZIMPL FORMAT */
-void zimpl_print_double_matrix(FILE *fout, double **mat, int nlin, int ncol);
-void zimpl_print_double_array(FILE *fout, double *array, int n);
+void double_matrix_zimpl_print(FILE *fout, double **mat, int nlin, int ncol);
+void double_array_zimpl_print(FILE *fout, double *array, int n);
 void long_matrix_zimpl_print(FILE *fout, long **mat, int nlin, int ncol);
 void long_array_zimpl_print(FILE *fout, long *array, int n);
 void long_long_matrix_zimpl_print(FILE *fout, long long **mat, int nlin, int ncol);

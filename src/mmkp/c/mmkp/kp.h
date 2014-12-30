@@ -4,6 +4,10 @@
 #include "util.h"
 #include "des.h"
 
+/*******************************************************************************
+ * A Knapsack Problem instance
+ * ps.: itens are sorted on decreasing density (p/w)
+ ******************************************************************************/
 typedef struct KP{
 	int n;           /* n. of itens */
 	long long *w;    /* weight of itens*/
@@ -42,6 +46,7 @@ KPSol *kpsol_set(KPSol *sol, int a, int val);
 KPSol *kpsol_add(KPSol *sol, int a);
 KPSol *kpsol_rm(KPSol *sol, int a);
 KPSol *kpsol_new_random(KP *kp);
+KPSol *kpsol_greedy_fill(KPSol *sol);
 KPSol *kpsol_new(KP *kp, int *x, long long steps, long long proof_steps);
 KPSol *kpsol_copy(KPSol *kpsol);
 void kpsol_write(FILE *in, KPSol *kpsol);

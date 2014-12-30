@@ -492,6 +492,17 @@ int *long_long_array_count_digits(long long *array, int n){
 	return digits;
 }
 
+long long long_long_array_sum(long long *array, int n){
+	int i;
+	long long sum;
+
+	sum = 0.;
+	for( i = 0 ; i < n ; i++ )
+		sum += array[i];
+
+	return sum;
+}
+
 /*******************************************************************************
  *                                INT MATRIX                                   *
 *******************************************************************************/
@@ -737,6 +748,17 @@ long long long_long_matrix_max_lin(long long **mat, int n, int m, int lin){
 	return max;
 }
 
+double double_array_sum(double *array, int n){
+	int i;
+	double sum;
+
+	sum = 0.;
+	for( i = 0 ; i < n ; i++ )
+		sum += array[i];
+	
+	return sum;
+}
+
 void long_long_matrix_zimpl_print(FILE *fout, long long **mat, int nlin, int ncol){
 	int i, j;
 	
@@ -900,7 +922,7 @@ int avl_node_insert(AVLTree *avl, AVLNode *node, AVLNode *new_node){
  *   nlin - number of lines on matrix
  *   ncol - numer of columns on matrix
  *   mat  - the double matrix */
-void zimpl_print_double_matrix(FILE *fout, double **mat, int nlin, int ncol){
+void double_matrix_zimpl_print(FILE *fout, double **mat, int nlin, int ncol){
 	int i, j;
 	
 	/* header */
@@ -925,7 +947,7 @@ void zimpl_print_double_matrix(FILE *fout, double **mat, int nlin, int ncol){
  *   fout  - output FILE
  *   n	 - number of elements on array
  *   array - the double array */
-void zimpl_print_double_array(FILE *fout, double *array, int n){
+void double_array_zimpl_print(FILE *fout, double *array, int n){
 	int i;
 	for( i = 0 ; i < n-1 ; i++ )
 		fprintf(fout, "<%d> %lf,\n", i+1, array[i]);

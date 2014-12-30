@@ -64,6 +64,11 @@ int execute_kp_des(int argc, char **argv){
 	kp = kp_read(input);
 	fclose(input);
 
+	/* Find greedy solution */
+	sol = kpsol_greedy_fill(kpsol_new_empty(kp));
+	kpsol_fprint(stdout, sol);
+	kpsol_free(sol);
+
 	/* load probabilities and interface */
 	probs = get_probs(kp);
 	desi = kp_des_interface();

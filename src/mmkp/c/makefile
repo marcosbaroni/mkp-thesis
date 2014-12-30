@@ -1,43 +1,43 @@
 BINDIR="../../../bin"
 CFLAGS=-lm -O3 -Wno-unused-result -g
 all: kp mkp mmkp ssum
-kp: kp2zpl randkp kpbt kpinfo kpdes
-kpinfo:
-	gcc -o kpinfo kpinfo.c mmkp/kp.c mmkp/util.c $(CFLAGS)
-	mv kpinfo $(BINDIR)
+kp: kp2zpl kp-rand kp-bt kp-info kp-des
+kp-info:
+	gcc -o kp-info kp-info.c mmkp/kp.c mmkp/util.c $(CFLAGS)
+	mv kp-info $(BINDIR)
 kp2zpl:
 	gcc -o kp2zpl kp2zpl.c mmkp/kp.c mmkp/util.c $(CFLAGS)
 	mv kp2zpl $(BINDIR)
-kpbt:
-	gcc -o kpbt kpbt.c mmkp/kp.c mmkp/util.c $(CFLAGS)
-	mv kpbt $(BINDIR)
-randkp:
-	gcc -o randkp randkp.c mmkp/kp.c mmkp/util.c $(CFLAGS)
-	mv randkp $(BINDIR)
-kpdes:
+kp-bt:
+	gcc -o kp-bt kp-bt.c mmkp/kp.c mmkp/util.c $(CFLAGS)
+	mv kp-bt $(BINDIR)
+kp-rand:
+	gcc -o kp-rand kp-rand.c mmkp/kp.c mmkp/util.c $(CFLAGS)
+	mv kp-rand $(BINDIR)
+kp-des:
 	gcc -o kp-des kp-des.c mmkp/kp.c mmkp/util.c mmkp/des.c $(CFLAGS)
 	mv kp-des $(BINDIR)
-mkp: randmkp mkp2zpl mkp-nu
-randmkp:
-	gcc -o randmkp randmkp.c mmkp/mkp.c mmkp/util.c $(CFLAGS)
-	mv randmkp $(BINDIR)
+mkp: mkp-rand mkp2zpl mkp-nu
+mkp-rand:
+	gcc -o mkp-rand mkp-rand.c mmkp/mkp.c mmkp/util.c $(CFLAGS)
+	mv mkp-rand $(BINDIR)
 mkp2zpl:
 	gcc -o mkp2zpl mkp2zpl.c mmkp/mkp.c mmkp/util.c $(CFLAGS)
 	mv mkp2zpl $(BINDIR)
 mkp-nu:
 	gcc -o mkp-nu mkp-nu.c mmkp/mkp.c mmkp/util.c $(CFLAGS)
 	mv mkp-nu $(BINDIR)
-mmkp: randmmkp mmkp2zpl
-randmmkp:
-	gcc -o randmmkp randmmkp.c mmkp/mmkp.c mmkp/util.c $(CFLAGS)
-	mv randmmkp $(BINDIR)
+mmkp: mmkp-rand mmkp2zpl
+mmkp-rand:
+	gcc -o mmkp-rand mmkp-rand.c mmkp/mmkp.c mmkp/util.c $(CFLAGS)
+	mv mmkp-rand $(BINDIR)
 mmkp2zpl:
 	gcc -o mmkp2zpl mmkp2zpl.c mmkp/mmkp.c mmkp/util.c $(CFLAGS)
 	mv mmkp2zpl $(BINDIR)
-ssum: randssum ssum2zpl
-randssum:
-	gcc -o randssum randssum.c mmkp/util.c mmkp/ssum.c $(CFLAGS)
-	mv randssum $(BINDIR)
+ssum: ssum-rand ssum2zpl
+ssum-rand:
+	gcc -o ssum-rand ssum-rand.c mmkp/util.c mmkp/ssum.c $(CFLAGS)
+	mv ssum-rand $(BINDIR)
 ssum2zpl:
 	gcc -o ssum2zpl ssum2zpl.c mmkp/util.c mmkp/ssum.c $(CFLAGS)
 	mv ssum2zpl $(BINDIR)

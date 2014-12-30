@@ -324,6 +324,25 @@ KPSol *kpsol_new_random(KP *kp){
 	return sol;
 }
 
+KPSol *kpsol_greedy_fill(KPSol *kpsol){
+	int i, n;
+	KP *kp;
+
+	kp = kpsol->kp;
+	n = kp->n;
+
+	for( i = 0 ; i < n ; i++ )
+		if( !kpsol->x[i] )
+			if( kp->w[i] <= kpsol->b_left ) 
+				kpsol_add(kpsol, i );
+
+	return kpsol;
+}
+
+KPSol *kpsol_new_greedy(KP *kp){
+	return kpsol_greedy_fill(kpsol_new_empty(kp));
+}
+
 KPSol *kpsol_copy(KPSol *kpsol){
 	KP *kp;
 	KPSol *new;
@@ -507,7 +526,8 @@ DES_Interface *kp_des_interface(){
 	desi->des_fitness = (des_fitness_f)kpsol_get_fitness;
 	desi->des_feasible = (des_feasible_f)kpsol_feasible;
 	desi->des_repair = (des_repair_f)kpsol_repair;
-	desi->des_new_solution = (des_new_solution_f)kpsol_new_random;
+	/*desi->des_new_solution = (des_new_solution_f)kpsol_new_random;*/
+	desi->des_new_solution = (des_new_solution_f)kpsol_new_greedy;
 	desi->des_copy_solution = (des_copy_solution_f)kpsol_copy;
 	desi->des_free_solution = (des_free_solution_f)kpsol_free;
 
