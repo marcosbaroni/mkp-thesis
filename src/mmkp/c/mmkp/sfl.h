@@ -43,14 +43,14 @@ typedef void* (*sfl_copy_solution_f)(void*);
 typedef void* (*sfl_free_solution_f)(void*);
 
 typedef struct SFL_Interface{
-	sfl_set_f sfl_set;
-	sfl_get_f sfl_get;
-	sfl_fitness_f sfl_fitness;
-	sfl_repair_f sfl_repair;
-	sfl_feasible_f sfl_feasible;
-	sfl_new_solution_f sfl_new_solution;
-	sfl_copy_solution_f sfl_copy_solution;
-	sfl_free_solution_f sfl_free_solution;
+	sfl_set_f set;
+	sfl_get_f get;
+	sfl_fitness_f fitness;
+	sfl_repair_f repair;
+	sfl_feasible_f feasible;
+	sfl_new_solution_f new_solution;
+	sfl_copy_solution_f copy_solution;
+	sfl_free_solution_f free_solution;
 }SFL_Interface;
 
 void *sfl(

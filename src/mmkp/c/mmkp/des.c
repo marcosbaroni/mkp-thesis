@@ -45,16 +45,16 @@ void *des( DES_Interface *desi, double *trust, void *problem, int nvars, int pop
 	int i, j, k, val;
 
 	/* checking if activate solution is set */
-	if(!desi->des_activate) desi->des_activate = des_std_activate;
+	if(!desi->activate) desi->activate = des_std_activate;
 
 	/* initialize solutions */
 	sols = (void**)malloc(popsize*sizeof(void*));
 	for( i = 0 ; i < popsize ; i++ )
-		sols[i] = desi->des_new_solution(problem);
+		sols[i] = desi->new_solution(problem);
 
 	/* assume best solution */
-	best_fitness = desi->des_fitness(sols[0]);
-	best_sol = desi->des_copy_solution(sols[0]);
+	best_fitness = desi->fitness(sols[0]);
+	best_sol = desi->copy_solution(sols[0]);
 	
 	for( i = 0 ; i < niter ; i++ ){
 		/* update each individual */
@@ -63,23 +63,23 @@ void *des( DES_Interface *desi, double *trust, void *problem, int nvars, int pop
 			/* for each variable */
 			for( k = 0 ; k < nvars ; k++ ){
 				/* probability for changing value */
-				val = desi->des_get(sol, k);
-				prob = desi->des_activate(
+				val = desi->get(sol, k);
+				prob = desi->activate(
 					val ? trust[k] : 1. - trust[k],
 					i/(float)niter,
 					nvars);
 				if( drand() < prob )
-					desi->des_set(sol, k, 1-val);
+					desi->set(sol, k, 1-val);
 			}
 			/* repair, if needed */
-			if(!desi->des_feasible(sol))
-				sol = desi->des_repair(sol);
+			if(!desi->feasible(sol))
+				sol = desi->repair(sol);
 			/* check if is best */
-			fitness = desi->des_fitness(sol);
+			fitness = desi->fitness(sol);
 			//printf("fitness:%lf best:%lf\n", fitness, best_fitness);
 			if( fitness > best_fitness ){
-				desi->des_free_solution(best_sol);
-				best_sol = desi->des_copy_solution(sol);
+				desi->free_solution(best_sol);
+				best_sol = desi->copy_solution(sol);
 				best_fitness = fitness;
 			}
 			//kpsol_fprint(stdout, sol);
@@ -88,7 +88,7 @@ void *des( DES_Interface *desi, double *trust, void *problem, int nvars, int pop
 
 	/* free */
 	for( i = 0 ; i < popsize ; i++ )
-		desi->des_free_solution(sols[i]);
+		desi->free_solution(sols[i]);
 	free(sols);
 	
 	return best_sol;

@@ -52,15 +52,15 @@ typedef void* (*des_copy_solution_f)(void*);
 typedef void* (*des_free_solution_f)(void*);
 
 typedef struct DES_Interface{
-	des_activate_f des_activate;
-	des_set_f des_set;
-	des_get_f des_get;
-	des_fitness_f des_fitness;
-	des_repair_f des_repair;
-	des_feasible_f des_feasible;
-	des_new_solution_f des_new_solution;
-	des_copy_solution_f des_copy_solution;
-	des_free_solution_f des_free_solution;
+	des_activate_f activate;
+	des_set_f set;
+	des_get_f get;
+	des_fitness_f fitness;
+	des_repair_f repair;
+	des_feasible_f feasible;
+	des_new_solution_f new_solution;
+	des_copy_solution_f copy_solution;
+	des_free_solution_f free_solution;
 }DES_Interface;
 
 void *des(

@@ -520,16 +520,16 @@ DES_Interface *kp_des_interface(){
 
 	desi = (DES_Interface*)malloc(sizeof(DES_Interface));
 
-	desi->des_activate = NULL;
-	desi->des_set = (des_set_f)kpsol_set;
-	desi->des_get = (des_get_f)kpsol_get;
-	desi->des_fitness = (des_fitness_f)kpsol_get_fitness;
-	desi->des_feasible = (des_feasible_f)kpsol_feasible;
-	desi->des_repair = (des_repair_f)kpsol_repair;
-	/*desi->des_new_solution = (des_new_solution_f)kpsol_new_random;*/
-	desi->des_new_solution = (des_new_solution_f)kpsol_new_greedy;
-	desi->des_copy_solution = (des_copy_solution_f)kpsol_copy;
-	desi->des_free_solution = (des_free_solution_f)kpsol_free;
+	desi->activate = NULL;
+	desi->set = (des_set_f)kpsol_set;
+	desi->get = (des_get_f)kpsol_get;
+	desi->fitness = (des_fitness_f)kpsol_get_fitness;
+	desi->feasible = (des_feasible_f)kpsol_feasible;
+	desi->repair = (des_repair_f)kpsol_repair;
+	/*desi->new_solution = (des_new_solution_f)kpsol_new_random;*/
+	desi->new_solution = (des_new_solution_f)kpsol_new_greedy;
+	desi->copy_solution = (des_copy_solution_f)kpsol_copy;
+	desi->free_solution = (des_free_solution_f)kpsol_free;
 
 	return desi;
 }
