@@ -4,6 +4,7 @@
 #include <time.h>
 #include "mmkp/mkp.h"
 #include "mmkp/util.h"
+#include "mmkp/sfl.h"
 
 void print_usage(int argc, char **argv){
 	FILE *out;
@@ -17,7 +18,7 @@ void print_usage(int argc, char **argv){
 	return;
 }
 
-int execute_nemullman_mkp(int argc, char **argv){
+int execute_sfl_mkp(int argc, char **argv){
 	MKP *mkp;
 	FILE *input;
 	MKPSol *best_sol;
@@ -50,6 +51,6 @@ int execute_nemullman_mkp(int argc, char **argv){
 }
 
 int main(int argc, char **argv){
-	return execute_nemullman_mkp(argc, argv);
+	return execute_sfl_mkp(argc, argv);
 }
 

@@ -2,7 +2,8 @@
 #include <stdlib.h>
 #include "sfl.h"
 
-int sfl_compar(void *a, void *b, void *fitness_f){
+
+int sfl_compar(void *a, void *b, double (*fitness_f)(void*)){
 	double fa, fb;
 	fa = fitness_f(a);
 	fb = fitness_f(b);
@@ -14,7 +15,7 @@ int sfl_compar(void *a, void *b, void *fitness_f){
 }
 
 void *sfl(
-	SFL_Interface *sfli; /* the SFL Interface */
+	SFL_Interface *sfli, /* the SFL Interface */
 	void *problem,       /* the problem */
 	int nvars,           /* size of solution */
 	int m,               /* number of memeplex */
@@ -22,14 +23,14 @@ void *sfl(
 	int q,               /* size of submemeplex */
 	int niter)           /* number of iterations */
 {
-	int i, f;
+	int i, j, f;
 	void **population;
 	void ***memeplexes;
 	void **memeplexes_best;
 	double *memeplexes_best_fitness;
 	void *best_solution;
 	double best_fitness;
-	double aux_fitness;
+	double fitness;
 
 	f = m*n;
 	/* allocing space for population */
@@ -38,8 +39,8 @@ void *sfl(
 	memeplexes_best = (void**)malloc(m*sizeof(void*));
 	memeplexes_best_fitness = (double*)malloc(m*sizeof(double));
 	for( i = 0 ; i < m ; i++ ){
-		memeplexes = (void**)malloc(n*sizeof(void*);
-		memeplexes_best_fitness[i] = 0.;
+		memeplexes[i] = (void**)malloc(n*sizeof(void*));
+		memeplexes_best_fitness[i] = .0;
 	}
 	
 	/* initializing population */

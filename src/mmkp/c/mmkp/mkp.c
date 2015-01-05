@@ -5,6 +5,7 @@
 #include "util.h"
 #include "mkp.h"
 #include "des.h"
+#include "sfl.h"
 
 /*** memory management ***/
 MKP *mkp_alloc(int n, int m){
@@ -539,15 +540,15 @@ DES_Interface *mkp_des_interface(){
 	DES_Interface *desi;
 
 	desi = (DES_Interface*)malloc(sizeof(DES_Interface));
-	desi->des_activate = NULL;
-	desi->des_set = (des_set_f)mkpsol_set;
-	desi->des_get = (des_get_f)mkpsol_get;
-	desi->des_fitness = (des_fitness_f)mkpsol_fitness;
-	desi->des_feasible = (des_feasible_f)mkpsol_feasible;
-	desi->des_repair = (des_repair_f)mkpsol_repair;
-	desi->des_new_solution = (des_new_solution_f)mkpsol_new_random;
-	desi->des_copy_solution = (des_copy_solution_f)mkpsol_copy;
-	desi->des_free_solution = (des_free_solution_f)mkpsol_free;
+	desi->activate = NULL;
+	desi->set = (des_set_f)mkpsol_set;
+	desi->get = (des_get_f)mkpsol_get;
+	desi->fitness = (des_fitness_f)mkpsol_fitness;
+	desi->feasible = (des_feasible_f)mkpsol_feasible;
+	desi->repair = (des_repair_f)mkpsol_repair;
+	desi->new_solution = (des_new_solution_f)mkpsol_new_random;
+	desi->copy_solution = (des_copy_solution_f)mkpsol_copy;
+	desi->free_solution = (des_free_solution_f)mkpsol_free;
 
 	return desi;
 }
@@ -556,14 +557,15 @@ SFL_Interface *mkp_sfl_interface(){
 	SFL_Interface *sfli;
 
 	sfli = (SFL_Interface*)malloc(sizeof(SFL_Interface));
-	sfl_set = (sfl_set_f)mkpsol_set;
-	sfl_get = (sfl_get_f)mkpsol_get;
-	sfl_fitness = (sfl_fitness_f)mkpsol_fitness;
-	sfl_repair = (sfl_repair_f)mkpsol_repair;
-	sfl_feasible = (sfl_feasible_f)mkpsol_feasible;
-	sfl_new_solution = (sfl_new_solution_f)mkpsol_new_solution;
-	sfl_copy_solution = (sfl_copy_solution_f)mkpsol_copy_solution;
-	sfl_free_solution = (sfl_free_solution_f)mkpsol_free_solution;
+	sfli->set = (sfl_set_f)mkpsol_set;
+	sfli->get = (sfl_get_f)mkpsol_get;
+	sfli->fitness = (sfl_fitness_f)mkpsol_fitness;
+	sfli->repair = (sfl_repair_f)mkpsol_repair;
+	sfli->feasible = (sfl_feasible_f)mkpsol_feasible;
+	sfli->new_solution = (sfl_new_solution_f)mkpsol_new_random;
+	sfli->copy_solution = (sfl_copy_solution_f)mkpsol_copy;
+	sfli->free_solution = (sfl_free_solution_f)mkpsol_free;
 
 	return sfli;
 }
+

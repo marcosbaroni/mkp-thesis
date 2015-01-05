@@ -2,6 +2,8 @@
 #define MKP_H 1
 
 #include "util.h"
+#include "des.h"
+#include "sfl.h"
 
 /*** MKP PROBLEM INSTANCE ***/
 typedef struct MKP{
@@ -57,8 +59,8 @@ MKPSol *tabu_mkp(MKPSol *mkpsol, int niter);
 /* MKP NEMHAUSER-ULLMAN */
 Array *mkp_nemull(MKP *mkp);
 
-/* DES interface implementation */
-
+DES_Interface *mkp_des_interface(); /* DES interface for MKP */
+SFL_Interface *mkp_sfl_interface(); /* Shuffled Frog Leaping interf. for MKP */
 
 #endif
 
