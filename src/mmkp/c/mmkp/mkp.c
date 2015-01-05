@@ -508,7 +508,7 @@ int mkpsol_get(MKPSol *mkpsol, int a){
 	return mkpsol->x[a];
 }
 /* obj */
-double mkpsol_des_fitness(MKPSol *mkpsol){
+double mkpsol_fitness(MKPSol *mkpsol){
 	return (double)mkpsol->obj;
 }
 /* feasible*/
@@ -542,7 +542,7 @@ DES_Interface *mkp_des_interface(){
 	desi->des_activate = NULL;
 	desi->des_set = (des_set_f)mkpsol_set;
 	desi->des_get = (des_get_f)mkpsol_get;
-	desi->des_fitness = (des_fitness_f)mkpsol_des_fitness;
+	desi->des_fitness = (des_fitness_f)mkpsol_fitness;
 	desi->des_feasible = (des_feasible_f)mkpsol_feasible;
 	desi->des_repair = (des_repair_f)mkpsol_repair;
 	desi->des_new_solution = (des_new_solution_f)mkpsol_new_random;
@@ -552,3 +552,18 @@ DES_Interface *mkp_des_interface(){
 	return desi;
 }
 
+SFL_Interface *mkp_sfl_interface(){
+	SFL_Interface *sfli;
+
+	sfli = (SFL_Interface*)malloc(sizeof(SFL_Interface));
+	sfl_set = (sfl_set_f)mkpsol_set;
+	sfl_get = (sfl_get_f)mkpsol_get;
+	sfl_fitness = (sfl_fitness_f)mkpsol_fitness;
+	sfl_repair = (sfl_repair_f)mkpsol_repair;
+	sfl_feasible = (sfl_feasible_f)mkpsol_feasible;
+	sfl_new_solution = (sfl_new_solution_f)mkpsol_new_solution;
+	sfl_copy_solution = (sfl_copy_solution_f)mkpsol_copy_solution;
+	sfl_free_solution = (sfl_free_solution_f)mkpsol_free_solution;
+
+	return sfli;
+}

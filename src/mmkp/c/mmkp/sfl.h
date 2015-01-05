@@ -53,12 +53,16 @@ typedef struct SFL_Interface{
 	sfl_free_solution_f free_solution;
 }SFL_Interface;
 
+void sfli_fee(SFL_Interface *sfli);
+
 void *sfl(
-	SFL_Interface *sfli; /*SFL Interface */
+	SFL_Interface *sfli; /* the SFL Interface */
 	void *problem,       /* the problem */
 	int nvars,           /* size of solution */
-	int popsize,         /* size of population */
-	int niter);          /* number of iteration */
+	int m,               /* number of memeplex */
+	int n,               /* size of memeplex */
+	int q,               /* size of submemeplex */
+	int niter);          /* number of iterations */
 
 #endif
 

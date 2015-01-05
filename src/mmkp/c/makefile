@@ -17,7 +17,7 @@ kp-rand:
 kp-des:
 	gcc -o kp-des kp-des.c mmkp/kp.c mmkp/util.c mmkp/des.c $(CFLAGS)
 	mv kp-des $(BINDIR)
-mkp: mkp-rand mkp2zpl mkp-nu
+mkp: mkp-rand mkp2zpl mkp-nu mkp-sfl
 mkp-rand:
 	gcc -o mkp-rand mkp-rand.c mmkp/mkp.c mmkp/util.c $(CFLAGS)
 	mv mkp-rand $(BINDIR)
@@ -27,6 +27,9 @@ mkp2zpl:
 mkp-nu:
 	gcc -o mkp-nu mkp-nu.c mmkp/mkp.c mmkp/util.c $(CFLAGS)
 	mv mkp-nu $(BINDIR)
+mkp-sfl:
+	gcc -o mkp-sfl mkp-sfl.c mmkp/sfl.c mmkp/mkp.c mmkp/util.c $(CFLAGS)
+	mv mkp-mkp-sfl $(BINDIR)
 mmkp: mmkp-rand mmkp2zpl
 mmkp-rand:
 	gcc -o mmkp-rand mmkp-rand.c mmkp/mmkp.c mmkp/util.c $(CFLAGS)
