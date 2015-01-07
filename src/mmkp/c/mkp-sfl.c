@@ -6,7 +6,7 @@
 #include "mmkp/util.h"
 #include "mmkp/sfl.h"
 
-void print_usage(int argc, char **argv){
+int print_usage(int argc, char **argv){
 	FILE *out;
 
 	out = stdout;
@@ -15,7 +15,7 @@ void print_usage(int argc, char **argv){
 	fprintf(out, "   input file: a MKP instance. If no file is given, instance is read from stdin.\n");
 	fprintf(out, "   Program outputs \"<profit of solution>;<solution>\"\n");
 
-	return;
+	return 1;
 }
 
 int execute_sfl_mkp(int argc, char **argv){
@@ -28,7 +28,7 @@ int execute_sfl_mkp(int argc, char **argv){
 
 	/* checking input */
 	input = stdin;
-	if(strcmp(argv[0], "-")) input = fopen(argv[1], "r");
+	if(strcmp(argv[1], "-")) input = fopen(argv[1], "r");
 	n = atoll(argv[2]);
 	m = atoll(argv[3]);
 	q = atoll(argv[4]);
@@ -51,6 +51,8 @@ int execute_sfl_mkp(int argc, char **argv){
 }
 
 int main(int argc, char **argv){
+	if( argc < 6 )
+		return print_usage(argc, argv);
 	return execute_sfl_mkp(argc, argv);
 }
 

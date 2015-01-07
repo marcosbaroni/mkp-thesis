@@ -2,10 +2,12 @@
 #include <stdlib.h>
 #include <math.h>
 #include <unistd.h>
-#include "util.h"
 #include "mkp.h"
+
+#include "util.h"
 #include "des.h"
 #include "sfl.h"
+#include "lp.h"
 
 /*** memory management ***/
 MKP *mkp_alloc(int n, int m){
@@ -58,6 +60,43 @@ void mkp_free(MKP *mkp){
 	return;
 }
 
+LP *mkp2lp(MKP *mkp){
+	LP *lp;
+	int i, j, n, m;
+
+	n = mkp->n;
+	m = mkp->m;
+
+	/* allocs */
+	lp = (LP*)malloc(sizeof(LP));
+	lp->nvars = n;
+	lp->ncs = m+n;
+	lp->c = double_array_alloc(n);
+	lp->a = double_matrix_alloc(m+n, n);
+	lp->b = double_array_alloc(m+n);
+
+	/* the profit */
+	for( i = 0 ; i < n ; i++ )
+		lp->c[i] = mkp->p[i];
+	/* the weights constraints */
+	for( i = 0 ; i < m ; i++ )
+		for( j = 0 ; j < n ; j++ )
+			lp->a[i][j] = mkp->w[i][j];
+	/* the "binary" contraint */
+	for( i = 0 ; i < n ; i++ ){
+		for( j = 0 ; j < n ; j++ )
+			lp->a[m+i][j] = 0.0;
+		lp->a[m+i][i] = 1.0;
+	}
+	/* the capacities */
+	for( i = 0 ; i < m ; i++ )
+		lp->b[i] = mkp->b[i];
+	for( i = 0 ; i < n ; i++ )
+		lp->b[m+i] = 1.0;
+
+	return lp;
+}
+
 void mkpsol_write(FILE *fout, MKPSol *mkpsol){
 	int i, n;
 
@@ -97,7 +136,6 @@ MKP *mkp_read_from_file(FILE *fin){
 	long_long_array_read(fin, mkp->p, n);
 	long_long_matrix_read(fin, mkp->w, m, n);
 	long_long_array_read(fin, mkp->b, n);
-	mkp->idxs = (int*)malloc(n*sizeof(int));
 	for( i = 0 ; i < n ; i++ )
 		mkp->idxs[i] = i;
 

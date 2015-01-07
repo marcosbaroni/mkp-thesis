@@ -4,6 +4,7 @@
 #include "util.h"
 #include "des.h"
 #include "sfl.h"
+#include "lp.h"
 
 /*** MKP PROBLEM INSTANCE ***/
 typedef struct MKP{
@@ -29,6 +30,8 @@ void mkp_write_to_file(MKP *mkp, FILE *fout);
 /*** Print functions ***/
 void mkp_fprint(FILE *fout, MKP *mkp);
 void mkp_to_zimpl(FILE *fout, MKP *mkp, double max_opt, double capacity_scale, char linear);
+
+LP *mkp2lp(MKP *mkp); /* MKP to LP relaxation */
 
 
 /*** MKP SOLUTION ***/

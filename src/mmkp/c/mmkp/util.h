@@ -91,7 +91,14 @@ long long long_long_matrix_max_col(long long **mat, int n, int m, int col); /* m
 long long long_long_matrix_max_lin(long long **mat, int n, int m, int lin); /* max elem of given line */
 
 /* DOUBLE ARRAY */
+double *double_array_alloc(int n);
+double *double_array_copy(double *array, int n);
 double double_array_sum(double *array, int n);
+double *double_array_init(double *array, int n, double x);
+
+/* DOUBLE MATRIX */
+double **double_matrix_alloc(int n, int m);
+double **double_matrix_init(double **mat, int n, int m, double x);
 
 /* ABSTRACT ARRAY */
 typedef struct Array{

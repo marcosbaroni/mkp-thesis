@@ -748,6 +748,11 @@ long long long_long_matrix_max_lin(long long **mat, int n, int m, int lin){
 	return max;
 }
 
+/* DOUBLE ARRAY */
+double *double_array_alloc(int n){
+	return (double*)malloc(n*sizeof(double));
+}
+
 double double_array_sum(double *array, int n){
 	int i;
 	double sum;
@@ -757,6 +762,45 @@ double double_array_sum(double *array, int n){
 		sum += array[i];
 	
 	return sum;
+}
+
+double *double_array_copy(double *array, int n){
+	double *cop;
+	cop = (double*)malloc(n*sizeof(double));
+	cop = memcpy(cop, array, n*sizeof(double));
+	return cop;
+}
+
+double *double_array_init(double *array, int n, double x){
+	int i;
+	if(!array) array = (double*)malloc(n*sizeof(double));
+	for( i = 0 ; i < n ; i++ )
+		array[i] = x;
+	return array;
+}
+
+/* DOUBLE MATRIX */
+double **double_matrix_alloc(int n, int m){
+	double **mat;
+	int i;
+
+	mat = (double**)malloc(n*sizeof(double*));
+	for( i = 0 ; i < n ; i++ )
+		mat[i] = (double*)malloc(m*sizeof(double));
+
+	return mat;
+}
+
+double **double_matrix_init(double **mat, int n, int m, double x){
+	int i, new;
+
+	new = 0; /* if mem blobk is new one */
+	if(!mat)
+		{mat = (double**)malloc(n*sizeof(double*)); new = 1;}
+	for( i = 0 ; i < n ; i++ )
+		mat[i] = double_array_init( (new ? NULL : mat[i]), m, x);
+
+	return mat;
 }
 
 void long_long_matrix_zimpl_print(FILE *fout, long long **mat, int nlin, int ncol){
