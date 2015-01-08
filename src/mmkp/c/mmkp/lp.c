@@ -2,6 +2,30 @@
 #include <stdlib.h>
 #include "lp.h"
 
+void print_tableau(FILE *out, double **tab, double *b, double z, int n, int m){
+	int i, j;
+
+	/* the tableau */
+	for( i = 0 ; i < m ; i++ ){
+		for( j = 0 ; j < n ; j++ )
+			fprintf(out, "\t%.2lf", tab[i][j]);
+		fprintf(out, "| %.2lf\n", b[i]);
+	}
+
+	/* ruler */
+	fprintf(out, "\t");
+	for( i = 0 ; i < n ; i++ )
+		fprintf(out, "--------");
+	fprintf(out, "\n");
+
+	/* last line*/
+	for( j = 0 ; j < n ; j++ )
+		fprintf(out, "\t%.2lf", tab[m][j]);
+	fprintf(out, "| %.2lf\n", z);
+
+	return;
+}
+
 void build_tableau(LP *lp, double **tab, double *b){
 	int i, j, n, m, nvars;
 
@@ -65,26 +89,30 @@ double *simplex(LP *lp){
 	for( j = 0 ; j < nvars ; j++ )
 		if( tab[m][j] < most_neg )
 			{ pivot_j = j; most_neg = tab[m][j]; }
+
+	/* finding line of first pivot */
+	pivot_i = 0;
+	min_rate = b[pivot_i]/tab[pivot_i][pivot_j];
+	for( i = 1 ; i < m ; i++ ){
+		rate = b[i]/tab[i][pivot_j];
+		if( rate < min_rate && rate > 0.0 ){
+			min_rate = rate;
+			pivot_i = i;
+		}
+	}
+
+	print_tableau(stdout, tab, b, z, n, m);
+	printf("pivot i=%d  j=%d\n\n", pivot_i+1, pivot_j+1);
 	
 	z = 0.0;
 	/* solving */
-	while( most_neg < 0.0){
-		/* finding minimum "right rate" (pivot column) */
-		pivot_i = 0;
-		min_rate = b[pivot_i]/tab[pivot_i][pivot_j];
-		for( i = 1 ; i < m ; i++ ){
-			rate = b[i]/tab[i][pivot_j];
-			if( rate < min_rate ){
-				min_rate = rate;
-				pivot_i = i;
-			}
-		}
-
-		/*** pivoting ***/
-		/* pivot line */
+	while( most_neg < 0.0 && min_rate > 0.0 ){
+		/*** PIVOTING ***/
+		/* normalizing the pivot line */
 		pivot = tab[pivot_i][pivot_j];
 		for( j = 0 ; j < n ; j++ )
 			tab[pivot_i][j] /= pivot;
+		b[pivot_i] /= pivot;
 		/* further lines (before pivot line) */
 		for( i = 0 ; i < pivot_i ; i++ ){
 			pivot = -tab[i][pivot_j];
@@ -99,17 +127,34 @@ double *simplex(LP *lp){
 				tab[i][j] += pivot*tab[pivot_i][j];
 			b[i] += pivot*b[pivot_i];
 		}
+
 		/* the additional line */
 		pivot = -tab[m][pivot_j];          // multiplier
 		most_neg = 1.0;
 		for( j = 0 ; j < n ; j++ ){
-			tab[m][j] += pivot*tab[pivot_i][j];
+			tab[m][j] += pivot*tab[pivot_i][j];   /* finding pivot column */
 			if( tab[m][j] < most_neg ){
 				most_neg = tab[m][j];
 				pivot_j = j;
 			}
 		}
 		z += pivot*b[pivot_i];
+
+		/* finding pivot line */
+		pivot_i = 0;
+		min_rate = b[pivot_i]/tab[pivot_i][pivot_j];
+		for( i = 1 ; i < m ; i++ ){
+			rate = b[i]/tab[i][pivot_j];
+			if( rate < min_rate && rate > 0.0 ){
+				min_rate = rate;
+				pivot_i = i;
+			}
+		}
+	
+		print_tableau(stdout, tab, b, z, n, m);
+		printf("pivot i=%d  j=%d, most_neg=%.3lf min_rate=%.3lf %s\n\n",
+			pivot_i+1, pivot_j+1, most_neg, min_rate,
+			(most_neg < 0.0 && min_rate > 0.0 ) ? "YES" : "NO" );
 	}
 
 	/* extracting solution */
