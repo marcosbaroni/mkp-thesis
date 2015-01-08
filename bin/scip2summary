@@ -1,11 +1,26 @@
 #!/bin/bash
+if [[ $1 == "-s" ]]; then 
+	sol=1
+elif [[ $1 == "--help" ]]; then
+	echo "usage: $0 [options]"
+	echo " sumarize SCIP output printing: <obj>;<time (s)>;<gap>"
+	echo "  OPTIONS:"
+	echo "  -s     : prints the solution wright below the summary"
+	echo "  --help : prints this help"
+fi
+
 while read aux
 do
-	#ob=$ob`echo $aux | grep "Primal Bound"|sed 's/\ \+/\ /g'|cut -d ' ' -f 4`
 	ob=$ob`echo $aux | grep "Primal Bound"|sed 's/\ \+/\ /g'|cut -d ' ' -f 4`
 	gp=$gp`echo $aux | grep "Gap"| sed 's/ //g' | cut -d ':' -f 2| sed 's/%//g'|head -1`
 	tm=$tm`echo $aux | grep "Solving Time (sec)"| sed 's/ //g'|cut -d ':' -f 2`
+	sl=$sl`echo $aux | grep "x#"| sed 's/[\t\ ]\+/ /g'|cut -d ' ' -f 1,2`
 done
+sl=`echo $sl|sed 's/x#//'| sed 's/x#/\\\\n/g'`
+# convert from scientific notation
 ob=`python -c "from sys import argv;print(float(float(\"$ob\")))"`
 echo ${ob}";"${gp}";"${tm}
+if [[ $sol == "1" ]]; then
+	echo -e $sl
+fi
 
