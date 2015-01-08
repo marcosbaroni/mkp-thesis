@@ -46,7 +46,7 @@ int main(int argc, char **argv){
 	srand(seed);
 
 	/* Generating random instance */
-	mkp = mkp_random(n, m, beta);
+	mkp = mkp_random(n, m, beta, max_coefs);
 
 	/* Printing random instance */
 	mkp_write_to_file(mkp, stdout);

@@ -31,19 +31,19 @@ MKP *mkp_alloc(int n, int m){
  * Returns a random MKP problem with coeficients taken from uniform
  *    distribution.
  */
-MKP *mkp_random(int n, int m, double beta){
+MKP *mkp_random(int n, int m, double beta, long long max_coefs){
 	int i, j;
 	long long lsum;
 	MKP *mkp = mkp_alloc(n, m);
 
 	/* profit */
 	for( i = 0 ; i < n ; i++ )
-		mkp->p[i] = llrand(MAX_COEFFICIENT);
+		mkp->p[i] = llrand(max_coefs);
 	/* weight */
 	for( i = 0 ; i < m ; i++ ){
 		lsum = 0;
 		for( j = 0 ; j < n ; j++ )
-			lsum += mkp->w[i][j] = llrand(MAX_COEFFICIENT);
+			lsum += mkp->w[i][j] = llrand(max_coefs);
 		mkp->b[i] = (long)(ceil(lsum*beta));
 	}
 

@@ -18,7 +18,7 @@ typedef struct MKP{
 
 /*** Memory Management ***/
 MKP *mkp_alloc(int n, int m);
-MKP *mkp_random(int n, int m, double beta);
+MKP *mkp_random(int n, int m, double beta, long long max_coefs);
 void mkp_free(MKP *mkp);
 
 /*** read/write functions ***/

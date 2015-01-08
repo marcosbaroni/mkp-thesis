@@ -42,20 +42,18 @@ int execute_mkp_simplex(int argc, char **argv){
 	lp_fprint(stdout, lp);
 
 	/* solving LP */
-	/*
 	c0 = clock();
 	x = simplex(lp);
 	cf = clock();
 
 	profit = 0.0;
-	for( i = 0 ; i < n ; i++ )
-		profit += ((double)mkp->p[i])*x[i];
+	//for( i = 0 ; i < n ; i++ )
+	//	profit += ((double)mkp->p[i])*x[i];
 	printf("%.3lf;", profit);
 	for( i = 0 ; i < n ; i++ );
 		printf("%.3lf\n", x[i]);
 
 	free(x);
-	*/
 	lp_free(lp);
 	mkp_free(mkp);
 

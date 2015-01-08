@@ -2,6 +2,36 @@
 #include <stdlib.h>
 #include "lp.h"
 
+void build_tableau(LP *lp, double **tab, double *b){
+	int i, j, n, m, nvars;
+
+	nvars = lp->nvars;
+	m = lp->ncs;
+	n = m + nvars;      /* n. of variables (with slacks) */
+
+	for( i = 0 ; i < m ; i++ ){
+		/* coping "A" table */
+		for( j = 0 ; j < nvars ; j++ )
+			tab[i][j] = lp->a[i][j];
+		/* initializin slack variable columns */
+		for( j = nvars ; j < n ; j++ )
+			tab[i][j] = 0.0;
+		tab[i][nvars+i] = 1.0;
+		/* copying the "b" column */
+		b[i] = lp->b[i];
+	}
+
+	/* the additional line (with profits) */
+	for( j = 0 ; j < nvars ; j++ )
+		tab[m][j] = -lp->c[j];      /* to negative */
+
+	/* "profit" of slack variables */
+	for( j = nvars ; j < n ; j++ )
+		tab[m][j] = 0.0;
+	
+	return;
+}
+
 /*
  * [ tab | b ]
  * [ tab | z ]   <- additional line | z
@@ -27,27 +57,16 @@ double *simplex(LP *lp){
 	x = (double*)malloc(nvars*sizeof(double));
 	
 	/* building tableau */
-	for( i = 0 ; i < m ; i++ ){
-		for( j = 0 ; j < nvars ; j++ )
-			tab[i][j] = lp->a[i][j];
-		for( j = nvars ; j < n ; j++ )
-			tab[i][j] = 0.0;
-		tab[i][nvars+i] = 1.0; /* the slack variable */
-		b[i] = lp->b[i];      /* the capacities */
-	}
+	build_tableau(lp, tab, b);
+
+	/* finding column of first pivot */
 	pivot_j = 0;
 	most_neg = lp->c[0];
-	for( j = 0 ; j < nvars ; j++ ){ /* the additional line */
-		tab[m][j] = lp->c[j];
-		if( tab[m][j] < most_neg ){
-			pivot_j = j;
-			most_neg = tab[m][j];
-		}
-	}
-	for( j = nvars ; j < n ; j++ ) /* "profit" of slack variable */
-		tab[m][j] = 0.0;
+	for( j = 0 ; j < nvars ; j++ )
+		if( tab[m][j] < most_neg )
+			{ pivot_j = j; most_neg = tab[m][j]; }
+	
 	z = 0.0;
-
 	/* solving */
 	while( most_neg < 0.0){
 		/* finding minimum "right rate" (pivot column) */
@@ -122,11 +141,11 @@ void lp_fprint(FILE *out, LP *lp){
 	m = lp->ncs;
 
 	for( i = 0 ; i < n ; i++ )
-		fprintf(out, "%06.1lf ", lp->c[i]);
+		fprintf(out, "%1.1lf ", lp->c[i]);
 	fprintf(out, "= Z\n");
 	for( i = 0 ; i < m ; i++ ){
 		for( j = 0 ; j < n ; j++ )
-			fprintf(out, "%06.1lf ", lp->a[i][j]);
+			fprintf(out, "%1.1lf ", lp->a[i][j]);
 		fprintf(out, "<= %lf\n", lp->b[i]);
 	}
 
