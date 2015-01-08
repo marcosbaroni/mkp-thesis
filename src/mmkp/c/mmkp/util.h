@@ -10,6 +10,8 @@
 #define MAX(x, y) (x > y ? x : y)
 #define MIN(x, y) (x < y ? x : y)
 
+extern int verbose;
+
 inline void SWAP_LONG(long *array, int a, int b);
 inline void SWAP_LONG_LONG(long long *array, int a, int b);
 

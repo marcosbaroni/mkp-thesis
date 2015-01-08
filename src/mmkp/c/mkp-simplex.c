@@ -26,6 +26,8 @@ int execute_mkp_simplex(int argc, char **argv){
 	clock_t c0, cf;
 	int i, n;
 
+	verbose = 1;
+
 	/* checing input */
 	input = stdin;
 	if(strcmp(argv[1], "-")) input = fopen(argv[1], "r");
@@ -38,8 +40,8 @@ int execute_mkp_simplex(int argc, char **argv){
 	/* MKP -> LP */
 	lp = mkp2lp(mkp);
 
-	mkp_fprint(stdout, mkp);
-	lp_fprint(stdout, lp);
+	//mkp_fprint(stdout, mkp);
+	//lp_fprint(stdout, lp);
 
 	/* solving LP */
 	c0 = clock();

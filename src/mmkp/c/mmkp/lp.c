@@ -1,8 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "lp.h"
+#include "util.h"
 
-void print_tableau(FILE *out, double **tab, double *b, double z, int n, int m){
+void tableau_print(FILE *out, double **tab, double *b, double z, int n, int m){
 	int i, j;
 
 	/* the tableau */
@@ -21,12 +22,12 @@ void print_tableau(FILE *out, double **tab, double *b, double z, int n, int m){
 	/* last line*/
 	for( j = 0 ; j < n ; j++ )
 		fprintf(out, "\t%.2lf", tab[m][j]);
-	fprintf(out, "| %.2lf\n", z);
+	fprintf(out, "| %.2lf\n\n", z);
 
 	return;
 }
 
-void build_tableau(LP *lp, double **tab, double *b){
+void tableau_build(LP *lp, double **tab, double *b){
 	int i, j, n, m, nvars;
 
 	nvars = lp->nvars;
@@ -67,7 +68,11 @@ double *simplex(LP *lp){
 	double z;     /* value of z */
 	double *x;    /* the solution */
 	double most_neg, min_rate, rate, pivot;
-	int pivot_i, pivot_j, ones;
+	int pivot_i, pivot_j, non_zeros;
+	int print_tab = 0;
+
+	if( verbose )
+		print_tab = 1;
 
 	nvars = lp->nvars;
 	m = lp->ncs;
@@ -81,7 +86,7 @@ double *simplex(LP *lp){
 	x = (double*)malloc(nvars*sizeof(double));
 	
 	/* building tableau */
-	build_tableau(lp, tab, b);
+	tableau_build(lp, tab, b);
 
 	/* finding column of first pivot */
 	pivot_j = 0;
@@ -95,14 +100,18 @@ double *simplex(LP *lp){
 	min_rate = b[pivot_i]/tab[pivot_i][pivot_j];
 	for( i = 1 ; i < m ; i++ ){
 		rate = b[i]/tab[i][pivot_j];
-		if( rate < min_rate && rate > 0.0 ){
+		if( (rate > 0.0 ) && (min_rate < 0.0 || rate < min_rate) ){
 			min_rate = rate;
 			pivot_i = i;
 		}
 	}
 
-	print_tableau(stdout, tab, b, z, n, m);
-	printf("pivot i=%d  j=%d\n\n", pivot_i+1, pivot_j+1);
+	if( print_tab ){
+		printf("\tpivot_i=%d pivot_j=%d most_neg=%.2lf min_rate=%.2lf %s\n",
+			pivot_i+1, pivot_j+1,  most_neg, min_rate,
+			(most_neg < 0.0 && min_rate > 0.0 ) ? "Continue." : "Stop." );
+		tableau_print(stdout, tab, b, z, n, m);
+	}
 	
 	z = 0.0;
 	/* solving */
@@ -142,32 +151,35 @@ double *simplex(LP *lp){
 
 		/* finding pivot line */
 		pivot_i = 0;
-		min_rate = b[pivot_i]/tab[pivot_i][pivot_j];
+		min_rate = b[0]/tab[0][pivot_j];
 		for( i = 1 ; i < m ; i++ ){
 			rate = b[i]/tab[i][pivot_j];
-			if( rate < min_rate && rate > 0.0 ){
+			if( (rate > 0.0 ) && (min_rate < 0.0 || rate < min_rate) ){
 				min_rate = rate;
 				pivot_i = i;
 			}
 		}
 	
-		print_tableau(stdout, tab, b, z, n, m);
-		printf("pivot i=%d  j=%d, most_neg=%.3lf min_rate=%.3lf %s\n\n",
-			pivot_i+1, pivot_j+1, most_neg, min_rate,
-			(most_neg < 0.0 && min_rate > 0.0 ) ? "YES" : "NO" );
+		if( print_tab ){
+			printf("\tpivot_i=%d pivot_j=%d most_neg=%.2lf min_rate=%.2lf %s\n",
+				pivot_i+1, pivot_j+1,  most_neg, min_rate,
+				( most_neg < 0.0 && min_rate > 0.0 ) ? "Continue." : "Stop." );
+			tableau_print(stdout, tab, b, z, n, m);
+		}
 	}
 
 	/* extracting solution */
 	for( j = 0 ; j < nvars ; j++ ){
-		ones = 0;
+		non_zeros = 0;
 		for( i = 0 ; i < m ; i++ ){
-			if( tab[i][j] == 1.0 ){
-				ones++;
+			if( tab[i][j] != 0.0 ){
+				non_zeros++;
 				x[j] = b[i];
 			}
 		}
-		if( ones != 1 )        /* not basic */
+		if( non_zeros != 1 )        /* not basic */
 			x[j] = 0.0;
+		printf(" - %.2lf\n", x[j]);
 	}
 	
 	/* freeing */

@@ -8,6 +8,8 @@
 
 #define ISNUM(c) ( (c > 47) && (c < 58) )
 
+int verbose = 0;
+
 void findent(FILE *fout, int times, char c){
 	while( times-- )
 		fprintf(fout, "%c", c);
