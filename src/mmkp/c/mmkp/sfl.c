@@ -83,7 +83,7 @@ void *sfl(
 	return best_solution;
 }
 
-void sfli_fee(SFL_Interface *sfli){
+void sfli_free(SFL_Interface *sfli){
 	free(sfli);
 	return;
 }

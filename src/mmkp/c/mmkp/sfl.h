@@ -53,7 +53,7 @@ typedef struct SFL_Interface{
 	sfl_free_solution_f free_solution;
 }SFL_Interface;
 
-void sfli_fee(SFL_Interface *sfli);
+void sfli_free(SFL_Interface *sfli);
 
 void *sfl(
 	SFL_Interface *sfli, /* the SFL Interface */

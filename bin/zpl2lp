@@ -1,5 +1,5 @@
 #!/bin/bash
-ZIMPL=zimpl 
+ZIMPL=./zimpl 
 temp=`tempfile`
 
 # Checkinkg number of arguments

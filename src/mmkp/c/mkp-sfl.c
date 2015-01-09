@@ -21,7 +21,7 @@ int print_usage(int argc, char **argv){
 int execute_sfl_mkp(int argc, char **argv){
 	MKP *mkp;
 	FILE *input;
-	MKPSol *best_sol;
+	MKPSol *best_sol, *sol;
 	SFL_Interface *sfli;
 	int i, n, m, q, niter;
 	clock_t c0, cf;
@@ -39,13 +39,20 @@ int execute_sfl_mkp(int argc, char **argv){
 	fclose(input);
 	sfli = mkp_sfl_interface();
 
-	c0 = clock();
-	best_sol = sfl(sfli, mkp, mkp->n, m, n, q, niter);
-	cf = clock();
+	//c0 = clock();
+	//best_sol = sfl(sfli, mkp, mkp->n, m, n, q, niter);
+	//cf = clock();
+
+	//best_sol = mkpsol_from_lp(mkp);
+	best_sol = mkpsol_new_random(mkp);
+	mkpsol_fprint(stdout, best_sol);
+	sol = mkpsol_local_search(best_sol, niter);
+	mkpsol_fprint(stdout, sol);
 
 	mkpsol_free(best_sol);
+	mkpsol_free(sol);
 	mkp_free(mkp);
-	free(sfli);
+	sfli_free(sfli);
 
 	return 0;
 }

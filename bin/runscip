@@ -3,7 +3,7 @@
 #  Takes a lp file and solves it on SCIP solver.                             #
 #    If no files is given, reads from standard input.                        #
 ##############################################################################
-SCIP=scip
+SCIP=./scip
 maxtime="60.0"
 maxgap="0.0"
 temp=`tempfile`

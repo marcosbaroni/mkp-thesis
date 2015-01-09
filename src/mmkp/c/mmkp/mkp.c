@@ -221,6 +221,7 @@ void mkp_to_zimpl(FILE *fout, MKP *mkp, double max_opt, double capacity_scale, c
 	n = mkp->n;
 	m = mkp->m;
 	total_profit = (double)long_long_array_sum(mkp->p, n);
+	if( max_opt <= 0.0 ) max_opt = 1.0e+40;
 
 	/* sizes */
 	fprintf(fout, "param n := %d;\n", n);
@@ -241,8 +242,8 @@ void mkp_to_zimpl(FILE *fout, MKP *mkp, double max_opt, double capacity_scale, c
 	/* scaling */
 	if(capacity_scale == 0.0)
 		capacity_scale = 1.0;
-	b = (double*)malloc(sizeof(double));
-	for( i = 0 ; i < n ; i++ )
+	b = (double*)malloc(m*sizeof(double));
+	for( i = 0 ; i < m ; i++ )
 		b[i] = mkp->b[i]*capacity_scale;
 
 	/* capacities */
@@ -276,6 +277,8 @@ void mkp_to_zimpl(FILE *fout, MKP *mkp, double max_opt, double capacity_scale, c
 		"maximize profit:\n\
 			sum <i> in N do\n\
 				x[i]*p[i];\n");
+
+	free(b);
 
 	return;
 }
@@ -342,7 +345,7 @@ MKPSol *mkpsol_rm_item(MKPSol *mkpsol, int a){
 	mkp = mkpsol->mkp;
 	m = mkp->m;
 
-	if(mkpsol->x[a]) {
+	if( !mkpsol->x[a] ) {
 		fprintf(stderr, "%s error: item %d-th item not in knapsak.\n",
 			__PRETTY_FUNCTION__, a+1);
 		return mkpsol;
@@ -351,9 +354,15 @@ MKPSol *mkpsol_rm_item(MKPSol *mkpsol, int a){
 	mkpsol->x[a] = 0;
 	mkpsol->obj -= mkp->p[a];
 	for( i = 0 ; i < m ; i++ ){
-		mkpsol->b_left += mkp->w[i][a];
+		mkpsol->b_left[i] += mkp->w[i][a];
 	}
 
+	return mkpsol;
+}
+
+MKPSol *mkpsol_flip_item(MKPSol *mkpsol, int a){
+	if( mkpsol->x[a] ) mkpsol = mkpsol_rm_item(mkpsol, a);
+	else mkpsol = mkpsol_add_item(mkpsol, a);
 	return mkpsol;
 }
 
@@ -434,8 +443,6 @@ void mkpsol_fprint(FILE *fout, MKPSol *mkpsol){
 	return;
 }
 
-
-
 void mkpsol_free(MKPSol *mkpsol){
 	free(mkpsol->x);
 	free(mkpsol->b_left);
@@ -443,19 +450,81 @@ void mkpsol_free(MKPSol *mkpsol){
 	return;
 }
 
+MKPSol *mkpsol_from_lp(MKP *mkp){
+	MKPSol *sol;
+	double *x, val;
+	int a, n, nread;
+	char tempf[200], buff[400];
+	FILE *pip, *out;
+
+	n = mkp->n;
+	x = double_array_init(NULL, n, 0.0);
+	sol = mkpsol_new(mkp);
+
+	/* temp file for mkp model */
+	pip = popen("tempfile", "r");
+	fscanf(pip, "%s", tempf);
+	fclose(pip);
+
+	/* write mkp model on temp file*/
+	out = fopen(tempf, "w");
+	mkp_to_zimpl(out, mkp, 0.0, 1.0, 1);
+	fclose(out);
+
+	/* solve model */
+	sprintf(buff, "./zpl2lp %s | ./runscip | ./scip2summary -s ", tempf);
+	pip = popen(buff, "r");
+
+	/* read solution */
+	fscanf(pip, "%s", buff);
+	nread = fscanf(pip, "%d %lf", &a, &val);
+	while( nread == 2 ){
+		if( val == 1.0 )
+			mkpsol_add_item(sol, a-1);
+		nread = fscanf(pip, "%d %lf", &a, &val);
+	}
+	fclose(pip);
+
+	free(x);
+
+	return sol;
+}
+
 MKPSol *greedy_mkp(MKP *mkp){
 	unimplemented();
 }
 
-MKPSol *tabu_mkp(MKPSol *mkpsol, int niter){
+MKPSol *mkpsol_local_search(MKPSol *mkpsol, int niter){
 	MKPSol *current, *best;
-	int i;
+	long long current_profit;
+	int best_item, item, i, j, n, q, *idxs;
 
+	/* initialization */
+	idxs = mkpsol->mkp->idxs;
 	current = mkpsol_copy(mkpsol);
 	best = mkpsol_copy(mkpsol);
+	current_profit = current->obj;
+	n = mkpsol->mkp->n;
 
+	/* iteration loop */
+	q = 1+n/2;
 	for( i = 0 ; i < niter ; i++ ){
-		unimplemented();
+		idxs = int_array_shuffle(idxs, n);
+		best_item = 0;
+		current_profit = 0;
+		/* sort moves */
+		for( j = 0 ; j < 0 ; j++ ){
+			item = idxs[j];
+			current = mkpsol_flip_item(current, item);
+			/* best move yet? */
+			if( current->obj > current_profit && current->feasible )
+				{ best_item = item; current_profit = current->obj; }
+			current = mkpsol_flip_item(current, item);
+		}
+		current = mkpsol_flip_item(current, best_item);
+		/* is best global? */
+		if( current->obj > best->obj )
+			{ mkpsol_free(best); best = mkpsol_copy(current); }
 	}
 
 	mkpsol_free(current);

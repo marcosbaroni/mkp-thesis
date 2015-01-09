@@ -46,18 +46,20 @@ typedef struct MKPSol{
 /*** MKP SOLUTION FUNCTIONS ***/
 MKPSol *mkpsol_new(MKP *mkp);                   /* new empty solution */
 MKPSol *mkpsol_new_random(MKP *mkp);                /* new random solution */
-MKPSol *mkpsol_add_item(MKPSol *mkpsol, int a); /* add item */
-MKPSol *mkpsol_rm_item(MKPSol *mkpsol, int a);  /* remove item */
+MKPSol *mkpsol_add_item(MKPSol *mkpsol, int a);   /* add item */
+MKPSol *mkpsol_rm_item(MKPSol *mkpsol, int a);    /* remove item */
+MKPSol *mkpsol_flip_item(MKPSol *mkpsol, int a);  /* remove or add item */
 MKPSol *mkpsol_copy(MKPSol *mkpsol);            /* copies a solution */
 MKPSol *mkpsol_read_from_filename(char *filename, MKP *mkp);
 MKPSol *mkpsol_read_from_file(FILE *fin, MKP *mkp);
 //int mkpsol_dominated_by(MKPSol *mkpsol1, MKPSol *mkpsol2); /* if 1st is dominated by 2nd */
 int mkpsol_dominates(MKPSol *ms1, MKPSol *ms2);
-void mkpsol_fprint(FILE *fout, MKPSol *mkpsol);  /* prints a solution */
+void mkpsol_fprint(FILE *fout, MKPSol *mkpsol); /* prints a solution */
 void mkpsol_free(MKPSol *mkpsol);               /* new empty solution */
+MKPSol *mkpsol_from_lp(MKP *mkp);               /* truncated from LP */
+MKPSol *mkpsol_local_search(MKPSol *mkpsol, int niter);
 
 /* MKP TABU SEARCH*/
-MKPSol *tabu_mkp(MKPSol *mkpsol, int niter);
 
 /* MKP NEMHAUSER-ULLMAN */
 Array *mkp_nemull(MKP *mkp);
