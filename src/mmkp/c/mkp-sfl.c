@@ -43,14 +43,28 @@ int execute_sfl_mkp(int argc, char **argv){
 	//best_sol = sfl(sfli, mkp, mkp->n, m, n, q, niter);
 	//cf = clock();
 
-	//best_sol = mkpsol_from_lp(mkp);
-	best_sol = mkpsol_new_random(mkp);
-	mkpsol_fprint(stdout, best_sol);
-	sol = mkpsol_local_search(best_sol, niter);
+	sol = mkpsol_new_random(mkp);
+	printf("random\n");
 	mkpsol_fprint(stdout, sol);
 
-	mkpsol_free(best_sol);
+	printf("random + local\n");
+	best_sol = mkpsol_local_search(sol, niter);
+	mkpsol_fprint(stdout, best_sol);
+
 	mkpsol_free(sol);
+	mkpsol_free(best_sol);
+
+	sol = mkpsol_from_lp(mkp);
+	printf("lp\n");
+	mkpsol_fprint(stdout, sol);
+
+	best_sol = mkpsol_local_search(sol, niter);
+	printf("lp + local\n");
+	mkpsol_fprint(stdout, best_sol);
+
+	mkpsol_free(sol);
+	mkpsol_free(best_sol);
+
 	mkp_free(mkp);
 	sfli_free(sfli);
 

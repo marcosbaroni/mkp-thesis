@@ -331,7 +331,7 @@ MKPSol *mkpsol_add_item(MKPSol *mkpsol, int a){
 	mkpsol->obj += mkp->p[a];
 	for( i = 0 ; i < m ; i++ ){
 		mkpsol->b_left[i] -= mkp->w[i][a];
-		if(mkpsol->b_left[i] < 0LL)
+		if( mkpsol->b_left[i] < 0LL )
 			mkpsol->feasible = 0;
 	}
 
@@ -353,8 +353,11 @@ MKPSol *mkpsol_rm_item(MKPSol *mkpsol, int a){
 
 	mkpsol->x[a] = 0;
 	mkpsol->obj -= mkp->p[a];
+	mkpsol->feasible = 1;
 	for( i = 0 ; i < m ; i++ ){
 		mkpsol->b_left[i] += mkp->w[i][a];
+		if( mkpsol->b_left[i] < 0LL )
+			mkpsol->feasible = 0;
 	}
 
 	return mkpsol;
@@ -513,7 +516,7 @@ MKPSol *mkpsol_local_search(MKPSol *mkpsol, int niter){
 		best_item = 0;
 		current_profit = 0;
 		/* sort moves */
-		for( j = 0 ; j < 0 ; j++ ){
+		for( j = 0 ; j < q ; j++ ){
 			item = idxs[j];
 			current = mkpsol_flip_item(current, item);
 			/* best move yet? */
