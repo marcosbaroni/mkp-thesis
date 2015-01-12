@@ -807,6 +807,18 @@ double *double_array_init(double *array, int n, double x){
 	return array;
 }
 
+double *double_array_from_scip(double *array, FILE *in){
+	int a;
+	double val;
+	
+	while(!feof(in)){
+		fscanf(in, "%d %lf", &a, &val);
+		array[a] = val;
+	}
+
+	return array;
+}
+
 /* DOUBLE MATRIX */
 double **double_matrix_alloc(int n, int m){
 	double **mat;
