@@ -6,7 +6,9 @@
 #include "sfl.h"
 #include "lp.h"
 
-/*** MKP PROBLEM INSTANCE ***/
+/*** MKP PROBLEM INSTANCE ***
+*   Itens are sorting by decreasing order of profit (for greedy propose).
+*/
 typedef struct MKP{
 	int n;       /* Number of itens */
 	int m;       /* Number of dimensions */
@@ -14,11 +16,13 @@ typedef struct MKP{
 	long long **w;    /* Weight of itens [m x n] */
 	long long *b;     /* Knapsack capacities [m] */
 	int *idxs;        /* item indexs (no order) */
+	struct MKPSol *lp_trunc;
 }MKP;
 
 /*** Memory Management ***/
 MKP *mkp_alloc(int n, int m);
 MKP *mkp_random(int n, int m, double beta, long long max_coefs);
+void mkp_sort_by_profit(MKP *mkp);
 void mkp_free(MKP *mkp);
 
 /*** read/write functions ***/
@@ -54,7 +58,7 @@ MKPSol *mkpsol_read_from_filename(char *filename, MKP *mkp);
 MKPSol *mkpsol_read_from_file(FILE *fin, MKP *mkp);
 //int mkpsol_dominated_by(MKPSol *mkpsol1, MKPSol *mkpsol2); /* if 1st is dominated by 2nd */
 int mkpsol_dominates(MKPSol *ms1, MKPSol *ms2);
-void mkpsol_fprint(FILE *fout, MKPSol *mkpsol); /* prints a solution */
+void mkpsol_fprint(FILE *fout, MKPSol *mkpsol, char ptr_sol); /* prints a solution */
 void mkpsol_free(MKPSol *mkpsol);               /* new empty solution */
 MKPSol *mkpsol_from_lp(MKP *mkp);               /* truncated from LP */
 MKPSol *mkpsol_local_search(MKPSol *mkpsol, int niter);

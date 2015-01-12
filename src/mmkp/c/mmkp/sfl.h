@@ -18,11 +18,8 @@
  *  - Number of iterations
  */
 
-/* callback for setting a given variable of solution to some value */
-typedef void* (*sfl_set_f)(void *, int, int);
-
-/* callback for getting the value of a given variable */
-typedef int (*sfl_get_f)(void *, int);
+/* cross solutions */
+typedef void* (*sfl_cross_f)(void*, void*);
 
 /* returns the fitness function of solution */
 typedef double (*sfl_fitness_f)(void*);
@@ -43,11 +40,8 @@ typedef void* (*sfl_copy_solution_f)(void*);
 typedef void* (*sfl_free_solution_f)(void*);
 
 typedef struct SFL_Interface{
-	sfl_set_f set;
-	sfl_get_f get;
+	sfl_cross_f cross;
 	sfl_fitness_f fitness;
-	sfl_repair_f repair;
-	sfl_feasible_f feasible;
 	sfl_new_solution_f new_solution;
 	sfl_copy_solution_f copy_solution;
 	sfl_free_solution_f free_solution;
@@ -58,7 +52,6 @@ void sfli_free(SFL_Interface *sfli);
 void *sfl(
 	SFL_Interface *sfli, /* the SFL Interface */
 	void *problem,       /* the problem */
-	int nvars,           /* size of solution */
 	int m,               /* number of memeplex */
 	int n,               /* size of memeplex */
 	int q,               /* size of submemeplex */

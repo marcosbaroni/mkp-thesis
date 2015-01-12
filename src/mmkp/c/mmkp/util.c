@@ -32,6 +32,32 @@ inline void SWAP_LONG_LONG(long long *array, int a, int b){
 	return;
 }
 
+/******************************************************************************
+*         RANDOM NUMBERS
+******************************************************************************/
+
+/* raffle a number, using triangular probability between 0 and "bound" */
+/*
+* p_n = 2*(n-j+1)/n*(n+1)
+* 
+* 1(6) 0OOOOOO
+* 2(5) 00OOOOO
+* 3(4) 000OOOO
+* 4(3) 0000OOO    A = (4,5) = (5,4)
+* 5(2) 00000OO
+* 6(1) 000000O
+* 
+* (n+1)n/2
+*/
+int triang_raffle(int bound){
+	int lin, col;
+
+	lin = lrand(bound);
+	col = lrand(bound+1);
+	if( lin <= col ) return (bound-lin);
+	return lin;
+}
+
 /* 
  * Returns a random long integer non-negative from 0 to <bound>.
  */
@@ -888,6 +914,67 @@ Array *array_empty(Array *a){
 void array_free(Array *a){
 	free(a->a);
 	free(a);
+	return;
+}
+
+/* MEGA POWER QSORT */
+int mp_partition_r(void *collection, int a, int b, mp_cmp_r_f mp_cmp_r, mp_swap_f mp_swap, void *arg, char reverse){
+	int i, j, pivot;
+
+	pivot = i = a; j = b+1;
+	while( 1 ){
+		while( reverse*mp_cmp_r(collection, ++i, pivot, arg) < 0 ) if( i == b ) break;
+		while( reverse*mp_cmp_r(collection, pivot, --j, arg) < 0 ) if( j == a ) break;
+		if( i >= j ) break;        /* pointers crossed? */
+		mp_swap(collection, i, j);
+	}
+	mp_swap(collection, j, a);     /* place pivot */
+
+	return j;
+}
+
+void sub_mp_qsort_r(void *collection, int a, int b, mp_cmp_r_f mp_cmp_r, mp_swap_f mp_swap, void *arg, char reverse){
+	int m;
+	if( b <= a ) return;
+	m = mp_partition_r(collection, a, b, mp_cmp_r, mp_swap, arg, reverse);
+	sub_mp_qsort_r(collection, a, m-1, mp_cmp_r, mp_swap, arg, reverse);
+	sub_mp_qsort_r(collection, m+1, b, mp_cmp_r, mp_swap, arg, reverse);
+	return;
+}
+
+void mp_qsort_r(void *collection, int n, mp_cmp_r_f mp_cmp_r, mp_swap_f mp_swap, void *arg, char reverse){
+	reverse = reverse ? -1 : 1;
+	sub_mp_qsort_r(collection, 0, n-1, mp_cmp_r, mp_swap, arg, reverse);
+	return;
+}
+
+int mp_partition(void *collection, int a, int b, mp_cmp_f mp_cmp, mp_swap_f mp_swap, char reverse){
+	int i, j, pivot;
+
+	pivot = i = a; j = b+1;
+	while( 1 ){
+		while( reverse*mp_cmp(collection, ++i, pivot) < 0 ) if( i == b ) break;
+		while( reverse*mp_cmp(collection, pivot, --j) < 0 ) if( j == a ) break;
+		if( i >= j ) break;        /* pointers crossed? */
+		mp_swap(collection, i, j);
+	}
+	mp_swap(collection, j, a);     /* place pivot */
+
+	return j;
+}
+
+void sub_mp_qsort(void *collection, int a, int b, mp_cmp_f mp_cmp, mp_swap_f mp_swap, char reverse){
+	int m;
+	if( b <= a ) return;
+	m = mp_partition(collection, a, b, mp_cmp, mp_swap, reverse);
+	sub_mp_qsort(collection, a, m-1, mp_cmp, mp_swap, reverse);
+	sub_mp_qsort(collection, m+1, b, mp_cmp, mp_swap, reverse);
+	return;
+}
+
+void mp_qsort(void *collection, int n, mp_cmp_f mp_cmp, mp_swap_f mp_swap, char reverse){
+	reverse = reverse ? -1 : 1;
+	sub_mp_qsort(collection, 0, n-1, mp_cmp, mp_swap, reverse);
 	return;
 }
 

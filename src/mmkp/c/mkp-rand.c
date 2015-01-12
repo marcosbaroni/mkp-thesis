@@ -47,6 +47,7 @@ int main(int argc, char **argv){
 
 	/* Generating random instance */
 	mkp = mkp_random(n, m, beta, max_coefs);
+	mkp_sort_by_profit(mkp);
 
 	/* Printing random instance */
 	mkp_write_to_file(mkp, stdout);

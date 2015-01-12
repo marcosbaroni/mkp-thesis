@@ -24,7 +24,9 @@ int execute_sfl_mkp(int argc, char **argv){
 	MKPSol *best_sol, *sol;
 	SFL_Interface *sfli;
 	int i, n, m, q, niter;
-	clock_t c0, cf;
+	clock_t c0, cf;         /* c0 = clock(); */
+
+	srand(time(NULL));
 
 	/* checking input */
 	input = stdin;
@@ -39,34 +41,33 @@ int execute_sfl_mkp(int argc, char **argv){
 	fclose(input);
 	sfli = mkp_sfl_interface();
 
-	//c0 = clock();
-	//best_sol = sfl(sfli, mkp, mkp->n, m, n, q, niter);
-	//cf = clock();
+	/* solving problem */
+	sol = sfl(sfli, mkp, n, m, q, niter);
+	mkpsol_fprint(stdout, sol, 0);
 
-	sol = mkpsol_new_random(mkp);
-	printf("random\n");
-	mkpsol_fprint(stdout, sol);
-
-	printf("random + local\n");
-	best_sol = mkpsol_local_search(sol, niter);
-	mkpsol_fprint(stdout, best_sol);
-
+	/* freeing */
 	mkpsol_free(sol);
-	mkpsol_free(best_sol);
-
-	sol = mkpsol_from_lp(mkp);
-	printf("lp\n");
-	mkpsol_fprint(stdout, sol);
-
-	best_sol = mkpsol_local_search(sol, niter);
-	printf("lp + local\n");
-	mkpsol_fprint(stdout, best_sol);
-
-	mkpsol_free(sol);
-	mkpsol_free(best_sol);
-
 	mkp_free(mkp);
 	sfli_free(sfli);
+
+	return 0;
+}
+
+/* testing triangular probability */
+int test_triang(int k){
+	int i, n, v[10];
+
+	n = 4;
+	srand(time(NULL));
+
+	for( i = 0 ; i < n ; i++ )
+		v[i] = 0;
+	
+	for( i = 0 ; i < k; i++ )
+		v[triang_raffle(n-1)]++;
+	
+	for( i = 0 ; i < n ; i++ )
+		printf("%d - %f - %f\n", i, v[i]/(float)k, (i+1)/(float)(n*(n+1)/2));
 
 	return 0;
 }

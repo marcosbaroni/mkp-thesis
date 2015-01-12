@@ -120,12 +120,20 @@ Array *array_remove(Array *array, int a);
 Array *array_empty(Array *array);
 void array_free(Array *array);
 
-/* RANDOM NUMBERs */
+/* RANDOM NUMBERS */
+int triang_raffle(int bound);
 long lrand(long bound);
 long long llrand(long long bound);
 double drand();                          /* Returns a random double in [0,1[. */
 //double normal_dist();
 double *random_normalized_double_array(int n);
+
+/* MEGA POWER QSORT */
+typedef void (*mp_swap_f)(void*, int, int);
+typedef int (*mp_cmp_r_f)(void*, int, int, void*);
+typedef int (*mp_cmp_f)(void*, int, int);
+void mp_qsort_r(void *collection, int n, mp_cmp_r_f, mp_swap_f, void *arg, char reverse);
+void mp_qsort(void *collection, int n, mp_cmp_f, mp_swap_f, char reverse);
 
 /* AVL TREE */
 typedef int(*avl_cmp)(void*, void*);     /* compares teo objs*/

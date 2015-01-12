@@ -23,6 +23,7 @@ MKP *mkp_alloc(int n, int m){
 		mkp->idxs[i] = i;
 	mkp->n = n;
 	mkp->m = m;
+	mkp->lp_trunc = NULL;
 
 	return mkp;
 }
@@ -46,18 +47,53 @@ MKP *mkp_random(int n, int m, double beta, long long max_coefs){
 			lsum += mkp->w[i][j] = llrand(max_coefs);
 		mkp->b[i] = (long)(ceil(lsum*beta));
 	}
+	mkp->lp_trunc = NULL;
 
 	return mkp;
 }
 
+int mkp_cmp_profit(MKP *mkp, int a, int b){
+	if( mkp->p[a] < mkp->p[b] ) return -1;
+	else if(mkp->p[a] > mkp->p[b] ) return 1;
+	return 0;
+}
+
+void mkp_swap_itens(MKP *mkp, int a, int b){
+	long long w[mkp->m], p;
+	int i, m;
+
+	m = mkp->m;
+	/* swaping profits */
+	p = mkp->p[a]; mkp->p[a] = mkp->p[b]; mkp->p[b] = p;
+	/* swaping weights */
+	for( i = 0 ; i < m ; i++ ) w[i] = mkp->w[i][a];
+	for( i = 0 ; i < m ; i++ ) mkp->w[i][a] = mkp->w[i][b];
+	for( i = 0 ; i < m ; i++ ) mkp->w[i][b] = w[i];
+
+	return ;
+}
+
+void mkp_sort_by_profit(MKP *mkp){
+	mp_qsort(mkp, mkp->n, (mp_cmp_f)mkp_cmp_profit, (mp_swap_f)mkp_swap_itens, 1);
+	return;
+}
+
 void mkp_free(MKP *mkp){
 	long_long_matrix_free(mkp->w, mkp->m);
+	if(mkp->lp_trunc)
+		mkpsol_free(mkp->lp_trunc);
 	free(mkp->p);
 	free(mkp->b);
 	free(mkp->idxs);
 	free(mkp);
 
 	return;
+}
+
+MKPSol *mkp_get_lp_trunc(MKP *mkp){
+	if(!mkp->lp_trunc)
+		mkp->lp_trunc = mkpsol_from_lp(mkp);
+	return mkp->lp_trunc;
 }
 
 LP *mkp2lp(MKP *mkp){
@@ -314,6 +350,14 @@ MKPSol *mkpsol_new_random(MKP *mkp){
 	return sol;
 }
 
+MKPSol *mkpsol_new_lpls(MKP *mkp){
+	MKPSol *mkpsol;
+
+	mkpsol = mkpsol_local_search(mkp_get_lp_trunc(mkp), 4);
+
+	return mkpsol;
+}
+
 MKPSol *mkpsol_add_item(MKPSol *mkpsol, int a){
 	MKP *mkp;
 	int i, m;
@@ -429,7 +473,7 @@ int mkpsol_dominates(MKPSol *ms1, MKPSol *ms2){
 	return 1;
 }
 
-void mkpsol_fprint(FILE *fout, MKPSol *mkpsol){
+void mkpsol_fprint(FILE *fout, MKPSol *mkpsol, char ptr_sol){
 	long long *b;
 	int i, n, m;
 
@@ -439,9 +483,12 @@ void mkpsol_fprint(FILE *fout, MKPSol *mkpsol){
 
 	fprintf(fout, "%lld;[", mkpsol->obj);
 	for( i = 0 ; i < m ; i++)
-		fprintf(fout, "%lld%s", mkpsol->b_left[i], i+1==m?"];":",");
-	for( i = 0 ; i < n ; i++)
-		fprintf(fout, "%d", mkpsol->x[i]);
+		fprintf(fout, "%lld%s", mkpsol->b_left[i], i+1==m?"]":",");
+	if(ptr_sol){
+		printf(";");
+		for( i = 0 ; i < n ; i++)
+			fprintf(fout, "%d", mkpsol->x[i]);
+	}
 	fprintf(fout, "\n");
 	return;
 }
@@ -535,6 +582,44 @@ MKPSol *mkpsol_local_search(MKPSol *mkpsol, int niter){
 	return best;
 }
 
+/* repair a solution, removing at first itens that minimum reduces profit */
+MKPSol *mkpsol_greedy_repair(MKPSol *mkpsol){
+	int i, a, n;
+	long long profit;
+	n = mkpsol->mkp->n;
+
+	/* removing item */
+	for( i = 0 ; i < n && !mkpsol->feasible ; i++ )
+		if( mkpsol->x[n-i-1] )
+			mkpsol_rm_item(mkpsol, n-i-1);
+	
+	return mkpsol;
+}
+
+/*  */
+MKPSol *mkpsol_cross(MKPSol *child, MKPSol *father){
+	int i, n, *idxs, idx;
+
+	n = child->mkp->n;
+	idxs = child->mkp->idxs;
+	int_array_shuffle(idxs, n);
+
+	/* randomly combines half of variables */
+	for( i = 0 ; i < (n/2) ; i++ ){
+		idx = idxs[i];
+		if( father->x[idx] && !child->x[idx] )
+			mkpsol_add_item(child, idx);
+		else if( !father->x[idx] && child->x[idx] )
+			mkpsol_rm_item(child, idx);
+	}
+	
+	/* repair, if not feasibble */
+	if( !child->feasible )
+		child = mkpsol_greedy_repair(child);
+
+	return child;
+}
+
 /*
  * Nemhauser-Ullman Algorithm for MKP.
  * */
@@ -622,7 +707,7 @@ int mkpsol_get(MKPSol *mkpsol, int a){
 double mkpsol_fitness(MKPSol *mkpsol){
 	return (double)mkpsol->obj;
 }
-/* feasible*/
+/* feasible */
 int mkpsol_feasible(MKPSol *mkpsol){
 	return mkpsol->feasible;
 }
@@ -630,6 +715,8 @@ int mkpsol_feasible(MKPSol *mkpsol){
 MKPSol *mkp_des_new_solution(MKP *mkp){
 	return mkpsol_new_random(mkp);
 }
+
+/* random repair a solution, removing random itens until feasibility */
 MKPSol *mkpsol_repair(MKPSol *mkpsol){
 	int i, n, *idxs;
 	n = mkpsol->mkp->n;
@@ -638,7 +725,7 @@ MKPSol *mkpsol_repair(MKPSol *mkpsol){
 	idxs = mkpsol->mkp->idxs;
 	idxs = int_array_shuffle(idxs, n);
 
-	/* unpacking */
+	/* removing item */
 	for( i = 0 ; i < n && !mkpsol->feasible ; i++ )
 		if( mkpsol->x[idxs[i]] )
 			mkpsol_rm_item(mkpsol, idxs[i]);
@@ -667,11 +754,9 @@ SFL_Interface *mkp_sfl_interface(){
 	SFL_Interface *sfli;
 
 	sfli = (SFL_Interface*)malloc(sizeof(SFL_Interface));
-	sfli->set = (sfl_set_f)mkpsol_set;
-	sfli->get = (sfl_get_f)mkpsol_get;
+	sfli->cross = (sfl_cross_f)mkpsol_cross;
 	sfli->fitness = (sfl_fitness_f)mkpsol_fitness;
-	sfli->repair = (sfl_repair_f)mkpsol_repair;
-	sfli->feasible = (sfl_feasible_f)mkpsol_feasible;
+	//sfli->new_solution = (sfl_new_solution_f)mkpsol_new_lpls;
 	sfli->new_solution = (sfl_new_solution_f)mkpsol_new_random;
 	sfli->copy_solution = (sfl_copy_solution_f)mkpsol_copy;
 	sfli->free_solution = (sfl_free_solution_f)mkpsol_free;
