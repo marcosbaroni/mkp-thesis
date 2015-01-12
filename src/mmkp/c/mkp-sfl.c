@@ -42,6 +42,11 @@ int execute_sfl_mkp(int argc, char **argv){
 	sfli = mkp_sfl_interface();
 
 	/* solving problem */
+	sol = mkp_get_lp_trunc(mkp);
+	printf("LP:\n");
+	mkpsol_fprint(stdout, sol, 0);
+	mkpsol_free(sol);
+
 	sol = sfl(sfli, mkp, n, m, q, niter);
 	mkpsol_fprint(stdout, sol, 0);
 

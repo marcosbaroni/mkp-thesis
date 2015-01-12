@@ -60,7 +60,7 @@ void *sfl(
 			(mp_swap_f)sfl_swap, 
 			sfli->fitness, 0);
 		global_best = population[0];
-		printf("best=%lf\n", sfli->fitness(population[f-1]));
+		printf(" %02d best=%lf\n", iter+1, sfli->fitness(population[0]));
 
 		/* shuffling */
 		for( i = 0 ; i < m ; i++ )      /* best of each */
@@ -76,10 +76,11 @@ void *sfl(
 			meme_best = memeplexes_best[i];
 			/* throught some steps... */
 			for( j = 0 ; j < subniter ; j++ ){
-				submeme_best = submeme_worst = memeplex[n-triang_raffle(n-1)-1];
+				widx = idx = n-triang_raffle(n-1)-1;
+				submeme_best = submeme_worst = memeplex[idx];
 				for( k = 1 ; k < q ; k++ ){
 					/* selecting submemeplex */
-					idx = triang_raffle(n-1);
+					idx = n-triang_raffle(n-1)-1;
 					individual = memeplex[idx];
 					if( sfli->fitness(individual) > sfli->fitness(submeme_best) )
 						submeme_best = individual;
