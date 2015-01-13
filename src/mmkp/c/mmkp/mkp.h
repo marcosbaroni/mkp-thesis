@@ -60,6 +60,7 @@ MKPSol *mkpsol_read_from_file(FILE *fin, MKP *mkp);
 int mkpsol_dominates(MKPSol *ms1, MKPSol *ms2);
 void mkpsol_fprint(FILE *fout, MKPSol *mkpsol, char ptr_sol); /* prints a solution */
 void mkpsol_free(MKPSol *mkpsol);               /* new empty solution */
+MKPSol *mkpsol_solve_with_scip(MKP *mkp, double maxtime, char linear);
 MKPSol *mkpsol_from_lp(MKP *mkp);               /* truncated from LP */
 MKPSol *mkpsol_local_search(MKPSol *mkpsol, int niter);
 

@@ -694,6 +694,7 @@ void long_long_matrix_write(FILE *out, long long **mat, int n, int m){
 	int i;
 	for( i = 0 ; i < n ; i++ )
 		long_long_array_write(out, mat[i], m);
+	fprintf(out, "\n");
 
 	return;
 }

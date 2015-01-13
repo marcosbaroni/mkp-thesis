@@ -350,6 +350,27 @@ MKPSol *mkpsol_new_random(MKP *mkp){
 	return sol;
 }
 
+MKPSol *mkpsol_new_random_search(MKP *mkp){
+	MKPSol *sol, *new;
+	int i, n;
+
+	sol = mkpsol_new(mkp);
+	n = mkp->n;
+
+	mkp->idxs = int_array_shuffle(mkp->idxs, n);
+
+	for( i = 0 ; i < n ; i++ ){
+		sol = mkpsol_add_item(sol, mkp->idxs[i]);
+		if(!sol->feasible)
+			mkpsol_rm_item(sol, mkp->idxs[i]);
+	}
+
+	new = mkpsol_local_search(sol, sol->mkp->n/25);
+	mkpsol_free(sol);
+
+	return new;
+}
+
 MKPSol *mkpsol_new_lpls(MKP *mkp){
 	MKPSol *mkpsol;
 
@@ -500,7 +521,7 @@ void mkpsol_free(MKPSol *mkpsol){
 	return;
 }
 
-MKPSol *mkpsol_from_lp(MKP *mkp){
+MKPSol *mkpsol_solve_with_scip(MKP *mkp, double maxtime, char linear){
 	MKPSol *sol;
 	double *x, val;
 	int a, n, nread;
@@ -508,7 +529,7 @@ MKPSol *mkpsol_from_lp(MKP *mkp){
 	FILE *pip, *out;
 
 	n = mkp->n;
-	x = double_array_init(NULL, n, 0.0);
+	x = double_array_init(NULL, n, 0.0);  /* solution array */
 	sol = mkpsol_new(mkp);
 
 	/* temp file for mkp model */
@@ -518,11 +539,11 @@ MKPSol *mkpsol_from_lp(MKP *mkp){
 
 	/* write mkp model on temp file*/
 	out = fopen(tempf, "w");
-	mkp_to_zimpl(out, mkp, 0.0, 1.0, 1);
+	mkp_to_zimpl(out, mkp, 0.0, 1.0, linear);
 	fclose(out);
 
 	/* solve model */
-	sprintf(buff, "./zpl2lp %s | ./runscip | ./scip2summary -s ", tempf);
+	sprintf(buff, "./zpl2lp %s | ./runscip %lf | ./scip2summary -s ", tempf, maxtime);
 	pip = popen(buff, "r");
 
 	/* read solution */
@@ -538,6 +559,10 @@ MKPSol *mkpsol_from_lp(MKP *mkp){
 	free(x);
 
 	return sol;
+}
+
+MKPSol *mkpsol_from_lp(MKP *mkp){
+	return mkpsol_solve_with_scip(mkp, 60.0, 1);
 }
 
 MKPSol *greedy_mkp(MKP *mkp){
@@ -597,7 +622,7 @@ MKPSol *mkpsol_greedy_repair(MKPSol *mkpsol){
 }
 
 /*  */
-MKPSol *mkpsol_cross(MKPSol *child, MKPSol *father){
+MKPSol *mkpsol_cross(MKPSol *child, MKPSol *father, int c){
 	int i, n, *idxs, idx;
 
 	n = child->mkp->n;
@@ -605,7 +630,7 @@ MKPSol *mkpsol_cross(MKPSol *child, MKPSol *father){
 	int_array_shuffle(idxs, n);
 
 	/* randomly combines half of variables */
-	for( i = 0 ; i < (n/2) ; i++ ){
+	for( i = 0 ; i < c ; i++ ){
 		idx = idxs[i];
 		if( father->x[idx] && !child->x[idx] )
 			mkpsol_add_item(child, idx);
@@ -619,6 +644,17 @@ MKPSol *mkpsol_cross(MKPSol *child, MKPSol *father){
 
 	return child;
 }
+
+/* n/2 */
+MKPSol *mkpsol_cross1(MKPSol *child, MKPSol *father)
+	{ return mkpsol_cross(child, father, (child->mkp->n/2)); }
+/* n/5 */
+MKPSol *mkpsol_cross2(MKPSol *child, MKPSol *father)
+	{ return mkpsol_cross(child, father, (child->mkp->n/5)); }
+/* n/10 */
+MKPSol *mkpsol_cross3(MKPSol *child, MKPSol *father)
+	{ return mkpsol_cross(child, father, (child->mkp->n/10)); }
+
 
 /*
  * Nemhauser-Ullman Algorithm for MKP.
@@ -750,14 +786,23 @@ DES_Interface *mkp_des_interface(){
 	return desi;
 }
 
-SFL_Interface *mkp_sfl_interface(){
+SFL_Interface *mkp_sfl_interface(int cross, int newsol){
 	SFL_Interface *sfli;
 
 	sfli = (SFL_Interface*)malloc(sizeof(SFL_Interface));
-	sfli->cross = (sfl_cross_f)mkpsol_cross;
+	/* crossing rule */
+	switch(cross){
+		case 1: sfli->cross = (sfl_cross_f)mkpsol_cross1; break;
+		case 2: sfli->cross = (sfl_cross_f)mkpsol_cross2; break;
+		case 3: sfli->cross = (sfl_cross_f)mkpsol_cross3; break;
+		default: sfli->cross = (sfl_cross_f)mkpsol_cross3; break;
+	}
+	switch(newsol){
+		case 1: sfli->new_solution = (sfl_new_solution_f)mkpsol_new_random; break;
+		case 2: sfli->new_solution = (sfl_new_solution_f)mkpsol_new_random_search; break;
+		default: sfli->new_solution = (sfl_new_solution_f)mkpsol_new_random; break;
+	}
 	sfli->fitness = (sfl_fitness_f)mkpsol_fitness;
-	//sfli->new_solution = (sfl_new_solution_f)mkpsol_new_lpls;
-	sfli->new_solution = (sfl_new_solution_f)mkpsol_new_random;
 	sfli->copy_solution = (sfl_copy_solution_f)mkpsol_copy;
 	sfli->free_solution = (sfl_free_solution_f)mkpsol_free;
 

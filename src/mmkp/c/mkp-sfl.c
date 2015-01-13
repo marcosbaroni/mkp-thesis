@@ -23,7 +23,7 @@ int execute_sfl_mkp(int argc, char **argv){
 	FILE *input;
 	MKPSol *best_sol, *sol;
 	SFL_Interface *sfli;
-	int i, n, m, q, niter;
+	int i, n, m, q, niter, best_iter;
 	clock_t c0, cf;         /* c0 = clock(); */
 
 	srand(time(NULL));
@@ -42,13 +42,14 @@ int execute_sfl_mkp(int argc, char **argv){
 	sfli = mkp_sfl_interface();
 
 	/* solving problem */
+	sol = sfl(sfli, mkp, n, m, q, niter, &best_iter);
+	mkpsol_fprint(stdout, sol, 0);
+
+	printf("best_iter = %d\n", best_iter);
 	sol = mkp_get_lp_trunc(mkp);
 	printf("LP:\n");
 	mkpsol_fprint(stdout, sol, 0);
 	mkpsol_free(sol);
-
-	sol = sfl(sfli, mkp, n, m, q, niter);
-	mkpsol_fprint(stdout, sol, 0);
 
 	/* freeing */
 	mkpsol_free(sol);

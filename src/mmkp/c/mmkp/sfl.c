@@ -26,7 +26,8 @@ void *sfl(
 	int m,               /* number of memeplex */
 	int n,               /* size of memeplex */
 	int q,               /* size of submemeplex */
-	int niter)           /* number of iterations */
+	int niter,           /* number of iterations */
+	int *best_iter)     /* to record the iteration that found the best */
 {
 	int i, j, k, f, iter, subniter, idx;
 	int widx;          /* worst (idx) */
@@ -40,6 +41,7 @@ void *sfl(
 
 	f = m*n;
 	subniter = n/2;
+	*best_iter = 0;
 
 	/* allocing space for population */
 	population = (void**)malloc(f*sizeof(void*));
@@ -51,6 +53,7 @@ void *sfl(
 	/* initializing population */
 	for( i = 0 ; i < f ; i++ )
 		population[i] = sfli->new_solution(problem);
+	global_best = sfli->copy_solution(population[0]);
 
 	/* each iteration */
 	for( iter = 0 ; iter < niter ; iter++ ){
@@ -59,8 +62,12 @@ void *sfl(
 			(mp_cmp_r_f)sfl_compar, 
 			(mp_swap_f)sfl_swap, 
 			sfli->fitness, 0);
-		global_best = population[0];
-		printf(" %02d best=%lf\n", iter+1, sfli->fitness(population[0]));
+		
+		/* checking if its best */
+		if( sfli->fitness(population[0]) > sfli->fitness(global_best) ){
+			global_best = sfli->copy_solution(population[0]);
+			*best_iter = iter;
+		}
 
 		/* shuffling */
 		for( i = 0 ; i < m ; i++ )      /* best of each */
@@ -74,12 +81,14 @@ void *sfl(
 		for( i = 0 ; i < m ; i++ ){
 			memeplex = memeplexes[i];
 			meme_best = memeplexes_best[i];
+
 			/* throught some steps... */
 			for( j = 0 ; j < subniter ; j++ ){
+
+				/* selecting submemeplex */
 				widx = idx = n-triang_raffle(n-1)-1;
 				submeme_best = submeme_worst = memeplex[idx];
 				for( k = 1 ; k < q ; k++ ){
-					/* selecting submemeplex */
 					idx = n-triang_raffle(n-1)-1;
 					individual = memeplex[idx];
 					if( sfli->fitness(individual) > sfli->fitness(submeme_best) )
@@ -89,6 +98,7 @@ void *sfl(
 						widx = idx;
 					}
 				}
+
 				/* evolving worst with local best */
 				fitness = sfli->fitness(submeme_worst);
 				submeme_worst = sfli->cross(submeme_worst, submeme_best);
@@ -109,11 +119,9 @@ void *sfl(
 	}
 
 	/* getting global best solution */
-	global_best = population[0];
 	for( i = 1 ; i < f ; i++ )
 		if( sfli->fitness(population[i]) > sfli->fitness(global_best) )
-			global_best = population[i];
-	global_best = sfli->copy_solution(global_best);
+			global_best = sfli->copy_solution(population[i]);
 	
 	/* freeing solutions */
 	for( i = 0 ; i < f ; i++ )

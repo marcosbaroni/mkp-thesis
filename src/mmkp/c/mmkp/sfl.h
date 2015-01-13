@@ -55,7 +55,8 @@ void *sfl(
 	int m,               /* number of memeplex */
 	int n,               /* size of memeplex */
 	int q,               /* size of submemeplex */
-	int niter);          /* number of iterations */
+	int niter,           /* number of iterations */
+	int *best_iter);     /* to record the iteration that found the best */
 
 #endif
 
