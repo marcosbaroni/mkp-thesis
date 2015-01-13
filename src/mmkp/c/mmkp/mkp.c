@@ -639,8 +639,9 @@ MKPSol *mkpsol_cross(MKPSol *child, MKPSol *father, int c){
 	}
 	
 	/* repair, if not feasibble */
-	if( !child->feasible )
+	if( !child->feasible ){
 		child = mkpsol_greedy_repair(child);
+	}
 
 	return child;
 }
