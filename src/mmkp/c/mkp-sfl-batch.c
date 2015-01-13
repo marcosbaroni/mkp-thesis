@@ -17,7 +17,6 @@ int main(int argc, char **argv){
 	niter = 300;
 	max_coef = 1000;
 
-	srand(time(NULL));
 
 	if(argc < 2) {
 		printf("usage: %s <seed>\n", argv[0]);
@@ -25,6 +24,7 @@ int main(int argc, char **argv){
 		return 1;
 	}
 	seed = atoll(argv[1]);
+	srand(seed);
 
   /* n */
   for( n = 100; n < 501 ; n += 100 ){                                    /* n */

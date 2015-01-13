@@ -624,6 +624,7 @@ MKPSol *mkpsol_greedy_repair(MKPSol *mkpsol){
 /*  */
 MKPSol *mkpsol_cross(MKPSol *child, MKPSol *father, int c){
 	int i, n, *idxs, idx;
+	int a, b;
 
 	n = child->mkp->n;
 	idxs = child->mkp->idxs;
@@ -632,9 +633,11 @@ MKPSol *mkpsol_cross(MKPSol *child, MKPSol *father, int c){
 	/* randomly combines half of variables */
 	for( i = 0 ; i < c ; i++ ){
 		idx = idxs[i];
-		if( father->x[idx] && !child->x[idx] )
+		a = father->x[idx];
+		b = child->x[idx];
+		if( father->x[idx] && !(child->x[idx]) )
 			mkpsol_add_item(child, idx);
-		else if( !father->x[idx] && child->x[idx] )
+		else if( !(father->x[idx]) && child->x[idx] )
 			mkpsol_rm_item(child, idx);
 	}
 	

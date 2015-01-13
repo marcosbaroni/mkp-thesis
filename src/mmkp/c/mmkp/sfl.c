@@ -70,8 +70,9 @@ void *sfl(
 		}
 
 		/* shuffling */
-		for( i = 0 ; i < m ; i++ )      /* best of each */
+		for( i = 0 ; i < m ; i++ ){      /* best of each */
 			memeplexes[i][0] = memeplexes_best[i] = population[i];
+		}
 		for( i = 1 ; i < n ; i++ )      /* populating memeplexes */
 			for( j = 0 ; j < m ; j++ )
 				memeplexes[j][i] = population[i*m+j];
@@ -101,13 +102,18 @@ void *sfl(
 
 				/* evolving worst with local best */
 				fitness = sfli->fitness(submeme_worst);
+				printf("cross1\n");
 				submeme_worst = sfli->cross(submeme_worst, submeme_best);
 				/* evolving worst with memeplex best */
-				if( sfli->fitness(submeme_worst) < fitness )
+				if( sfli->fitness(submeme_worst) < fitness ){
+					printf("cross2\n");
 					submeme_worst = sfli->cross(submeme_worst, meme_best);
+				}
 				/* evolving worst with global best */
-				if( sfli->fitness(submeme_worst) < fitness )
+				if( sfli->fitness(submeme_worst) < fitness ){
+					printf("cross3\n");
 					submeme_worst = sfli->cross(submeme_worst, global_best);
+				}
 				/* replacing worst */
 				if( sfli->fitness(submeme_worst) < fitness ){
 					sfli->free_solution(submeme_worst);
