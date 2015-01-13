@@ -45,8 +45,6 @@ int main(int argc, char **argv){
         lp_trunc = (double)sol->obj;
         mkpsol_free(sol);
 
-				mkp_write_to_filename(mkp, "/tmp/mkp.txt");
-
         /* n. of memeplexs */
         for( nmeme = 10 ; nmeme < 41 ; nmeme += 10 ){          /* n. of meme */
         /* size of memeplexs */
