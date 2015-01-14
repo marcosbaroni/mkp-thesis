@@ -55,7 +55,8 @@ int main(int argc, char **argv){
               for( subniter = 10 ; subniter < 41 ; subniter += 5 ){
                 /* crossing */
                 for( cross = 1 ; cross < 4 ; cross++ ){
-                  for( newsol = 1 ; newsol < 3 ; newsol++ ){
+                  //for( newsol = 1 ; newsol < 3 ; newsol++ ){
+                  for( newsol = 1 ; newsol < 2 ; newsol++ ){
                     sfli = mkp_sfl_interface(cross, newsol);
 									  for( i = 0 ; i < 5 ; i++ ){
                       sol = (MKPSol*)sfl(sfli, mkp, nmeme, size_meme, size_submeme, niter, &best_iter);
