@@ -14,9 +14,8 @@ int main(int argc, char **argv){
 	long long max_coef;
 	double opt, lp_trunc, obj, tight;
 	MKPSol *sol;
-	niter = 300;
+	niter = 500;
 	max_coef = 1000;
-
 
 	if(argc < 2) {
 		printf("usage: %s <seed>\n", argv[0]);
@@ -27,16 +26,16 @@ int main(int argc, char **argv){
 	srand(seed);
 
   /* n */
-  for( n = 100; n < 501 ; n += 100 ){                                    /* n */
+  for( n = 100; n < 501 ; n += 250 ){                                    /* n */
     /* m */
-    for( m = 10 ; m < 31 ; m += 10 ){                                    /* m */
+    for( m = 5 ; m < 31 ; m = m*2+((m/10)*10) ){          /* m = 5, 10, 30 */
       /* tight */
       for( tight = 0.25 ; tight < 1.0 ; tight += 0.25 ){           /* tight */
         /* generating problem */
         mkp = mkp_random(n, m, tight, max_coef);
 
         /* getting OPT */
-        sol = mkpsol_solve_with_scip(mkp, 1200.0, 0);
+        sol = mkpsol_solve_with_scip(mkp, 120.0, 0);
         opt = (double)sol->obj;
         mkpsol_free(sol);
 
@@ -52,15 +51,14 @@ int main(int argc, char **argv){
             /* size of submemeplexs */
             for( size_submeme = 5 ; size_submeme < size_meme ; size_submeme += 5 ){
               /* subniter */
-              for( subniter = 10 ; subniter < 41 ; subniter += 5 ){
+              for( subniter = n ; subniter > (mkp->n/16) ; subniter /= 2 ){
                 /* crossing */
                 for( cross = 1 ; cross < 4 ; cross++ ){
-                  //for( newsol = 1 ; newsol < 3 ; newsol++ ){
-                  for( newsol = 1 ; newsol < 2 ; newsol++ ){
+                  for( newsol = 1 ; newsol < 3 ; newsol++ ){
                     sfli = mkp_sfl_interface(cross, newsol);
-									  for( i = 0 ; i < 5 ; i++ ){
-                      sol = (MKPSol*)sfl(sfli, mkp, nmeme, size_meme, size_submeme, niter, &best_iter);
-										  obj = (double)sol->obj;
+				    for( i = 0 ; i < 5 ; i++ ){
+                      sol = (MKPSol*)sfl(sfli, mkp, nmeme, size_meme, size_submeme, niter, subniter, &best_iter);
+					  obj = (double)sol->obj;
 
                       printf("%d;", n);
                       printf("%d;", m);
@@ -76,9 +74,9 @@ int main(int argc, char **argv){
                       printf("%.0lf;", lp_trunc);
                       printf("%.0lf", obj);
                       printf("\n");
-										}
+                    }
                     sfli_free(sfli);
-								  }
+                  }
                 }
               }
             }

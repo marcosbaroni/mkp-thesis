@@ -23,13 +23,14 @@ int sfl_compar(void **pop, int a, int b, double (*fitness)(void*)){
 void *sfl(
 	SFL_Interface *sfli, /* the SFL Interface */
 	void *problem,       /* the problem */
-	int m,               /* number of memeplex */
-	int n,               /* size of memeplex */
+	int nmeme,           /* number of memeplex */
+	int meme_size,       /* size of memeplex */
 	int q,               /* size of submemeplex */
 	int niter,           /* number of iterations */
-	int *best_iter)     /* to record the iteration that found the best */
+	int subniter,        /* number of iterations for each memeplex opt */
+	int *best_iter)      /* to record the iteration that found the best */
 {
-	int i, j, k, f, iter, subniter, idx;
+	int i, j, k, f, iter, idx;
 	int widx;          /* worst (idx) */
 	void **population;
 	void *individual;
@@ -39,16 +40,15 @@ void *sfl(
 	void *global_best, *meme_best, *submeme_best, *submeme_worst;
 	double fitness;
 
-	f = m*n;
-	subniter = n/2;
+	f = nmeme*meme_size;
 	*best_iter = 0;
 
 	/* allocing space for population */
 	population = (void**)malloc(f*sizeof(void*));
-	memeplexes = (void***)malloc(m*sizeof(void**));
-	memeplexes_best = (void**)malloc(m*sizeof(void*));
-	for( i = 0 ; i < m ; i++ )
-		memeplexes[i] = (void**)malloc(n*sizeof(void*));
+	memeplexes = (void***)malloc(nmeme*sizeof(void**));
+	memeplexes_best = (void**)malloc(nmeme*sizeof(void*));
+	for( i = 0 ; i < nmeme ; i++ )
+		memeplexes[i] = (void**)malloc(meme_size*sizeof(void*));
 	
 	/* initializing population */
 	for( i = 0 ; i < f ; i++ )
@@ -65,21 +65,22 @@ void *sfl(
 		
 		/* checking if its best */
 		if( sfli->fitness(population[0]) > sfli->fitness(global_best) ){
+			sfli->free_solution(global_best);
 			global_best = sfli->copy_solution(population[0]);
 			*best_iter = iter;
 		}
 
 		/* shuffling */
-		for( i = 0 ; i < m ; i++ ){      /* best of each */
+		for( i = 0 ; i < nmeme ; i++ ){      /* best of each */
 			memeplexes[i][0] = memeplexes_best[i] = population[i];
 		}
-		for( i = 1 ; i < n ; i++ )      /* populating memeplexes */
-			for( j = 0 ; j < m ; j++ )
-				memeplexes[j][i] = population[i*m+j];
+		for( i = 1 ; i < meme_size; i++ )      /* populating memeplexes */
+			for( j = 0 ; j < nmeme ; j++ )
+				memeplexes[j][i] = population[i*nmeme+j];
 
 		/* IMPROVING */
 		/* for each memeplex */
-		for( i = 0 ; i < m ; i++ ){
+		for( i = 0 ; i < nmeme ; i++ ){
 			memeplex = memeplexes[i];
 			meme_best = memeplexes_best[i];
 
@@ -87,10 +88,10 @@ void *sfl(
 			for( j = 0 ; j < subniter ; j++ ){
 
 				/* selecting submemeplex */
-				widx = idx = n-triang_raffle(n-1)-1;
+				widx = idx = meme_size-triang_raffle(meme_size-1)-1;
 				submeme_best = submeme_worst = memeplex[idx];
 				for( k = 1 ; k < q || (idx == widx) ; k++ ){
-					idx = n-triang_raffle(n-1)-1;
+					idx = meme_size-triang_raffle(meme_size-1)-1;
 					individual = memeplex[idx];
 					if( sfli->fitness(individual) > sfli->fitness(submeme_best) )
 						submeme_best = individual;
@@ -116,20 +117,23 @@ void *sfl(
 					sfli->free_solution(submeme_worst);
 					submeme_worst = sfli->new_solution(problem);
 				}
-				memeplexes[i][widx] = population[widx*m+i] = submeme_worst;
+				memeplexes[i][widx] = population[widx*nmeme+i] = submeme_worst;
 			}
 		}
 	}
 
 	/* getting global best solution */
-	for( i = 1 ; i < f ; i++ )
-		if( sfli->fitness(population[i]) > sfli->fitness(global_best) )
+	for( i = 0 ; i < f ; i++ ){
+		if( sfli->fitness(population[i]) > sfli->fitness(global_best) ){
+			sfli->free_solution(global_best);
 			global_best = sfli->copy_solution(population[i]);
+		}
+	}
 	
 	/* freeing solutions */
 	for( i = 0 ; i < f ; i++ )
 		sfli->free_solution(population[i]);
-	for( i = 0 ; i < m ; i++ )
+	for( i = 0 ; i < nmeme ; i++ )
 		free(memeplexes[i]);
 	free(memeplexes);
 	free(memeplexes_best);
