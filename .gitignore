@@ -15,4 +15,13 @@ bin/kpbt
 bin/mkp-domsets
 bin/mkp-nu
 bin/kpinfo
-
+bin/kp-bt
+bin/kp-des
+bin/kp-info
+bin/kp-rand
+bin/mkp-rand
+bin/mkp-sfl
+bin/mkp-sfl-batch
+bin/mkp-simplex
+bin/mmkp-rand
+bin/ssum-rand
