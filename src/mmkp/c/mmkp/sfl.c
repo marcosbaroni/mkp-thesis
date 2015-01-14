@@ -82,6 +82,8 @@ void *sfl(
 		for( i = 0 ; i < m ; i++ ){
 			memeplex = memeplexes[i];
 			meme_best = memeplexes_best[i];
+			if(((int**)meme_best)[0] == 0)
+				{ printf("Zero 1!\n"); fflush(stderr);}
 
 			/* throught some steps... */
 			for( j = 0 ; j < subniter ; j++ ){
@@ -102,16 +104,19 @@ void *sfl(
 
 				/* evolving worst with local best */
 				fitness = sfli->fitness(submeme_worst);
-				printf("cross1\n");
 				submeme_worst = sfli->cross(submeme_worst, submeme_best);
 				/* evolving worst with memeplex best */
+				if(((int**)meme_best)[0] == 0)
+					{ printf("Zero 2 (%p)!\n", meme_best); fflush(stderr);}
 				if( sfli->fitness(submeme_worst) < fitness ){
-					printf("cross2\n");
+					if(((int**)meme_best)[0] == 0)
+						{ printf("Zero 3 (%p)!\n", meme_best); fflush(stderr);}
 					submeme_worst = sfli->cross(submeme_worst, meme_best);
+					if(((int**)meme_best)[0] == 0)
+						{ printf("Zero 4 (%p)!\n", meme_best); fflush(stderr);}
 				}
 				/* evolving worst with global best */
 				if( sfli->fitness(submeme_worst) < fitness ){
-					printf("cross3\n");
 					submeme_worst = sfli->cross(submeme_worst, global_best);
 				}
 				/* replacing worst */
@@ -119,6 +124,8 @@ void *sfl(
 					sfli->free_solution(submeme_worst);
 					submeme_worst = sfli->new_solution(problem);
 				}
+				if(((int**)meme_best)[0] == 0)
+					{ printf("Zero 5 (%p)!\n", meme_best); fflush(stderr);}
 				memeplexes[i][widx] = population[widx*m+i] = submeme_worst;
 			}
 		}
