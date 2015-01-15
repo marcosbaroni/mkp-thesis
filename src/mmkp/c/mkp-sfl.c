@@ -49,10 +49,12 @@ int execute_sfl_mkp(int argc, char **argv){
 	sfli = mkp_sfl_interface(cross, newsol);
 
 	/* solving problem */
+	c0 = clock();
 	sol = sfl(sfli, mkp, nmeme, meme_size, q, niter, subniter, &best_iter);
+	cf = clock();
 
 	/* output */
-	printf("%lld;%d\n", sol->obj, best_iter);
+	printf("%lld;%d;%f\n", sol->obj, best_iter, ((cf-c0)/(float)CLOCKS_PER_SEC));
 
 	/* freeing */
 	mkpsol_free(sol);
