@@ -354,17 +354,7 @@ MKPSol *mkpsol_new_random_search(MKP *mkp){
 	MKPSol *sol, *new;
 	int i, n;
 
-	sol = mkpsol_new(mkp);
-	n = mkp->n;
-
-	mkp->idxs = int_array_shuffle(mkp->idxs, n);
-
-	for( i = 0 ; i < n ; i++ ){
-		sol = mkpsol_add_item(sol, mkp->idxs[i]);
-		if(!sol->feasible)
-			mkpsol_rm_item(sol, mkp->idxs[i]);
-	}
-
+	sol = mkpsol_new_random(mkp);
 	new = mkpsol_local_search(sol, sol->mkp->n/25);
 	mkpsol_free(sol);
 

@@ -10,22 +10,127 @@
 
 \begin{document}
 
-\section{Intro}
-% motivate the MKP
+\title{A shuffled frog leaping algorithm for
+the multidimensional knapsack problem}
+
+\author{\IEEEauthorblockN{Marcos Daniel Valad\~ao Baroni}
+\IEEEauthorblockA{ Departamento de Inform\'atica\\
+Universidade Federal do Esp\'irito Santo\\
+Vit\'oria, Esp\'irito Santo, Brazil\\
+Email: mbaroni@ninfa.inf.ufes.br }
+\and
+\IEEEauthorblockN{Fl\'avio Miguel Varej\~ao}
+\IEEEauthorblockA{ Departamento de Inform\'atica\\
+Universidade Federal do Esp\'irito Santo\\
+Vit\'oria, Esp\'irito Santo, Brazil\\
+Email: fvarejao@ninfa.inf.ufes.br }
+}
+
+\maketitle
+
+\begin{abstract}
+%\boldmath
+The abstract goes here.
+\end{abstract}
+
+\section{Introduction}
+\label{sec:intro}
+
+The Multidimensional Knapsack Problem (MKP) is a strongly NP-hard combinatorial
+optimization problem which can be viewed as a resource allocation problem and
+defined as follows:
+
+\begin{align*}
+  \text{maximize} & \sum_{j=1}^n p_j x_j \\
+  \text{subject to} & \sum_{j=1}^n w_{ij} x_j \leqslant c_i \quad i \in \{1, \ldots, m\}\\
+   & x_j \in \{0, 1\}, \quad j \in \{1, \ldots, n\}.
+\end{align*}
+
 % Define the MKP
-% recent works on MKP
-% motivar busca por novos algoritmos
-% comentar um pouco sobre o SFL
+The problem can be interpreted as a set of $n$ itens with profits $p_j$
+and a set of $m$ resources with capacities $c_i$.
+Each item $j$ consumes an amount $w_{ij}$ from each resource $i$, if selected.
+The objective is to select a subset of items with maximum total profit,
+not exceeding the defined resource capacities.
+The decision variable $x_j$ indicates if $j$-th item is selected.
 
-\section{THE SFL}
+The multidimensional knapsack problem can be applied on budget planning 
+scenarios, subset project selections, cutting stock problems, task scheduling,
+allocation of processors and databases in distributed computer programs.
+The problem is a generalization of the well-known knapsack problem (KP) in which
+$m = 1$.
+
+The MKP is a NP-Hard problem significantly harder to solve in practice than the KP.
+Despite the existence of a fully polynomial approximation scheme (FPAS) for the KP,
+finding a FPAS for the MKP is NP-hard for $m \geqslant 2$~\cite{magazine1984note}.
+Due its simple definition but challenging difficulty the MKP is often used to
+to verify the efficiency of novel metaheuristics.
+
+%A metaheuristic is a set of concepts that can be used to define heuristic methods
+%that can be applied to a wide set of different problems.
+%In other words, a metaheuristic can be seen as a general algorithmic framework which can be applied to
+%different optimization problems with relatively few modifications to make them adapted to a specific problem.”
+
+In this paper we address the application of a metaheuristic called shuffled
+frog leaping algorithm (SFLA) to the multidimensional knapsack problem.
+The SFLA is a metaheuristic proposed by Eusuff and Lansey~\cite{eusuff2003optimization, eusuff2006shuffled}
+which combines concepts from two other widely used metaheuristics:
+The shuffled complex evolution algorithm (SCE) and the 
+Particle Swarm Optimization (PSO), providing a robust heuristic which has been
+successfully applied to several optimization problems~\cite{bhattacharjee2014shuffled,
+horng2014construction, xu2013effective, fang2012effective, luo2014improved}.
+%knapsack problem~\cite{bhattacharjee2014shuffled}, construction of support vector
+%machine~\cite{horng2014construction}, scheduling problems~\cite{xu2013effective, fang2012effective},
+%vehicle routing~\cite{luo2014improved}.
+
+The reminder of the paper is organized as follows:
+Section~\ref{sec:sfla} presents the shuffled frog leaping algorithm.
+Section~\ref{sec:sfla-mkp} proposes the application of SFLA for the multidimensional
+knapsack problem.
+Section~\ref{sec:exp} comprises several computational experiments.
+In section~\ref{sec:conc} we make our concluding remarks about the experimental
+results.
+
+\section{The shuffled frog leaping}
+\label{sec:sfla}
+
+The SFLA is a metaheuristic to solve discrete and combinatorial problems.
+It is based on hte memetics of living beings and recalls the behavior of a
+group of frogs searching for the location that has the maximum amount of available food.
+In the following subsections we present the concepts of SCE and PSO to finally
+present the shuffled frog leaping algorithm.
+
+\subsection{The shuffled complex evolution}
+
+
+\subsection{The particle swarm optimization}
+\subsection{The shuffled frog leaping algorithm}
 % introduzir o SFL
-%
+% memeplex... PSO + Complex Evolution
+% apresentar o algoritmo
+%\cite{Shih-1979}
 
-\section{The SFL for MKP}
-\section{Experiments em results}
-\section{Conclusions}
+\section{A SFLA for the MKP}
+\label{sec:sfla-mkp}
 
-\printbibliography
+\section{Computational experiments}
+\label{sec:exp}
+% Instancias (tightness)
+% parametros
+% Gráficos:
+%   - qualidade
+%   - gráfico exemplificando o progresso durante as iterações.
+% Futuro: testar cuzamentos de tipos diferentes e com mais individuos.
+
+\section{Conclusions and future remarks}
+\label{sec:conc}
+% Conseguiu alcançar soluções "near optimal"
+
+%\bibliographystyle{abbrv}
+\bibliographystyle{IEEEtran}
+\bibliography{../../refs}
+
+%\printbibliography
 
 \end{document}
 
