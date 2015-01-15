@@ -25,3 +25,4 @@ bin/mkp-sfl-batch
 bin/mkp-simplex
 bin/mmkp-rand
 bin/ssum-rand
+insts/chubeas/*

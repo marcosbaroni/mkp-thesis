@@ -1,3 +1,4 @@
+#!/usr/bin/python
 #####################################################
 # Converts a instances file on Chu-beasly
 #  format into MMKP instance format files.
