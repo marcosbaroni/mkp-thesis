@@ -82,92 +82,167 @@ to verify the efficiency of novel metaheuristics.
 %In other words, a metaheuristic can be seen as a general algorithmic framework which can be applied to
 %different optimization problems with relatively few modifications to make them adapted to a specific problem.”
 
-In this paper we address the application of a metaheuristic called shuffled
-frog leaping algorithm (SFLA) to the multidimensional knapsack problem.
-The SFLA is a metaheuristic proposed by Eusuff and Lansey~\cite{eusuff2003optimization, eusuff2006shuffled}
-which combines concepts from two other widely used metaheuristics:
-The shuffled complex evolution algorithm (SCE) and the 
-Particle Swarm Optimization (PSO), providing a robust heuristic which has been
-successfully applied to several optimization problems~\cite{bhattacharjee2014shuffled,
-horng2014construction, xu2013effective, fang2012effective, luo2014improved}.
-%knapsack problem~\cite{bhattacharjee2014shuffled}, construction of support vector
-%machine~\cite{horng2014construction}, scheduling problems~\cite{xu2013effective, fang2012effective},
-%vehicle routing~\cite{luo2014improved}.
+In this paper we address the application of a metaheuristic called
+shuffled complex evolution (SCE) to the multidimensional knapsack problem.
+The SCE is a metaheuristic (~\cite{duan1992effective})
+which combines the ideas of a controlled random search with the concepts
+of competitive evolution and shuffling.
 
 The reminder of the paper is organized as follows:
-Section~\ref{sec:sfla} presents the shuffled frog leaping algorithm.
-Section~\ref{sec:sfla-mkp} proposes the application of SFLA for the multidimensional
-knapsack problem.
+Section~\ref{sec:sce} presents the shuffled complex evolution algorithm
+and proposes its application on the multidimensional knapsack problem.
 Section~\ref{sec:exp} comprises several computational experiments.
 In section~\ref{sec:conc} we make our concluding remarks about the experimental
 results.
 
-\section{The shuffled frog leaping}
-\label{sec:sfla}
+\section{The shuffled complex evolution for the MKP}
+\label{sec:sce}
 
-The SFLA is a metaheuristic to solve discrete and combinatorial problems
-based on the memetics of living beings and recalls the behavior of a
-group of frogs searching for the location that has the maximum amount of available food.
-In the following subsections we present the concepts of SCE and PSO to finally
-present the shuffled frog leaping algorithm.
+%The SFLA is a metaheuristic to solve discrete and combinatorial problems
+%based on the memetics of living beings and recalls the behavior of a
+%group of frogs searching for the location that has the maximum amount of available food.
+%In the following subsections we present the concepts of SCE and PSO to finally
+%present the shuffled frog leaping algorithm.
 
-\subsection{The shuffled complex evolution}
+%\label{sec:sfla-mkp}
 
 The shuffled complex evolution (\cite{duan1992effective}) is a population
 based evolutionary optimization algorithm that regards a natural 
 evolution happenning simultaneously in independent communities.
-In the SCE the population is partitioned into communities (complexes), each of which
-will evolve independently through a number of evolving steps.
-In each evolving step a subset of the complex (subcomplex) is selected as potencial group of
-parents.
-The new offspring replaces the worst individual of the subcomplex.
-To avoid been trapped in local optimum a new offspring can be occasionally taken
-from a random location of the feasible space and introduced to the complex.
-After a defined number of evolutions, the complexes are forced to mix into a
-single population.
-This new evolved population are once again partitioned into complexes through
-a shuffling process and the evolving steps are repeated until a stop
-condition is satisfied.
+The algorithm works with a population partitioned in $N$ complexes, each one
+having $M$ individuals.
+In the next Subsection the SCE is explained in more details.
+In the later Subsection the application of SCE to the multidimensional knapsack
+problem is considered.
+% In the SCE the population is partitioned into communities (complexes), each of which
+% will evolve independently through a number of evolving steps.
+% In each evolving step a subset of the complex (subcomplex) is selected as potencial group of
+% parents.
 
-\section{A SFLA for the MKP}
-\label{sec:sfla-mkp}
+%To avoid been trapped in local optimum a new offspring can be occasionally taken
+%from a random location of the feasible space and introduced to the complex.
 
-\subsection{Construction of a new random solution}
-
-To ensure diversification of the population every initial individual (solution)
-is created through a random constructive procedure that sorts the items at
-random and attempts to selected each item one by one.
-If the item fits the knapsack, i.e., its selection does not exceed any resource,
-the item is included in the solution.
-
-After the initializing the population their individuals are sorted by
-descending order according to their fitness (profit) and the best global
-solution is identified as $s_{gb}$.
-The entire population is then partitioned into $N$ complexes, each containing
-$M$ individuals.
-In this partition process the first individual goes to the first complex, the second
+\subsection{The shuffled complex evolution}
+In the SCE a population of $N*M$ individuals is randomly taken from the
+feasible solution space.
+After this initializing the population is sorted by descending order according
+to their fitness and the best global solution is identified.
+The entire population is then partitioned (suffled) into $N$ complexes,
+each containing $M$ individuals.
+In this shuffling process the first individual goes to the first complex, the second
 individual goes to the second complex, individual $N$ goes to $N$-th complex,
 individual $M+1$ goes back to the first complex, etc.
 
-With the complexes constructed the next step is to evolve each complex through
-a given fixed amount of steps.
-In each step a subcomplex is formed by selecting $P$ individuals from the
+The next step after shuffling the complexes is to evolve each complex through
+a given fixed amount of $K'$ steps.
+In each step a subcomplex of $P$ individuals is selected from the
 complex using a triangular probability distribution, where the $i$-th individual
 has a probability $p_i = \frac{2(n+1-i)}{n(n+1)}$ of being selected.
-After the selection of the subcomplex, its best and worst individual,
-respectively identified by $s_w$ and $s_b$ are crossed, generating a new
-solution.
+The use of triangular distribution is intended to prioritize individuals with
+better fitness, supporting the algorithm convergence rate.
 
-\begin{figure}
-  \includegraphics{imgs/flow1}
-  \caption{The SCE algorithm.}
-\end{figure}
+After the selection of the subcomplex, its worst individual is identified to
+be replaced by a new generated solution.
+This new solution is generated by the crossing of the worst individual and an
+other individual with better fitness.
+At first the best individual of the subcomplex is considered for the crossing.
+If the new solution is not better than the worst one, the best individual
+of the complex is considered for a crossing.
+If the latter crossing did not result in any improvement, the best individual
+of whole population is considered.
+Finally, if all the crossing steps couldn't generate a better individual,
+the worst individual of subcomplex is replaced by a new random solution taken
+from the feasible solution space.
+This last step is important to prevent the algorithm becoming trapped in local minima.
+Fig.~\ref{fig:flow2} presents the procedure described above in a flowchart diagram.
+
+After evolving all the $N$ complexes the whole population is again
+sorted by descending and the process continues until a stop condition is satisfied.
+Fig.~\ref{fig:flow1} shows the SCE algorithm in a flowchart diagram.
 
 \begin{figure}
   \includegraphics{imgs/flow2}
-  \caption{The evolving procedure for a complex.}
+  \caption{The evolving stage of SCE for a single complex.}
+  \label{fig:flow2}
 \end{figure}
 
+\begin{figure}
+  \includegraphics{imgs/flow1}
+  \caption{The shuffled complex evolution algorithm.}
+  \label{fig:flow1}
+\end{figure}
+
+
+\subsection{The shuffled complex evolution for the MKP}
+
+As it can be noted in its description the SCE is easly applied to any
+optimization problem.
+The only steps needed to be specified is (a) the creation of a new random
+solution and (b) the crossing procedure of two solutions.
+These two procedures are respectively presented by Fig.~\ref{alg:new} and
+Fig.~\ref{alg:cross}.
+
+\begin{figure}
+\begin{algorithmic}[1]
+  \Procedure{New random solution}{}
+    \State $v \leftarrow $ shuffle($1, 2, \ldots, n$)
+	\State $s \leftarrow \emptyset$ \Comment{empty solution}
+    \For{$ i \leftarrow 1:n$ }
+	  \State $s \leftarrow s \cup \{v_i\}$ \Comment{adding item}
+	  \If{ $s$ is not feasible} \Comment{checking feasibility}
+	    \State $s \leftarrow s - \{v_i\}$
+      \EndIf
+	\EndFor
+  \State return $s$
+  \EndProcedure
+\end{algorithmic}
+\caption{Generation of a new random solution for the MKP.}
+\label{alg:new}
+\end{figure}
+
+To construct a new random solution (Fig.~\ref{alg:new}) the items are
+at first shuffled in random order and stored in a list (line 2).
+A new empty solution is then defined (line 3).
+The algorithm iteratively tries to fill the solution's knapsack with 
+the an item taken from the list (lines 4-9).
+The feasibility of the solution is then checked: if the item insertion let
+the solution unfeasible (line 6) its removed from knapsack (line 7).
+After trying to place all available items the new solution is returned.
+
+\begin{figure}
+\begin{algorithmic}[1]
+  \Procedure{Crossing}{$x^w:$ worst individual, $x^b:$ better individual, $c$}
+    \State $v \leftarrow $ shuffle($1, 2, \ldots, n$)
+    \For{$ i \leftarrow 1:c$ }
+	  \State $j \leftarrow v_i$
+	  \State $x^w_j \leftarrow x^b_j$ \Comment{ carriage of gene}
+	\EndFor
+	\If{$s^w$ is not feasible}
+	  \State repair $s^w$
+	\EndIf
+	\State update $s^w$ fitness
+  \State return $s^w$
+  \EndProcedure
+\end{algorithmic}
+\caption{Crossing procedure used on SCE algorithm.}
+\label{alg:cross}
+\end{figure}
+
+The crossing procedure (Fig.~\ref{alg:cross}) takes as input the worst
+solution taken from the subcomplex $x^w = (x^w_1, x^w_2, \ldots, x^w_n$),
+the selected better solution $x_b = (x^b_1, x^b_2, \ldots, x^b_n$),
+and the number $c$ of genes that will be carried from the better solution.
+The $c$ parameter will control how similar the worst individual will be from the
+given better individual
+At first the items are shuffled in random order and stored in a list (line 2).
+Then $c$ chosen genes are now carried from the better individual to the worst
+individual (line 5).
+At the end of steps the feasibility of the solution is checked (line 7) and
+the solution is repaired if needed.
+The repair stage is a greedy that iteratively removes the item that less
+decreases the objective function.
+Finally the fitness of the generated solution is updated (line 10) and
+returned (line 11).
 
 %\begin{algorithmic}
 %  \Procedure{The SCE for the MKP}{$\vec{p}, W, \vec{b}$}
@@ -220,6 +295,51 @@ solution.
 
 \section{Computational experiments}
 \label{sec:exp}
+
+For the computational experiments a batch of tests was driven to find the best
+parameters for the problem.
+Afterwards two main tests was considered:
+(a) using the well-known set of problems defined by Chu and Beasly (\cite{Chu-Beasley-1998})
+and (b) a large set of randomly generated instances using uniform distribution.
+
+\subsection{The Chu-Beasly instances}
+
+The set of MKP instances provided by Chu and Beasly was generated using a
+procedure suggested by Freville and Plateau~\cite{freville1994efficient}, which
+attempts to generate instances hard to solve.
+The number of constraints $m$ varies among $5$, $10$ and $30$, and the number
+of variables $n$ varies among $100$, $250$ and $500$.
+
+The $w_{ij}$ were integer numbers drawn from the discrete uniform distribution
+$U(0, 1000)$.
+The capacity coefficient $c_i$ were set using
+$b_i = \alpha\sum_{j=1}^{n} w_{ij}$ where $\alpha$ is a tightness ratio and
+varies among $0.25$, $0.5$ and $0.75$.
+For each combination of $(m,n,\alpha)$ parameters, $10$ random problems was generated,
+totaling $270$ problems.
+The profit $p_j$ of the items were correlated to $w_{ij}$ and generated as follows:
+\begin{displaymath}
+  p_j = \sum_{i=1}^m \frac{w_{ij}}{m} + 500q_j \qquad j = 1, \ldots, n
+\end{displaymath}
+
+\subsection{The set of random instances}
+
+The second set of instances is composed by problems generated using a similar
+setup.
+The only difference is that the profit $p_j$ is also drawn from a discrete uniform
+distribution $U(0, 1000)$.
+For each combination of $(m, n, \alpha)$ parameter, $600$ random problems was
+generated, totaling $16200$ problems.
+
+% a set of large MKP instances using the procedure suggested by Freville and
+% Plateau (1994). The number of constraints m was set to 5, 10 and 30, and the number of
+% variables n was set to 100, 250 and 500. Thirty problems were generated for each m-n
+% combination, giving a total of 270 problems.
+
+% where q j is a real number drawn from the continuous uniform generator U (0, 1). In
+% general, correlated problems are more difficult to solve than uncorrelated problems (Gavish
+% and Pirkul (1985), Pirkul (1987)).
+
 % Instancias (tightness)
 % parametros
 % Gráficos:
