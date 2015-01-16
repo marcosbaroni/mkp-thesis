@@ -1,12 +1,23 @@
-\documentclass[10pt, conference, compsocconf]{IEEEtran}
+\documentclass[conference, compsocconf]{IEEEtran}
 
 \usepackage{amsfonts}
 \usepackage{amssymb,amsmath}
 \usepackage{hyperref}
-\usepackage{algorithm}
 \usepackage{algpseudocode}
 \usepackage{graphicx}
 \usepackage[skip=2pt,font=footnotesize]{caption}
+
+\usepackage{tikz}       % for flowcharts
+\usetikzlibrary{shapes, arrows}
+
+\newsavebox{\ieeealgbox}
+\newenvironment{boxedalgorithmic}
+  {\begin{lrbox}{\ieeealgbox}
+   \begin{minipage}{\dimexpr\columnwidth-2\fboxsep-2\fboxrule}
+   \begin{algorithmic}}
+  {\end{algorithmic}
+   \end{minipage}
+   \end{lrbox}\noindent\fbox{\usebox{\ieeealgbox}}}
 
 \begin{document}
 
@@ -102,15 +113,110 @@ present the shuffled frog leaping algorithm.
 
 \subsection{The shuffled complex evolution}
 
-\subsection{The particle swarm optimization}
-\subsection{The shuffled frog leaping algorithm}
-% introduzir o SFL
-% memeplex... PSO + Complex Evolution
-% apresentar o algoritmo
-%\cite{Shih-1979}
+The shuffled complex evolution (\cite{duan1992effective}) is a population
+based evolutionary optimization algorithm that regards a natural 
+evolution happenning simultaneously in independent communities.
+In the SCE the population is partitioned into communities (complexes), each of which
+will evolve independently through a number of evolving steps.
+In each evolving step a subset of the complex (subcomplex) is selected as potencial group of
+parents.
+The new offspring replaces the worst individual of the subcomplex.
+To avoid been trapped in local optimum a new offspring can be occasionally taken
+from a random location of the feasible space and introduced to the complex.
+After a defined number of evolutions, the complexes are forced to mix into a
+single population.
+This new evolved population are once again partitioned into complexes through
+a shuffling process and the evolving steps are repeated until a stop
+condition is satisfied.
 
 \section{A SFLA for the MKP}
 \label{sec:sfla-mkp}
+
+\subsection{Construction of a new random solution}
+
+To ensure diversification of the population every initial individual (solution)
+is created through a random constructive procedure that sorts the items at
+random and attempts to selected each item one by one.
+If the item fits the knapsack, i.e., its selection does not exceed any resource,
+the item is included in the solution.
+
+After the initializing the population their individuals are sorted by
+descending order according to their fitness (profit) and the best global
+solution is identified as $s_{gb}$.
+The entire population is then partitioned into $N$ complexes, each containing
+$M$ individuals.
+In this partition process the first individual goes to the first complex, the second
+individual goes to the second complex, individual $N$ goes to $N$-th complex,
+individual $M+1$ goes back to the first complex, etc.
+
+With the complexes constructed the next step is to evolve each complex through
+a given fixed amount of steps.
+In each step a subcomplex is formed by selecting $P$ individuals from the
+complex using a triangular probability distribution, where the $i$-th individual
+has a probability $p_i = \frac{2(n+1-i)}{n(n+1)}$ of being selected.
+After the selection of the subcomplex, its best and worst individual,
+respectively identified by $s_w$ and $s_b$ are crossed, generating a new
+solution.
+
+\begin{figure}
+  \includegraphics{imgs/flow1}
+  \caption{The SCE algorithm.}
+\end{figure}
+
+\begin{figure}
+  \includegraphics{imgs/flow2}
+  \caption{The evolving procedure for a complex.}
+\end{figure}
+
+
+%\begin{algorithmic}
+%  \Procedure{The SCE for the MKP}{$\vec{p}, W, \vec{b}$}
+%    \State Inicialize population
+%    \For{$ i \leftarrow 1:K$ }
+%	  \State Sort population by fitness
+%	  \State $s_{gb} \leftarrow$ Global best individual
+%	  \State Shuffle complexes
+%      \For{ each complex }
+%	    \State $s_{cb} \leftarrow$ Complex best individual
+%        \For{$ k \leftarrow 1:K'$ }
+%		  \State Select a subcomplex of $P$ individuals
+%          \State $s_w \leftarrow$ worst individual of subcomplex
+%          \State $s_b \leftarrow$ best individual of subcomplex
+%		  \State $s_{new} \leftarrow s_w \otimes s_b$
+%		  \If{ $fitness(s_{new}) > s_w$}
+%		    \State $s_w \leftarrow s_{new}$
+%		  \Else
+%		    \State $s_{new} \leftarrow s_w \otimes s_{cb}$
+%		    \If{ $fitness(s_{new}) > s_w$}
+%		      \State $s_w \leftarrow s_{new}$
+%			\Else
+%		      \State $s_{new} \leftarrow s_w \otimes s_{gb}$
+%		      \If{ $fitness(s_{new}) > s_w$}
+%		        \State $s_w \leftarrow s_{new}$
+%		      \Else
+%			    \State $s_w \leftarrow$ new random solution
+%			  \EndIf
+%		    \EndIf
+%		  \EndIf
+%        \EndFor
+%      \EndFor
+%    \EndFor
+%	\State $s_gb \leftarrow$ Global best individual
+%	\State Return $s_gb$
+%  \EndProcedure
+%\end{algorithmic}
+
+%\begin{algorithmic}
+%  \Procedure{New random MKP solution}{$\vec{p}, W, \vec{b}$}
+%    \State $\vec{v} \leftarrow $ shuffle$(1, 2, \ldots, n)$
+%	\State $s \leftarrow \emptyset $
+%    \For{$ i \leftarrow 1:niter$ }
+%	  \If{$ s \cup \{v[i]\} is feasible$}
+%	    \State $s \leftarrow s \cup \{v[i]\}$
+%	  \EndIf
+%    \EndFor
+%  \EndProcedure
+%\end{algorithmic}
 
 \section{Computational experiments}
 \label{sec:exp}
