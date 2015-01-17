@@ -57,6 +57,7 @@ void *sfl(
 
 	/* each iteration */
 	for( iter = 0 ; iter < niter ; iter++ ){
+		printf("%d;%lf\n", iter+1, sfli->fitness(global_best));
 		/* sorting population */
 		mp_qsort_r(population, f, 
 			(mp_cmp_r_f)sfl_compar, 
