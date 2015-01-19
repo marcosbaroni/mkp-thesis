@@ -63,6 +63,7 @@ void mkpsol_free(MKPSol *mkpsol);               /* new empty solution */
 MKPSol *mkpsol_solve_with_scip(MKP *mkp, double maxtime, char linear);
 MKPSol *mkpsol_from_lp(MKP *mkp);               /* truncated from LP */
 MKPSol *mkpsol_local_search(MKPSol *mkpsol, int niter);
+int mkpsol_get_core_size(MKPSol *mkpsol);
 
 /* MKP TABU SEARCH*/
 

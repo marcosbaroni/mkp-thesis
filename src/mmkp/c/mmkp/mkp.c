@@ -484,6 +484,27 @@ int mkpsol_dominates(MKPSol *ms1, MKPSol *ms2){
 	return 1;
 }
 
+int mkpsol_get_core_size(MKPSol *mkpsol){
+	int first_0, last_1, i, n, core_size;
+	int *x;
+
+	n = mkpsol->n;
+	x = mkpsol->x;
+	i = 0;
+	/* finding first 0 */
+	while( i < n && x[i] == 1)
+		i++;
+	first_0 = i;
+	/* finding last 1 */
+	while( i < n )
+		if( x[i] == 1)
+			last_1 = i;
+
+	core_size = last_1 - first + 1;
+
+	return core_size;
+}
+
 void mkpsol_fprint(FILE *fout, MKPSol *mkpsol, char ptr_sol){
 	long long *b;
 	int i, n, m;
