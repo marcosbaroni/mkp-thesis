@@ -1,13 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include "mmkp/mkp.h"
 
 void print_usage(int argc, char **argv){
 	FILE *out;
 
 	out = stdout;
-	fprintf(out, " usage: %s [input file]\n", argv[0]);
+	fprintf(out, " usage: %s [seed=time(NULL)]\n", argv[0]);
 	fprintf(out, " Tool for investigating core concepts for MKP.\n");
-	fprintf(out, "   input file: a MKP instance. If no file is given, instance is read from stdin.\n");
 
 	return;
 }
@@ -17,18 +17,17 @@ int execute_core_search(int argc, char **argv){
 	FILE *input;
 	MKPSol *sol;
 	double t;
-	int i, n, t, m, nmax, mmax, niter;
+	int i, n, m, nmax, mmax, niter, first0, last1, core_size;
 
 	/* read input problem */
-	input = stdin;
-	if(argc > 1) input = fopen(argv[1], "r");
-	mkp = mkp_read_from_file(input);
-	fclose(input);
+	if( argc > 1 ) srand(atoll(argv[1]));
+	else srand(time(NULL));
 
-	mmax = 30
+	mmax = 30;
 	nmax = 300;
 	t = 0.5;
-	for( m = 1 ; m <= mmax ; m += 10 ){
+	for( m = 0 ; m <= mmax ; m += 5 ){
+		if(!m) m = 1;
 		for( n = 50 ; n <= nmax ; n += 25 ){
 			for( t = 0.25 ; t < 1.0 ; t += 0.25 ){
 				/* generate problem */
@@ -38,11 +37,11 @@ int execute_core_search(int argc, char **argv){
 				sol = mkpsol_solve_with_scip(mkp, 300.0, 0);
 
 				/* core size*/
-				core_size = mkpsol_get_core_size(sol);
+				core_size = int_array_sum(sol->x, n);
+				printf("%d;%d;%.2lf;%d\n", n, m, t, core_size);
 
-				/* "center" */
-
-				mkpsol_free(core_size);
+				/* free */
+				mkpsol_free(sol);
 				mkp_free(mkp);
 			}
 		}

@@ -319,6 +319,54 @@ void mkp_to_zimpl(FILE *fout, MKP *mkp, double max_opt, double capacity_scale, c
 	return;
 }
 
+double *mkp_core_val(MKP *mkp, char type){
+	double *vals, sum, **w, *p, *b;
+	int i, j, n, m;
+
+	n = mkp->n;
+	m = mkp->m;
+	p = mkp->p;
+	w = mkp->w;
+	b = mkp->b;
+	vals = (double*)malloc(n*sizeof(double));
+
+	switch(type){
+		case MKP_CORE_SIMPLE:
+		for( i = 0 ; i < n ; i++ ){
+			sum = 0.0;
+			for( j = 0 ; j < m ; j++ )
+				sum += w[j][i];
+			val[i] = p[i]/sum;
+		}
+		break;
+
+		case MKP_CORE_SCALED:
+		for( i = 0 ; i < n ; i++ ){
+			for( j = 0 ; j < m ; j++ )
+				
+		}
+		break;
+
+		case MKP_CORE_ST:
+		break;
+
+		case MKP_CORE_FP:
+		break;
+
+		case MKP_CORE_DUALS:
+		break;
+
+		case MKP_CORE_LP:
+		break;
+
+	}
+
+	return vals;
+}
+
+/*******************************************************************************
+ ***                               MKPSOL                                    ***
+*******************************************************************************/
 MKPSol *mkpsol_new(MKP *mkp){
 	int i;
 	MKPSol *mkpsol;
@@ -484,11 +532,11 @@ int mkpsol_dominates(MKPSol *ms1, MKPSol *ms2){
 	return 1;
 }
 
-int mkpsol_get_core_size(MKPSol *mkpsol){
+int mkpsol_get_core_size(MKPSol *mkpsol, int *first_0p, int *last_1p){
 	int first_0, last_1, i, n, core_size;
 	int *x;
 
-	n = mkpsol->n;
+	n = mkpsol->mkp->n;
 	x = mkpsol->x;
 	i = 0;
 	/* finding first 0 */
@@ -496,11 +544,13 @@ int mkpsol_get_core_size(MKPSol *mkpsol){
 		i++;
 	first_0 = i;
 	/* finding last 1 */
-	while( i < n )
+	while( ++i < n )
 		if( x[i] == 1)
 			last_1 = i;
 
-	core_size = last_1 - first + 1;
+	core_size = last_1 - first_0 + 1;
+	if(first_0p) *first_0p = first_0;
+	if(last_1p) *last_1p = last_1;
 
 	return core_size;
 }

@@ -201,6 +201,14 @@ int *int_array_shuffle(int *array, int n){
 	return array;
 }
 
+int int_array_sum(int *array, int n){
+	int i, sum;
+	sum = 0;
+	for( i = 0 ; i < n ; i++ )
+		sum += array[i];
+	return sum;
+}
+
 
 /**
  * Returns a random normalized double array (random numbers totaling 1.0).

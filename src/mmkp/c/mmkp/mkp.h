@@ -35,6 +35,15 @@ void mkp_write_to_file(MKP *mkp, FILE *fout);
 void mkp_fprint(FILE *fout, MKP *mkp);
 void mkp_to_zimpl(FILE *fout, MKP *mkp, double max_opt, double capacity_scale, char linear);
 
+/*** Core functions ***/
+#define MKP_CORE_SIMPLE 1
+#define MKP_CORE_SCALED 2
+#define MKP_CORE_ST 3
+#define MKP_CORE_FP 4
+#define MKP_CORE_DUALS 5
+#define MKP_CORE_LP 6
+double *mkp_core_val(MKP *mkp, char type);
+
 LP *mkp2lp(MKP *mkp); /* MKP to LP relaxation */
 
 
@@ -43,7 +52,7 @@ typedef struct MKPSol{
 	int *x;                /* The solution vector [n] */
 	long long *b_left;     /* Resource left on the knapsack [m] */
 	long long obj;         /* Objective function */
-	int feasible;            /* If solution is feasible*/
+	int feasible;          /* If solution is feasible*/
 	MKP *mkp;              /* The problem instance */
 }MKPSol;
 
@@ -63,7 +72,7 @@ void mkpsol_free(MKPSol *mkpsol);               /* new empty solution */
 MKPSol *mkpsol_solve_with_scip(MKP *mkp, double maxtime, char linear);
 MKPSol *mkpsol_from_lp(MKP *mkp);               /* truncated from LP */
 MKPSol *mkpsol_local_search(MKPSol *mkpsol, int niter);
-int mkpsol_get_core_size(MKPSol *mkpsol);
+int mkpsol_get_core_size(MKPSol *mkpsol, int *first_0p, int *last_1p);
 
 /* MKP TABU SEARCH*/
 
