@@ -34,6 +34,7 @@ void mkp_write_to_file(MKP *mkp, FILE *fout);
 /*** Print functions ***/
 void mkp_fprint(FILE *fout, MKP *mkp);
 void mkp_to_zimpl(FILE *fout, MKP *mkp, double max_opt, double capacity_scale, char linear);
+void mkp_dual_to_zimpl(FILE *fout, MKP *mkp, double max_opt, double capacity_scale, char linear);
 
 /*** Core functions ***/
 #define MKP_CORE_SIMPLE 1
@@ -69,7 +70,7 @@ MKPSol *mkpsol_read_from_file(FILE *fin, MKP *mkp);
 int mkpsol_dominates(MKPSol *ms1, MKPSol *ms2);
 void mkpsol_fprint(FILE *fout, MKPSol *mkpsol, char ptr_sol); /* prints a solution */
 void mkpsol_free(MKPSol *mkpsol);               /* new empty solution */
-MKPSol *mkpsol_solve_with_scip(MKP *mkp, double maxtime, char linear);
+MKPSol *mkpsol_solve_with_scip(MKP *mkp, double maxtime, double capacity_scale, char linear);
 MKPSol *mkpsol_from_lp(MKP *mkp);               /* truncated from LP */
 MKPSol *mkpsol_local_search(MKPSol *mkpsol, int niter);
 int mkpsol_get_core_size(MKPSol *mkpsol, int *first_0p, int *last_1p);

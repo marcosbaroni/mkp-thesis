@@ -35,7 +35,7 @@ int main(int argc, char **argv){
         mkp = mkp_random(n, m, tight, max_coef);
 
         /* getting OPT */
-        sol = mkpsol_solve_with_scip(mkp, 120.0, 0);
+        sol = mkpsol_solve_with_scip(mkp, 120.0, 1.0, 0);
         opt = (double)sol->obj;
         mkpsol_free(sol);
 

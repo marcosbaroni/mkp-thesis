@@ -249,6 +249,11 @@ void mkp_fprint(FILE *fout, MKP *mkp){
 	return;
 }
 
+/* Prints MKP dual problem in ZIMPL format */
+void mkp_dual_to_zimpl(FILE *fout, MKP *mkp, double max_opt, double capacity_scale, char linear){
+	unimplemented();
+}
+
 void mkp_to_zimpl(FILE *fout, MKP *mkp, double max_opt, double capacity_scale, char linear){
 	int i, j, n, m;
 	double *b;
@@ -320,8 +325,10 @@ void mkp_to_zimpl(FILE *fout, MKP *mkp, double max_opt, double capacity_scale, c
 }
 
 double *mkp_core_val(MKP *mkp, char type){
-	double *vals, sum, **w, *p, *b;
-	int i, j, n, m;
+	double *vals, sum, sum2, *r;
+	long long *p, *b, **w;
+	int i, j, k, n, m;
+	LP *lp;
 
 	n = mkp->n;
 	m = mkp->m;
@@ -329,6 +336,7 @@ double *mkp_core_val(MKP *mkp, char type){
 	w = mkp->w;
 	b = mkp->b;
 	vals = (double*)malloc(n*sizeof(double));
+	r = (double*)malloc(m*sizeof(double));
 
 	switch(type){
 		case MKP_CORE_SIMPLE:
@@ -336,30 +344,60 @@ double *mkp_core_val(MKP *mkp, char type){
 			sum = 0.0;
 			for( j = 0 ; j < m ; j++ )
 				sum += w[j][i];
-			val[i] = p[i]/sum;
+			vals[i] = p[i]/sum;
 		}
 		break;
 
 		case MKP_CORE_SCALED:
 		for( i = 0 ; i < n ; i++ ){
+			sum = 0.0;
 			for( j = 0 ; j < m ; j++ )
-				
+				sum += w[j][i]/b[j];
+			vals[i] = p[i]/sum;
 		}
 		break;
 
 		case MKP_CORE_ST:
+		for( i = 0 ; i < n ; i++ ){
+			sum = 0.0;
+			for( j = 0 ; j < m ; j++ )
+				for( k = 0 ; k < n ; k++ )
+					sum += w[j][i]*(w[j][k]-b[j]);
+			vals[i] = p[i]/sum;
+		}
 		break;
 
 		case MKP_CORE_FP:
+		/* relevance values */
+		for( j = 0 ; j < m ; j++ ){
+			sum = sum2 = 0;
+			for( k = 0 ; k < n ; k++ ){
+				sum += w[j][k] - b[j];
+				sum2 += w[j][k];
+			}
+			r[j] = sum/sum2;
+		}
+
+		/* Freville-Plateau efficiency */
+		for( i = 0 ; i < n ; i++ ){
+			sum = 0;
+			for( j = 0 ; j < m ; j++ )
+				sum += r[j]*w[j][i];
+			vals[i] = p[i]/sum;
+		}
 		break;
 
 		case MKP_CORE_DUALS:
+		//lp = mkp_to_dual(MKP);
+
 		break;
 
 		case MKP_CORE_LP:
 		break;
 
 	}
+
+	free(r);
 
 	return vals;
 }
@@ -555,6 +593,12 @@ int mkpsol_get_core_size(MKPSol *mkpsol, int *first_0p, int *last_1p){
 	return core_size;
 }
 
+/*
+ * prt_sol:
+ *   0 - no solution
+ *   1 - with solution
+ *   2 - solution only
+ * */
 void mkpsol_fprint(FILE *fout, MKPSol *mkpsol, char ptr_sol){
 	long long *b;
 	int i, n, m;
@@ -563,11 +607,14 @@ void mkpsol_fprint(FILE *fout, MKPSol *mkpsol, char ptr_sol){
 	m = mkpsol->mkp->m;
 	n = mkpsol->mkp->n;
 
-	fprintf(fout, "%lld;[", mkpsol->obj);
-	for( i = 0 ; i < m ; i++)
-		fprintf(fout, "%lld%s", mkpsol->b_left[i], i+1==m?"]":",");
+	if( ptr_sol != 2 ){
+		fprintf(fout, "%lld;[", mkpsol->obj);
+		for( i = 0 ; i < m ; i++)
+			fprintf(fout, "%lld%s", mkpsol->b_left[i], i+1==m?"]":",");
+	}
 	if(ptr_sol){
-		printf(";");
+		if( ptr_sol == 1)
+			printf(";");
 		for( i = 0 ; i < n ; i++)
 			fprintf(fout, "%d", mkpsol->x[i]);
 	}
@@ -582,7 +629,7 @@ void mkpsol_free(MKPSol *mkpsol){
 	return;
 }
 
-MKPSol *mkpsol_solve_with_scip(MKP *mkp, double maxtime, char linear){
+MKPSol *mkpsol_solve_with_scip(MKP *mkp, double maxtime, double capacity_scale, char linear){
 	MKPSol *sol;
 	double *x, val;
 	int a, n, nread;
@@ -600,7 +647,7 @@ MKPSol *mkpsol_solve_with_scip(MKP *mkp, double maxtime, char linear){
 
 	/* write mkp model on temp file*/
 	out = fopen(tempf, "w");
-	mkp_to_zimpl(out, mkp, 0.0, 1.0, linear);
+	mkp_to_zimpl(out, mkp, 0.0, capacity_scale, linear);
 	fclose(out);
 
 	/* solve model */
@@ -623,7 +670,7 @@ MKPSol *mkpsol_solve_with_scip(MKP *mkp, double maxtime, char linear){
 }
 
 MKPSol *mkpsol_from_lp(MKP *mkp){
-	return mkpsol_solve_with_scip(mkp, 60.0, 1);
+	return mkpsol_solve_with_scip(mkp, 60.0, 1.0, 1);
 }
 
 MKPSol *greedy_mkp(MKP *mkp){

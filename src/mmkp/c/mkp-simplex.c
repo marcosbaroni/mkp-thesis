@@ -45,7 +45,7 @@ int execute_mkp_simplex(int argc, char **argv){
 
 	/* solving LP */
 	c0 = clock();
-	x = simplex(lp);
+	x = lp_simplex(lp);
 	cf = clock();
 
 	profit = 0.0;

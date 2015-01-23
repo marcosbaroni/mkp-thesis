@@ -3,6 +3,9 @@
 #include "lp.h"
 #include "util.h"
 
+double *lp_scip(LP *lp){
+}
+
 void tableau_print(FILE *out, double **tab, double *b, double z, int n, int m){
 	int i, j;
 
@@ -61,7 +64,7 @@ void tableau_build(LP *lp, double **tab, double *b){
  * [ tab | b ]
  * [ tab | z ]   <- additional line | z
  * */
-double *simplex(LP *lp){
+double *lp_simplex(LP *lp){
 	int i, j, n, nvars, m;
 	double **tab; /* the tableau (with addicional line, for pivoting ruling) */
 	double *b;    /* right side "b"s */
