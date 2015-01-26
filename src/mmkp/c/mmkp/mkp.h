@@ -34,7 +34,7 @@ void mkp_write_to_file(MKP *mkp, FILE *fout);
 /*** Print functions ***/
 void mkp_fprint(FILE *fout, MKP *mkp);
 void mkp_to_zimpl(FILE *fout, MKP *mkp, double max_opt, double capacity_scale, char linear);
-void mkp_dual_to_zimpl(FILE *fout, MKP *mkp, double max_opt, double capacity_scale, char linear);
+void mkp_dual_to_zimpl(FILE *fout, MKP *mkp, char linear);
 
 /*** Core functions ***/
 #define MKP_CORE_SIMPLE 1

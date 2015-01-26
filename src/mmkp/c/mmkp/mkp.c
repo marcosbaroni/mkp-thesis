@@ -250,8 +250,57 @@ void mkp_fprint(FILE *fout, MKP *mkp){
 }
 
 /* Prints MKP dual problem in ZIMPL format */
-void mkp_dual_to_zimpl(FILE *fout, MKP *mkp, double max_opt, double capacity_scale, char linear){
-	unimplemented();
+void mkp_dual_to_zimpl(FILE *fout, MKP *mkp, char linear){
+	int i, j, n, m;
+
+	n = mkp->n;
+	m = mkp->m;
+
+	/* sizes */
+	fprintf(fout, "param n := %d;\n", n);
+	fprintf(fout, "param m := %d;\n", m);
+
+	/* sets */
+	fprintf(fout, "set N := {1 .. %d};\n", n);
+	fprintf(fout, "set M := {1 .. %d};\n", m);
+
+	/* profit */
+	fprintf(fout, "param p[N] :=\n");
+	long_long_array_zimpl_print(fout, mkp->p, n);
+
+	/* weights */
+	fprintf(fout, "param w[M*N] :=\n");
+	long_long_matrix_zimpl_print(fout, mkp->w, m, n);
+
+	/* capacities */
+	fprintf(fout, "param b[M] :=\n");
+	double_array_zimpl_print(fout, b, m);
+
+	/* desicion var */
+	if(linear) {
+		fprintf(fout, "var u[M] real;\n");
+		fprintf(fout, "var v[N] real;\n");
+	} else {
+		fprintf(fout, "var u[M] binary;\n");
+		fprintf(fout, "var v[N] binary;\n");
+	}
+
+	/* capacities constraint */
+	fprintf(fout,
+		"subto constraints:\n\
+			forall <j> in N do\n\
+				sum <i> in M do\n\
+					u[i]*w[i, j] + v[j] >= p[j];\n");
+
+	/* objective function */
+	fprintf(fout,
+		"minimize obj:\n\
+			sum <i> in M do\n\
+				u[i]*b[i] +
+			sum <j> in N do\n\
+				v[j];\n");
+
+	return;
 }
 
 void mkp_to_zimpl(FILE *fout, MKP *mkp, double max_opt, double capacity_scale, char linear){
