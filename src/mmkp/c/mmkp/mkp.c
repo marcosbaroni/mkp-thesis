@@ -274,14 +274,14 @@ void mkp_dual_to_zimpl(FILE *fout, MKP *mkp, char linear){
 
 	/* capacities */
 	fprintf(fout, "param b[M] :=\n");
-	double_array_zimpl_print(fout, b, m);
+	long_long_array_zimpl_print(fout, mkp->b, m);
 
 	/* desicion var */
 	if(linear) {
-		fprintf(fout, "var u[M] real;\n");
+		fprintf(fout, "var x[M] real;\n");
 		fprintf(fout, "var v[N] real;\n");
 	} else {
-		fprintf(fout, "var u[M] binary;\n");
+		fprintf(fout, "var x[M] binary;\n");
 		fprintf(fout, "var v[N] binary;\n");
 	}
 
@@ -290,17 +290,54 @@ void mkp_dual_to_zimpl(FILE *fout, MKP *mkp, char linear){
 		"subto constraints:\n\
 			forall <j> in N do\n\
 				sum <i> in M do\n\
-					u[i]*w[i, j] + v[j] >= p[j];\n");
+					x[i]*w[i, j] + v[j] >= p[j];\n");
 
 	/* objective function */
 	fprintf(fout,
 		"minimize obj:\n\
 			sum <i> in M do\n\
-				u[i]*b[i] +
+				x[i]*b[i] +\n\
 			sum <j> in N do\n\
 				v[j];\n");
 
 	return;
+}
+
+double *mkp_solve_dual_with_scip(MKP *mkp){
+	double *x, val, maxtime;
+	int i, a, m, nread;
+	char tempf[200], buff[400];
+	FILE *pip, *out;
+
+	m = mkp->m;
+	x = double_array_init(NULL, m, 0.0);  /* solution array */
+	maxtime = 60.0;
+
+	/* temp file for mkp model */
+	pip = popen("tempfile", "r");
+	fscanf(pip, "%s", tempf);
+	fclose(pip);
+
+	/* write mkp dual model on temp file*/
+	out = fopen(tempf, "w");
+	mkp_dual_to_zimpl(out, mkp, 1);
+	fclose(out);
+
+	/* solve model */
+	sprintf(buff, "./zpl2lp %s | ./runscip %lf | ./scip2summary -s ", tempf, maxtime);
+	pip = popen(buff, "r");
+
+	/* reading solution */
+	fscanf(pip, "%s", buff);    /* throwing away first line */
+	i = 0;
+	nread = fscanf(pip, "%d %lf", &a, &val);
+	while( nread == 2 ){
+		x[a-1] = val;
+		nread = fscanf(pip, "%d %lf", &a, &val);
+	}
+	fclose(pip);
+
+	return x;
 }
 
 void mkp_to_zimpl(FILE *fout, MKP *mkp, double max_opt, double capacity_scale, char linear){
@@ -373,11 +410,56 @@ void mkp_to_zimpl(FILE *fout, MKP *mkp, double max_opt, double capacity_scale, c
 	return;
 }
 
+double *mkp_my_core_vals(MKP *mkp){
+	int i, j, n, new_assigned, nassigned;
+	double *x, tic, scale, *assigned;
+
+	n = mkp->n;
+	assigned = double_array_init(NULL, n, 0.0);
+
+	scale = 0.0;
+	for( i = 0 ; i < n ; i++ ){
+		printf(" i = %d\n", i); fflush(stdout);
+		tic = 2.0/(double)n;
+		nassigned = n+1;
+		while( nassigned != i+1 ){
+			/* solve relaxation */
+			x = mkp_solve_with_scip(mkp, 60, scale+tic, 1);
+
+			/* counting assigned variables */
+			nassigned = 0;
+			for( j = 0 ; j < n ; j++ ){
+				printf("%f ", x[j]); fflush(stdout);
+				if( x[j] > 0.0 ){
+					nassigned++;
+					/* checking which one was the new assigned variable */
+					if( assigned[j] == 0.0 )
+						new_assigned = j;
+				}
+			}
+			printf(" (%d, %f)\n", nassigned, scale+tic); fflush(stdout);
+
+			/* adjust scaling (if needed) */
+			if( nassigned > i+1 ){ tic /= 2.0; printf("lowww ");}
+			if( nassigned < i+1 ) scale += tic;
+			printf("new - %f\n", scale+tic); fflush(stdout);
+
+			free(x);
+		}
+		/* updating next initial scale */
+		scale += tic;
+
+		/* updating assigment */
+		assigned[new_assigned] = (double)(n-i);
+	}
+
+	return assigned;
+}
+
 double *mkp_core_val(MKP *mkp, char type){
-	double *vals, sum, sum2, *r;
+	double *x, *vals, sum, sum2, *r;
 	long long *p, *b, **w;
 	int i, j, k, n, m;
-	LP *lp;
 
 	n = mkp->n;
 	m = mkp->m;
@@ -388,6 +470,7 @@ double *mkp_core_val(MKP *mkp, char type){
 	r = (double*)malloc(m*sizeof(double));
 
 	switch(type){
+		/* Simple Efficiency */
 		case MKP_CORE_SIMPLE:
 		for( i = 0 ; i < n ; i++ ){
 			sum = 0.0;
@@ -397,6 +480,7 @@ double *mkp_core_val(MKP *mkp, char type){
 		}
 		break;
 
+		/* Scaled Efficiency */
 		case MKP_CORE_SCALED:
 		for( i = 0 ; i < n ; i++ ){
 			sum = 0.0;
@@ -406,6 +490,7 @@ double *mkp_core_val(MKP *mkp, char type){
 		}
 		break;
 
+		/* Senju and Toyoda */
 		case MKP_CORE_ST:
 		for( i = 0 ; i < n ; i++ ){
 			sum = 0.0;
@@ -416,9 +501,9 @@ double *mkp_core_val(MKP *mkp, char type){
 		}
 		break;
 
+		/* Freville-Plateau efficiency */
 		case MKP_CORE_FP:
-		/* relevance values */
-		for( j = 0 ; j < m ; j++ ){
+		for( j = 0 ; j < m ; j++ ){ /* relevance values */
 			sum = sum2 = 0;
 			for( k = 0 ; k < n ; k++ ){
 				sum += w[j][k] - b[j];
@@ -426,8 +511,6 @@ double *mkp_core_val(MKP *mkp, char type){
 			}
 			r[j] = sum/sum2;
 		}
-
-		/* Freville-Plateau efficiency */
 		for( i = 0 ; i < n ; i++ ){
 			sum = 0;
 			for( j = 0 ; j < m ; j++ )
@@ -436,14 +519,22 @@ double *mkp_core_val(MKP *mkp, char type){
 		}
 		break;
 
+		/* Duals efficiency */
 		case MKP_CORE_DUALS:
-		//lp = mkp_to_dual(MKP);
-
+		x = mkp_solve_dual_with_scip(mkp);
+		for( j = 0 ; j < n ; j++ ){
+			sum = 0.0;
+			for( i = 0 ; i < m ; i++ )
+				sum += w[i][j]*x[i];
+			vals[j] = p[j]/sum;
+		}
+		free(x);
 		break;
 
+		/* proposed efficiency */
 		case MKP_CORE_LP:
+		vals = mkp_my_core_vals(mkp);
 		break;
-
 	}
 
 	free(r);
@@ -678,8 +769,7 @@ void mkpsol_free(MKPSol *mkpsol){
 	return;
 }
 
-MKPSol *mkpsol_solve_with_scip(MKP *mkp, double maxtime, double capacity_scale, char linear){
-	MKPSol *sol;
+double *mkp_solve_with_scip(MKP *mkp, double maxtime, double capacity_scale, char linear){
 	double *x, val;
 	int a, n, nread;
 	char tempf[200], buff[400];
@@ -687,7 +777,6 @@ MKPSol *mkpsol_solve_with_scip(MKP *mkp, double maxtime, double capacity_scale, 
 
 	n = mkp->n;
 	x = double_array_init(NULL, n, 0.0);  /* solution array */
-	sol = mkpsol_new(mkp);
 
 	/* temp file for mkp model */
 	pip = popen("tempfile", "r");
@@ -707,11 +796,29 @@ MKPSol *mkpsol_solve_with_scip(MKP *mkp, double maxtime, double capacity_scale, 
 	fscanf(pip, "%s", buff);
 	nread = fscanf(pip, "%d %lf", &a, &val);
 	while( nread == 2 ){
-		if( val == 1.0 )
-			mkpsol_add_item(sol, a-1);
+		x[a-1] = val;
 		nread = fscanf(pip, "%d %lf", &a, &val);
 	}
 	fclose(pip);
+
+	return x;
+}
+
+MKPSol *mkpsol_solve_with_scip(MKP *mkp, double maxtime, double capacity_scale, char linear){
+	MKPSol *sol;
+	int i, n;
+	double *x;
+
+	n = mkp->n;
+	sol = mkpsol_new(mkp);
+
+	/* Solve MKP */
+	x = mkp_solve_with_scip(mkp, maxtime, capacity_scale, linear);
+
+	/* Set solution */
+	for( i = 0 ; i < n ; i++ )
+		if( x[i] == 1.0 )
+			mkpsol_add_item(sol, i);
 
 	free(x);
 

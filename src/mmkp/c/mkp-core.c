@@ -40,8 +40,9 @@ int execute_core_search(int argc, char **argv){
 				sol = mkpsol_solve_with_scip(mkp, 300.0, 1.0, 0);
 
 				/* core size*/
-				core_size = int_array_sum(sol->x, n);
-				printf("%d;%d;%.2lf;%d\n", n, m, t, core_size);
+				core_size = mkpsol_get_core_size(sol, &first0, &last1);
+				printf("%d;%d;%.2lf;%d;%d;%d;", n, m, t, first0, last1, core_size);
+				mkpsol_fprint(stdout, sol, 2);
 
 				/* free */
 				mkpsol_free(sol);
@@ -97,8 +98,46 @@ int execute_fractional_search(int argc, char **argv){
 	return 0;
 }
 
+int execute_core_test(int argc, char **argv){
+	double *x, *x2;
+	int i, n;
+	MKP *mkp;
+	FILE *input;
+
+	if(argc < 2 ){
+		printf("usage %s <mkp instance>\n", argv[0]);
+		printf(" <mkp instance>: mkp instance file. '-' for stdin.\n");
+	}
+
+	/* reading input problem */
+	if(strcmp(argv[1], "-"))
+		input = fopen(argv[1], "r");
+	else input = stdin;
+	mkp = mkp_read_from_file(input);
+	fclose(input);
+
+	/* */
+	printf("go.\n"); fflush(stdout);
+	x = mkp_core_val(mkp, MKP_CORE_DUALS);
+	printf("duals done.\n"); fflush(stdout);
+	x2 = mkp_core_val(mkp, MKP_CORE_LP);
+	printf("my done.\n"); fflush(stdout);
+
+	for( i = 0 ; i < n ; i++ ){
+		printf("%f;%f\n", x[i], x2[i]);
+	}
+
+	free(x);
+	free(x2);
+
+	mkp_free(mkp);
+
+	return 0;
+}
+
 int main(int argc, char **argv){
+	return execute_core_test(argc, argv);
 	//return execute_core_search(argc, argv);
-	return execute_fractional_search(argc, argv);
+	//return execute_fractional_search(argc, argv);
 }
 
