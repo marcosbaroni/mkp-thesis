@@ -45,7 +45,7 @@ double *mkp_solve_dual_with_scip(MKP *mkp);
 #define MKP_CORE_FP 4
 #define MKP_CORE_DUALS 5
 #define MKP_CORE_LP 6
-double *mkp_core_val(MKP *mkp, char type);
+int *mkp_core_val(MKP *mkp, char type);
 
 LP *mkp2lp(MKP *mkp); /* MKP to LP relaxation */
 

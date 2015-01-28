@@ -119,22 +119,12 @@ int execute_core_test(int argc, char **argv){
 	n = mkp->n;
 
 	/* */
-	x = mkp_core_val(mkp, MKP_CORE_DUALS);
-	x2 = mkp_core_val(mkp, MKP_CORE_LP);
+	idxs = mkp_core_val(mkp, MKP_CORE_DUALS);
+	idxs2= mkp_core_val(mkp, MKP_CORE_LP);
 
-	for( i = 0 ; i < n ; i++ ){
-		printf("%f;%f\n", x[i], x2[i]);
-	}
-
-	idxs = double_index_sort(x, n);
-	idxs2 = double_index_sort(x2, n);
-
-	for( i = 0 ; i < n ; i++ ){
+	for( i = 0 ; i < n ; i++ )
 		printf("%d;%d\n", idxs[i]+1, idxs2[i]+1);
-	}
 
-	free(x);
-	free(x2);
 	free(idxs);
 	free(idxs2);
 	mkp_free(mkp);

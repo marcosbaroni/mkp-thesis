@@ -468,10 +468,11 @@ double *mkp_my_core_vals(MKP *mkp){
 	return assigned;
 }
 
-double *mkp_core_val(MKP *mkp, char type){
+int *mkp_core_val(MKP *mkp, char type){
 	double *x, *vals, sum, sum2, *r;
 	long long *p, *b, **w;
 	int i, j, k, n, m;
+	int *idxs;
 
 	n = mkp->n;
 	m = mkp->m;
@@ -549,9 +550,12 @@ double *mkp_core_val(MKP *mkp, char type){
 		break;
 	}
 
-	free(r);
+	idxs = double_index_sort(vals, n);
 
-	return vals;
+	free(r);
+	free(vals);
+
+	return idxs;
 }
 
 /*******************************************************************************
