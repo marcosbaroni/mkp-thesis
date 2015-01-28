@@ -411,46 +411,58 @@ void mkp_to_zimpl(FILE *fout, MKP *mkp, double max_opt, double capacity_scale, c
 }
 
 double *mkp_my_core_vals(MKP *mkp){
-	int i, j, n, new_assigned, nassigned;
+	int i, j, n;
 	double *x, tic, scale, *assigned;
+	int greater_var;      /* index of the greater fractional variable */
+	double greater_val;   /* value of the greater fractional variable */
+	int nnew_assigned;    /* number of new variables assigned to one */
 
 	n = mkp->n;
 	assigned = double_array_init(NULL, n, 0.0);
 
 	scale = 0.0;
 	for( i = 0 ; i < n ; i++ ){
-		printf(" i = %d\n", i); fflush(stdout);
+		printf("i = %d\n", i); fflush(stdout);
 		tic = 2.0/(double)n;
-		nassigned = n+1;
-		while( nassigned != i+1 ){
-			/* solve relaxation */
-			x = mkp_solve_with_scip(mkp, 60, scale+tic, 1);
+		nnew_assigned = 1;
 
-			/* counting assigned variables */
-			nassigned = 0;
+		/* while none new fractional appeared OR a new '1' appeared .*/
+		while( greater_val == 0.0 || nnew_assigned ){
+			/* solving relaxation */
+			x = mkp_solve_with_scip(mkp, 60, scale+tic, 1);
+			nnew_assigned = 0;
+			greater_val = 0.0;
+
+			/* counting new variables assigned to '1' or fractional */
 			for( j = 0 ; j < n ; j++ ){
-				printf("%f ", x[j]); fflush(stdout);
-				if( x[j] > 0.0 ){
-					nassigned++;
-					/* checking which one was the new assigned variable */
-					if( assigned[j] == 0.0 )
-						new_assigned = j;
+				printf("%.3f ", x[j]); fflush(stdout);
+				if( x[j] > 0.0 && !assigned[j] ){
+					/* the new non-zero is '1' */
+					if( x[j] >= 1.0 )
+						nnew_assigned++;
+					/* the new non-zero (is fractional) greater than others fractionals */
+					else if( x[j] > greater_val ){
+						greater_val = x[j];
+						greater_var = j;
+					}
 				}
 			}
-			printf(" (%d, %f)\n", nassigned, scale+tic); fflush(stdout);
+			printf(" (%.3f) \n", scale+tic);
 
 			/* adjust scaling (if needed) */
-			if( nassigned > i+1 ){ tic /= 2.0; printf("lowww ");}
-			if( nassigned < i+1 ) scale += tic;
-			printf("new - %f\n", scale+tic); fflush(stdout);
+			if( nnew_assigned ) /* new '1' appeared */
+				tic /= 2.0;
+			else if( greater_val == 0.0 ) /* none new fractional appeared */
+				scale += tic;
 
 			free(x);
 		}
+		/* updating assigment */
+		assigned[greater_var] = (double)(n-i);
+		printf(" %d added\n", greater_var+1);
+
 		/* updating next initial scale */
 		scale += tic;
-
-		/* updating assigment */
-		assigned[new_assigned] = (double)(n-i);
 	}
 
 	return assigned;

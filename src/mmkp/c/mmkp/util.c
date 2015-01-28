@@ -828,6 +828,41 @@ double *double_array_from_scip(double *array, FILE *in){
 	return array;
 }
 
+int dis_cmp(void *arg, int a, int b){
+	double da, db;
+	int ia, ib;
+
+	ia = (((int**)arg)[1])[a];
+	ib = (((int**)arg)[1])[b];
+	da = (((double**)arg)[0])[ia];
+	db = (((double**)arg)[0])[ib];
+	return da > db ? 1 : da < db ? -1 : 0;
+}
+void dis_swap(void *arg, int a, int b){
+	int iaux;
+	iaux = (((int**)arg)[1])[a];
+	(((int**)arg)[1])[a] = (((int**)arg)[1])[b];
+	(((int**)arg)[1])[b] = iaux;
+	return;
+}
+int *double_index_sort(double *array, int n){
+	void **mp_arg[2];
+	int *idxs, i;
+
+	idxs = (int*)malloc(n*sizeof(int));
+
+	/* initialize index */
+	for( i = 0 ; i < n ; i++ )
+		idxs[i] = i;
+
+	/* sort */
+	mp_arg[0] = (void*)array;
+	mp_arg[1] = (void*)idxs;
+	mp_qsort(mp_arg, n, dis_cmp, dis_swap, 1);
+
+	return idxs;
+}
+
 /* DOUBLE MATRIX */
 double **double_matrix_alloc(int n, int m){
 	double **mat;

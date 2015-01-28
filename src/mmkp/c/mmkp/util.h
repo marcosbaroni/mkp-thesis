@@ -17,6 +17,13 @@ inline void SWAP_LONG_LONG(long long *array, int a, int b);
 
 void findent(FILE *fout, int times, char c);
 
+/* MEGA POWER QSORT */
+typedef void (*mp_swap_f)(void*, int, int);
+typedef int (*mp_cmp_r_f)(void*, int, int, void*);
+typedef int (*mp_cmp_f)(void*, int, int);
+void mp_qsort_r(void *collection, int n, mp_cmp_r_f, mp_swap_f, void *arg, char reverse);
+void mp_qsort(void *collection, int n, mp_cmp_f, mp_swap_f, char reverse);
+
 /* INT ARRAY */
 typedef void(*array_apply_f)(void*);
 int *int_array_malloc(int n);                    /* mallocs a int array*/
@@ -99,6 +106,7 @@ double *double_array_copy(double *array, int n);
 double double_array_sum(double *array, int n);
 double *double_array_init(double *array, int n, double x);
 double *double_array_from_scip(double *array, FILE *in);    /*reads a double array from scip solution output format */
+int *double_index_sort(double *array, int n); /* returns the ordering (desc) of the given array */
 
 /* DOUBLE MATRIX */
 double **double_matrix_alloc(int n, int m);
@@ -129,13 +137,6 @@ long long llrand(long long bound);
 double drand();                          /* Returns a random double in [0,1[. */
 //double normal_dist();
 double *random_normalized_double_array(int n);
-
-/* MEGA POWER QSORT */
-typedef void (*mp_swap_f)(void*, int, int);
-typedef int (*mp_cmp_r_f)(void*, int, int, void*);
-typedef int (*mp_cmp_f)(void*, int, int);
-void mp_qsort_r(void *collection, int n, mp_cmp_r_f, mp_swap_f, void *arg, char reverse);
-void mp_qsort(void *collection, int n, mp_cmp_f, mp_swap_f, char reverse);
 
 /* AVL TREE */
 typedef int(*avl_cmp)(void*, void*);     /* compares teo objs*/

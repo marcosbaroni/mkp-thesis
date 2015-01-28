@@ -100,7 +100,7 @@ int execute_fractional_search(int argc, char **argv){
 
 int execute_core_test(int argc, char **argv){
 	double *x, *x2;
-	int i, n;
+	int i, n, *idxs, *idxs2;
 	MKP *mkp;
 	FILE *input;
 
@@ -116,20 +116,27 @@ int execute_core_test(int argc, char **argv){
 	mkp = mkp_read_from_file(input);
 	fclose(input);
 
+	n = mkp->n;
+
 	/* */
-	printf("go.\n"); fflush(stdout);
 	x = mkp_core_val(mkp, MKP_CORE_DUALS);
-	printf("duals done.\n"); fflush(stdout);
 	x2 = mkp_core_val(mkp, MKP_CORE_LP);
-	printf("my done.\n"); fflush(stdout);
 
 	for( i = 0 ; i < n ; i++ ){
 		printf("%f;%f\n", x[i], x2[i]);
 	}
 
+	idxs = double_index_sort(x, n);
+	idxs2 = double_index_sort(x2, n);
+
+	for( i = 0 ; i < n ; i++ ){
+		printf("%d;%d\n", idxs[i]+1, idxs2[i]+1);
+	}
+
 	free(x);
 	free(x2);
-
+	free(idxs);
+	free(idxs2);
 	mkp_free(mkp);
 
 	return 0;
