@@ -23,6 +23,7 @@ MKP *mkp_alloc(int n, int m){
 		mkp->idxs[i] = i;
 	mkp->n = n;
 	mkp->m = m;
+	mkp->lp_sol = NULL;
 	mkp->lp_trunc = NULL;
 
 	return mkp;
@@ -35,7 +36,9 @@ MKP *mkp_alloc(int n, int m){
 MKP *mkp_random(int n, int m, double beta, long long max_coefs){
 	int i, j;
 	long long lsum;
-	MKP *mkp = mkp_alloc(n, m);
+	MKP *mkp;
+
+	mkp = mkp_alloc(n, m);
 
 	/* profit */
 	for( i = 0 ; i < n ; i++ )
@@ -47,7 +50,6 @@ MKP *mkp_random(int n, int m, double beta, long long max_coefs){
 			lsum += mkp->w[i][j] = llrand(max_coefs);
 		mkp->b[i] = (long)(ceil(lsum*beta));
 	}
-	mkp->lp_trunc = NULL;
 
 	return mkp;
 }
@@ -80,6 +82,8 @@ void mkp_sort_by_profit(MKP *mkp){
 
 void mkp_free(MKP *mkp){
 	long_long_matrix_free(mkp->w, mkp->m);
+	if(mkp->lp_sol)
+		free(mkp->lp_sol);
 	if(mkp->lp_trunc)
 		mkpsol_free(mkp->lp_trunc);
 	free(mkp->p);
@@ -410,6 +414,12 @@ void mkp_to_zimpl(FILE *fout, MKP *mkp, double max_opt, double capacity_scale, c
 	return;
 }
 
+double* mkp_get_lp_sol(MKP *mkp){
+	if(!mkp->lp_sol)
+		mkp->lp_sol = mkp_solve_with_scip(mkp, 60.0, 1.0, 1);
+	return mkp->lp_sol;
+}
+
 double *mkp_my_core_vals(MKP *mkp){
 	int i, j, n;
 	double *x, tic, scale, *assigned;
@@ -422,7 +432,7 @@ double *mkp_my_core_vals(MKP *mkp){
 
 	scale = 0.0;
 	for( i = 0 ; i < n ; i++ ){
-		printf("i = %d\n", i); fflush(stdout);
+		printf("i = %d ", i);
 		tic = 2.0/(double)n;
 		nnew_assigned = 1;
 
@@ -435,7 +445,6 @@ double *mkp_my_core_vals(MKP *mkp){
 
 			/* counting new variables assigned to '1' or fractional */
 			for( j = 0 ; j < n ; j++ ){
-				printf("%.3f ", x[j]); fflush(stdout);
 				if( x[j] > 0.0 && !assigned[j] ){
 					/* the new non-zero is '1' */
 					if( x[j] >= 1.0 )
@@ -447,7 +456,6 @@ double *mkp_my_core_vals(MKP *mkp){
 					}
 				}
 			}
-			printf(" (%.3f) \n", scale+tic);
 
 			/* adjust scaling (if needed) */
 			if( nnew_assigned ) /* new '1' appeared */
@@ -459,13 +467,77 @@ double *mkp_my_core_vals(MKP *mkp){
 		}
 		/* updating assigment */
 		assigned[greater_var] = (double)(n-i);
-		printf(" %d added\n", greater_var+1);
 
 		/* updating next initial scale */
 		scale += tic;
 	}
+	printf("\n");
 
 	return assigned;
+}
+
+/* mkp_reduced
+ * generates a reduced MKP, with a subset of variables.
+ *  mkp: the original problem
+ *  var_vals: values of i-th variables:
+ *    - 1: fixed on 1
+ *    - 0: fixed on 0
+ *    - other: free
+ ***********************************************************/
+MKP *mkp_reduced(MKP *mkp, int *var_vals){
+	MKP *nmkp;
+	int i, var, j, n, m;
+	int *ones, *zeros, *frees;
+	int nones, nzeros, nfrees;
+	long long *p, **w, *b;
+
+	/* problem parameters */
+	p = mkp->p;
+	w = mkp->w;
+	b = mkp->b;
+	n = mkp->n;
+	m = mkp->m;
+
+	/* allocing auxiliary arrays */
+	ones = (int*)malloc(n*sizeof(int));
+	zeros = (int*)malloc(n*sizeof(int));
+	frees = (int*)malloc(n*sizeof(int));
+	nones = nzeros = nfrees = 0;
+
+	/* separating variables */
+	for( i = 0 ; i < n ; i++ ){
+		if( var_vals[i] == 1 ) ones[nones++] = i;
+		else if(var_vals[i] == 0 ) zeros[nzeros++] = i;
+		else frees[nfrees++] = i;
+	}
+
+	/*** setting new problem ***/
+	nmkp = mkp_alloc(nfrees, m);
+
+	/*copying weights and profits */
+	for( i = 0 ; i < nfrees ; i++ ){ /* each free variable */
+		var = frees[i];
+		nmkp->p[i] = mkp->p[var];     /* copying profit */
+		for( j = 0 ; j < m ; j++ )   /* each dimension */
+			nmkp->w[j][i] = mkp->w[j][var]; /* copying weights */
+	}
+
+	/* copying capacities */
+	long_long_array_copy(nmkp->b, mkp->b, m);
+
+	/* reducing capacities spent by "ones" variables */
+	for( i = 0 ; i < nones ; i++ ){
+		var = ones[i];
+		for( j = 0 ; j < m ; j++ )
+			nmkp->b[j] -= mkp->w[j][var];
+	}
+
+	/* freeing auxiliary arrays */
+	free(ones);
+	free(zeros);
+	free(frees);
+
+	return nmkp;
 }
 
 int *mkp_core_val(MKP *mkp, char type){

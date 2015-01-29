@@ -16,6 +16,7 @@ typedef struct MKP{
 	long long **w;    /* Weight of itens [m x n] */
 	long long *b;     /* Knapsack capacities [m] */
 	int *idxs;        /* item indexs (no order) */
+	double *lp_sol;   /* array with result of lp relaxation */
 	struct MKPSol *lp_trunc;
 }MKP;
 
@@ -31,12 +32,22 @@ MKP *mkp_read_from_file(FILE *fin);
 void mkp_write_to_filename(MKP *mkp, char *filename);
 void mkp_write_to_file(MKP *mkp, FILE *fout);
 
-/*** Print functions ***/
+/*** misc ***/
 void mkp_fprint(FILE *fout, MKP *mkp);
 void mkp_to_zimpl(FILE *fout, MKP *mkp, double max_opt, double capacity_scale, char linear);
 double *mkp_solve_with_scip(MKP *mkp, double maxtime, double capacity_scale, char linear);
 void mkp_dual_to_zimpl(FILE *fout, MKP *mkp, char linear);
 double *mkp_solve_dual_with_scip(MKP *mkp);
+double* mkp_get_lp_sol(MKP *mkp);
+
+/* generates a reduced MKP, with a subset of variables.
+ *  mkp: original problem
+ *  var_vals: values of i-th variables:
+ *    - 1: fixed on 1
+ *    - 0: fixed on 0
+ *    - other: free
+ * */
+MKP *mkp_reduced(MKP *mkp, int *var_vals);
 
 /*** Core functions ***/
 #define MKP_CORE_SIMPLE 1
@@ -45,6 +56,10 @@ double *mkp_solve_dual_with_scip(MKP *mkp);
 #define MKP_CORE_FP 4
 #define MKP_CORE_DUALS 5
 #define MKP_CORE_LP 6
+/* returns an array of variables index, sorted by descending "efficienct measure". 
+ *   - mkp: the problem
+ *   - type: efficiency measure choosen
+ * */
 int *mkp_core_val(MKP *mkp, char type);
 
 LP *mkp2lp(MKP *mkp); /* MKP to LP relaxation */

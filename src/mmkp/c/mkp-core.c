@@ -99,17 +99,32 @@ int execute_fractional_search(int argc, char **argv){
 }
 
 int execute_core_test(int argc, char **argv){
-	double *x, *x2;
-	int i, n, *idxs, *idxs2;
-	MKP *mkp;
+	double *lp_sol;
+	int i, j, n, m, *var_vals;
+	int em[6], nem;   /* em: efficiency measure */
+	int *em_ordering, *em_position;
+	int core_size, core_center, fst_frac, last_frac;
+	int *fracs, nfracs;
+	MKP *mkp, *core_mkp;
+	MKPSol *sol, *opt;
 	FILE *input;
+	long long total_profit;
 
 	if(argc < 2 ){
 		printf("usage %s <mkp instance>\n", argv[0]);
 		printf(" <mkp instance>: mkp instance file. '-' for stdin.\n");
 	}
 
-	/* reading input problem */
+	/* set efficiency measures types */
+	nem = 2;
+	em[0] =  MKP_CORE_DUALS;
+	em[1] =  MKP_CORE_LP;
+	em[2] =  MKP_CORE_SIMPLE;
+	em[3] =  MKP_CORE_SCALED;
+	em[4] =  MKP_CORE_ST;
+	em[5] =  MKP_CORE_FP;
+
+	/* read input problem */
 	if(strcmp(argv[1], "-"))
 		input = fopen(argv[1], "r");
 	else input = stdin;
@@ -117,16 +132,71 @@ int execute_core_test(int argc, char **argv){
 	fclose(input);
 
 	n = mkp->n;
+	m = mkp->m;
+	fracs = (int*)malloc(n*sizeof(int));
+	var_vals = (int*)malloc(n*sizeof(int));
+	em_position = (int*)malloc(n*sizeof(int));
+	core_size = m+(n/10);
 
-	/* */
-	idxs = mkp_core_val(mkp, MKP_CORE_DUALS);
-	idxs2= mkp_core_val(mkp, MKP_CORE_LP);
+	/* solve opt */
+	opt = mkpsol_solve_with_scip(mkp, 600.0, 1.0, 0);
+	printf("Optimum\n");
+	mkpsol_fprint(stdout, opt, 1);
 
+	/* find the fractional variables (lp solution) */
+	lp_sol = mkp_get_lp_sol(mkp);
+	nfracs = 0;
 	for( i = 0 ; i < n ; i++ )
-		printf("%d;%d\n", idxs[i]+1, idxs2[i]+1);
+		if( lp_sol[i] > 0 && lp_sol[i] < 1.0 ) /* is fractional? */
+			{ fracs[nfracs++] = i; printf(" %d is frac\n", i); }
+	printf("LP with %d fracs\n", nfracs);
 
-	free(idxs);
-	free(idxs2);
+	for( i = 0 ; i < nem ; i++ ){
+		printf("Core %d\n", em[i]);
+		/* get "core ordering" of each heuristics, i.e.,
+		**  an array of variables index, sorted by descending "efficienct measure". */
+		em_ordering = mkp_core_val(mkp, em[i]);
+		for( j = 0 ; j < n ; j++ )
+			em_position[em_ordering[j]] = j;
+	
+		/* find center of each efficiency measure */
+		fst_frac = n;
+		last_frac = 0;
+		for( j = 0 ; j < nfracs ; j++ ){
+			if( em_position[fracs[j]] > last_frac )
+				last_frac = em_position[fracs[j]];
+			if( em_position[fracs[j]] < fst_frac )
+				fst_frac = em_position[fracs[j]];
+		}
+		int_array_fprint(stdout, em_ordering, n);
+		printf("\nfracs founded (%d, %d).\n", fst_frac, last_frac);
+
+		/* configuring core */
+		total_profit = 0;
+		core_center = (fst_frac+last_frac)/2;
+		for( j = 0 ; j < core_center-(core_size/2) ; j++ )
+			{ var_vals[j] = 1; total_profit += mkp->p[j]; }
+		for( ; j < core_center+(core_size/2) ; j++ )
+			var_vals[j] = -1;
+		for( ; j < n ; j++ )
+			var_vals[j] = 0;
+		core_mkp = mkp_reduced(mkp, var_vals);
+		mkp_fprint(stdout, core_mkp);
+
+		/* solving core problem */
+		sol = mkpsol_solve_with_scip(core_mkp, 600.0, 1.0, 0);
+		mkpsol_fprint(stdout, sol, 1);
+		printf("Total %lld\n\n", total_profit+sol->obj);
+
+		mkpsol_free(sol);
+		mkp_free(core_mkp);
+		free(em_ordering);
+	}
+
+	mkpsol_free(opt);
+	free(em_position);
+	free(var_vals);
+	free(fracs);
 	mkp_free(mkp);
 
 	return 0;
