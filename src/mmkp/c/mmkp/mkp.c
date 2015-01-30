@@ -100,10 +100,12 @@ MKPSol *mkp_get_lp_trunc(MKP *mkp){
 	return mkp->lp_trunc;
 }
 
-LP *mkp2lp(MKP *mkp){
+LP *mkp2lp(MKP *mkp, double capacity_scale){
 	LP *lp;
 	int i, j, n, m;
 
+	if( capacity_scale == 0.0 )
+		capacity_scale = 1.0;
 	n = mkp->n;
 	m = mkp->m;
 
@@ -122,7 +124,7 @@ LP *mkp2lp(MKP *mkp){
 	for( i = 0 ; i < m ; i++ )
 		for( j = 0 ; j < n ; j++ )
 			lp->a[i][j] = mkp->w[i][j];
-	/* the "binary" contraint */
+	/* the "binary" contraint of each variable */
 	for( i = 0 ; i < n ; i++ ){
 		for( j = 0 ; j < n ; j++ )
 			lp->a[m+i][j] = 0.0;
@@ -130,7 +132,7 @@ LP *mkp2lp(MKP *mkp){
 	}
 	/* the capacities */
 	for( i = 0 ; i < m ; i++ )
-		lp->b[i] = mkp->b[i];
+		lp->b[i] = capacity_scale*mkp->b[i];
 	for( i = 0 ; i < n ; i++ )
 		lp->b[m+i] = 1.0;
 
@@ -426,6 +428,7 @@ double *mkp_my_core_vals(MKP *mkp){
 	int greater_var;      /* index of the greater fractional variable */
 	double greater_val;   /* value of the greater fractional variable */
 	int nnew_assigned;    /* number of new variables assigned to one */
+	LP *lp;
 
 	n = mkp->n;
 	assigned = double_array_init(NULL, n, 0.0);
@@ -438,7 +441,10 @@ double *mkp_my_core_vals(MKP *mkp){
 		/* while none new fractional appeared OR a new '1' appeared .*/
 		while( greater_val == 0.0 || nnew_assigned ){
 			/* solving relaxation */
-			x = mkp_solve_with_scip(mkp, 60, scale+tic, 1);
+			//x = mkp_solve_with_scip(mkp, 60, scale+tic, 1);
+			lp = mkp2lp(mkp, scale+tic);
+			x = lp_simplex(lp);
+			lp_free(lp);
 			nnew_assigned = 0;
 			greater_val = 0.0;
 

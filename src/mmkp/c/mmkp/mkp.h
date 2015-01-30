@@ -62,7 +62,7 @@ MKP *mkp_reduced(MKP *mkp, int *var_vals);
  * */
 int *mkp_core_val(MKP *mkp, char type);
 
-LP *mkp2lp(MKP *mkp); /* MKP to LP relaxation */
+LP *mkp2lp(MKP *mkp, double capacity_scale); /* MKP to LP relaxation */
 
 
 /*** MKP SOLUTION ***/

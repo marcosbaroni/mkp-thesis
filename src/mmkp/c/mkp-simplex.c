@@ -38,7 +38,7 @@ int execute_mkp_simplex(int argc, char **argv){
 	n = mkp->n;
 
 	/* MKP -> LP */
-	lp = mkp2lp(mkp);
+	lp = mkp2lp(mkp, 1.0);
 
 	//mkp_fprint(stdout, mkp);
 	//lp_fprint(stdout, lp);
