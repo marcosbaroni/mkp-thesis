@@ -140,19 +140,15 @@ int execute_core_test(int argc, char **argv){
 
 	/* solve opt */
 	opt = mkpsol_solve_with_scip(mkp, 600.0, 1.0, 0);
-	printf("Optimum\n");
-	mkpsol_fprint(stdout, opt, 1);
 
 	/* find the fractional variables (lp solution) */
 	lp_sol = mkp_get_lp_sol(mkp);
 	nfracs = 0;
 	for( i = 0 ; i < n ; i++ )
 		if( lp_sol[i] > 0 && lp_sol[i] < 1.0 ) /* is fractional? */
-			{ fracs[nfracs++] = i; printf(" %d is frac\n", i); }
-	printf("LP with %d fracs\n", nfracs);
+			fracs[nfracs++] = i;
 
 	for( i = 0 ; i < nem ; i++ ){
-		printf("Core %d\n", em[i]);
 		/* get "core ordering" of each heuristics, i.e.,
 		**  an array of variables index, sorted by descending "efficienct measure". */
 		em_ordering = mkp_core_val(mkp, em[i]);
@@ -168,8 +164,6 @@ int execute_core_test(int argc, char **argv){
 			if( em_position[fracs[j]] < fst_frac )
 				fst_frac = em_position[fracs[j]];
 		}
-		int_array_fprint(stdout, em_ordering, n);
-		printf("\nfracs founded (%d, %d).\n", fst_frac, last_frac);
 
 		/* configuring core */
 		total_profit = 0;
@@ -181,17 +175,16 @@ int execute_core_test(int argc, char **argv){
 		for( ; j < n ; j++ )
 			var_vals[j] = 0;
 		core_mkp = mkp_reduced(mkp, var_vals);
-		mkp_fprint(stdout, core_mkp);
 
 		/* solving core problem */
 		sol = mkpsol_solve_with_scip(core_mkp, 600.0, 1.0, 0);
-		mkpsol_fprint(stdout, sol, 1);
-		printf("Total %lld\n\n", total_profit+sol->obj);
+		printf("%d;%lld;", em[i], total_profit+sol->obj);
 
 		mkpsol_free(sol);
 		mkp_free(core_mkp);
 		free(em_ordering);
 	}
+	printf("\n");
 
 	mkpsol_free(opt);
 	free(em_position);

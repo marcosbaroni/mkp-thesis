@@ -810,7 +810,8 @@ double *double_array_copy(double *array, int n){
 
 double *double_array_init(double *array, int n, double x){
 	int i;
-	if(!array) array = (double*)malloc(n*sizeof(double));
+	if(!array)
+		array = (double*)malloc(n*sizeof(double));
 	for( i = 0 ; i < n ; i++ )
 		array[i] = x;
 	return array;

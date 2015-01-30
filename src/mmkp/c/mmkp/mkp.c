@@ -328,7 +328,7 @@ double *mkp_solve_dual_with_scip(MKP *mkp){
 	fclose(out);
 
 	/* solve model */
-	sprintf(buff, "./zpl2lp %s | ./runscip %lf | ./scip2summary -s ", tempf, maxtime);
+	sprintf(buff, "zpl2lp %s | runscip %lf | scip2summary -s ", tempf, maxtime);
 	pip = popen(buff, "r");
 
 	/* reading solution */
@@ -432,7 +432,6 @@ double *mkp_my_core_vals(MKP *mkp){
 
 	scale = 0.0;
 	for( i = 0 ; i < n ; i++ ){
-		printf("i = %d ", i);
 		tic = 2.0/(double)n;
 		nnew_assigned = 1;
 
@@ -471,7 +470,6 @@ double *mkp_my_core_vals(MKP *mkp){
 		/* updating next initial scale */
 		scale += tic;
 	}
-	printf("\n");
 
 	return assigned;
 }
@@ -618,6 +616,7 @@ int *mkp_core_val(MKP *mkp, char type){
 
 		/* proposed efficiency */
 		case MKP_CORE_LP:
+		free(vals);
 		vals = mkp_my_core_vals(mkp);
 		break;
 	}
@@ -877,7 +876,7 @@ double *mkp_solve_with_scip(MKP *mkp, double maxtime, double capacity_scale, cha
 	fclose(out);
 
 	/* solve model */
-	sprintf(buff, "./zpl2lp %s | ./runscip %lf | ./scip2summary -s ", tempf, maxtime);
+	sprintf(buff, "zpl2lp %s | runscip %lf | scip2summary -s ", tempf, maxtime);
 	pip = popen(buff, "r");
 
 	/* read solution */
