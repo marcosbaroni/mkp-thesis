@@ -113,7 +113,7 @@ double *lp_simplex(LP *lp){
 		printf("\tpivot_i=%d pivot_j=%d most_neg=%.2lf min_rate=%.2lf %s\n",
 			pivot_i+1, pivot_j+1,  most_neg, min_rate,
 			(most_neg < 0.0 && min_rate > 0.0 ) ? "Continue." : "Stop." );
-		tableau_print(stdout, tab, b, z, n, m);
+		//tableau_print(stdout, tab, b, z, n, m);
 	}
 	
 	z = 0.0;
@@ -182,7 +182,6 @@ double *lp_simplex(LP *lp){
 		}
 		if( non_zeros != 1 )        /* not basic */
 			x[j] = 0.0;
-		printf(" - %.2lf\n", x[j]);
 	}
 	
 	/* freeing */

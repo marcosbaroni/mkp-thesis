@@ -26,7 +26,7 @@ int execute_mkp_simplex(int argc, char **argv){
 	clock_t c0, cf;
 	int i, n;
 
-	verbose = 1;
+	verbose = 0;
 
 	/* checing input */
 	input = stdin;
