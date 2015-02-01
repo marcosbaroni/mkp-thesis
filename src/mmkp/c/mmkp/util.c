@@ -817,6 +817,17 @@ double *double_array_init(double *array, int n, double x){
 	return array;
 }
 
+void double_array_fprint(FILE *out, double *a, int n){
+	int i;
+	fprintf(out, "[");
+	for( i = 0 ; i < n-1 ; i++ )
+		fprintf(out, "%.3f, ", a[i]);
+	if(n) fprintf(out, "%.3f", a[n-1]);
+	fprintf(out, "]");
+
+	return;
+}
+
 double *double_array_from_scip(double *array, FILE *in){
 	int a;
 	double val;

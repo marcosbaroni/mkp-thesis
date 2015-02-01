@@ -105,6 +105,7 @@ double *double_array_alloc(int n);
 double *double_array_copy(double *array, int n);
 double double_array_sum(double *array, int n);
 double *double_array_init(double *array, int n, double x);
+void double_array_fprint(FILE *out, double *a, int n);
 double *double_array_from_scip(double *array, FILE *in);    /*reads a double array from scip solution output format */
 int *double_index_sort(double *array, int n); /* returns the ordering (desc) of the given array */
 

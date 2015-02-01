@@ -113,7 +113,9 @@ int execute_core_test(int argc, char **argv){
 	if(argc < 2 ){
 		printf("usage %s <mkp instance>\n", argv[0]);
 		printf(" <mkp instance>: mkp instance file. '-' for stdin.\n");
+		return 1;
 	}
+	printf("ok\n");
 
 	/* set efficiency measures types */
 	nem = 2;
@@ -125,7 +127,7 @@ int execute_core_test(int argc, char **argv){
 	em[5] =  MKP_CORE_FP;
 
 	/* read input problem */
-	if(strcmp(argv[1], "-"))
+	if( strcmp(argv[1], "-") != 0 )
 		input = fopen(argv[1], "r");
 	else input = stdin;
 	mkp = mkp_read_from_file(input);
@@ -133,13 +135,15 @@ int execute_core_test(int argc, char **argv){
 
 	n = mkp->n;
 	m = mkp->m;
+	printf("problem read n=%d, m=%d\n", n, m);
 	fracs = (int*)malloc(n*sizeof(int));
 	var_vals = (int*)malloc(n*sizeof(int));
 	em_position = (int*)malloc(n*sizeof(int));
 	core_size = m+(n/10);
 
 	/* solve opt */
-	opt = mkpsol_solve_with_scip(mkp, 600.0, 1.0, 0);
+	printf("finding optimal with scip\n");
+	opt = mkpsol_solve_with_scip(mkp, 10.0, 1.0, 0);
 
 	/* find the fractional variables (lp solution) */
 	lp_sol = mkp_get_lp_sol(mkp);
@@ -149,12 +153,15 @@ int execute_core_test(int argc, char **argv){
 			fracs[nfracs++] = i;
 
 	for( i = 0 ; i < nem ; i++ ){
+		printf("executing core %d\n", em[i]);
 		/* get "core ordering" of each heuristics, i.e.,
 		**  an array of variables index, sorted by descending "efficienct measure". */
 		em_ordering = mkp_core_val(mkp, em[i]);
 		for( j = 0 ; j < n ; j++ )
 			em_position[em_ordering[j]] = j;
+		int_array_fprint(stdout, em_position, n);
 	
+		printf("finding core center\n");
 		/* find center of each efficiency measure */
 		fst_frac = n;
 		last_frac = 0;
@@ -165,7 +172,9 @@ int execute_core_test(int argc, char **argv){
 				fst_frac = em_position[fracs[j]];
 		}
 
+		printf("configuring core\n");
 		/* configuring core */
+		// FIXME
 		total_profit = 0;
 		core_center = (fst_frac+last_frac)/2;
 		for( j = 0 ; j < core_center-(core_size/2) ; j++ )
@@ -177,6 +186,7 @@ int execute_core_test(int argc, char **argv){
 		core_mkp = mkp_reduced(mkp, var_vals);
 
 		/* solving core problem */
+		printf("solving core problem\n");
 		sol = mkpsol_solve_with_scip(core_mkp, 600.0, 1.0, 0);
 		printf("%d;%lld;", em[i], total_profit+sol->obj);
 

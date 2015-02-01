@@ -445,6 +445,8 @@ double *mkp_my_core_vals(MKP *mkp){
 			lp = mkp2lp(mkp, scale+tic);
 			x = lp_simplex(lp);
 			lp_free(lp);
+			//printf("(%.3f\n", scale+tic);
+			//double_array_fprint(stdout, x, n);
 			nnew_assigned = 0;
 			greater_val = 0.0;
 
