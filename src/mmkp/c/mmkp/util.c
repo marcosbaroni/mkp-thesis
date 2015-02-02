@@ -1271,6 +1271,11 @@ void gzip(FILE *f_in, FILE *f_out){
 	return;
 }
 
+void setdebug(char lvl){
+	if(lvl) debugout = stdout;
+	else debugout = fopen("/dev/null", "w");
+}
+
 void unimplemented(){
 	fprintf(stderr, "function \"%s\" not implemented yet.\n",
 		__PRETTY_FUNCTION__);

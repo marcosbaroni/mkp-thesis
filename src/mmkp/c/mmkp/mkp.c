@@ -422,6 +422,29 @@ double* mkp_get_lp_sol(MKP *mkp){
 	return mkp->lp_sol;
 }
 
+void _couting_fracs(double *x, int n,
+	double *assigned,
+	int *nnew_assigned,
+	int *greater_var,
+	double *greater_val){
+	int j;
+
+	*nnew_assigned = 0;
+	*greater_val = 0.0;
+	for( j = 0 ; j < n ; j++ ){
+		if( x[j] > 0.0 && !assigned[j] ){
+			/* the new non-zero is '1' */
+			if( x[j] >= 1.0 )
+				(*nnew_assigned)++;
+			/* the new non-zero (is fractional) greater than others fractionals */
+			else if( x[j] > *greater_val ){
+				*greater_val = x[j];
+				*greater_var = j;
+			}
+		}
+	}
+}
+
 double *mkp_my_core_vals(MKP *mkp){
 	int i, j, n;
 	double *x, tic, scale, *assigned;
@@ -441,34 +464,20 @@ double *mkp_my_core_vals(MKP *mkp){
 		/* while none new fractional appeared OR a new '1' appeared .*/
 		while( greater_val == 0.0 || nnew_assigned ){
 			/* solving relaxation */
-			//x = mkp_solve_with_scip(mkp, 60, scale+tic, 1);
 			lp = mkp2lp(mkp, scale+tic);
 			x = lp_simplex(lp);
 			lp_free(lp);
-			//printf("(%.3f\n", scale+tic);
-			//double_array_fprint(stdout, x, n);
-			nnew_assigned = 0;
-			greater_val = 0.0;
 
 			/* counting new variables assigned to '1' or fractional */
-			for( j = 0 ; j < n ; j++ ){
-				if( x[j] > 0.0 && !assigned[j] ){
-					/* the new non-zero is '1' */
-					if( x[j] >= 1.0 )
-						nnew_assigned++;
-					/* the new non-zero (is fractional) greater than others fractionals */
-					else if( x[j] > greater_val ){
-						greater_val = x[j];
-						greater_var = j;
-					}
-				}
-			}
+			_couting_fracs(x, n,
+				assigned,
+				&nnew_assigned,
+				&greater_var,
+				&greater_val);
 
 			/* adjust scaling (if needed) */
-			if( nnew_assigned ) /* new '1' appeared */
-				tic /= 2.0;
-			else if( greater_val == 0.0 ) /* none new fractional appeared */
-				scale += tic;
+			if( nnew_assigned ) tic /= 2.0; /* new '1' appeared */
+			else if( greater_val == 0.0 ) scale += tic; /* no new fractional */
 
 			free(x);
 		}
@@ -477,6 +486,37 @@ double *mkp_my_core_vals(MKP *mkp){
 
 		/* updating next initial scale */
 		scale += tic;
+	}
+
+	return assigned;
+}
+
+/*
+ * Second version of function, searching from "center".
+ * */
+double *mkp_my_core_vals2(MKP *mkp){
+	int i, j, n, nset;
+	double *x, tic, r_scale, l_scale, *assigned;
+	int greater_r_var, lesser_r_var;      /* index of the greater fractional variable */
+	double greater_r_val, lesser_r_val;   /* value of the greater fractional variable */
+	LP *lp;
+
+	/* initializing */
+	n = mkp->n;
+	assigned = double_array_init(NULL, n, 0.0);
+	nset = 0;
+
+	while( nset < n ){
+		/* right search */
+		r_scale = _do_right_search(r_scale, mkp, assigned, &greater_var);
+
+		/* left search */
+		l_scale = _do_left_search(r_scale, mkp, assigned);
+
+		/* check which one is closer */
+		if( rscale - 1.0  > 1.0 - l_scale ){
+		}else{
+		}
 	}
 
 	return assigned;
@@ -628,7 +668,8 @@ int *mkp_core_val(MKP *mkp, char type){
 		vals = mkp_my_core_vals(mkp);
 		break;
 	}
-
+	double_array_fprint(debugout, vals, n);
+	fprintf(debugout, "\n");
 	idxs = double_index_sort(vals, n);
 
 	free(r);
