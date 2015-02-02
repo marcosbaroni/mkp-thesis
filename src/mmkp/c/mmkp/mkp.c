@@ -491,6 +491,36 @@ double *mkp_my_core_vals(MKP *mkp){
 	return assigned;
 }
 
+double _do_right_search(double scale, MKP *mkp, double *assigned, int *greater_var){
+	int i, n, nnew_assigned;
+	double greater_val;
+	double *x;
+	double tic;
+
+	n = mkp->n;
+
+	tic = 2.0/(double)n;
+	while( greater_val == 0.0 || nnew_assigned ){
+		/* solve LP */
+		lp = mkp2lp(mkp, scale+tic);
+		x = lp_simplex(lp);
+		lp_free(lp);
+
+		/* count fracs on solution */
+		_couting_fracs(x, n,
+			assigned,
+			&nnew_assigned,
+			&greater_var,
+			&greater_val);
+
+		/* adjust scaling (if needed) */
+		if( nnew_assigned ) tic /= 2.0;
+		else if( greater_val == 0.0) scale += tic;
+	}
+
+	return scale+tic;
+}
+
 /*
  * Second version of function, searching from "center".
  * */
@@ -511,7 +541,7 @@ double *mkp_my_core_vals2(MKP *mkp){
 		r_scale = _do_right_search(r_scale, mkp, assigned, &greater_var);
 
 		/* left search */
-		l_scale = _do_left_search(r_scale, mkp, assigned);
+		l_scale = _do_left_search(r_scale, mkp, assigned, &lesser_var);
 
 		/* check which one is closer */
 		if( rscale - 1.0  > 1.0 - l_scale ){
