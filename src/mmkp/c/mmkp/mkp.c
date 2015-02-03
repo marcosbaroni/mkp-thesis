@@ -417,9 +417,13 @@ void mkp_to_zimpl(FILE *fout, MKP *mkp, double max_opt, double capacity_scale, c
 }
 
 double* mkp_get_lp_sol(MKP *mkp){
-	if(!mkp->lp_sol)
-		mkp->lp_sol = mkp_solve_with_scip(mkp, 60.0, 1.0, 1);
-	return mkp->lp_sol;
+	LP *lp;
+	if(!mkp->lp_sol){
+		lp = mkp2lp(mkp, 1.0);
+		mkp->lp_sol = lp_simplex(lp);
+		lp_free(lp);
+	}
+	return memcpy(malloc(mkp->n*sizeof(double), mkp->lp_sol, mkp->n*sizeof(double)));
 }
 
 void _couting_fracs(double *x, int n,
@@ -464,9 +468,7 @@ double *mkp_my_core_vals(MKP *mkp){
 		/* while none new fractional appeared OR a new '1' appeared .*/
 		while( greater_val == 0.0 || nnew_assigned ){
 			/* solving relaxation */
-			lp = mkp2lp(mkp, scale+tic);
-			x = lp_simplex(lp);
-			lp_free(lp);
+			x = mkp_get_lp_sol(mkp);
 
 			/* counting new variables assigned to '1' or fractional */
 			_couting_fracs(x, n,
@@ -491,33 +493,47 @@ double *mkp_my_core_vals(MKP *mkp){
 	return assigned;
 }
 
-double _do_right_search(double scale, MKP *mkp, double *assigned, int *greater_var){
-	int i, n, nnew_assigned;
-	double greater_val;
+double _do_right_search(double scale, MKP *mkp, double *assigned, int *lesser_r_var){
+	int i, n, n_new_one;
+	int n_ones;
+	double lesser_val;
 	double *x;
 	double tic;
 
 	n = mkp->n;
 
 	tic = 2.0/(double)n;
-	while( greater_val == 0.0 || nnew_assigned ){
+	lesser_val = 1.0;
+	can_halt = 0;
+	while( (n_ones < n) && (lesser_val == 1.0 || n_new_ones )){ /* a new '1' cant appear */
+		can_halt = 1;
 		/* solve LP */
 		lp = mkp2lp(mkp, scale+tic);
 		x = lp_simplex(lp);
 		lp_free(lp);
 
-		/* count fracs on solution */
-		_couting_fracs(x, n,
-			assigned,
-			&nnew_assigned,
-			&greater_var,
-			&greater_val);
+		n_new_ones = n_ones = 0;
+		/* counting new nonzeros on solution */
+		for( i = 0 ; i < n ; i++ ){
+			/* if variable is 'new' nonzero */
+			if( x[i] == 1.0 )
+				n_ones++;
+			if( x[i] > 0.0 && !assigned[i] ){
+				/* if variable is '1' */
+				if( x[i] >= 1.0 )
+					n_new_ones++;
+				/* if variable is frac */
+				else if( x[i] < lesser_val ){
+					lesser_val = x[i];
+					*lesser_r_val = i;
+				}
+			}
+		}
 
 		/* adjust scaling (if needed) */
-		if( nnew_assigned ) tic /= 2.0;
-		else if( greater_val == 0.0) scale += tic;
+		if( n_new_ones ) tic /= 2.0; /* a whole 'new 1' appeared */
+		else if( lesser_r_var == 1.0) scale += tic; /* */
 	}
-
 	return scale+tic;
 }
 
@@ -527,25 +543,24 @@ double _do_right_search(double scale, MKP *mkp, double *assigned, int *greater_v
 double *mkp_my_core_vals2(MKP *mkp){
 	int i, j, n, nset;
 	double *x, tic, r_scale, l_scale, *assigned;
-	int greater_r_var, lesser_r_var;      /* index of the greater fractional variable */
-	double greater_r_val, lesser_r_val;   /* value of the greater fractional variable */
-	LP *lp;
+	int greater_l_var, lesser_r_var;      /* index of the greater fractional variable */
 
 	/* initializing */
 	n = mkp->n;
 	assigned = double_array_init(NULL, n, 0.0);
 	nset = 0;
-
+	
+	r_scale = l_scale = 1.0;
+	r_scale = _do_right_search(r_scale, mkp, assigned, &lesser_r_var);
+	l_scale = _do_left_search(l_scale, mkp, assigned, &greater_l_var);
 	while( nset < n ){
-		/* right search */
-		r_scale = _do_right_search(r_scale, mkp, assigned, &greater_var);
-
-		/* left search */
-		l_scale = _do_left_search(r_scale, mkp, assigned, &lesser_var);
-
 		/* check which one is closer */
-		if( rscale - 1.0  > 1.0 - l_scale ){
+		if( rscale - 1.0  > 1.0 - l_scale ){    /* <---o-|---o-> */
+			assigned[greater_l_var] = n-nset;
+			l_scale = _do_left_search(l_scale, mkp, assigned, &greater_l_var);
 		}else{
+			assigned[lesser_r_var] = n+nset;
+			r_scale = _do_right_search(r_scale, mkp, assigned, &lesser_r_var);
 		}
 	}
 
