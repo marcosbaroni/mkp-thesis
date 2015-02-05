@@ -493,47 +493,148 @@ double *mkp_my_core_vals(MKP *mkp){
 	return assigned;
 }
 
-double _do_right_search(double scale, MKP *mkp, double *assigned, int *lesser_r_var){
-	int i, n, n_new_one;
-	int n_ones;
+int _find_lesser_nonzero_nonassigned(double *x, double *assigned, int n){
+	int i;
+	int lesser_var;
 	double lesser_val;
+
+	lesser_val = 5.0;
+	lesser_var = -1;
+	for( i = 0 ; i < n ; i++ )
+		if( x[i] > 0.0 && !assigned[i] )
+			if( x[i] < lesser_val u )
+				{ lesser_val = x[i]; lesser_var = i; }
+
+	return lesser_var;
+}
+
+double _do_right_search(MKP *mkp, double *assigned, int &var){
+	int i, n;
+	int n_std_ones;
+	int n_ones;
+	int n_ones_found;
+	int n_fracs_found;
+	int lesser_r_var;
+	double lesser_val;
+	double *x;
+	double tic;
+	double scale;
+
+	n = mkp->n;
+
+	/* solve std lp problem */
+	lp = mkp2lp(mkp, 1.0);
+	x = lp_simplex(lp);
+	lp_free(lp);
+
+	/* counting 'std' ones assigned variables */
+	n_std_ones = 0;
+	for( i = 0 ; i < n ; i++ )
+		if( x[i] == 1.0 )
+			n_std_ones++;
+
+
+	scale = 1.0;
+	tic = 2./(double)n;
+	/* searching for not assigned fracional variables */
+	do{
+		/* solving lp problem */
+		lp = mkp2lp(mkp, scale+tic);
+		x = lp_simplex(lp);
+		lp_free(lp);
+
+		lesser_val = 1.0;
+		n_fracs_found = n_ones_found = n_ones = 0;
+		/* counting n_fracs_found not assigned */
+		for( i = 0 ; i < n ; i++ ){
+			if( x[i] == 1.0 )
+				n_ones++;
+			if( x[i] >= 1.0 )
+				n_ones_found++;
+			else if( x[i] > 0.0 && !assigned[i] ){
+				n_fracs_found++;
+				if( x[i] < lesser_val ){
+					lesser_val = x[i];
+					lesser_r_var = i;
+				}
+			}
+		}
+
+		/* adjust scale */
+		if( n_ones_found > n_std_ones ) tic /= 2;
+		else if( !n_fracs_found ) scale += tic;
+	}while( !n_fracs_found && (n_ones_found > n_std_ones) && (n_ones < n) );
+
+	/* lesser nonassigned frac is 'lesser_r_var' and its scale point is 'scale+tic' */
+	if( n_ones == n) *var = -1;
+	else *var = lesser_r_var;
+
+	return scale+tic;
+}
+
+double _do_left_search(MKP *mkp, double *assigned, int &var){
+	int i, n;
+	int n_std_zeros;
+	int n_zeros;
+	int n_zeros_found;
+	int n_fracs_found;
+	int greater_l_var;
+	double greater_val;
 	double *x;
 	double tic;
 
 	n = mkp->n;
 
-	tic = 2.0/(double)n;
-	lesser_val = 1.0;
-	can_halt = 0;
-	while( (n_ones < n) && (lesser_val == 1.0 || n_new_ones )){ /* a new '1' cant appear */
-		can_halt = 1;
-		/* solve LP */
-		lp = mkp2lp(mkp, scale+tic);
+	/* solve std lp problem */
+	lp = mkp2lp(mkp, 1.0);
+	x = lp_simplex(lp);
+	lp_free(lp);
+
+	/* counting 'std' zeros assigned variables */
+	n_std_zeros = 0;
+	for( i = 0 ; i < n ; i++ )
+		if( !assigned[i] )
+			if( x[i] == 0.0 )
+				n_std_zeros++;
+
+
+	scale = 1.0;
+	tic = 2./(double)n;
+	/* searching for not assigned fracional variables */
+	do{
+		/* solving lp problem */
+		lp = mkp2lp(mkp, scale-tic);
 		x = lp_simplex(lp);
 		lp_free(lp);
 
-		n_new_ones = n_ones = 0;
-		/* counting new nonzeros on solution */
+		greater_val = 0.0;
+		n_fracs_found = n_zeros_found = n_zeros = 0;
+		/* counting n_fracs_found not assigned */
 		for( i = 0 ; i < n ; i++ ){
-			/* if variable is 'new' nonzero */
-			if( x[i] == 1.0 )
-				n_ones++;
-			if( x[i] > 0.0 && !assigned[i] ){
-				/* if variable is '1' */
-				if( x[i] >= 1.0 )
-					n_new_ones++;
-				/* if variable is frac */
-				else if( x[i] < lesser_val ){
-					lesser_val = x[i];
-					*lesser_r_val = i;
+			if( x[i] == 0.0 )
+				n_zeros++;
+			if( !assigned[i] ){
+				if( x[i] == 0.0 ){
+					n_zeros_found++;
+				} else if( x[i] < 1.0 ){
+					n_fracs_found++;
+					if( x[i] > greater_val ){
+						greater_val = x[i];
+						greater_l_var = i;
+					}
 				}
 			}
 		}
 
-		/* adjust scaling (if needed) */
-		if( n_new_ones ) tic /= 2.0; /* a whole 'new 1' appeared */
-		else if( lesser_r_var == 1.0) scale += tic; /* */
-	}
+		/* adjust scale */
+		if( n_zeros_found > n_std_zeros ) tic /= 2; /* if tic was too large */
+		else if( !n_fracs_found ) scale -= tic;     /* if tic was too small */
+	}while( !n_fracs_found && (n_zeros_found > n_std_ones) && (n_zeros < n) );
+
+	/* lesser nonassigned frac is 'lesser_r_var' and its scale point is 'scale+tic' */
+	if( n_zeros == n ) *var = -1;
+	else *var = greater_l_var;
+
 	return scale+tic;
 }
 
