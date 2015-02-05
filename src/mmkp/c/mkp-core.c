@@ -110,7 +110,7 @@ int execute_core_test(int argc, char **argv){
 	FILE *input;
 	long long total_profit;
 
-	setdebug(0);
+	setdebug(1);
 
 	if(argc < 2 ){
 		printf("usage %s <mkp instance>\n", argv[0]);
@@ -120,12 +120,13 @@ int execute_core_test(int argc, char **argv){
 
 	/* set efficiency measures types */
 	nem = 2;
-	em[0] =  MKP_CORE_DUALS;
-	em[1] =  MKP_CORE_LP;
-	em[2] =  MKP_CORE_SIMPLE;
-	em[3] =  MKP_CORE_SCALED;
-	em[4] =  MKP_CORE_ST;
-	em[5] =  MKP_CORE_FP;
+	em[0] =  MKP_CORE_LP2;
+	em[1] =  MKP_CORE_DUALS;
+	em[2] =  MKP_CORE_LP;
+	em[3] =  MKP_CORE_SIMPLE;
+	em[4] =  MKP_CORE_SCALED;
+	em[5] =  MKP_CORE_ST;
+	em[6] =  MKP_CORE_FP;
 
 	/* read input problem */
 	if( strcmp(argv[1], "-") != 0 )
@@ -147,7 +148,7 @@ int execute_core_test(int argc, char **argv){
 	opt = mkpsol_solve_with_scip(mkp, 10.0, 1.0, 0);
 
 	/* find the fractional variables (lp solution) */
-	fprintf(debugout, "finding fractional with scip\n");
+	fprintf(debugout, "finding fractionals\n");
 	lp_sol = mkp_get_lp_sol(mkp);
 	nfracs = 0;
 	for( i = 0 ; i < n ; i++ )

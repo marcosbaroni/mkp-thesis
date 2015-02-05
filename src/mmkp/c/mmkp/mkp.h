@@ -56,6 +56,7 @@ MKP *mkp_reduced(MKP *mkp, int *var_vals);
 #define MKP_CORE_FP 4
 #define MKP_CORE_DUALS 5
 #define MKP_CORE_LP 6
+#define MKP_CORE_LP2 7
 /* returns an array of variables index, sorted by descending "efficienct measure". 
  *   - mkp: the problem
  *   - type: efficiency measure choosen

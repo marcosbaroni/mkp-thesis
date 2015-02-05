@@ -1272,7 +1272,7 @@ void gzip(FILE *f_in, FILE *f_out){
 }
 
 void setdebug(char lvl){
-	if(lvl) debugout = stdout;
+	if(lvl) debugout = stderr;
 	else debugout = fopen("/dev/null", "w");
 }
 
@@ -1309,8 +1309,8 @@ void myassert(int express){
 }
 
 void debug(char *msg){
-	fprintf(stderr, "%s", msg);
-	fflush(stderr);
+	fprintf(debugout, "%s", msg);
+	fflush(debugout);
 	return;
 }
 

@@ -19,22 +19,22 @@ kp-des:
 	mv kp-des $(BINDIR)
 mkp: mkp-rand mkp2zpl mkp-nu mkp-sfl mkp-simplex mkp-sfl-batch mkp-core
 mkp-rand:
-	gcc -o mkp-rand mkp-rand.c mmkp/mkp.c mmkp/util.c $(CFLAGS)
+	gcc -o mkp-rand mkp-rand.c mmkp/mkp.c mmkp/lp.c mmkp/util.c $(CFLAGS)
 	mv mkp-rand $(BINDIR)
 mkp2zpl:
-	gcc -o mkp2zpl mkp2zpl.c mmkp/mkp.c mmkp/util.c $(CFLAGS)
+	gcc -o mkp2zpl mkp2zpl.c mmkp/mkp.c mmkp/lp.c mmkp/util.c $(CFLAGS)
 	mv mkp2zpl $(BINDIR)
 mkp-nu:
-	gcc -o mkp-nu mkp-nu.c mmkp/mkp.c mmkp/util.c $(CFLAGS)
+	gcc -o mkp-nu mkp-nu.c mmkp/mkp.c mmkp/lp.c mmkp/util.c $(CFLAGS)
 	mv mkp-nu $(BINDIR)
 mkp-sfl:
-	gcc -o mkp-sfl mkp-sfl.c mmkp/sfl.c mmkp/mkp.c mmkp/util.c $(CFLAGS)
+	gcc -o mkp-sfl mkp-sfl.c mmkp/sfl.c mmkp/mkp.c mmkp/lp.c mmkp/util.c $(CFLAGS)
 	mv mkp-sfl $(BINDIR)
 mkp-simplex:
 	gcc -o mkp-simplex mkp-simplex.c mmkp/lp.c mmkp/mkp.c mmkp/util.c $(CFLAGS)
 	mv mkp-simplex $(BINDIR)
 mkp-sfl-batch:
-	gcc -o mkp-sfl-batch mkp-sfl-batch.c mmkp/sfl.c mmkp/mkp.c mmkp/util.c $(CFLAGS)
+	gcc -o mkp-sfl-batch mkp-sfl-batch.c mmkp/sfl.c mmkp/lp.c mmkp/mkp.c mmkp/util.c $(CFLAGS)
 	mv mkp-sfl-batch $(BINDIR)
 mkp-core:
 	gcc -o mkp-core mkp-core.c mmkp/lp.c mmkp/mkp.c mmkp/util.c $(CFLAGS)

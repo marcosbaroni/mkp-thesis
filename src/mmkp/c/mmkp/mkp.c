@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <math.h>
 #include <unistd.h>
 #include "mkp.h"
@@ -423,7 +424,7 @@ double* mkp_get_lp_sol(MKP *mkp){
 		mkp->lp_sol = lp_simplex(lp);
 		lp_free(lp);
 	}
-	return memcpy(malloc(mkp->n*sizeof(double), mkp->lp_sol, mkp->n*sizeof(double)));
+	return (double*)memcpy(malloc(mkp->n*sizeof(double)), mkp->lp_sol, mkp->n*sizeof(double));
 }
 
 void _couting_fracs(double *x, int n,
@@ -502,13 +503,13 @@ int _find_lesser_nonzero_nonassigned(double *x, double *assigned, int n){
 	lesser_var = -1;
 	for( i = 0 ; i < n ; i++ )
 		if( x[i] > 0.0 && !assigned[i] )
-			if( x[i] < lesser_val u )
+			if( x[i] < lesser_val )
 				{ lesser_val = x[i]; lesser_var = i; }
 
 	return lesser_var;
 }
 
-double _do_right_search(MKP *mkp, double *assigned, int &var){
+double _do_right_search(MKP *mkp, int *assigned, int *var){
 	int i, n;
 	int n_std_ones;
 	int n_ones;
@@ -519,6 +520,7 @@ double _do_right_search(MKP *mkp, double *assigned, int &var){
 	double *x;
 	double tic;
 	double scale;
+	LP *lp;
 
 	n = mkp->n;
 
@@ -530,7 +532,7 @@ double _do_right_search(MKP *mkp, double *assigned, int &var){
 	/* counting 'std' ones assigned variables */
 	n_std_ones = 0;
 	for( i = 0 ; i < n ; i++ )
-		if( x[i] == 1.0 )
+		if( x[i] == 1.0 && !assigned[i] )
 			n_std_ones++;
 
 
@@ -543,13 +545,17 @@ double _do_right_search(MKP *mkp, double *assigned, int &var){
 		x = lp_simplex(lp);
 		lp_free(lp);
 
+		fprintf(debugout, "scale is %.3f ", scale+tic);
+		double_array_fprint(debugout, x, n);
+		puts("");
+
 		lesser_val = 1.0;
 		n_fracs_found = n_ones_found = n_ones = 0;
 		/* counting n_fracs_found not assigned */
 		for( i = 0 ; i < n ; i++ ){
 			if( x[i] == 1.0 )
 				n_ones++;
-			if( x[i] >= 1.0 )
+			if( x[i] >= 1.0 && !assigned[i] )
 				n_ones_found++;
 			else if( x[i] > 0.0 && !assigned[i] ){
 				n_fracs_found++;
@@ -563,7 +569,11 @@ double _do_right_search(MKP *mkp, double *assigned, int &var){
 		/* adjust scale */
 		if( n_ones_found > n_std_ones ) tic /= 2;
 		else if( !n_fracs_found ) scale += tic;
-	}while( !n_fracs_found && (n_ones_found > n_std_ones) && (n_ones < n) );
+	/* while: no frac was found
+	 *   AND some 0.0 variable turned to one
+	 *   AND problem is not 'unbounded' yet */
+	/* FIXME: check while expression */
+	}while( !n_fracs_found && (n_ones < n) );
 
 	/* lesser nonassigned frac is 'lesser_r_var' and its scale point is 'scale+tic' */
 	if( n_ones == n) *var = -1;
@@ -572,7 +582,7 @@ double _do_right_search(MKP *mkp, double *assigned, int &var){
 	return scale+tic;
 }
 
-double _do_left_search(MKP *mkp, double *assigned, int &var){
+double _do_left_search(MKP *mkp, int *assigned, int *var){
 	int i, n;
 	int n_std_zeros;
 	int n_zeros;
@@ -582,6 +592,8 @@ double _do_left_search(MKP *mkp, double *assigned, int &var){
 	double greater_val;
 	double *x;
 	double tic;
+	double scale;
+	LP *lp;
 
 	n = mkp->n;
 
@@ -593,10 +605,8 @@ double _do_left_search(MKP *mkp, double *assigned, int &var){
 	/* counting 'std' zeros assigned variables */
 	n_std_zeros = 0;
 	for( i = 0 ; i < n ; i++ )
-		if( !assigned[i] )
-			if( x[i] == 0.0 )
-				n_std_zeros++;
-
+		if( !assigned[i] && x[i] == 0.0 )
+			n_std_zeros++;
 
 	scale = 1.0;
 	tic = 2./(double)n;
@@ -606,6 +616,10 @@ double _do_left_search(MKP *mkp, double *assigned, int &var){
 		lp = mkp2lp(mkp, scale-tic);
 		x = lp_simplex(lp);
 		lp_free(lp);
+
+		fprintf(debugout, "scale is %.3f ", scale-tic);
+		double_array_fprint(debugout, x, n);
+		puts("");
 
 		greater_val = 0.0;
 		n_fracs_found = n_zeros_found = n_zeros = 0;
@@ -629,43 +643,103 @@ double _do_left_search(MKP *mkp, double *assigned, int &var){
 		/* adjust scale */
 		if( n_zeros_found > n_std_zeros ) tic /= 2; /* if tic was too large */
 		else if( !n_fracs_found ) scale -= tic;     /* if tic was too small */
-	}while( !n_fracs_found && (n_zeros_found > n_std_ones) && (n_zeros < n) );
+	/* while: no frac was found
+	 *   AND some non-zero variable turned zero
+	 *   AND problem is not 'unfeasible' yet */
+	fprintf(debugout, "n_frac_found=%d, n_zeros_found=%d, n_std_zeros=%d, n_zeros=%d\n",
+		n_fracs_found, n_zeros_found, n_std_zeros, n_zeros);
+	/* FIXME: check while expression */
+	}while( !n_fracs_found && (n_zeros < n) );
 
 	/* lesser nonassigned frac is 'lesser_r_var' and its scale point is 'scale+tic' */
 	if( n_zeros == n ) *var = -1;
 	else *var = greater_l_var;
 
-	return scale+tic;
+	return scale-tic;
 }
 
 /*
  * Second version of function, searching from "center".
  * */
 double *mkp_my_core_vals2(MKP *mkp){
-	int i, j, n, nset;
-	double *x, tic, r_scale, l_scale, *assigned;
+	int i, n, nfracs, nassigned, *assigned;
+	double *x, r_scale, l_scale, *d_assigned, lesser_val;
 	int greater_l_var, lesser_r_var;      /* index of the greater fractional variable */
+	LP *lp;
 
 	/* initializing */
 	n = mkp->n;
-	assigned = double_array_init(NULL, n, 0.0);
-	nset = 0;
+	assigned = int_array_init(NULL, n, 0);
+	nassigned = 0;
+
+	/* solving lp */
+	lp = mkp2lp(mkp, 1.0);
+	x = lp_simplex(lp);
+	lp_free(lp);
+
+	double_array_fprint(stdout, x, n);
+	puts("");
+	fflush(stdout);
+
+	/* assigning fracs */
+	do{
+		nfracs = 0;
+		lesser_val = 1.0;
+		for( i = 0 ; i < n ; i++ ){
+			/* if variable is frac */
+			if( x[i] > 0.0 && x[i] < 1.0 ){
+				/* if is not assigned yet */
+				if( !assigned[i] ){
+					nfracs++;
+					/* if is lesser */
+					if( x[i] < lesser_val ){
+						lesser_r_var = i;
+						lesser_val = x[i];
+					}
+				}
+			}
+		}
+
+		/* assign lesser frac variable */
+		if( nfracs ){
+			assigned[lesser_r_var] = n+nassigned;
+			printf("%d assigned to %d\n", lesser_r_var, assigned[lesser_r_var]);
+			nassigned++;
+		}
+	}while( nfracs );
+	printf(" fracs for 1.0 done\n");
+
 	
 	r_scale = l_scale = 1.0;
-	r_scale = _do_right_search(r_scale, mkp, assigned, &lesser_r_var);
-	l_scale = _do_left_search(l_scale, mkp, assigned, &greater_l_var);
-	while( nset < n ){
-		/* check which one is closer */
-		if( rscale - 1.0  > 1.0 - l_scale ){    /* <---o-|---o-> */
-			assigned[greater_l_var] = n-nset;
-			l_scale = _do_left_search(l_scale, mkp, assigned, &greater_l_var);
-		}else{
-			assigned[lesser_r_var] = n+nset;
-			r_scale = _do_right_search(r_scale, mkp, assigned, &lesser_r_var);
+	r_scale = _do_right_search(mkp, assigned, &lesser_r_var);
+	fprintf(debugout, "first r_scale: var %d with scale=%.3f\n", lesser_r_var, r_scale);
+	l_scale = _do_left_search(mkp, assigned, &greater_l_var);
+	fprintf(debugout, "first l_scale: var %d with scale=%.3f\n", greater_l_var, l_scale);
+	while( nassigned < n ){
+		/* which side is less scalabled? */
+		if( r_scale-1.0 < 1.0-l_scale ){ /* right is less */
+			assigned[lesser_r_var] = n-nassigned;
+			nassigned++;
+			fprintf(debugout, "\n right is less scalabled with r_scale=%.3f\n", r_scale);
+			r_scale = _do_right_search(mkp, assigned, &lesser_r_var);
+			fprintf(debugout, " r_scale: var %d with scale=%.3f\n", lesser_r_var, r_scale);
+		}else{  /* left is less */
+			assigned[greater_l_var] = n+nassigned;
+			nassigned++;
+			fprintf(debugout, "\n left is less scalabled with l_scale=%.3f\n", l_scale);
+			l_scale = _do_left_search(mkp, assigned, &greater_l_var);
+			fprintf(debugout, " l_scale: var %d with scale=%.3f\n", greater_l_var, l_scale);
 		}
 	}
 
-	return assigned;
+	/* convert assigned to double */
+	d_assigned = double_array_alloc(n);
+	for( i = 0 ; i < n ; i++ )
+		d_assigned[i] = (double)assigned[i];
+
+	free(assigned);
+
+	return d_assigned;
 }
 
 /* mkp_reduced
@@ -812,6 +886,12 @@ int *mkp_core_val(MKP *mkp, char type){
 		case MKP_CORE_LP:
 		free(vals);
 		vals = mkp_my_core_vals(mkp);
+		break;
+
+		/* proposed efficiency, second method */
+		case MKP_CORE_LP2:
+		free(vals);
+		vals = mkp_my_core_vals2(mkp);
 		break;
 	}
 	double_array_fprint(debugout, vals, n);
