@@ -202,6 +202,7 @@ int execute_core_test(int argc, char **argv){
 		fprintf(debugout, "solving core problem\n");
 		sol = mkpsol_solve_with_scip(core_mkp, 600.0, 1.0, 0);
 		fprintf(stdout, "%d;%lld;", em[i], total_profit+sol->obj);
+		fflush(stdout);
 
 		mkpsol_free(sol);
 		mkp_free(core_mkp);

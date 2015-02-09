@@ -105,8 +105,8 @@ LP *mkp2lp(MKP *mkp, double capacity_scale){
 	LP *lp;
 	int i, j, n, m;
 
-	if( capacity_scale == 0.0 )
-		capacity_scale = 1.0;
+	if( capacity_scale < 0.0 )
+		capacity_scale = 0.0;
 	n = mkp->n;
 	m = mkp->m;
 
@@ -547,7 +547,7 @@ double _do_right_search(MKP *mkp, int *assigned, int *var){
 
 		fprintf(debugout, "scale is %.3f ", scale+tic);
 		double_array_fprint(debugout, x, n);
-		puts("");
+		fprintf(debugout, "\n");
 
 		lesser_val = 1.0;
 		n_fracs_found = n_ones_found = n_ones = 0;
@@ -568,7 +568,7 @@ double _do_right_search(MKP *mkp, int *assigned, int *var){
 
 		/* adjust scale */
 		if( n_ones_found > n_std_ones ) tic /= 2;
-		else if( !n_fracs_found ) scale += tic;
+		else if( !n_fracs_found ) { scale += tic; tic *= 2; }
 	/* while: no frac was found
 	 *   AND some 0.0 variable turned to one
 	 *   AND problem is not 'unbounded' yet */
@@ -619,7 +619,7 @@ double _do_left_search(MKP *mkp, int *assigned, int *var){
 
 		fprintf(debugout, "scale is %.3f ", scale-tic);
 		double_array_fprint(debugout, x, n);
-		puts("");
+		fprintf(debugout, "\n");
 
 		greater_val = 0.0;
 		n_fracs_found = n_zeros_found = n_zeros = 0;
@@ -642,7 +642,7 @@ double _do_left_search(MKP *mkp, int *assigned, int *var){
 
 		/* adjust scale */
 		if( n_zeros_found > n_std_zeros ) tic /= 2; /* if tic was too large */
-		else if( !n_fracs_found ) scale -= tic;     /* if tic was too small */
+		else if( !n_fracs_found ) {scale -= tic; tic *= 2; }     /* if tic was too small */
 	/* while: no frac was found
 	 *   AND some non-zero variable turned zero
 	 *   AND problem is not 'unfeasible' yet */
@@ -678,8 +678,7 @@ double *mkp_my_core_vals2(MKP *mkp){
 	lp_free(lp);
 
 	double_array_fprint(stdout, x, n);
-	puts("");
-	fflush(stdout);
+	fprintf(debugout, "\n");
 
 	/* assigning fracs */
 	do{
@@ -703,7 +702,6 @@ double *mkp_my_core_vals2(MKP *mkp){
 		/* assign lesser frac variable */
 		if( nfracs ){
 			assigned[lesser_r_var] = n+nassigned;
-			printf("%d assigned to %d\n", lesser_r_var, assigned[lesser_r_var]);
 			nassigned++;
 		}
 	}while( nfracs );
@@ -730,6 +728,7 @@ double *mkp_my_core_vals2(MKP *mkp){
 			l_scale = _do_left_search(mkp, assigned, &greater_l_var);
 			fprintf(debugout, " l_scale: var %d with scale=%.3f\n", greater_l_var, l_scale);
 		}
+		printf("-%d\n", nassigned); fflush(stdout);
 	}
 
 	/* convert assigned to double */

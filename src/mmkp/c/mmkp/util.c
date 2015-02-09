@@ -1272,7 +1272,7 @@ void gzip(FILE *f_in, FILE *f_out){
 }
 
 void setdebug(char lvl){
-	if(lvl) debugout = stderr;
+	if(lvl) debugout = stdout;
 	else debugout = fopen("/dev/null", "w");
 }
 
