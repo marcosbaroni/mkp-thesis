@@ -1,6 +1,6 @@
 
 \begin{align*}
-  \binom{n}{2} \binom{n}{r} & = \underbrace{\binom{r+2}{2} \binom{n}{n+2}}_{\star} + 2\underbrace{\binom{r+1}{2}\binom{n}{r+1}}_{\star} + \underbrace{\binom{r}{2} \binom{n}{r}}_{\star}  \qquad \boxed{\star \binom{n}{m} \binom{m}{k} = \binom{n}{k}\binom{n-k}{m-k}} \\\\
+  \text{\bf (b) } \binom{n}{2} \binom{n}{r} & = \underbrace{\binom{r+2}{2} \binom{n}{n+2}}_{\star} + 2\underbrace{\binom{r+1}{2}\binom{n}{r+1}}_{\star} + \underbrace{\binom{r}{2} \binom{n}{r}}_{\star}  \qquad \boxed{\star \binom{n}{m} \binom{m}{k} = \binom{n}{k}\binom{n-k}{m-k}} \\\\
   & = \binom{n}{2} \binom{n-2}{(r+2)-2} + 2\binom{n}{2}\binom{n-2}{(r+1)-2} + \binom{n}{2}\binom{n-2}{r-2} \\
   & = \binom{n}{2}.\bigg[ \underbrace{\binom{n-2}{r} + \binom{n-2}{r-1}}_{\ast} + \underbrace{\binom{n-2}{r-1} + \binom{n-2}{r-2}}_{\ast} \bigg] \qquad \Aboxed{\ast \binom{n}{k} = \binom{n-1}{k} + \binom{n-1}{k-1}} \\
   & = \binom{n}{2}.\bigg[\underbrace{\binom{n-1}{r} + \binom{n-1}{r-1}}_{\ast}\bigg] \\
