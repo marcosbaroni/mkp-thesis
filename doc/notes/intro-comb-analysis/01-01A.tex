@@ -1,0 +1,19 @@
+
+\begin{enunciation}
+  \begin{displaymath}
+  \end{displaymath}
+\end{enunciation}
+
+\begin{align*}
+  n \binom{n}{r} & = (r+1)\binom{n}{r+1} + r\binom{n}{r} \\
+  & = (r+1) \frac{n!}{(r+1)!(n-(r+1))!} + r.\frac{n!}{(n-r)!r!} \\
+  & = \frac{(r+1)}{(r+1)!}\frac{n!}{(n-r-1)!} + \frac{r}{r!}\frac{n!}{(n-r)!} \\
+  & = \frac{1}{r!}\frac{n!}{(n-r-1)!} + \frac{1}{(r-1)!}\frac{n!}{(n-r)!} \\
+  & = \frac{n!}{r!(n-r-1)!}.\frac{(n-r)}{(n-r)} + \frac{n!}{(r-1)!(n-r)!}.\frac{r}{r} \\
+  & = \frac{n!(n-r)}{r!(n-r)!} + \frac{n!r}{r!(n-r)!} \\
+  & = \frac{n!(n-r) + n!r}{r!(n-r)!} \\
+  & = \frac{n!(n-r+r)}{r!(n-r)!} \\
+  & = \frac{n!n}{r!(n-r)!} \\
+  \Aboxed{ n \binom{n}{r} & = n \binom{n}{r}} \qquad \blacksquare
+\end{align*}
+
