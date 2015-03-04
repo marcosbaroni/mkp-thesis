@@ -771,8 +771,10 @@ MKP *mkp_reduced(MKP *mkp, int *var_vals){
 
 	/* separating variables */
 	for( i = 0 ; i < n ; i++ ){
-		if( var_vals[i] == 1 ) ones[nones++] = i;
-		else if(var_vals[i] == 0 ) zeros[nzeros++] = i;
+		if( var_vals[i] == 1 )
+			ones[nones++] = i;
+		else if( var_vals[i] == 0 )
+			zeros[nzeros++] = i;
 		else frees[nfrees++] = i;
 	}
 
@@ -805,6 +807,9 @@ MKP *mkp_reduced(MKP *mkp, int *var_vals){
 	return nmkp;
 }
 
+/* Returns an array with the indexs of variables, sorted by increasing order
+ * of efficiency.
+ * */
 int *mkp_core_val(MKP *mkp, char type){
 	double *x, *vals, sum, sum2, *r;
 	long long *p, *b, **w;
@@ -901,6 +906,46 @@ int *mkp_core_val(MKP *mkp, char type){
 	free(vals);
 
 	return idxs;
+}
+
+/* Returns a core problem for a MKP problem.
+ * - core_size number of variables on core problem;
+ *   Will record fix of variables on vars_fix array:
+ *     1 - fixed on 1;
+ *     0 - fixed on 0;
+ *     other - free (in of core problem).
+ * */
+MKP *mkp_core_problem(MKP *mkp, int core_size, int *vars_fix){
+	MKP *mkp_core;
+	int i, n, m, n_fst_fixed;
+	int *efficieny_ordering;
+
+	n = mkp->n;
+
+	/* computing efficiency measure */
+	if( !vars_fix )
+		vars_fix = (int*)malloc(n*sizeof(int));
+	efficieny_ordering = mkp_core_val(mkp, MKP_CORE_DUALS);
+
+	/* defining fixed variables */
+	n_fst_fixed = (n-core_size)/2;
+	for( i = 0 ; i < n_fst_fixed ; i++ )
+		vars_fix[efficieny_ordering[i]] = 1;
+	for( i = 0 ; i < core_size ; i++ )
+		vars_fix[efficieny_ordering[n_fst_fixed+i]] = -1;
+	for( i = core_size+n_fst_fixed ; i < n ; i++ )
+		vars_fix[efficieny_ordering[i]] = 0;
+	
+	/* TODO: stop development here... */
+	printf("efficiency ordering\n");
+	int_array_fprint(stdout, efficieny_ordering, n);
+	printf("variable fixing\n");
+	int_array_fprint(stdout, vars_fix, n);
+
+	free(efficieny_ordering);
+	free(vars_fix);
+
+	return mkp_core;
 }
 
 /*******************************************************************************
@@ -1255,15 +1300,15 @@ MKPSol *mkpsol_cross(MKPSol *child, MKPSol *father, int c){
 	idxs = child->mkp->idxs;
 	int_array_shuffle(idxs, n);
 
-	/* randomly combines half of variables */
+	/* copy 'c' variables (chosen reandomly) from father */
 	for( i = 0 ; i < c ; i++ ){
 		idx = idxs[i];
 		a = father->x[idx];
 		b = child->x[idx];
-		if( father->x[idx] && !(child->x[idx]) )
-			mkpsol_add_item(child, idx);
-		else if( !(father->x[idx]) && child->x[idx] )
-			mkpsol_rm_item(child, idx);
+
+		/* flip if not equal */
+		if( a != b )
+			mkpsol_flip_item(child, idx);
 	}
 	
 	/* repair, if not feasibble */

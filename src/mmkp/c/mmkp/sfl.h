@@ -40,9 +40,9 @@ typedef void* (*sfl_copy_solution_f)(void*);
 typedef void* (*sfl_free_solution_f)(void*);
 
 typedef struct SFL_Interface{
-	sfl_cross_f cross;
-	sfl_fitness_f fitness;
-	sfl_new_solution_f new_solution;
+	sfl_cross_f cross;                  /* solution crossing function */
+	sfl_fitness_f fitness;              /* fitness of solution */
+	sfl_new_solution_f new_solution;    /* new solution function */
 	sfl_copy_solution_f copy_solution;
 	sfl_free_solution_f free_solution;
 }SFL_Interface;
