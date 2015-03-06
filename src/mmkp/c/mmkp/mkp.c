@@ -936,7 +936,6 @@ MKP *mkp_core_problem(MKP *mkp, int core_size, int *vars_fix){
 	for( i = core_size+n_fst_fixed ; i < n ; i++ )
 		vars_fix[efficieny_ordering[i]] = 0;
 	
-	/* TODO: stop development here... */
 	printf("efficiency ordering\n");
 	int_array_fprint(stdout, efficieny_ordering, n);
 	printf("variable fixing\n");
@@ -1441,6 +1440,32 @@ MKPSol *mkpsol_repair(MKPSol *mkpsol){
 			mkpsol_rm_item(mkpsol, idxs[i]);
 	
 	return mkpsol;
+}
+
+/* Returns a original solution, extracted from a MKP core problem solution. */
+MKPSol *mkpsol_from_mkp_core(MKPSol *core_sol, MKP *orig_mkp, int *vars_fix){
+	MKPSol *sol;
+	int i, j, n, m;
+
+	n = orig_mkp->n;
+	m = orig_mkp->m;
+
+	sol = mkpsol_new(orig_mkp);
+
+	j = 0;
+	for( i = 0 ; i < n ; i++ ){
+		/* fixed in '1' */
+		if( vars_fix[i] = 1 ){
+			mkpsol_add_item(sol, i);
+		/* variable in core problem */
+		}else if( vars_fix[i] ){
+			if( core_sol->x[j++] ){
+				mkpsol_add_item(sol, i);
+			}
+		}
+	}
+
+	return sol;
 }
 
 DES_Interface *mkp_des_interface(){
