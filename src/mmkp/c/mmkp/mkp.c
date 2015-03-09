@@ -898,8 +898,6 @@ int *mkp_core_val(MKP *mkp, char type){
 		vals = mkp_my_core_vals2(mkp);
 		break;
 	}
-	double_array_fprint(debugout, vals, n);
-	fprintf(debugout, "\n");
 	idxs = double_index_sort(vals, n);
 
 	free(r);
@@ -915,34 +913,47 @@ int *mkp_core_val(MKP *mkp, char type){
  *     0 - fixed on 0;
  *     other - free (in of core problem).
  * */
-MKP *mkp_core_problem(MKP *mkp, int core_size, int *vars_fix){
+MKP *mkp_core_problem(MKP *mkp, int core_size, int **vars_fix){
 	MKP *mkp_core;
-	int i, n, m, n_fst_fixed;
+	int i, j, idx, n, ncore, m, n_fst_fixed;
 	int *efficieny_ordering;
 
 	n = mkp->n;
+	m = mkp->m;
+	ncore = 0;
 
 	/* computing efficiency measure */
-	if( !vars_fix )
-		vars_fix = (int*)malloc(n*sizeof(int));
+	if( !(*vars_fix) )
+		(*vars_fix) = (int*)malloc(n*sizeof(int));
 	efficieny_ordering = mkp_core_val(mkp, MKP_CORE_DUALS);
+	mkp_core = mkp_alloc(core_size, m);
+
+	/* initializing capacities */
+	for( j = 0 ; j < m ; j++ )
+		mkp_core->b[j] = mkp->b[j];
 
 	/* defining fixed variables */
 	n_fst_fixed = (n-core_size)/2;
-	for( i = 0 ; i < n_fst_fixed ; i++ )
-		vars_fix[efficieny_ordering[i]] = 1;
-	for( i = 0 ; i < core_size ; i++ )
-		vars_fix[efficieny_ordering[n_fst_fixed+i]] = -1;
-	for( i = core_size+n_fst_fixed ; i < n ; i++ )
-		vars_fix[efficieny_ordering[i]] = 0;
+	for( i = 0 ; i < n_fst_fixed ; i++ ){                /* '1' fixed */
+		idx = efficieny_ordering[i];
+		(*vars_fix)[idx] = 1;
+		for( j = 0 ; j < m ; j++ )  /* (consumed resources) */
+			mkp_core->b[j] -= mkp->w[j][idx];
+	}for( i = 0 ; i < core_size ; i++ ){                 /* free variables */
+		idx = efficieny_ordering[n_fst_fixed+i];
+		(*vars_fix)[idx] = -1;
+		mkp_core->p[i] = mkp->p[idx];  /* coping profits */
+		for( j = 0 ; j < m ; j++ )     /* coping weights */
+			mkp_core->w[j][i] = mkp->w[j][idx];
+	} for( i = core_size+n_fst_fixed ; i < n ; i++ )    /* '0' fixed */
+		(*vars_fix)[efficieny_ordering[i]] = 0;
 	
-	printf("efficiency ordering\n");
+	printf("efficiency ordering:\n");
 	int_array_fprint(stdout, efficieny_ordering, n);
-	printf("variable fixing\n");
-	int_array_fprint(stdout, vars_fix, n);
+	printf("\nvariable fixing:\n");
+	int_array_fprint(stdout, (*vars_fix), n);
 
 	free(efficieny_ordering);
-	free(vars_fix);
 
 	return mkp_core;
 }
@@ -1455,7 +1466,7 @@ MKPSol *mkpsol_from_mkp_core(MKPSol *core_sol, MKP *orig_mkp, int *vars_fix){
 	j = 0;
 	for( i = 0 ; i < n ; i++ ){
 		/* fixed in '1' */
-		if( vars_fix[i] = 1 ){
+		if( vars_fix[i] == 1 ){
 			mkpsol_add_item(sol, i);
 		/* variable in core problem */
 		}else if( vars_fix[i] ){

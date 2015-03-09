@@ -48,7 +48,7 @@ double* mkp_get_lp_sol(MKP *mkp);
  *    - other: free
  * */
 MKP *mkp_reduced(MKP *mkp, int *var_vals);
-MKP *mkp_core_problem(MKP *mkp, int core_size, int *vars_fix);
+MKP *mkp_core_problem(MKP *mkp, int core_size, int **vars_fix);
 
 /*** Core functions ***/
 #define MKP_CORE_SIMPLE 1
