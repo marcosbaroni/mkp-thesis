@@ -13,9 +13,9 @@ void print_usage(int argc, char **argv){
 
 	out = stdout;
 	fprintf(out, " usage: %s <n> <m> [beta=0.5] [seed=<msecs>] [max_coeficient=%d]\n", argv[0], MAX_COEFFICIENT);
-	fprintf(out, "usage: %s [input] \n", argv[0]);
+	fprintf(out, "usage: %s <input> \n", argv[0]);
 	fprintf(out, "kpbt (a Knapsack Problem BackTrack procedure)\n");
-	fprintf(out, "   If no input file is given, problem is read from standard input.");
+	fprintf(out, " <input> input file: a MKP instance. '-' to read instance from stdin.\n");
 	fprintf(out, "   Solution is printed on standard output as a list of the indexes of selected itens on solution.\n");
 	fprintf(out, "   Ex.: 1\n");
 	fprintf(out, "        2\n");
@@ -95,7 +95,7 @@ int backtrack_find_best(int argc, char **argv){
 	/* checking input */
 	if(argc < 2){
 		fprintf(stdout, "usage: %s <upper bound> [kp instance file]\n", argv[0]);
-		fprintf(stdout, "   If input file not given, read from stdin.\n", argv[0]);
+		fprintf(stdout, "   If input file not given, read from stdin.\n");
 		fprintf(stdout, "   Output format: <1>;<2>;<3>;<4>;<5>;<6>;<7>;<8>;<9>\n");
 		fprintf(stdout, "     1. <n of items>\n");
 		fprintf(stdout, "     2. <steps to find>\n");

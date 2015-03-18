@@ -35,7 +35,8 @@ int execute_mkp_des(int argc, char **argv){
 	clock_t c0, cf;
 
 	input = stdin;
-	if(argc > 1) input = fopen(argv[1], "r");
+	if(argc > 1)
+		input = fopen(argv[1], "r");
 
 	mkp = mkp_read_from_file(input);
 	fclose(input);

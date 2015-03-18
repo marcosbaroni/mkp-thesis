@@ -1110,9 +1110,9 @@ int mkpsol_dominated_by(MKPSol *ms1, MKPSol *ms2){
 
 	m = ms1->mkp->m;
 	for( i = 0 ; i < m ; i++ )
-		if( ms1->b_left[i] > ms2->b_left[i] )
+		if( ms1->b_left[i] < ms2->b_left[i] )
 			return 0;
-	return( ms2->obj > ms1->obj );
+	return( ms2->obj >= ms1->obj );
 }
 
 int mkpsol_dominates(MKPSol *ms1, MKPSol *ms2){
@@ -1346,7 +1346,7 @@ MKPSol *mkpsol_cross3(MKPSol *child, MKPSol *father)
 Array *mkp_nemull(MKP *mkp){
 	Array *dom_sets, *merged_sets;
 	MKPSol *new_sol, *old_sol;
-	int n, m, i, j, k, n_dom_sets, n_merged_sets, is_dominant;
+	int n, m, i, j, k, n_dom_sets, n_merged_sets, not_dominated_by;
 	long long **w, *p, *b;
 	n = mkp->n;
 
@@ -1358,11 +1358,13 @@ Array *mkp_nemull(MKP *mkp){
 		/* generating new sets from old ones */
 		n_dom_sets = array_get_size(dom_sets);
 		for( j = 0 ; j < n_dom_sets ; j++ ){
-			old_sol = array_get(dom_sets, j);
-			new_sol = mkpsol_copy(old_sol);          /* copy solution */
-			mkpsol_add_item(new_sol, i);             /* add new item */
-			array_insert(merged_sets, old_sol);      /* insert old solution */
-			array_insert(merged_sets, new_sol);      /* insert new solution */
+			/* merging sets */
+			old_sol = array_get(dom_sets, j);   /* inserting old solution */
+			array_insert(merged_sets, old_sol);
+
+			new_sol = mkpsol_copy(old_sol);     /* inserting new solution */
+			mkpsol_add_item(new_sol, i);
+			array_insert(merged_sets, new_sol);
 		}
 		/* the i-th item alone is a candidate set */
 		new_sol = mkpsol_new(mkp);
@@ -1375,17 +1377,22 @@ Array *mkp_nemull(MKP *mkp){
 		/* filtering: checking dominance of each set */
 		for( j = 0 ; j < array_get_size(merged_sets); j++ ){
 			new_sol = array_get(merged_sets, j);
-			is_dominant = 1;
+			not_dominated_by = 1;
 			/* scan all current sets */
 			for( k = 0 ; k < array_get_size(merged_sets) && is_dominant ; k++ ){
 				old_sol = array_get(merged_sets, k);
-				is_dominant &= !mkpsol_dominates(old_sol, new_sol);
-				is_dominant &= new_sol->feasible;  /* only feasible sets */
+				not_dominated_by &= !mkpsol_dominated_by(new_sol, old_sol);
+				/* is_dominant &= new_sol->feasible;*/ /* only feasible sets (optimization) */
 			}
-			/* the solution is dominating? */
-			if( is_dominant ) array_insert(dom_sets, new_sol);         /* add */
-			else{ mkpsol_free(new_sol); array_remove(merged_sets, j--);}/* rm */
+			/* the solution is not dominated by no one? */
+			if( not_dominated_by )
+				array_insert(dom_sets, new_sol);                 /* add */
+			else{        /* remove from sets */
+				mkpsol_free(new_sol);
+				array_remove(merged_sets, j--);
+			}
 		}
+		/* TODO: Report current sets... */
 		/* empty the merged set struct */
 		merged_sets = array_empty(merged_sets);
 	}
