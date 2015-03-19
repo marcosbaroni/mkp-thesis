@@ -1110,7 +1110,7 @@ int mkpsol_dominated_by(MKPSol *ms1, MKPSol *ms2){
 
 	m = ms1->mkp->m;
 	for( i = 0 ; i < m ; i++ )
-		if( ms1->b_left[i] < ms2->b_left[i] )
+		if( ms2->b_left[i] < ms1->b_left[i] )
 			return 0;
 	return( ms2->obj >= ms1->obj );
 }
@@ -1379,15 +1379,16 @@ Array *mkp_nemull(MKP *mkp){
 			new_sol = array_get(merged_sets, j);
 			not_dominated_by = 1;
 			/* scan all current sets */
-			for( k = 0 ; k < array_get_size(merged_sets) && is_dominant ; k++ ){
+			for( k = 0 ; k < array_get_size(merged_sets) && not_dominated_by ; k++ ){
 				old_sol = array_get(merged_sets, k);
-				not_dominated_by &= !mkpsol_dominated_by(new_sol, old_sol);
-				/* is_dominant &= new_sol->feasible;*/ /* only feasible sets (optimization) */
+				if(new_sol != old_sol )
+					not_dominated_by &= !mkpsol_dominated_by(new_sol, old_sol);
+				not_dominated_by &= new_sol->feasible; /* only feasible sets (optimization) */
 			}
 			/* the solution is not dominated by no one? */
 			if( not_dominated_by )
 				array_insert(dom_sets, new_sol);                 /* add */
-			else{        /* remove from sets */
+			else{        /* free set */
 				mkpsol_free(new_sol);
 				array_remove(merged_sets, j--);
 			}
@@ -1429,6 +1430,12 @@ MKPSol *mkpsol_set(MKPSol *mkpsol, int a, int val){
 /* get */
 int mkpsol_get(MKPSol *mkpsol, int a){
 	return mkpsol->x[a];
+}
+/* profit-cmp */
+int mkpsol_profit_cmp(MKPSol *ms1, MKPSol *ms2){
+	if( ms1->obj > ms2->obj) return 1;
+	else if(ms1->obj < ms2->obj ) return (-1);
+	return 0;
 }
 /* obj */
 double mkpsol_fitness(MKPSol *mkpsol){

@@ -951,8 +951,13 @@ void array_apply(Array *a, void(*apl_f)(void*)){
 	return;
 }
 
+void pointer_swap(void **ps, int a, int b){
+	void *p;
+	p = ps[a]; ps[a] = ps[b]; ps[b] = p;
+}
+
 void array_sort(Array *a, int(*compar)(void *, void *)){
-	unimplemented();
+	mp_qsort(a->a, a->n, (mp_cmp_f)compar, (mp_swap_f)pointer_swap, 0);
 }
 
 Array *array_insert(Array *array, void *elem){

@@ -13,19 +13,36 @@ int print_usage(int argc, char **argv){
 	return 1;
 }
 
-int *execute_domset_search(int argc, char **argv){
+int execute_domset_search(int argc, char **argv){
 	MKP *mkp;
 	Array *sols;
+	int i, nsols;
+	FILE *input;
 
+	input = stdin;
+
+	/* reading arguments */
 	if(argc < 2 )
 		return print_usage(argc, argv);
+	if(strcmp("-", argv[1]))
+		input = fopen(argv[1], "r");
 	
+	/* reading instance */
 	mkp = mkp_read_from_file(input);
 
+	/* searching domsets */
 	sols = mkp_nemull(mkp);
-	/* TODO: stopped here... */
 
+	/* output */
+	array_sort(sols, (int(*)(void*, void*))mkpsol_profit_cmp);
+	nsols = array_get_size(sols);
+	for( i = 0 ; i < nsols ; i++ )
+		mkpsol_fprint(stdout, array_get(sols, i), 1);
+
+	/* frees */
+	fclose(input);
 	mkp_free(mkp);
+	array_free(sols);
 	
 	return 0;
 }

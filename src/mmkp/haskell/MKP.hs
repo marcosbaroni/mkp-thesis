@@ -26,19 +26,25 @@ addItem (itemProfit, itemWeights) idx (solIdxs, solProfit, solWeights) = (solIdx
 	solWeight' = map (uncurry (+)) $ zip itemWeights solWeights
 --------------------------------------------------------------------------------
 
+
+isFeasible :: MKPSolution -> MKP -> Bool
+isFeasible (_, _, cs1) (_, bs) = and $ zipWith (<=) cs1 bs
+
+
 -------------------------- DOMINATING SETS  ------------------------------------
 -- | Answer if the first set is not dominated by the second.
-notDominatedBy :: MKPSolution -> MKPSolution -> Bool
-notDominatedBy (_, p1, cs1) (_, p2, cs2) = betterProfit || dominateWeights
+dominatedBy :: MKPSolution -> MKPSolution -> Bool
+dominatedBy (_, p1, cs1) (_, p2, cs2) = geqProfit && existsLesserWeight
 	where
-	betterProfit = (p1 > p2)
-	dominateWeights = or $ map (uncurry (<)) $ (zip cs1 cs2)
+	geqProfit = (p2 >= p1)       -- p2 has greater or equal profit
+	existsLesserWeight =         -- p2 weights are all lesser
+		and $ map (uncurry (<)) $ (zip cs2 cs1)
 
 -- | Returns all dominating sets of a MKP instance.
 domSets :: MKP -> [MKPSolution]
 domSets (items, _) = domSets' 1 items []
 	where
-	-- recusrively computes dominating sets
+	-- recursively computes dominating sets
 	domSets' _ [] set = set
 	domSets' idx (it:items) sets = domSets' (idx+1) items newSets
 		where
