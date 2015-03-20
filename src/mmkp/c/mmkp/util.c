@@ -968,17 +968,31 @@ void array_sort(
 		0);
 }
 
+int pointer_cmp_r(
+	void **ps,
+	int a,
+	int b,
+	int(*cmp)(void*, void*, void*),
+	void *arg)
+{
+	
+}
+
 void array_sort_r(
 	Array *array,
 	int(*compar)(void *obj1, void *obj2, void *cmp_arg),
 	void *arg)
 {
+	void *args[2];
+	args[0] = cmp_arg;
+	args[1] = arg;
+	/* TODO: stopped here... */
 	mp_qsort_r(
 		array->a,
 		array->n,
 		(mp_cmp_r_f)compar,
-		(mp_swap_f)pointer_swap,
-		arg,
+		(mp_swap_f)pointer_cmp_r,
+		args,
 		0);
 }
 
