@@ -7,16 +7,25 @@ int print_usage(int argc, char **argv){
 
 	out = stdout;
 	fprintf(out, " usage: %s [input file]\n", argv[0]);
-	fprintf(out, " Study of Nemhuauser-Ullmann algorithm for MKP.\n");
-	fprintf(out, "   input file: a MKP instance. If no file is given, instance is read from stdin.\n");
+	fprintf(out, "\nDESCRIPTION:\n");
+	fprintf(out, "     Study of Nemhuauser-Ullmann algorithm for MKP.\n");
+	fprintf(out, "\nARGUMENTS:\n");
+	fprintf(out, "     input file\ta MKP instance. If '-' is given, instance is read from stdin.\n");
 
 	return 1;
+}
+
+void plot_domsets(FILE *out, Array *sols){
+	MKPSol *mkpsol;
+	int i, nsols;
+
+	return;
 }
 
 int execute_domset_search(int argc, char **argv){
 	MKP *mkp;
 	Array *sols;
-	int i, nsols;
+	int i, dim, nsols;
 	FILE *input;
 
 	input = stdin;
@@ -32,9 +41,15 @@ int execute_domset_search(int argc, char **argv){
 
 	/* searching domsets */
 	sols = mkp_nemull(mkp);
+	plot_domsets(stdout, sols);
 
 	/* output */
-	array_sort(sols, (int(*)(void*, void*))mkpsol_profit_cmp);
+	mkp_fprint(stdout, mkp);
+	dim = 1;
+	array_sort_r( /*sorting by 1st weigth */
+		sols,
+		(int(*)(void*, void*, void*))mkpsol_cmp_weight,
+		&dim);
 	nsols = array_get_size(sols);
 	for( i = 0 ; i < nsols ; i++ )
 		mkpsol_fprint(stdout, array_get(sols, i), 1);

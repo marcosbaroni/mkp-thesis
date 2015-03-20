@@ -94,7 +94,8 @@ MKPSol *mkpsol_from_lp(MKP *mkp);               /* truncated from LP */
 MKPSol *mkpsol_local_search(MKPSol *mkpsol, int niter);
 int mkpsol_get_core_size(MKPSol *mkpsol, int *first_0p, int *last_1p);
 MKPSol *mkpsol_from_mkp_core(MKPSol *core_sol, MKP *orig_mkp, int *vars_fix);
-int mkpsol_profit_cmp(MKPSol *ms1, MKPSol *ms2); /* cmp of solution profits */
+int mkpsol_cmp_profit(MKPSol *ms1, MKPSol *ms2); /* cmp of solution profits */
+int mkpsol_cmp_weight(MKPSol *ms1, MKPSol *ms2, int *j);
 
 /* MKP TABU SEARCH*/
 

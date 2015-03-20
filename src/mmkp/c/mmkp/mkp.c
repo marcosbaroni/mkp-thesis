@@ -1431,10 +1431,19 @@ MKPSol *mkpsol_set(MKPSol *mkpsol, int a, int val){
 int mkpsol_get(MKPSol *mkpsol, int a){
 	return mkpsol->x[a];
 }
-/* profit-cmp */
-int mkpsol_profit_cmp(MKPSol *ms1, MKPSol *ms2){
+/* cmp-profit */
+int mkpsol_cmp_profit(MKPSol *ms1, MKPSol *ms2){
 	if( ms1->obj > ms2->obj) return 1;
 	else if(ms1->obj < ms2->obj ) return (-1);
+	return 0;
+}
+/* cmp-j-th-weight */
+int mkpsol_cmp_weight(MKPSol *ms1, MKPSol *ms2, int *j){
+	long long b_left1, b_left2;
+	b_left1 = ms1->b_left[*j];
+	b_left2 = ms2->b_left[*j];
+	if( b_left1 < b_left2 ) return 1;
+	else if( b_left1 > b_left2 ) return (-1);
 	return 0;
 }
 /* obj */

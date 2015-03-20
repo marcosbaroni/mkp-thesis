@@ -956,8 +956,30 @@ void pointer_swap(void **ps, int a, int b){
 	p = ps[a]; ps[a] = ps[b]; ps[b] = p;
 }
 
-void array_sort(Array *a, int(*compar)(void *, void *)){
-	mp_qsort(a->a, a->n, (mp_cmp_f)compar, (mp_swap_f)pointer_swap, 0);
+void array_sort(
+	Array *array,
+	int(*compar)(void *, void *))
+{
+	mp_qsort(
+		array->a,
+		array->n,
+		(mp_cmp_f)compar,
+		(mp_swap_f)pointer_swap,
+		0);
+}
+
+void array_sort_r(
+	Array *array,
+	int(*compar)(void *obj1, void *obj2, void *cmp_arg),
+	void *arg)
+{
+	mp_qsort_r(
+		array->a,
+		array->n,
+		(mp_cmp_r_f)compar,
+		(mp_swap_f)pointer_swap,
+		arg,
+		0);
 }
 
 Array *array_insert(Array *array, void *elem){
