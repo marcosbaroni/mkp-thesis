@@ -969,13 +969,26 @@ void array_sort(
 }
 
 int pointer_cmp_r(
-	void **ps,
+	void *ps_,
 	int a,
 	int b,
-	int(*cmp)(void*, void*, void*),
 	void *arg)
 {
-	
+	void **ps;
+	void **args;
+	int(*cmp)(void*, void*, void*);
+	ps = (void**)ps_;
+	args = (void**)arg;
+	cmp = (int(*)(void*,void*,void*))args[0];
+	return cmp(ps[a], ps[b], args[1]);
+}
+
+void pointer_swp(void **ps, int a, int b){
+	void *aux;
+	aux = ps[a];
+	ps[a] = ps[b];
+	ps[b] = aux;
+	return;
 }
 
 void array_sort_r(
@@ -984,14 +997,14 @@ void array_sort_r(
 	void *arg)
 {
 	void *args[2];
-	args[0] = cmp_arg;
+	args[0] = compar;
 	args[1] = arg;
 	/* TODO: stopped here... */
 	mp_qsort_r(
 		array->a,
 		array->n,
-		(mp_cmp_r_f)compar,
-		(mp_swap_f)pointer_cmp_r,
+		(mp_cmp_r_f)pointer_cmp_r,
+		(mp_swap_f)pointer_swp,
 		args,
 		0);
 }

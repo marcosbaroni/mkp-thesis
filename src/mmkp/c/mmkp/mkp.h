@@ -10,12 +10,13 @@
 *   Itens are sorting by decreasing order of profit (for greedy propose).
 */
 typedef struct MKP{
-	int n;       /* Number of itens */
-	int m;       /* Number of dimensions */
+	int n;            /* Number of itens */
+	int m;            /* Number of dimensions */
 	long long *p;     /* Profit of itens [n] */
 	long long **w;    /* Weight of itens [m x n] */
 	long long *b;     /* Knapsack capacities [m] */
 	int *idxs;        /* item indexs (no order) */
+	double *em;       /* efficienct measure */
 	double *lp_sol;   /* array with result of lp relaxation */
 	struct MKPSol *lp_trunc;
 }MKP;

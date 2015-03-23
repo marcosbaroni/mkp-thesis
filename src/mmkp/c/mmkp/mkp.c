@@ -24,6 +24,7 @@ MKP *mkp_alloc(int n, int m){
 		mkp->idxs[i] = i;
 	mkp->n = n;
 	mkp->m = m;
+	mkp->em = NULL;
 	mkp->lp_sol = NULL;
 	mkp->lp_trunc = NULL;
 
@@ -61,6 +62,12 @@ int mkp_cmp_profit(MKP *mkp, int a, int b){
 	return 0;
 }
 
+int mkp_cmp_em(MKP *mkp, int a, int b){
+	if( mkp->em[a] < mkp->em[b] ) return -1;
+	else if(mkp->em[a] > mkp->em[b] ) return 1;
+	return 0;
+}
+
 void mkp_swap_itens(MKP *mkp, int a, int b){
 	long long w[mkp->m], p;
 	int i, m;
@@ -81,8 +88,46 @@ void mkp_sort_by_profit(MKP *mkp){
 	return;
 }
 
+/* Returns the dual efficiency measure of each item.
+ * check.: "The core concept for the multidimensional knapsack problem",
+ *         Evolutionary Computation in Combinatorial Optimization, 2006 */
+double *mkp_dual_em(MKP *mkp){
+	double *x, *vals, sum;
+	int j, i, n, m;
+	long long *p, **w;
+	LP *lp;
+
+	n = mkp->n;
+	m = mkp->m;
+	p = mkp->p;
+	w = mkp->w;
+	vals = (double*)malloc(n*sizeof(double));
+
+	/* solving relaxed dual problem */
+	x = mkp_solve_dual_with_scip(mkp);
+
+	for( j = 0 ; j < n ; j++ ){
+		sum = 0.0;
+		for( i = 0 ; i < m ; i++ )
+			sum += w[i][j]*x[i];
+		vals[j] = p[j]/sum;
+	}
+	free(x);
+
+	return vals;
+}
+
+void mkp_sort_by_em(MKP *mkp){
+	if(!mkp->em)
+		mkp->em = mkp_dual_em(mkp);
+	mp_qsort(mkp, mkp->n, (mp_cmp_f)mkp_cmp_em, (mp_swap_f)mkp_swap_itens, 1);
+	return;
+}
+
 void mkp_free(MKP *mkp){
 	long_long_matrix_free(mkp->w, mkp->m);
+	if(mkp->em)
+		free(mkp->em);
 	if(mkp->lp_sol)
 		free(mkp->lp_sol);
 	if(mkp->lp_trunc)
@@ -1166,7 +1211,7 @@ void mkpsol_fprint(FILE *fout, MKPSol *mkpsol, char ptr_sol){
 	if( ptr_sol != 2 ){
 		fprintf(fout, "%lld;[", mkpsol->obj);
 		for( i = 0 ; i < m ; i++)
-			fprintf(fout, "%lld%s", mkpsol->b_left[i], i+1==m?"]":",");
+			fprintf(fout, "%lld%s", b[i]-mkpsol->b_left[i], i+1==m?"]":",");
 	}
 	if(ptr_sol){
 		if( ptr_sol == 1)
@@ -1344,6 +1389,7 @@ MKPSol *mkpsol_cross3(MKPSol *child, MKPSol *father)
  * Nemhauser-Ullman Algorithm for MKP.
  * */
 Array *mkp_nemull(MKP *mkp){
+	/* TODO: solve this function memory leak. */
 	Array *dom_sets, *merged_sets;
 	MKPSol *new_sol, *old_sol;
 	int n, m, i, j, k, n_dom_sets, n_merged_sets, not_dominated_by;
@@ -1393,7 +1439,7 @@ Array *mkp_nemull(MKP *mkp){
 				array_remove(merged_sets, j--);
 			}
 		}
-		/* TODO: Report current sets... */
+		printf("%d dom sets\n", array_get_size(dom_sets));
 		/* empty the merged set struct */
 		merged_sets = array_empty(merged_sets);
 	}

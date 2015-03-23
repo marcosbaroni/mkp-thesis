@@ -13,12 +13,13 @@ void print_usage(int argc, char **argv){
 	printf("   m\tnumber of dimensions;\n\n");
 	printf("OPTIONS:\n");
 	printf("   -s <seed>\tset seed for random generation. Current time is default.;\n");
-	printf("   -s <seed>\tset tightness of knapsack, i.e., total itens weight/knapsack capacity. 0.5 is default.;\n");
+	printf("   -e \tOutputs the instance with itens sorted by non-descreasing \"dual\" efficiency measure. Otherwise their sorted by profit;\n");
+	printf("   -b <ratio>\tset tightness of knapsack, i.e., total itens weight/knapsack capacity. 0.5 is default.;\n");
 	printf("   -m <max_coeficient>\tset larger profit and weight coeficient allowed. %d is default.\n", MAX_COEFFICIENT);
 	exit(EXIT_FAILURE);
 }
 
-void process_arguments(int argc, char **argv, int *n, int *m, double *beta, long *seed, int *max_coeficient){
+void process_arguments(int argc, char **argv, int *n, int *m, double *beta, long *seed, int *max_coeficient, int *sort){
 	int i;
 	*n = atol(argv[1]); /* n. of items */
 	*m = atol(argv[2]); /* n. of dimensions */
@@ -30,6 +31,11 @@ void process_arguments(int argc, char **argv, int *n, int *m, double *beta, long
 				/* custom seed */
 				case 's':
 				*seed = atol(argv[++i]);
+				break;
+
+				/* sort by efficiency measure */
+				case 'e':
+				*sort = 1;
 				break;
 
 				/* custom beta */
@@ -58,7 +64,7 @@ void process_arguments(int argc, char **argv, int *n, int *m, double *beta, long
 }
 
 int main(int argc, char **argv){
-	int n, m, o, max_coefs, *vec;
+	int n, m, o, max_coefs, sort, *vec;
 	double beta;
 	long seed;
 	MKP *mkp;
@@ -72,8 +78,9 @@ int main(int argc, char **argv){
 	beta = 0.5;
 	seed = getmillis();
 	max_coefs = MAX_COEFFICIENT;
+	sort = 0;
 	/* parsing arguments */
-	process_arguments(argc, argv, &n, &m, &beta, &seed, &max_coefs);
+	process_arguments(argc, argv, &n, &m, &beta, &seed, &max_coefs, &sort);
 
 	/* check non-zero arguments */
 	if(!(n*m)){
@@ -86,7 +93,10 @@ int main(int argc, char **argv){
 
 	/* Generating random instance */
 	mkp = mkp_random(n, m, beta, max_coefs);
-	mkp_sort_by_profit(mkp);
+	
+	/* sorting items */
+	if(sort) mkp_sort_by_em(mkp);
+	else mkp_sort_by_profit(mkp);
 
 	/* Printing random instance */
 	mkp_write_to_file(mkp, stdout);

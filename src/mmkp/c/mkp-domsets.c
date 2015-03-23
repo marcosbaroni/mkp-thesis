@@ -41,18 +41,20 @@ int execute_domset_search(int argc, char **argv){
 
 	/* searching domsets */
 	sols = mkp_nemull(mkp);
-	plot_domsets(stdout, sols);
+	//plot_domsets(stdout, sols);
 
 	/* output */
 	mkp_fprint(stdout, mkp);
-	dim = 1;
+	dim = 0;
 	array_sort_r( /*sorting by 1st weigth */
 		sols,
 		(int(*)(void*, void*, void*))mkpsol_cmp_weight,
 		&dim);
 	nsols = array_get_size(sols);
-	for( i = 0 ; i < nsols ; i++ )
+	for( i = 0 ; i < nsols ; i++ ){
+		printf("%03d - ", i);
 		mkpsol_fprint(stdout, array_get(sols, i), 1);
+	}
 
 	/* frees */
 	fclose(input);
