@@ -8,18 +8,22 @@ void print_usage(int argc, char **argv){
 	printf("%s [OPTIONS]... <n> <m>\n\n", argv[0]);
 	printf("DESCRIPTION:\n");
 	printf(" Generates a random instance of MKP (n, m).\n\n");
+	printf("   w[ij] = U(0, max_coeficient)\n");
+	printf("   b[j] = alpha*sum(w[j])\n");
+	printf("   p[i] = 2*beta*sum(w[i]) + (1-beta)*max_coeficient*U(0, 1)\n\n");
 	printf("ARGUMENTS:\n");
 	printf("   n\tnumber of itens;\n");
 	printf("   m\tnumber of dimensions;\n\n");
 	printf("OPTIONS:\n");
-	printf("   -s <seed>\tset seed for random generation. Current time is default.;\n");
+	printf("   -s <seed>\tset seed for random generation (current time is default);\n");
 	printf("   -e \tOutputs the instance with itens sorted by non-descreasing \"dual\" efficiency measure. Otherwise their sorted by profit;\n");
-	printf("   -b <ratio>\tset tightness of knapsack, i.e., total itens weight/knapsack capacity. 0.5 is default.;\n");
-	printf("   -m <max_coeficient>\tset larger profit and weight coeficient allowed. %d is default.\n", MAX_COEFFICIENT);
+	printf("   -a <alpha ratio>\tset tightness of knapsack, i.e., total itens weight/knapsack capacity (0.5 is default);\n");
+	printf("   -b <beta ratio>\tcorrelation between items profit-weight (0.5 is default);\n");
+	printf("   -m <max_coeficient>\tset larger profit and weight coeficient allowed (%d is default).\n", MAX_COEFFICIENT);
 	exit(EXIT_FAILURE);
 }
 
-void process_arguments(int argc, char **argv, int *n, int *m, double *beta, long *seed, int *max_coeficient, int *sort){
+void process_arguments(int argc, char **argv, int *n, int *m, double *alpha, double *beta, long *seed, int *max_coeficient, int *sort){
 	int i;
 	*n = atol(argv[1]); /* n. of items */
 	*m = atol(argv[2]); /* n. of dimensions */
@@ -36,6 +40,11 @@ void process_arguments(int argc, char **argv, int *n, int *m, double *beta, long
 				/* sort by efficiency measure */
 				case 'e':
 				*sort = 1;
+				break;
+
+				/* custom alpha */
+				case 'a':
+				*alpha = atof(argv[++i]);
 				break;
 
 				/* custom beta */
@@ -65,7 +74,7 @@ void process_arguments(int argc, char **argv, int *n, int *m, double *beta, long
 
 int main(int argc, char **argv){
 	int n, m, o, max_coefs, sort, *vec;
-	double beta;
+	double beta, alpha;
 	long seed;
 	MKP *mkp;
 	FILE *f;
@@ -75,12 +84,12 @@ int main(int argc, char **argv){
 		print_usage(argc, argv);
 
 	/* default arguments */
-	beta = 0.5;
+	alpha = beta = 0.5;
 	seed = getmillis();
 	max_coefs = MAX_COEFFICIENT;
 	sort = 0;
 	/* parsing arguments */
-	process_arguments(argc, argv, &n, &m, &beta, &seed, &max_coefs, &sort);
+	process_arguments(argc, argv, &n, &m, &alpha, &beta, &seed, &max_coefs, &sort);
 
 	/* check non-zero arguments */
 	if(!(n*m)){
@@ -92,7 +101,7 @@ int main(int argc, char **argv){
 	srand(seed);
 
 	/* Generating random instance */
-	mkp = mkp_random(n, m, beta, max_coefs);
+	mkp = mkp_random(n, m, alpha, beta, max_coefs);
 	
 	/* sorting items */
 	if(sort) mkp_sort_by_em(mkp);

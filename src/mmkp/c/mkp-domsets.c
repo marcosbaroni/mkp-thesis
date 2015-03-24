@@ -38,27 +38,24 @@ int execute_domset_search(int argc, char **argv){
 	
 	/* reading instance */
 	mkp = mkp_read_from_file(input);
+	fclose(input);
 
 	/* searching domsets */
 	sols = mkp_nemull(mkp);
-	//plot_domsets(stdout, sols);
+	nsols = array_get_size(sols);
 
 	/* output */
-	mkp_fprint(stdout, mkp);
 	dim = 0;
 	array_sort_r( /*sorting by 1st weigth */
-		sols,
-		(int(*)(void*, void*, void*))mkpsol_cmp_weight,
-		&dim);
-	nsols = array_get_size(sols);
+		sols, (int(*)(void*, void*, void*))mkpsol_cmp_weight, &dim);
 	for( i = 0 ; i < nsols ; i++ ){
 		printf("%03d - ", i);
 		mkpsol_fprint(stdout, array_get(sols, i), 1);
 	}
 
 	/* frees */
-	fclose(input);
 	mkp_free(mkp);
+	array_apply(sols, (array_apply_f)mkpsol_free);
 	array_free(sols);
 	
 	return 0;

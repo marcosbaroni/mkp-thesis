@@ -386,6 +386,8 @@ long long *long_long_array_malloc(int n){
 
 long long *long_long_array_init(long long *array, int n, long long x){
 	int i;
+	if(!array)
+		array = (long long*)malloc(n*sizeof(long long));
 	for( i = 0 ; i < n ; i++ )
 		array[i] = x;
 	return array;

@@ -34,24 +34,42 @@ MKP *mkp_alloc(int n, int m){
 /*
  * Returns a random MKP problem with coeficients taken from uniform
  *    distribution.
+ * ARGUMENTS:
+ *   alpha: correlation of items
+ *   beta: tigthness of knapsack
+ * GENERATION:
+ *   w[i][j] = U(0, max_coefs);
+ *   b[j] = alpha*(w[0][j] + w[1][j] + ... + w[n-1][j]);
+ *   p[j] = beta*2*(w[i][0] + w[i][1] + ... + w[i][m-1]) +
+ * 	+ (1-beta)*max_coefs*U(0, 1)
  */
-MKP *mkp_random(int n, int m, double beta, long long max_coefs){
+MKP *mkp_random(int n, int m, double alpha, double beta, long long max_coefs){
 	int i, j;
-	long long lsum;
+	long long *wsums, wsum, w;
 	MKP *mkp;
 
 	mkp = mkp_alloc(n, m);
+	wsums = long_long_array_init(NULL, m, 0);
 
-	/* profit */
-	for( i = 0 ; i < n ; i++ )
-		mkp->p[i] = llrand(max_coefs);
-	/* weight */
-	for( i = 0 ; i < m ; i++ ){
-		lsum = 0;
-		for( j = 0 ; j < n ; j++ )
-			lsum += mkp->w[i][j] = llrand(max_coefs);
-		mkp->b[i] = (long)(ceil(lsum*beta));
+	for( i = 0 ; i < n ; i++ ){
+		wsum = 0;
+		for( j = 0 ; j < m ; j++ ){
+			/* weights */
+			w = llrand(max_coefs);
+			mkp->w[j][i] = w;
+			wsums[j] += w;
+			wsum += w;
+		}
+		/* profits */
+		mkp->p[i] = llrand(wsum)/m + llrand((1-beta)*max_coefs);
 	}
+
+	/* capacities */
+	for( j = 0 ; j < m ; j++ ){
+		mkp->b[j] = (long long)(ceil(wsums[j]*alpha));
+	}
+
+	free(wsums);
 
 	return mkp;
 }
@@ -1012,6 +1030,7 @@ MKPSol *mkpsol_new(MKP *mkp){
 
 	mkpsol = (MKPSol*)malloc(sizeof(MKPSol));
 	mkpsol->x = int_array_init(NULL, mkp->n, 0);
+	mkpsol->nx = 0;
 	mkpsol->b_left = long_long_array_copy(NULL, mkp->b, mkp->m);
 	mkpsol->obj = 0;
 	mkpsol->feasible = 1;
@@ -1070,6 +1089,7 @@ MKPSol *mkpsol_add_item(MKPSol *mkpsol, int a){
 	}
 
 	mkpsol->x[a] = 1;
+	mkpsol->nx++;
 	mkpsol->obj += mkp->p[a];
 	for( i = 0 ; i < m ; i++ ){
 		mkpsol->b_left[i] -= mkp->w[i][a];
@@ -1094,6 +1114,7 @@ MKPSol *mkpsol_rm_item(MKPSol *mkpsol, int a){
 	}
 
 	mkpsol->x[a] = 0;
+	mkpsol->nx--;
 	mkpsol->obj -= mkp->p[a];
 	mkpsol->feasible = 1;
 	for( i = 0 ; i < m ; i++ ){
@@ -1142,6 +1163,7 @@ MKPSol *mkpsol_copy(MKPSol *mkpsol){
 
 	mkpsol_new = (MKPSol*)malloc(sizeof(MKPSol));
 	mkpsol_new->x = int_array_copy(NULL, mkpsol->x, mkpsol->mkp->n);
+	mkpsol_new->nx = mkpsol->nx;
 	mkpsol_new->b_left = long_long_array_copy(NULL, mkpsol->b_left, mkpsol->mkp->m);
 	mkpsol_new->obj = mkpsol->obj;
 	mkpsol_new->feasible = mkpsol->feasible;
@@ -1427,7 +1449,7 @@ Array *mkp_nemull(MKP *mkp){
 			/* scan all current sets */
 			for( k = 0 ; k < array_get_size(merged_sets) && not_dominated_by ; k++ ){
 				old_sol = array_get(merged_sets, k);
-				if(new_sol != old_sol )
+				if( new_sol != old_sol )
 					not_dominated_by &= !mkpsol_dominated_by(new_sol, old_sol);
 				not_dominated_by &= new_sol->feasible; /* only feasible sets (optimization) */
 			}

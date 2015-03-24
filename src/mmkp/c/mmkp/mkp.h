@@ -23,7 +23,7 @@ typedef struct MKP{
 
 /*** Memory Management ***/
 MKP *mkp_alloc(int n, int m);
-MKP *mkp_random(int n, int m, double beta, long long max_coefs);
+MKP *mkp_random(int n, int m, double alpha, double beta, long long max_coefs);
 void mkp_sort_by_profit(MKP *mkp);
 void mkp_free(MKP *mkp);
 
@@ -71,6 +71,7 @@ LP *mkp2lp(MKP *mkp, double capacity_scale); /* MKP to LP relaxation */
 /*** MKP SOLUTION ***/
 typedef struct MKPSol{
 	int *x;                /* The solution vector [n] */
+	int nx;
 	long long *b_left;     /* Resource left on the knapsack [m] */
 	long long obj;         /* Objective function */
 	int feasible;          /* If solution is feasible*/
