@@ -15,7 +15,7 @@ typedef struct LP{
 	double *b;   /* b [ncs] (capacities) */
 }LP;
 
-double *lp_simplex(LP *lp);
+double *lp_simplex(LP *lp, double *obj);
 double *lp_scip(LP *lp);
 void lp_fprint(FILE *out, LP *lp);
 void lp_free(LP *lp);

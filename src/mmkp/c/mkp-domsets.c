@@ -47,7 +47,7 @@ int execute_domset_search(int argc, char **argv){
 	/* output */
 	dim = 0;
 	array_sort_r( /*sorting by 1st weigth */
-		sols, (int(*)(void*, void*, void*))mkpsol_cmp_weight, &dim);
+		sols, (int(*)(void*, void*, void*))mkpsol_cmp_profit, &dim);
 	for( i = 0 ; i < nsols ; i++ ){
 		printf("%03d - ", i);
 		mkpsol_fprint(stdout, array_get(sols, i), 1);

@@ -64,7 +64,7 @@ void tableau_build(LP *lp, double **tab, double *b){
  * [ tab | b ]
  * [ tab | z ]   <- additional line | z
  * */
-double *lp_simplex(LP *lp){
+double *lp_simplex(LP *lp, double *obj){
 	int i, j, n, nvars, m;
 	double **tab; /* the tableau (with addicional line, for pivoting ruling) */
 	double *b;    /* right side "b"s */
@@ -189,6 +189,9 @@ double *lp_simplex(LP *lp){
 		free(tab[i]);
 	free(tab);
 	free(b);
+
+	if( obj )
+		*obj = z;
 
 	return x;
 }

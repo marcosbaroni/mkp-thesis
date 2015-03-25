@@ -27,6 +27,7 @@ MKP *mkp_alloc(int n, int m){
 	mkp->em = NULL;
 	mkp->lp_sol = NULL;
 	mkp->lp_trunc = NULL;
+	mkp->lp_obj = 0.0;
 
 	return mkp;
 }
@@ -484,11 +485,22 @@ double* mkp_get_lp_sol(MKP *mkp){
 	LP *lp;
 	if(!mkp->lp_sol){
 		lp = mkp2lp(mkp, 1.0);
-		mkp->lp_sol = lp_simplex(lp);
+		mkp->lp_sol = lp_simplex(lp, &(mkp->lp_obj));
 		lp_free(lp);
 	}
 	return (double*)memcpy(malloc(mkp->n*sizeof(double)), mkp->lp_sol, mkp->n*sizeof(double));
 }
+
+double mkp_get_lp_obj(MKP *mkp){
+	LP* lp;
+	if( !mkp->lp_sol ){
+		lp = mkp2lp(mkp, 1.0);
+		mkp->lp_sol = lp_simplex(lp, &(mkp->lp_obj));
+		lp_free(lp);
+	}
+	return mkp->lp_obj;
+}
+
 
 void _couting_fracs(double *x, int n,
 	double *assigned,
@@ -589,7 +601,7 @@ double _do_right_search(MKP *mkp, int *assigned, int *var){
 
 	/* solve std lp problem */
 	lp = mkp2lp(mkp, 1.0);
-	x = lp_simplex(lp);
+	x = lp_simplex(lp, NULL);
 	lp_free(lp);
 
 	/* counting 'std' ones assigned variables */
@@ -605,7 +617,7 @@ double _do_right_search(MKP *mkp, int *assigned, int *var){
 	do{
 		/* solving lp problem */
 		lp = mkp2lp(mkp, scale+tic);
-		x = lp_simplex(lp);
+		x = lp_simplex(lp, NULL);
 		lp_free(lp);
 
 		fprintf(debugout, "scale is %.3f ", scale+tic);
@@ -662,7 +674,7 @@ double _do_left_search(MKP *mkp, int *assigned, int *var){
 
 	/* solve std lp problem */
 	lp = mkp2lp(mkp, 1.0);
-	x = lp_simplex(lp);
+	x = lp_simplex(lp, NULL);
 	lp_free(lp);
 
 	/* counting 'std' zeros assigned variables */
@@ -677,7 +689,7 @@ double _do_left_search(MKP *mkp, int *assigned, int *var){
 	do{
 		/* solving lp problem */
 		lp = mkp2lp(mkp, scale-tic);
-		x = lp_simplex(lp);
+		x = lp_simplex(lp, NULL);
 		lp_free(lp);
 
 		fprintf(debugout, "scale is %.3f ", scale-tic);
@@ -737,7 +749,7 @@ double *mkp_my_core_vals2(MKP *mkp){
 
 	/* solving lp */
 	lp = mkp2lp(mkp, 1.0);
-	x = lp_simplex(lp);
+	x = lp_simplex(lp, NULL);
 	lp_free(lp);
 
 	double_array_fprint(stdout, x, n);
@@ -1413,15 +1425,26 @@ MKPSol *mkpsol_cross3(MKPSol *child, MKPSol *father)
 Array *mkp_nemull(MKP *mkp){
 	/* TODO: solve this function memory leak. */
 	Array *dom_sets, *merged_sets;
-	MKPSol *new_sol, *old_sol;
+	MKPSol *new_sol, *old_sol, *best_sol;
 	int n, m, i, j, k, n_dom_sets, n_merged_sets, not_dominated_by;
 	long long **w, *p, *b;
+	long long best_profit;
+
+	MKP *fixed_mkp;
+	LP *fixed_lp;
+	double *lp_sol;
+	double lp_obj;
+	int *x;
+	int npromissing;
+
 	n = mkp->n;
+	x = (int*)malloc(n*sizeof(int));
 
 	/* initializing sets */
 	dom_sets = array_new();
 	merged_sets = array_new();
 
+	best_profit = 0;
 	for( i = 0 ; i < n ; i++ ){
 		/* generating new sets from old ones */
 		n_dom_sets = array_get_size(dom_sets);
@@ -1443,6 +1466,7 @@ Array *mkp_nemull(MKP *mkp){
 		dom_sets = array_empty(dom_sets);
 
 		/* filtering: checking dominance of each set */
+		npromissing = 0;
 		for( j = 0 ; j < array_get_size(merged_sets); j++ ){
 			new_sol = array_get(merged_sets, j);
 			not_dominated_by = 1;
@@ -1454,21 +1478,48 @@ Array *mkp_nemull(MKP *mkp){
 				not_dominated_by &= new_sol->feasible; /* only feasible sets (optimization) */
 			}
 			/* the solution is not dominated by no one? */
-			if( not_dominated_by )
-				array_insert(dom_sets, new_sol);                 /* add */
-			else{        /* free set */
+			if( not_dominated_by ){
+				array_insert(dom_sets, new_sol);       /* add */
+				if( new_sol->obj > best_profit ){      /* is best known? */
+					best_sol = new_sol;
+					best_profit = new_sol->obj;
+				}else{                                 /* is promissing? */
+					/* TODO: conferir...resultados estão estranhos. */
+					for( k = 0 ; k < i+1 ; k++ )
+						x[k] = new_sol->x[k];
+					for( ; k < n ; k++ )
+						x[k] = -1;
+					fixed_mkp = mkp_reduced(mkp, x);
+					lp_obj = mkp_get_lp_obj(fixed_mkp);
+					if( lp_obj > (double)best_profit )
+						npromissing++;
+					mkp_free(fixed_mkp);
+				}
+			}else{        /* free set */
 				mkpsol_free(new_sol);
 				array_remove(merged_sets, j--);
 			}
 		}
-		printf("%d dom sets\n", array_get_size(dom_sets));
+		printf("%d - %d dom sets (%d promissing, best=%lld)\n", i+1, array_get_size(dom_sets), npromissing, best_profit);
 		/* empty the merged set struct */
 		merged_sets = array_empty(merged_sets);
 	}
 
+	free(x);
 	array_free(merged_sets);
 
 	return dom_sets;
+}
+
+/*
+ * Multidimensional Minknap
+ */
+Array *mkp_minknap(MKP *mkp, MKPSol *initsol){
+	Array *sols;
+
+	sols = array_new();
+	
+	return sols;
 }
 
 /*******************************************************************************

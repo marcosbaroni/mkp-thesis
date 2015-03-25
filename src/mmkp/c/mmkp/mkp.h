@@ -18,6 +18,7 @@ typedef struct MKP{
 	int *idxs;        /* item indexs (no order) */
 	double *em;       /* efficienct measure */
 	double *lp_sol;   /* array with result of lp relaxation */
+	double lp_obj;    /* lp-relaxation upperbound */
 	struct MKPSol *lp_trunc;
 }MKP;
 
@@ -40,6 +41,7 @@ double *mkp_solve_with_scip(MKP *mkp, double maxtime, double capacity_scale, cha
 void mkp_dual_to_zimpl(FILE *fout, MKP *mkp, char linear);
 double *mkp_solve_dual_with_scip(MKP *mkp);
 double* mkp_get_lp_sol(MKP *mkp);
+double mkp_get_lp_obj(MKP *mkp);
 
 /* generates a reduced MKP, with a subset of variables.
  *  mkp: original problem
