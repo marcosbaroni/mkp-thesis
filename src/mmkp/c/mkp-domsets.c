@@ -22,6 +22,24 @@ void plot_domsets(FILE *out, Array *sols){
 	return;
 }
 
+void find_uppers(MKP *mkp){
+	MKP *mkp2;
+	LP *lp;
+	double *x;
+	int i, j, n, m;
+
+	n = mkp->n;
+	m = mkp->m;
+
+	for( j = 0 ; j < m ; j++ ){
+		mkp2 = mkp_select_contraints(mkp, &j, 1);
+		x = mkp_solve_with_scip(mkp2, double 600, 1.0, 0);
+		for();
+	}
+
+	return;
+}
+
 int execute_domset_search(int argc, char **argv){
 	MKP *mkp;
 	Array *sols;
@@ -39,6 +57,9 @@ int execute_domset_search(int argc, char **argv){
 	/* reading instance */
 	mkp = mkp_read_from_file(input);
 	fclose(input);
+
+	/* max items...*/
+	mkp_max_items(mkp);
 
 	/* searching domsets */
 	sols = mkp_nemull(mkp);

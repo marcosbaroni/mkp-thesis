@@ -107,6 +107,38 @@ void mkp_sort_by_profit(MKP *mkp){
 	return;
 }
 
+/*
+ * Finds an upper bound on number of items on knapsack, based on
+ *   max items for each dimension. */
+int mkp_max_items(MKP *mkp){
+	int nx, n, m, i, j;
+	long long *ws, b;
+
+	m = mkp->m;
+	n = mkp->n;
+	ws = (long long*)malloc(n*sizeof(long long));
+
+	/* for each dimension */
+	nx = n;
+	for( j = 0 ; j < m ; j++ ){
+		long_long_array_copy(ws, mkp->w[j], n);
+		long_long_array_qsort(ws, n);
+		for( i =  0 ; i < 10 ; i++ )
+			printf("%lld ", ws[i]);
+		printf("\n");
+		b = mkp->b[j];
+		for( i = 0 ; i < n && b > 0 ; i++ )
+			b -= ws[i];
+		printf("%d: %d\n", i+1, i);
+		if( i < nx )
+			nx = i;
+	}
+
+	free(ws);
+
+	return nx;
+}
+
 /* Returns the dual efficiency measure of each item.
  * check.: "The core concept for the multidimensional knapsack problem",
  *         Evolutionary Computation in Combinatorial Optimization, 2006 */
@@ -453,7 +485,8 @@ void mkp_to_zimpl(FILE *fout, MKP *mkp, double max_opt, double capacity_scale, c
 		fprintf(fout, "param maxobj := %lf;\n", max_opt);
 
 	/* desicion var */
-	if(linear) fprintf(fout, "var x[N] real >= 0 <= 1;\n");
+	if(linear)
+		fprintf(fout, "var x[N] real >= 0 <= 1;\n");
 	else fprintf(fout, "var x[N] binary;\n");
 
 	/* capacities constraint */
@@ -501,6 +534,11 @@ double mkp_get_lp_obj(MKP *mkp){
 	return mkp->lp_obj;
 }
 
+double *mkp_get_em(MKP *mkp){
+	if(!mkp->em)
+		mkp->em = mkp_dual_em(mkp);
+	return mkp->em;
+}
 
 void _couting_fracs(double *x, int n,
 	double *assigned,
@@ -880,6 +918,26 @@ MKP *mkp_reduced(MKP *mkp, int *var_vals){
 	free(frees);
 
 	return nmkp;
+}
+
+/*
+ * Returns a MKP with a subset of (selected) capacity constraints.
+ * */
+MKP *mkp_select_contraints(MKP *mkp, int *cons, int m2){
+	int n, m, i, j;
+	MKP *mkp2;
+
+	n = mkp->n;
+	m = mkp->m;
+
+	mkp2 = mkp_alloc(n, m2);
+
+	mkp2->p = long_long_array_copy(mkp, mkp2->p, mkp->p, n);
+	mkp2->b = long_long_array_copy(mkp, mkp2->b, mkp->b, n);
+	for( j = 0 ; j < m2 ; j++ )
+		mkp2->w[j] = long_long_array_copy(mkp2->w[j], mkp->w[cons[j]], n);
+
+	return mkp2;
 }
 
 /* Returns an array with the indexs of variables, sorted by increasing order
@@ -1364,6 +1422,23 @@ MKPSol *mkpsol_local_search(MKPSol *mkpsol, int niter){
 	mkpsol_free(current);
 
 	return best;
+}
+
+MKPSol *mkpsol_greedy_fill(MKPSol *mkpsol){
+	int i, j, n, m, *idxs, a;
+
+	/* TODO: greedy fill knapsacks, using efficiency measure order... */
+	n = mkpsol->mkp->n;
+	idxs = double_index_sort(mkp_get_em(mkpsol->mkp), n);
+	for( i = 0 ; i < n ; i++ ){
+		a = idxs[i];
+		if( !mkpsol->x[i] )
+			mkpsol_add_item(mkpsol, a);
+		if( !mkpsol->feasible )
+			mkpsol_rm_item(mkpsol, a);
+	}
+
+	return mkpsol;
 }
 
 /* repair a solution, removing at first itens that minimum reduces profit */

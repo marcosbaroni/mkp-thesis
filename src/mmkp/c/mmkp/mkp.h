@@ -42,6 +42,8 @@ void mkp_dual_to_zimpl(FILE *fout, MKP *mkp, char linear);
 double *mkp_solve_dual_with_scip(MKP *mkp);
 double* mkp_get_lp_sol(MKP *mkp);
 double mkp_get_lp_obj(MKP *mkp);
+double *mkp_get_em(MKP *mkp);
+int mkp_max_items(MKP *mkp);
 
 /* generates a reduced MKP, with a subset of variables.
  *  mkp: original problem
@@ -100,6 +102,7 @@ int mkpsol_get_core_size(MKPSol *mkpsol, int *first_0p, int *last_1p);
 MKPSol *mkpsol_from_mkp_core(MKPSol *core_sol, MKP *orig_mkp, int *vars_fix);
 int mkpsol_cmp_profit(MKPSol *ms1, MKPSol *ms2); /* cmp of solution profits */
 int mkpsol_cmp_weight(MKPSol *ms1, MKPSol *ms2, int *j);
+MKPSol *mkpsol_greedy_fill(MKPSol *mkpsol);
 
 /* MKP TABU SEARCH*/
 
