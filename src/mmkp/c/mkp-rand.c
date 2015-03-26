@@ -16,7 +16,7 @@ void print_usage(int argc, char **argv){
 	printf("   m\tnumber of dimensions;\n\n");
 	printf("OPTIONS:\n");
 	printf("   -s <seed>\tset seed for random generation (current time is default);\n");
-	printf("   -e \tOutputs the instance with itens sorted by non-descreasing \"dual\" efficiency measure. Otherwise their sorted by profit;\n");
+	printf("   -[e|r] \tOutputs the instance with itens sorted by [non-descreasing|non-increasing] \"dual\" efficiency measure. Otherwise their sorted by profit;\n");
 	printf("   -a <alpha ratio>\tset tightness of knapsack, i.e., total itens weight/knapsack capacity (0.5 is default);\n");
 	printf("   -b <beta ratio>\tcorrelation between items profit-weight (0.5 is default);\n");
 	printf("   -m <max_coeficient>\tset larger profit and weight coeficient allowed (%d is default).\n", MAX_COEFFICIENT);
@@ -40,6 +40,11 @@ void process_arguments(int argc, char **argv, int *n, int *m, double *alpha, dou
 				/* sort by efficiency measure */
 				case 'e':
 				*sort = 1;
+				break;
+
+				/* sort by reversed efficiency measure */
+				case 'r':
+				*sort = 2;
 				break;
 
 				/* custom alpha */
@@ -104,7 +109,7 @@ int main(int argc, char **argv){
 	mkp = mkp_random(n, m, alpha, beta, max_coefs);
 	
 	/* sorting items */
-	if(sort) mkp_sort_by_em(mkp);
+	if(sort) mkp_sort_by_em(mkp, sort-1);
 	else mkp_sort_by_profit(mkp);
 
 	/* Printing random instance */

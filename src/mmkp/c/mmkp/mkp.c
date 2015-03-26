@@ -136,10 +136,10 @@ double *mkp_dual_em(MKP *mkp){
 	return vals;
 }
 
-void mkp_sort_by_em(MKP *mkp){
+void mkp_sort_by_em(MKP *mkp, int reverse){
 	if(!mkp->em)
 		mkp->em = mkp_dual_em(mkp);
-	mp_qsort(mkp, mkp->n, (mp_cmp_f)mkp_cmp_em, (mp_swap_f)mkp_swap_itens, 1);
+	mp_qsort(mkp, mkp->n, (mp_cmp_f)mkp_cmp_em, (mp_swap_f)mkp_swap_itens, !reverse);
 	return;
 }
 
@@ -1436,6 +1436,9 @@ Array *mkp_nemull(MKP *mkp){
 	double lp_obj;
 	int *x;
 	int npromissing;
+	int use_lp_relax;
+
+	use_lp_relax = 1;
 
 	n = mkp->n;
 	x = (int*)malloc(n*sizeof(int));
@@ -1478,22 +1481,28 @@ Array *mkp_nemull(MKP *mkp){
 				not_dominated_by &= new_sol->feasible; /* only feasible sets (optimization) */
 			}
 			/* the solution is not dominated by no one? */
+
 			if( not_dominated_by ){
-				array_insert(dom_sets, new_sol);       /* add */
-				if( new_sol->obj > best_profit ){      /* is best known? */
-					best_sol = new_sol;
-					best_profit = new_sol->obj;
-				}else{                                 /* is promissing? */
-					/* TODO: conferir...resultados estão estranhos. */
+				if( use_lp_relax ){
+					/* test promissing upperbound */
 					for( k = 0 ; k < i+1 ; k++ )
 						x[k] = new_sol->x[k];
 					for( ; k < n ; k++ )
 						x[k] = -1;
 					fixed_mkp = mkp_reduced(mkp, x);
 					lp_obj = mkp_get_lp_obj(fixed_mkp);
-					if( lp_obj > (double)best_profit )
-						npromissing++;
 					mkp_free(fixed_mkp);
+					if( lp_obj + new_sol->obj >= (double)best_profit ){
+						npromissing++;
+						array_insert(dom_sets, new_sol);       /* add */
+					}
+				}else{
+					array_insert(dom_sets, new_sol);       /* add */
+				}
+	
+				if( new_sol->obj > best_profit ){      /* is best known? */
+					best_sol = new_sol;
+					best_profit = new_sol->obj;
 				}
 			}else{        /* free set */
 				mkpsol_free(new_sol);
