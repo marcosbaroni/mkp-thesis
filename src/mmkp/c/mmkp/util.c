@@ -1001,7 +1001,6 @@ void array_sort_r(
 	void *args[2];
 	args[0] = compar;
 	args[1] = arg;
-	/* TODO: stopped here... */
 	mp_qsort_r(
 		array->a,
 		array->n,

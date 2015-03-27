@@ -123,13 +123,10 @@ int mkp_max_items(MKP *mkp){
 	for( j = 0 ; j < m ; j++ ){
 		long_long_array_copy(ws, mkp->w[j], n);
 		long_long_array_qsort(ws, n);
-		for( i =  0 ; i < 10 ; i++ )
-			printf("%lld ", ws[i]);
-		printf("\n");
 		b = mkp->b[j];
 		for( i = 0 ; i < n && b > 0 ; i++ )
 			b -= ws[i];
-		printf("%d: %d\n", i+1, i);
+		printf("max item for dim %d: %d\n", j+1, i);
 		if( i < nx )
 			nx = i;
 	}
@@ -932,10 +929,51 @@ MKP *mkp_select_contraints(MKP *mkp, int *cons, int m2){
 
 	mkp2 = mkp_alloc(n, m2);
 
-	mkp2->p = long_long_array_copy(mkp, mkp2->p, mkp->p, n);
-	mkp2->b = long_long_array_copy(mkp, mkp2->b, mkp->b, n);
-	for( j = 0 ; j < m2 ; j++ )
+	mkp2->p = long_long_array_copy(mkp2->p, mkp->p, n);
+	for( j = 0 ; j < m2 ; j++ ){
 		mkp2->w[j] = long_long_array_copy(mkp2->w[j], mkp->w[cons[j]], n);
+		mkp2->b[j] = mkp->b[cons[j]];
+	}
+
+	return mkp2;
+}
+
+/*
+ * Returns a (min)surrogate relaxation for a MKP instance.
+ *   - mkp: the MKP instance;
+ *   - cons: list of the contraints to me added;
+ *   - multips: the multiplier of each contraint;
+ *   - m2: number of contraints to be added.
+ * */
+MKP *mkp_surrogate(MKP *mkp, int *cons, int *multips, int m2){
+	MKP *mkp2;
+	int i, j, dim, mult, n, m;
+
+	n = mkp->n;
+	m = mkp->m;
+
+	mkp2 = mkp_alloc(n, 1);
+	/* TODO: Test this function. */
+	
+	/* profit */
+	mkp2->p = long_long_array_copy(mkp2->p, mkp->p, n);
+
+	/* weights */
+	dim = cons[0];
+	mult = multips[0];
+	for( i = 0 ; i < n ; i++ )
+		mkp2->w[0][i] = mult*mkp->w[dim][i];
+	for( j = 1 ; j < m2 ; j++ ){
+		dim = cons[j];
+		mult = multips[j];
+		for( i = 0 ; i < n ; i++ )
+			mkp2->w[0][i] += mult*mkp->w[dim][i];
+	}
+
+	/* capacities */
+	mkp2->b[0] = 0;
+	for( j = 0 ; j < m2 ; j++ )
+		mkp2->b[0] += multips[j]*mkp->b[cons[j]];
 
 	return mkp2;
 }
@@ -1427,9 +1465,12 @@ MKPSol *mkpsol_local_search(MKPSol *mkpsol, int niter){
 MKPSol *mkpsol_greedy_fill(MKPSol *mkpsol){
 	int i, j, n, m, *idxs, a;
 
-	/* TODO: greedy fill knapsacks, using efficiency measure order... */
 	n = mkpsol->mkp->n;
+
+	/* array of items indexs (sort by non-descreasing efficiency) */
 	idxs = double_index_sort(mkp_get_em(mkpsol->mkp), n);
+
+	/* for each item, try to fit it in knapsack */
 	for( i = 0 ; i < n ; i++ ){
 		a = idxs[i];
 		if( !mkpsol->x[i] )
@@ -1498,7 +1539,6 @@ MKPSol *mkpsol_cross3(MKPSol *child, MKPSol *father)
  * Nemhauser-Ullman Algorithm for MKP.
  * */
 Array *mkp_nemull(MKP *mkp){
-	/* TODO: solve this function memory leak. */
 	Array *dom_sets, *merged_sets;
 	MKPSol *new_sol, *old_sol, *best_sol;
 	int n, m, i, j, k, n_dom_sets, n_merged_sets, not_dominated_by;
@@ -1513,6 +1553,7 @@ Array *mkp_nemull(MKP *mkp){
 	int npromissing;
 	int use_lp_relax;
 
+	/* user lp relaxation upper bound */
 	use_lp_relax = 1;
 
 	n = mkp->n;

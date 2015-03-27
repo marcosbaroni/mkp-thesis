@@ -54,6 +54,7 @@ int mkp_max_items(MKP *mkp);
  * */
 MKP *mkp_reduced(MKP *mkp, int *var_vals);
 MKP *mkp_core_problem(MKP *mkp, int core_size, int **vars_fix);
+MKP *mkp_select_contraints(MKP *mkp, int *cons, int m2);
 
 /*** Core functions ***/
 #define MKP_CORE_SIMPLE 1

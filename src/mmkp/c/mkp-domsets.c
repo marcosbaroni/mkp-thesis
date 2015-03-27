@@ -24,6 +24,7 @@ void plot_domsets(FILE *out, Array *sols){
 
 void find_uppers(MKP *mkp){
 	MKP *mkp2;
+	MKPSol *mkpsol;
 	LP *lp;
 	double *x;
 	int i, j, n, m;
@@ -31,11 +32,30 @@ void find_uppers(MKP *mkp){
 	n = mkp->n;
 	m = mkp->m;
 
+	/* DELETE CONSTRAINT */
+	/* for each dimension */
 	for( j = 0 ; j < m ; j++ ){
+		/* relax problem (delete constraint) */
 		mkp2 = mkp_select_contraints(mkp, &j, 1);
-		x = mkp_solve_with_scip(mkp2, double 600, 1.0, 0);
-		for();
+
+		/* solve a (single) KP */
+		x = mkp_solve_with_scip(mkp2, 600, 1.0, 0);
+		
+		/* extract solution */
+		mkpsol = mkpsol_new(mkp2);
+		for( i = 0 ; i < n ; i++ )
+			if( x[i] >= 1.0 )
+				mkpsol_add_item(mkpsol, i);
+		printf("%d dim KP: %lld\n", j+1, mkpsol->obj);
+
+		mkpsol_free(mkpsol);
+		mkp_free(mkp2);
+		free(x);
+		/* TODO: test using surrogate relax here. */
 	}
+
+	/* LP */
+	printf("LP relax: %lf\n", mkp_get_lp_obj(mkp));
 
 	return;
 }
@@ -60,6 +80,7 @@ int execute_domset_search(int argc, char **argv){
 
 	/* max items...*/
 	mkp_max_items(mkp);
+	find_uppers(mkp);
 
 	/* searching domsets */
 	sols = mkp_nemull(mkp);
