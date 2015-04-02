@@ -19,6 +19,16 @@ void plot_domsets(FILE *out, Array *sols){
 	MKPSol *mkpsol;
 	int i, nsols;
 
+	nsols = array_get_size(sols);
+
+	for( i = 0 ; i < nsols ; i++ ){
+		mkpsol = (MKPSol*)array_get(sols, i);
+		fprintf(out, " %lld %lld %lld\n",
+			mkpsol->mkp->b[0] - mkpsol->b_left[0],
+			mkpsol->mkp->b[1] - mkpsol->b_left[1],
+			mkpsol->obj);
+	}
+
 	return;
 }
 
@@ -60,6 +70,25 @@ void find_uppers(MKP *mkp){
 	return;
 }
 
+void output_sols(FILE *out, Array *sols){
+	int dim, i, nsols;
+
+	nsols = array_get_size(sols);
+	dim = 0;
+
+	/* sorting solutions */
+	array_sort_r(
+		sols, (int(*)(void*, void*, void*))mkpsol_cmp_profit, &dim);
+
+	/* outputing */
+	for( i = 0 ; i < nsols ; i++ ){
+		printf("%03d - ", i);
+		mkpsol_fprint(stdout, array_get(sols, i), 1);
+	}
+
+	return;
+}
+
 int execute_domset_search(int argc, char **argv){
 	MKP *mkp;
 	Array *sols;
@@ -79,21 +108,16 @@ int execute_domset_search(int argc, char **argv){
 	fclose(input);
 
 	/* max items...*/
-	mkp_max_items(mkp);
-	find_uppers(mkp);
+	//mkp_max_items(mkp);
+	//find_uppers(mkp);
 
 	/* searching domsets */
 	sols = mkp_nemull(mkp);
 	nsols = array_get_size(sols);
 
 	/* output */
-	dim = 0;
-	array_sort_r( /*sorting by 1st weigth */
-		sols, (int(*)(void*, void*, void*))mkpsol_cmp_profit, &dim);
-	for( i = 0 ; i < nsols ; i++ ){
-		printf("%03d - ", i);
-		mkpsol_fprint(stdout, array_get(sols, i), 1);
-	}
+	//output_sols(sols);
+	plot_domsets(stdout, sols);
 
 	/* frees */
 	mkp_free(mkp);

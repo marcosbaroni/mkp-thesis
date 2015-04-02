@@ -1554,7 +1554,7 @@ Array *mkp_nemull(MKP *mkp){
 	int use_lp_relax;
 
 	/* user lp relaxation upper bound */
-	use_lp_relax = 1;
+	use_lp_relax = 0;
 
 	n = mkp->n;
 	x = (int*)malloc(n*sizeof(int));
@@ -1625,7 +1625,7 @@ Array *mkp_nemull(MKP *mkp){
 				array_remove(merged_sets, j--);
 			}
 		}
-		printf("%d - %d dom sets (%d promissing, best=%lld)\n", i+1, array_get_size(dom_sets), npromissing, best_profit);
+		//printf("%d - %d dom sets (%d promissing, best=%lld)\n", i+1, array_get_size(dom_sets), npromissing, best_profit);
 		/* empty the merged set struct */
 		merged_sets = array_empty(merged_sets);
 	}
