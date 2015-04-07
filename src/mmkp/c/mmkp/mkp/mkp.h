@@ -1,10 +1,10 @@
 #ifndef MKP_H
 #define MKP_H 1
 
-#include "util.h"
-#include "des.h"
-#include "sfl.h"
-#include "lp.h"
+#include "../util.h"
+#include "../des.h"
+#include "../sfl.h"
+#include "../lp.h"
 
 /*** MKP PROBLEM INSTANCE ***
 *   Itens are sorting by decreasing order of profit (for greedy propose).

@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
-#include "mmkp/mkp.h"
+#include "mmkp/mkp/mkp.h"
 #include "mmkp/util.h"
 #include "mmkp/sfl.h"
 

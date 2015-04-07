@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "mmkp/mkp.h"
+#include "mmkp/mkp/mkp.h"
 #include "mmkp/des.h"
 
 void print_usage(int argc, char **argv){

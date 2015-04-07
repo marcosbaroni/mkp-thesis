@@ -2,7 +2,7 @@
 #define NUBUCKET_H 1
 
 #include "util.h"
-#include "mkp.h"
+#include "mkp/mkp.h"
 
 typedef struct NUBucket{
 	MKP *mkp;

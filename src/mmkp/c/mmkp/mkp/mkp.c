@@ -5,10 +5,10 @@
 #include <unistd.h>
 #include "mkp.h"
 
-#include "util.h"
-#include "des.h"
-#include "sfl.h"
-#include "lp.h"
+#include "../util.h"
+#include "../des.h"
+#include "../sfl.h"
+#include "../lp.h"
 
 /*** memory management ***/
 MKP *mkp_alloc(int n, int m){

@@ -19,35 +19,35 @@ kp-des:
 	mv kp-des $(BINDIR)
 mkp: mkp-rand mkp2zpl mkp-nu mkp-sfl mkp-simplex mkp-sfl-batch mkp-core mkp-domsets
 mkp-rand:
-	gcc -o mkp-rand mkp-rand.c mmkp/mkp.c mmkp/lp.c mmkp/util.c $(CFLAGS)
+	gcc -o mkp-rand mkp-rand.c mmkp/mkp/mkp.c mmkp/lp.c mmkp/util.c $(CFLAGS)
 	mv mkp-rand $(BINDIR)
 mkp2zpl:
-	gcc -o mkp2zpl mkp2zpl.c mmkp/mkp.c mmkp/lp.c mmkp/util.c $(CFLAGS)
+	gcc -o mkp2zpl mkp2zpl.c mmkp/mkp/mkp.c mmkp/lp.c mmkp/util.c $(CFLAGS)
 	mv mkp2zpl $(BINDIR)
 mkp-nu:
-	gcc -o mkp-nu mkp-nu.c mmkp/mkp.c mmkp/lp.c mmkp/util.c $(CFLAGS)
+	gcc -o mkp-nu mkp-nu.c mmkp/mkp/mkp.c mmkp/lp.c mmkp/util.c $(CFLAGS)
 	mv mkp-nu $(BINDIR)
 mkp-sfl:
-	gcc -o mkp-sfl mkp-sfl.c mmkp/sfl.c mmkp/mkp.c mmkp/lp.c mmkp/util.c $(CFLAGS)
+	gcc -o mkp-sfl mkp-sfl.c mmkp/sfl.c mmkp/mkp/mkp.c mmkp/lp.c mmkp/util.c $(CFLAGS)
 	mv mkp-sfl $(BINDIR)
 mkp-simplex:
-	gcc -o mkp-simplex mkp-simplex.c mmkp/lp.c mmkp/mkp.c mmkp/util.c $(CFLAGS)
+	gcc -o mkp-simplex mkp-simplex.c mmkp/lp.c mmkp/mkp/mkp.c mmkp/util.c $(CFLAGS)
 	mv mkp-simplex $(BINDIR)
 mkp-sfl-batch:
-	gcc -o mkp-sfl-batch mkp-sfl-batch.c mmkp/sfl.c mmkp/lp.c mmkp/mkp.c mmkp/util.c $(CFLAGS)
+	gcc -o mkp-sfl-batch mkp-sfl-batch.c mmkp/sfl.c mmkp/lp.c mmkp/mkp/mkp.c mmkp/util.c $(CFLAGS)
 	mv mkp-sfl-batch $(BINDIR)
 mkp-core:
-	gcc -o mkp-core mkp-core.c mmkp/lp.c mmkp/mkp.c mmkp/util.c $(CFLAGS)
+	gcc -o mkp-core mkp-core.c mmkp/lp.c mmkp/mkp/mkp.c mmkp/util.c $(CFLAGS)
 	mv mkp-core $(BINDIR)
 mkp-domsets:
-	gcc -o mkp-domsets mkp-domsets.c mmkp/mkp.c mmkp/util.c mmkp/lp.c $(CFLAGS)
+	gcc -o mkp-domsets mkp-domsets.c mmkp/mkp/mkp.c mmkp/util.c mmkp/lp.c $(CFLAGS)
 	mv mkp-domsets $(BINDIR)
 mmkp: mmkp-rand mmkp2zpl
 mmkp-rand:
-	gcc -o mmkp-rand mmkp-rand.c mmkp/mmkp.c mmkp/util.c $(CFLAGS)
+	gcc -o mmkp-rand mmkp-rand.c mmkp/mmkp/mkp.c mmkp/util.c $(CFLAGS)
 	mv mmkp-rand $(BINDIR)
 mmkp2zpl:
-	gcc -o mmkp2zpl mmkp2zpl.c mmkp/mmkp.c mmkp/util.c $(CFLAGS)
+	gcc -o mmkp2zpl mmkp2zpl.c mmkp/mmkp/mkp.c mmkp/util.c $(CFLAGS)
 	mv mmkp2zpl $(BINDIR)
 ssum: ssum-rand ssum2zpl
 ssum-rand:
@@ -57,7 +57,7 @@ ssum2zpl:
 	gcc -o ssum2zpl ssum2zpl.c mmkp/util.c mmkp/ssum.c $(CFLAGS)
 	mv ssum2zpl $(BINDIR)
 test:
-	gcc -o test test.c mmkp/util.c mmkp/ssum.c mmkp/mmkp.c mmkp/kp.c $(CFLAGS) -g
+	gcc -o test test.c mmkp/util.c mmkp/ssum.c mmkp/mmkp/mkp.c mmkp/kp.c $(CFLAGS) -g
 clean:
 	rm -f *.o
 
