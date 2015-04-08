@@ -19,6 +19,8 @@ typedef struct DomSetTree{
 	//MKPSol *mkpsol; /* the initial solution */
 	int n;
 	DomSetNode *root;
+	DomSetNode *best;
+	DomSetNode *tail;
 }DomSetTree;
 
 #endif
