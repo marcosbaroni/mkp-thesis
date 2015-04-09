@@ -5,7 +5,7 @@
 #include "mmkp/mkp/mkp.h"
 #include "mmkp/util.h"
 
-void print_usage(int argc, char **argv){
+int print_usage(int argc, char **argv){
 	FILE *out;
 
 	out = stdout;
@@ -14,7 +14,7 @@ void print_usage(int argc, char **argv){
 	fprintf(out, "   input file: a MKP instance. If no file is given, instance is read from stdin.\n");
 	fprintf(out, "   Program outputs \"<n. of dom. subsets>;<profit of solution>\"\n");
 
-	return;
+	return 1;
 }
 
 int execute_nemullman_mkp(int argc, char **argv){
@@ -26,17 +26,25 @@ int execute_nemullman_mkp(int argc, char **argv){
 	clock_t c0, cf;
 
 	input = stdin;
-	if(argc > 1) input = fopen(argv[1], "r");
 
+	/* checking inputs */
+	if( argc < 2 )
+		return print_usage(argc, argv);
+	if(strcmp(argv[1], "-"))
+		input = fopen(argv[1], "r");
+
+	/* reading instance */
 	mkp = mkp_read_from_file(input);
 	fclose(input);
 
+	/* enumerate sets */
 	c0 = clock();
 	dom_sets = mkp_nemull(mkp);
 	cf = clock();
 
 	n = array_get_size(dom_sets);
 
+	/* find best set */
 	best_sol = array_get(dom_sets, 0);
 	for( i = 1 ; i < n ; i++ ){
 		sol = array_get(dom_sets, i);
@@ -44,8 +52,10 @@ int execute_nemullman_mkp(int argc, char **argv){
 			best_sol = sol;
 	}
 
+	/* output solution */
 	printf("%lld;%d;%.3lf\n", best_sol->obj, array_get_size(dom_sets), ((cf-c0)*1./CLOCKS_PER_SEC));
 
+	/* frees */
 	array_apply(dom_sets, (void(*)(void *))mkpsol_free);
 	array_free(dom_sets);
 	mkp_free(mkp);

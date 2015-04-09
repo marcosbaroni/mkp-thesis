@@ -1,24 +1,34 @@
 #include <stdio.h>
 #include <stdlib.h>
+
 #include "domset.h"
+#include "mkp.h"
 
-DomSetTree *dstree_new(MKPSol *mkpsol){
+DomSetTree *dstree_new(MKP *mkp){
 	DomSetTree *dstree;
+	DomSetNode *dsnode;
 
+	/* First solution (empty) */
+	dsnode = (DomSetNode*)malloc(sizeof(DomSetNode));
+	dsnode->idx = -1;
+	dsnode->profit = 0;
+	dsnode->b_left = long_long_array_copy(NULL, mkp->b, mkp->m);
+	dsnode->father = dsnode->prev = dsnode->next = NULL;
+
+	/* allocing */
 	dstree = (DomSetTree*)malloc(sizeof(DomSetTree));
-	dstree->mkpsol = mkpsol;
-	dstree->mkp = mkpsol->mkp;
-	dstree->n = 0;
-	dstree->root = NULL;
+	dstree->mkp = mkp;
+	dstree->root = dstree->tail = dstree->best = dsnode;
+	dstree->n = 1;
 
 	return dstree;
 }
 
 /*
  * returns:
- *  -1 : dns2 dominates dns1
+ *  -1 : dsn2 dominates dsn1
  *   0 : none dominates the other
- *  +1 : dns1 dominates dns2
+ *  +1 : dsn1 dominates dsn2
  *
  * obs.:
  *    A dominates B iff:
@@ -39,7 +49,7 @@ int dsnode_dominates(DomSetNode *dsn1, DomSetNode *dsn2, MKP *mkp){
 
 	/* maybe dsn2 dominates dsn1... */
 	for( i = 0 ; i < m ; i++ )
-		if( dsn2->b_left[i] < dns1->b_left[i] )
+		if( dsn2->b_left[i] < dsn1->b_left[i] )
 			return 0; /* no! */
 	return -1; /* yes! */
 }
@@ -56,6 +66,7 @@ DomSetNode *dsnode_new(DomSetNode *father, MKP *mkp, int idx){
 
 	dsnode = (DomSetNode*)malloc(sizeof(DomSetNode));
 	dsnode->profit = father->profit + mkp->p[idx];
+	dsnode->b_left = (long long*)malloc(m*sizeof(long long));
 	feasible = 1;
 	for( i = 0 ; i < m ; i++ ){
 		dsnode->b_left[i] = father->b_left[i] - mkp->w[i][idx];
@@ -75,12 +86,24 @@ DomSetNode *dsnode_new(DomSetNode *father, MKP *mkp, int idx){
 	return dsnode;
 }
 
+void dsnode_free(DomSetNode *dsnode){
+	free(dsnode->b_left);
+	free(dsnode);
+	return;
+}
+
 DomSetTree *dstree_insert(DomSetTree *dstree, DomSetNode *dsnode){
-	dstree->tail->next = dsnode;
-	dsnode->prev = dstree->tail;
+	if( dstree->root ){
+		dstree->tail->next = dsnode;
+		dsnode->prev = dstree->tail;
+	}else{
+		dstree->root = dsnode;
+	}
 	dstree->tail = dsnode;
+
 	dstree->n++;
 
+	/* checking best */
 	if( dsnode->profit > dstree->best->profit )
 		dstree->best = dsnode;
 
@@ -91,70 +114,95 @@ DomSetTree *dstree_remove(DomSetTree *dstree, DomSetNode *dsnode){
 	if( dstree->root == dsnode )
 		dstree->root = dsnode->next; /* update root (if needed) */
 	else
-		dsnode->prev->next = dsnode->next; /* update prev, if nedded */
+		dsnode->prev->next = dsnode->next; /* if not root, has a prev. */
 	
-	if( dsnode->next )
-		dsnode->next->prev = denode->prev; /* update next, if needed */
+	if( dsnode->next ) /* update next, if needed */
+		dsnode->next->prev = dsnode->prev;
+	else               /* if no next, its a tail. */
+		dstree->tail = dsnode->prev;
+
+	dstree->n--;
 
 	return dstree;
 }
 
+void dstree_free(DomSetTree *dstree){
+	DomSetNode *dsnode, *dsn_next;
+
+	dsnode = dstree->root;
+	while( dsnode ){
+		dsn_next = dsnode->next;
+		dsnode_free(dsnode);
+		dsnode = dsn_next;
+	}
+	free(dstree);
+
+	return;
+}
+
 	/* TODO: iniciar enumeração das soluções... 
 	 * 	    - iniciar de uma solução vazia (por enquanto);
-	 * 	    - criar novo nó apenas no caso de inserção de item. */
+	 * 	    - criar novo nó apenas no caso de inserção de item.
+	 * 	    - utilizar LinkedBucket na enumeração
+	 * 	    */
 MKPSol *mkp_fast_domsets_enum(MKP *mkp){
 	DomSetTree *dstree;
-	DomSetNode *dsnode, *dsn_tail, *dsnode_new, *dsnode_iter;
-	MKPSol *mkpsol;
-	MKP *mkp;
-	int i, j, n, m, dominance, not_dominated;
+	DomSetNode *dsnode, *dsn_tail, *dsn_new, *dsn_iter;
+	int i, j, n, m, dominance, promissing;
 
 	n = mkp->n;
 	m = mkp->m;
-	mkp = mkpsol->mkp;
-	dstree = dstree_new(mkpsol);
 
-	/* First solution (empty) */
-	dsnode = (DomSetNode*)malloc(sizeof(DomSetNode));
-	dsnode->idx = -1;
-	dsnode->profit = 0;
-	dsnode->b_left = long_long_array_copy(NULL, mkp->b, m);
-	dsnode->father = dsnode->prev = dsnode->next = NULL;
-	/* insert first solution */
-	dstree->root = dstree->best = dstree->tail = dsnode;
-	dstree->n++;
+	/* initializing domsets tree */
+	dstree = dstree_new(mkp);
 
+	/* ENUMERATING SOLUTIONS */
 	/* for each item... */
 	for( i = 0 ; i < n ; i++ ){
 		/* for each existent dominating set... */
-		for( dsnode = dstree->root, dsn_tail = dstree->tail;
-			dsnode->next != dsn_tail ;
-			dsnode = dsnode->next)
+		for( dsnode = dstree->root, dsn_tail = dstree->tail
+			; dsnode
+				?(dsnode->prev /* if has a prev node and... */
+					?dsnode->prev != dsn_tail /* ... its not the old tail. */
+					:1)
+				:0
+			; dsnode = dsnode->next)
 		{
 			/* new 'child' solution (adding item 'i') */
-			dsnode_new = dsnode_new(dsnode, mkp, i);
-			not_dominated = dsnode_new;
-			/* for each existent dominating set... */
+			dsn_new = dsnode_new(dsnode, mkp, i);
+			promissing = dsn_new ? 1 : 0;
+
+			/* checking dominance */
 			/* FIXME: tail is out of comparison. */
-			for( dsnode_iter = dstree->root;
-				dsnode_iter != dsn_tail && not_dominated;
-				dsnode_iter = dsnode_iter->next)
+			for( dsn_iter = dstree->root;
+				dsn_iter != dsn_tail && promissing;
+				dsn_iter = dsn_iter->next)
 			{
 				/* check relative dominance */
-				dominance = dsnode_dominates(dsnode_new, dsnode_iter);
-				if( dominance == 1 ) /* new dominates iter */
-					dstree_remove(dstree, dsnode_iter);
+				dominance = dsnode_dominates(dsn_new, dsn_iter, mkp);
+				//if( dominance == 1 ){ /* dsn_new dominates dsn_iter */
+				//	if( dsn_iter == dsn_tail ) /* update tail, if needed */
+				//		dsn_tail = dsn_tail->prev;
+				//	dstree_remove(dstree, dsn_iter);
+				//	dsnode_free(dsn_iter);
+				//}
 				if( dominance == -1 ) /* iter dominates new */
-					not_dominated = 0;
+					promissing = 0;
 			}
-			if( not_dominated ) /* new is not dominated */
-				dstree_insert(dstree, dsnode_new);
-			else
-				{ free(dsnode_new->b_left); free(dsnode_new); }
+			if( promissing ) /* new is not dominated */
+				dstree_insert(dstree, dsn_new);
+			else if( dsn_new )
+				dsnode_free(dsn_new);
 		}
+		printf("%d - %d sets (best=%lld)\n", i+1, dstree->n, dstree->best->profit);
 	}
-	/* TODO: Select best and build solution... */
 
-	return mkpsol;
+	/* output */
+	printf("Best: %lld\n", dstree->best->profit);
+
+	/* free */
+	dstree_free(dstree);
+
+	return NULL;
 }
 

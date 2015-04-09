@@ -27,3 +27,4 @@ bin/mkp-simplex
 bin/mmkp-rand
 bin/ssum-rand
 insts/chubeas/*
+mkp-fast-nu

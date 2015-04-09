@@ -1,5 +1,5 @@
-#ifndef MKP_H
-#define MKP_H 1
+#ifndef DOMSET_H 
+#define DOMSET_H 1
 
 #include "../util.h"
 #include "mkp.h"
@@ -22,6 +22,21 @@ typedef struct DomSetTree{
 	DomSetNode *best;
 	DomSetNode *tail;
 }DomSetTree;
+
+/* TODO: implementar container final para guardar as soluções. Testar:
+ *       - Binary Tree
+ *       - List
+ * (STOPPED HERE) */
+typedef struct LinkedBucket{
+	int n;                 /* total number of items (solution) it holds */
+	int dim;               /* the dimension it considers */
+	long long minW;        /* min weight their elements has */
+	long long maxW;
+	//long long minProfit;
+	//long long maxProfit;
+	int n_sub_buckets;     /* number of sub buckets (on the 'next' dimension) */
+	struct LinkedBucket *sub_buckets;
+}LinkedBucket;
 
 #endif
 

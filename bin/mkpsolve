@@ -1,0 +1,2 @@
+#!/bin/bash
+./mkp2zpl - | ./zpl2lp | ./runscip $1 | ./scip2summary

@@ -130,3 +130,4 @@ int execute_domset_search(int argc, char **argv){
 int main(int argc, char **argv){
 	return execute_domset_search(argc, argv);
 }
+
