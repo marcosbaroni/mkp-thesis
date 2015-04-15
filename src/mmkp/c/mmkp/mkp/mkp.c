@@ -940,42 +940,60 @@ MKP *mkp_select_contraints(MKP *mkp, int *cons, int m2){
 
 /*
  * Returns a (min)surrogate relaxation for a MKP instance.
- *   - mkp: the MKP instance;
- *   - cons: list of the contraints to me added;
  *   - multips: the multiplier of each contraint;
- *   - m2: number of contraints to be added.
  * */
-MKP *mkp_surrogate(MKP *mkp, int *cons, int *multips, int m2){
+MKP *mkp_surrogate(MKP *mkp, int *multips){
 	MKP *mkp2;
-	int i, j, dim, mult, n, m;
+	int i, j, dim, mult, n, m, m2;
 
 	n = mkp->n;
 	m = mkp->m;
 
 	mkp2 = mkp_alloc(n, 1);
-	/* TODO: Test this function. */
 	
-	/* profit */
+	/* coping profit and capacities */
 	mkp2->p = long_long_array_copy(mkp2->p, mkp->p, n);
+	mkp2->w[0] = long_long_array_init(mkp2->w[0], n, 0);
+	mkp2->b[0] = 0;
 
-	/* weights */
-	dim = cons[0];
-	mult = multips[0];
-	for( i = 0 ; i < n ; i++ )
-		mkp2->w[0][i] = mult*mkp->w[dim][i];
-	for( j = 1 ; j < m2 ; j++ ){
-		dim = cons[j];
-		mult = multips[j];
-		for( i = 0 ; i < n ; i++ )
-			mkp2->w[0][i] += mult*mkp->w[dim][i];
+	/* coping-multipling weights */
+	for( j = 0 ; j < m ; j++ ){
+		if( multips[j] > 0 ){
+			for( i = 0 ; i < n ; i++ )
+				mkp2->w[0][i] += multips[j]*mkp->w[j][i];
+			mkp2->b[0] += multips[j]*mkp->b[j];
+		}
 	}
 
-	/* capacities */
-	mkp2->b[0] = 0;
-	for( j = 0 ; j < m2 ; j++ )
-		mkp2->b[0] += multips[j]*mkp->b[cons[j]];
-
 	return mkp2;
+}
+
+/* Extracts a cardinality constraint: a maximum number of itens that can be
+ * putted in knapsack.
+ * */
+int mkp_max_cardinality(MKP *mkp){
+	int i, n, nmax;
+	long long b_left;
+	long long *ws;
+
+	n = mkp->n;
+
+	ws = long_long_array_copy(NULL, mkp->w[0], n);
+	long_long_array_qsort(ws, n);
+
+	nmax = 0;
+	b_left = mkp->b[0];
+
+	for( i = 0 ; i < n && b_left > 0 ; i++ ){
+		if( b_left > ws[i] ){
+			nmax++;
+			b_left -= ws[i];
+		}else{
+			b_left = 0;
+		}
+	}
+
+	return nmax;
 }
 
 /* Returns an array with the indexs of variables, sorted by increasing order
