@@ -4,8 +4,12 @@
 #include "../util.h"
 #include "mkp.h"
 
+/******************************************************************************
+ * Each DomSetNode represents a 'solution' for the MKP.
+ * Specifically, it represents the fixation of some variable and value '1'.
+ *****************************************************************************/
 typedef struct DomSetNode{
-	int idx;                   /* the index which was fixed in '1' */
+	int idx;                   /* the index og variable which was fixed '1' */
 	//int nx;                    /* number of itens in whole solution */
 	long long profit;          /* profit of set/solution */
 	long long *b_left;         /* weight left */
@@ -23,6 +27,8 @@ typedef struct DomSetTree{
 	DomSetNode *tail;
 }DomSetTree;
 
+
+
 /* TODO: implementar container final para guardar as soluções. Testar:
  *       - Binary Tree
  *       - List
@@ -34,8 +40,14 @@ typedef struct LinkedBucket{
 	long long maxW;
 	//long long minProfit;
 	//long long maxProfit;
-	int n_sub_buckets;     /* number of sub buckets (on the 'next' dimension) */
-	struct LinkedBucket *sub_buckets;
+	union{
+		int n_sub_buckets;     /* number of sub buckets (on the 'next' dimension) */
+		int n_dsnodes;         /* number of dsnodes (solution) [leaf bucket case]*/
+	}
+	union{
+		struct LinkedBucket *sub_buckets; /*array of buckets */
+		Array *dsnodes;           /* array of dsnodes [leaf bucket case] */
+	}
 }LinkedBucket;
 
 #endif
