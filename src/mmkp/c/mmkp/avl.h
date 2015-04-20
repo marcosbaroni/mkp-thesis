@@ -29,13 +29,16 @@ typedef struct{
 	AVLNode *last;
 }AVLTree;
 
-AVLTree *new_avltree( avl_cmp_f cmp);
+/* basics */
+AVLTree*	new_avltree( avl_cmp_f cmp);
+void		free_avltree(AVLTree *avlt); /* Free the AVL Tree structure */
+int			avlt_size(AVLTree *avlt);
+/* operations */
 AVLTree*	avl_insert(AVLTree *avlt, void *a);
 AVLTree*	avl_delete(AVLTree *avlt, void *a);
 void*		avl_has(AVLTree *avlt, void *a);
+/* others */
 void**		avlt_to_vector(AVLTree *avlt); /* Return a vector with members */
-int			avlt_size(AVLTree *avlt);
 void 		avl_apply_to_all(AVLTree *avlt, void(*func)(void*) );
-void		free_avltree(AVLTree *avlt); /* Free the AVL Tree structure */
 void		fprint_avlt_dot(FILE *f, AVLTree *avlt, avl_prt_f prt);
 /****************************************************************/

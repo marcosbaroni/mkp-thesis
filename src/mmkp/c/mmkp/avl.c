@@ -6,10 +6,6 @@
 #include <stdlib.h>
 #include "avl.h"
 
-/*********************************************************************
-         AVL Tree                                                     
-*********************************************************************/
-
 AVLNode *new_avl_node(void *a){
 	AVLNode *node;
 	node = (AVLNode*)malloc(sizeof(AVLNode));
@@ -19,6 +15,12 @@ AVLNode *new_avl_node(void *a){
 	return node;
 }
 
+/*********************************************************************
+         AVL Tree                                                     
+*********************************************************************/
+
+
+/*** BASICS *********************************************************/
 AVLTree *new_avltree( avl_cmp_f cmp ){
 	AVLTree *avlt;
 	avlt = (AVLTree*)malloc(sizeof(AVLTree));
@@ -42,6 +44,217 @@ void free_avltree(AVLTree *avlt){
 	return;
 }
 
+/*** OPERATIONS *****************************************************/
+
+/* 
+ *        Rotate Right
+ *
+ *        f             f
+ *        |             |
+ *  (-2) 'p'    =>      a (0)
+ *       / \    =>     / \
+ * (-1) a   z   =>    x  'p' (0)
+ *     / \               / \
+ *    x   y             y   z
+ *
+ */
+AVLNode *rotate_right(AVLTree *avlt, AVLNode *p){
+	AVLNode *a, *f, *x, *y;
+
+	f = p->parent;
+	a = p->left;
+
+	p->balance = a->balance = 0;
+	return a;
+}
+
+/* 
+ *        Rotate Left
+ *
+ *     f                   f
+ *     |                   |
+ *    'p' (+2)   =>    (0) a
+ *    / \        =>       / \
+ *   z   a (+1)  =>  (0)'p'  y
+ *      / \             / \
+ *     x   y           z   x
+ *
+ */
+AVLNode *rotate_left(AVLTree *avlt, AVLNode *p){
+	AVLNode *a, *f;
+
+	f = p->parent;
+	a = p->right;
+
+	/* p <-> x */
+	p->right = a->left; p->right->parent = p;
+	/* a <-> p */
+	a->left = p; p->parent = a;
+	/* a <-> f */
+	if( f )
+		if( f->left == p )
+			f->left = a;
+		else
+			f->right = a;
+	a->parent = f;
+
+	p->balance = a->balance = 0;
+	return a;
+}
+
+/* 
+ *        Rotate Left-Right
+ *
+ *     f               f                     f
+ *     |               |                     |
+ *    'p' (+2)   =>   'p' (+2)     =>        b (0/1)
+ *    / \        =>   / \          =>      /   \
+ *   w   a (-1)  =>  w   b (-1/0)  =>   'p'      a
+ *      / \             / \             / \     / \
+ *     b   z           x   a           w   x   y   z
+ *    / \                 / \
+ *   x  y                y   z
+ */
+AVLNode *rotate_left(AVLTree *avlt, AVLNode *p){
+	/* TODO: STOPPED HERE - Seg Abr 20 19:36:59 BRT 2015 */
+}
+
+
+
+/*
+ * This function is called to report node 'p' has its height
+ * increased (although still balanced).
+ * */
+void height_incresed(AVLTree *avlt, AVLNode *p){
+	AVLNode *f;
+
+	f = p->father;
+
+	if(!f) /* If 'p' is root... */
+		return; /* ...nothing to do (tree is al balanced) */
+
+	if( f->left == p){ /* If 'p' is a right subtree... */
+		f->balance++; /* ...update balance factor. */
+
+		/* check balance factor */
+		switch(f->balance){
+			case 0: /* Subtree is balanced with no height increase. Done. */
+			break;
+
+			case +1: /* Subtree is balanced, but its height inscreased. */
+			height_incresed(avlt, f);
+			break;
+
+			case +2: /* Subtree has became unbalanced: rotating needed. */
+			switch( p->balance ){
+				case 1:
+				/* double rotating */
+				rotate(avlt, p->left);
+				case -1:
+				/* rotating */
+				rotate(avlt, f->right);
+			}
+		}
+	}else{
+		f->balance++;
+		switch(f->balance){
+			case 1:
+			height_incresed(avlt, f);
+			break;
+
+			case 2:
+			switch(p->balance){
+				case -1:
+				rotate(avlt, p->right);
+				case 1:
+				rotate(avlt, f->left);
+			}
+		}
+	}
+	return;
+}
+
+/*              BALANCING FACTORS
+ *
+ *    O (+1)   |    O (-1)  |    O (0)
+ *     \       |   /        |   / \
+ *      O (0)  |  O (0)     |  O   O
+ */
+AVLTree *sub_avl_insert(AVLTree *avlt, AVLNode *p, AVLNode *newp){
+	int res;
+
+	res = avlt->cmp(p->info, newp->info);
+
+	/* Insert in wicth branch of tree? */
+	if( res < 0 ){ /* Inserting right. */
+		if( p->right ) /* already exists right subtree */
+			sub_avl_insert(avlt, p->right, newp);
+		else{
+			/* no right subtree */
+			p->right = newp;
+			newp->father = p;
+			p->balance++;
+
+			if( p->balance != 0 )
+				height_incresed(avlt, p); /* report height increase
+					(self still balanced) */
+		}
+	}else{ /* Inserting left! */
+		if( p->left ) /* no left subtree */
+			sub_avl_insert(avlt, p->left, newp);
+		else{
+			/* Appending new node on left side */
+			p->left = newp;
+			newp->father = p;
+			p->balance--;
+
+			if( p->balance != 0 )
+				height_incresed(avlt, p); /* report height inscrease
+					(self still balanced) */
+		}
+	}
+	return avlt;
+}
+
+AVLTree *avl_insert(AVLTree *avlt, void *a){
+	AVLNode *node;
+	node = new_avl_node(a);
+
+	/* If fisrt element */
+	if(!avlt->root)
+		avlt->root = node;
+	/* If fisrt element */
+	else
+		sub_avl_insert(avlt, avlt->root, node);
+
+	avlt->n++;
+
+	return avlt;
+}
+
+void *sub_avl_has(AVLNode *node, void *a, avl_cmp_f cmp){
+	int res;
+	if(!node)
+		return NULL;
+	res = cmp(node->info, a);
+	if(!res)
+		return node->info;
+	else if( res < 0 )
+		return sub_avl_has(node->right, a, cmp);
+	else
+		return sub_avl_has(node->left, a, cmp);
+}
+
+void *avl_has(AVLTree *avlt, void *a){
+	return sub_avl_has(avlt->root, a, avlt->cmp);
+}
+
+AVLTree *avl_delete(AVLTree *avlt, void *a){
+	fprintf(stderr, "Function \"avl_delete\" not implemented yet.\n");
+	return avlt;
+}
+
+/*** OTHERS *********************************************************/
 void sub_avl_apply_to_all(AVLNode *node, void(*func)(void*) ){
 	if(!node) func(node->info);
 	if(node->left) sub_avl_apply_to_all(node->left, func);
@@ -72,153 +285,6 @@ int avlt_size(AVLTree *avlt){
 	return avlt->n;
 }
 
-AVLTree *rotate(AVLTree *avlt, AVLNode *p){
-	AVLNode *f;
-	if(!p->father) return avlt;
-	f = p->father;
-
-	/* Changing references on grandfather (if any) */
-	if(f->father){
-		if(f->father->right == f) f->father->right = p;
-		else f->father->left = p;
-		p->father = f->father;
-	}else{
-		avlt->root = p;
-		p->father = NULL;
-	}
-
-	if(f->left == p){
-		/* Rotating */
-		f->left = p->right;
-		if( p->right ) p->right->father = f;
-		p->right = f;
-		f->father = p;
-
-		/* Updating balances */
-		f->balance = f->balance - max(0, p->balance) - 1;
-		p->balance = p->balance - max(0, -f->balance) -1;
-	}else{
-		/* Rotating */
-		f->right = p->left;
-		if( p->left ) p->left->father = f;
-		p->left = f;
-		f->father = p;
-
-		/* Updating balances */
-		f->balance = f->balance + max(0, -p->balance) + 1;
-		p->balance = p->balance + max(0, f->balance) + 1;
-	}
-
-	return avlt;
-}
-
-void height_incresed(AVLTree *avlt, AVLNode *p){
-	AVLNode *f;
-	f = p->father;
-	if(!f) return;
-	if( f->left == p){
-		f->balance++;
-		switch(f->balance){
-			case 1:
-			height_incresed(avlt, f);
-			break;
-
-			case 2:
-			switch(p->balance){
-				case -1:
-				rotate(avlt, p->right);
-				case 1:
-				rotate(avlt, f->left);
-			}
-		}
-	}else{
-		f->balance--;
-		switch(f->balance){
-			case -1:
-			height_incresed(avlt, f);
-			break;
-
-			case -2:
-			switch(p->balance){
-				case 1:
-				rotate(avlt, p->left);
-				case -1:
-				rotate(avlt, f->right);
-			}
-		}
-	}
-	return;
-}
-
-AVLTree *sub_avl_insert(AVLTree *avlt, AVLNode *p, AVLNode *newp){
-	int res;
-
-	res = avlt->cmp(p->info, newp->info);
-
-	if( res < 0 ){
-		if(p->right)
-			sub_avl_insert(avlt, p->right, newp);
-		else{
-			/* Appending new node on right side */
-			p->right = newp;
-			newp->father = p;
-			p->balance--;
-
-			if(p->balance != 0)
-				height_incresed(avlt, p);
-		}
-	}else{
-		if(p->left)
-			sub_avl_insert(avlt, p->left, newp);
-		else{
-			/* Appending new node on left side */
-			p->left = newp;
-			newp->father = p;
-			p->balance++;
-
-			if(p->balance != 0)
-				height_incresed(avlt, p);
-		}
-	}
-	return avlt;
-}
-
-AVLTree *avl_insert(AVLTree *avlt, void *a){
-	AVLNode *node;
-	node = new_avl_node(a);
-
-	if(!avlt->root)
-		avlt->root = node;
-	else
-		sub_avl_insert(avlt, avlt->root, node);
-
-	avlt->n++;
-
-	return avlt;
-}
-
-void *sub_avl_has(AVLNode *node, void *a, avl_cmp_f cmp){
-	int res;
-	if(!node)
-		return NULL;
-	res = cmp(node->info, a);
-	if(!res)
-		return node->info;
-	else if( res < 0 )
-		return sub_avl_has(node->right, a, cmp);
-	else
-		return sub_avl_has(node->left, a, cmp);
-}
-
-void *avl_has(AVLTree *avlt, void *a){
-	return sub_avl_has(avlt->root, a, avlt->cmp);
-}
-
-AVLTree *avl_delete(AVLTree *avlt, void *a){
-	fprintf(stderr, "Function \"avl_delete\" not implemented yet.\n");
-	return avlt;
-}
-	
 void _print_nodes_dot(FILE *fout, AVLTree *avlt, void (*fprt)(FILE *f, void *a)){
 	void **v;
 	int i, n;
