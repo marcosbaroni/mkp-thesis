@@ -1,16 +1,22 @@
+/*******************************************************************************
+ * Author: Marcos Daniel Baroni
+ * Date:  Dom Abr 19 23:53:27 BRT 2015
+*******************************************************************************/
 #include <stdio.h>
 #include <stdlib.h>
 
 #define max(a, b) a > b ? a : b;
 
 /**** AVL Tree **************************************************/
-typedef struct AVLNode_st{
+typedef struct AVLNode{
 	void *info;
-	int balance;
-	struct AVLNode_st *left, *right, *father;
+	unsigned char balance;
+	struct AVLNode *parent;
+	struct AVLNode *left;
+	struct AVLNode *right;
 }AVLNode;
 
-AVLNode*	new_avl_node(void *a);
+AVLNode* new_avl_node(void *info);
 
 typedef int(*avl_cmp_f)(void*, void*);
 typedef void(*avl_prt_f)(FILE *out, void*);
@@ -19,6 +25,8 @@ typedef struct{
 	int n;
 	avl_cmp_f cmp;
 	AVLNode *root;
+	AVLNode *first;
+	AVLNode *last;
 }AVLTree;
 
 AVLTree *new_avltree( avl_cmp_f cmp);
