@@ -18,6 +18,8 @@ void int_ptr(FILE *out, int *a){
 int execute_avl_teste(int argc, char **argv){
 	AVLTree *avl;
 	int i, n, *v;
+	char filename[100];
+	FILE *out;
 
 	if( argc < 2 ){
 		fprintf(stderr, "usage: %s <n numbers>\n", argv[0]);
@@ -26,15 +28,20 @@ int execute_avl_teste(int argc, char **argv){
 
 	n = atoi(argv[1]);
 	avl = new_avltree((avl_cmp_f)int_cmp);
+	//srand(time(NULL));
 
-	v = (int*)malloc(sizeof(int));
+	v = (int*)malloc(n*sizeof(int));
 
 	for( i = 0 ; i < n ; i++ ){
 		v[i] = rand() % 1000;
 		avl_insert(avl, &(v[i]));
-	}
 
-	avl_fprint_dot(stdout, avl, (avl_prt_f)int_ptr);
+		/* outputing */
+		sprintf(filename, "/tmp/out%03d.dot", i);
+		out = fopen(filename, "w");
+		avl_fprint_dot(out, avl, (avl_prt_f)int_ptr);
+		fclose(out);
+	}
 
 	free_avltree(avl);
 	free(v);

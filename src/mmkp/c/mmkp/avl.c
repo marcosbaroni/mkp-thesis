@@ -64,25 +64,31 @@ int avl_size(AVLTree *avlt){
  */
 AVLNode *rotate_right(AVLTree *avlt, AVLNode *p){
 	AVLNode *a, *f, *x, *y;
+	fprintf(stderr, "    rotate right... ");
+	fflush(stderr);
 
 	f = p->parent;
 	a = p->left;
 
 	/*  f <-> a  */
-	if( p->parent )
-		if( p->parent->left == p )
-			p->parent->left = a;
+	if( f )
+		if( f->left == p )
+			f->left = a;
 		else
-			p->parent->right = a;
+			f->right = a;
 	else
 		avlt->root = a;
+	a->parent = f;
 	/* 'p' <-> y */
 	p->left = a->right;
-	p->left->parent = a;
+	if( p->left )
+		p->left->parent = p;
 	/* a <-> 'p' */
 	a->right = p;
 	p->parent = a;
 
+	fprintf(stderr, "done.\n");
+	fflush(stderr);
 	//p->balance = a->balance = 0;
 	return a;
 }
@@ -101,25 +107,31 @@ AVLNode *rotate_right(AVLTree *avlt, AVLNode *p){
  */
 AVLNode *rotate_left(AVLTree *avlt, AVLNode *p){
 	AVLNode *a, *f;
+	fprintf(stderr, "    rotate left... ");
+	fflush(stderr);
 
 	f = p->parent;
 	a = p->right;
 
-	/* p <-> x */
-	p->right = a->left; p->right->parent = p;
-	/* a <-> p */
-	a->left = p; p->parent = a;
 	/* a <-> f */
 	if( f )
 		if( f->left == p )
 			f->left = a;
 		else
 			f->right = a;
-	else{
+	else
 		avlt->root = a;
-	}
 	a->parent = f;
+	/* p <-> x */
+	p->right = a->left;
+	if( p->right )
+		p->right->parent = p;
+	/* a <-> p */
+	a->left = p;
+	p->parent = a;
 
+	fprintf(stderr, "done.\n");
+	fflush(stderr);
 	//p->balance = a->balance = 0;
 	return a;
 }
@@ -167,11 +179,15 @@ AVLNode *rotate_left_right(AVLTree *avlt, AVLNode *p){
  * */
 void height_increased(AVLTree *avlt, AVLNode *p){
 	AVLNode *f;
+	fprintf(stderr, "    height increased\n");
+	fflush(stderr);
 
 	f = p->parent;
 
-	if(!f) /* If 'p' is root... */
+	if(!f){ /* If 'p' is root... */
+		fprintf(stderr, "       root reached!\n");
 		return; /* ...nothing to do (tree is all balanced) */
+	}
 
 	if( f->left == p ){ /* If 'p' is a right subtree... */
 		f->balance--; /* ...update balance factor. */
@@ -216,10 +232,9 @@ void height_increased(AVLTree *avlt, AVLNode *p){
 				rotate_right(avlt, p);
 				rotate_left(avlt, f);
 				f->balance = p->balance = 0;
-				if( p->parent->balance == +1 )
-					p->balance = -1;
-				else if( p->parent->balance == -1 )
-					f->balance = 1;
+				if( p->parent->balance == -1 )
+					p->balance = f->balance = +1;
+				p->parent = 0;
 			}
 		}
 	}
@@ -228,6 +243,8 @@ void height_increased(AVLTree *avlt, AVLNode *p){
 
 AVLTree *sub_avl_insert(AVLTree *avlt, AVLNode *p, AVLNode *newp){
 	int res;
+	fprintf(stderr, "  sub_insert\n");
+	fflush(stderr);
 
 	res = avlt->cmp(p->info, newp->info);
 
@@ -265,6 +282,8 @@ AVLTree *sub_avl_insert(AVLTree *avlt, AVLNode *p, AVLNode *newp){
 AVLTree *avl_insert(AVLTree *avlt, void *a){
 	AVLNode *node;
 	node = new_avl_node(a);
+	fprintf(stderr, "insert %d\n", *(int*)a);
+	fflush(stderr);
 
 	/* If fisrt element */
 	if(!avlt->root)
@@ -332,19 +351,21 @@ void **avl_to_array(AVLTree *avlt){
 	return v;
 }
 
+void sub_print_nodes_dot(FILE *fout, AVLNode *node, void (*fprt)(FILE *f, void *a)){
+	if( !node )
+		return;
+	if( node->left )
+		sub_print_nodes_dot(fout, node->left, fprt);
+	fprintf(fout, "\t%ld [label=\"",(long int)(node->info));
+	fprt(fout, node->info);
+	fprintf(fout, " (%d)\"]\n", node->balance);
+	if( node->right)
+		sub_print_nodes_dot(fout, node->right, fprt);
+}
+
 void _print_nodes_dot(FILE *fout, AVLTree *avlt, void (*fprt)(FILE *f, void *a)){
-	void **v;
-	int i, n;
 
-	n = avl_size(avlt);
-	v = avl_to_array(avlt);
-
-	for( i = 0 ; i < n ; i++ ){
-		fprintf(fout, "\t%ld [label=\"",(long int)v[i]);
-		fprt(fout, v[i]);
-		fprintf(fout, "\"]\n");
-	}
-	free(v);
+	sub_print_nodes_dot(fout, avlt->root, fprt);
 }
 
 void _print_edges_dot(FILE *fout, AVLNode *node){
@@ -364,6 +385,7 @@ void _print_edges_dot(FILE *fout, AVLNode *node){
 void avl_fprint_dot(FILE *fout, AVLTree *avlt, avl_prt_f prt){
 	fprintf(fout, "graph G {\n");
 	fprintf(fout, "\tnode [style=filled, shape=circle,fillcolor=lightgray]\n");
+	fprintf(fout, "\tedge [penwidth=3]\n");
 
 	_print_nodes_dot(fout, avlt, prt);
 	_print_edges_dot(fout, avlt->root);
