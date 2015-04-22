@@ -2,25 +2,38 @@
  * Author: Marcos Daniel Baroni
  * Date:  Dom Abr 19 23:53:27 BRT 2015
 *******************************************************************************/
+
+#ifndef AVL_H
+#define AVL_H 1
+
 #include <stdio.h>
 #include <stdlib.h>
 
 #define max(a, b) a > b ? a : b;
 
+/*          AVL BALANCING FACTORS
+ *
+ *    O  (+1)    |     O  (-1)   |     O  (0)
+ *     \         |    /          |    / \
+ *      O        |   O           |   O   O
+ */
+
 /**** AVL Tree **************************************************/
+/* AVL Node */
 typedef struct AVLNode{
 	void *info;
-	unsigned char balance;
+	char balance;
 	struct AVLNode *parent;
 	struct AVLNode *left;
 	struct AVLNode *right;
 }AVLNode;
 
 AVLNode* new_avl_node(void *info);
-
+/* function types */
 typedef int(*avl_cmp_f)(void*, void*);
 typedef void(*avl_prt_f)(FILE *out, void*);
 
+/* AVL Tree Structure */
 typedef struct{
 	int n;
 	avl_cmp_f cmp;
@@ -32,13 +45,15 @@ typedef struct{
 /* basics */
 AVLTree*	new_avltree( avl_cmp_f cmp);
 void		free_avltree(AVLTree *avlt); /* Free the AVL Tree structure */
-int			avlt_size(AVLTree *avlt);
+int			avl_size(AVLTree *avlt);
 /* operations */
 AVLTree*	avl_insert(AVLTree *avlt, void *a);
 AVLTree*	avl_delete(AVLTree *avlt, void *a);
 void*		avl_has(AVLTree *avlt, void *a);
 /* others */
-void**		avlt_to_vector(AVLTree *avlt); /* Return a vector with members */
+void**		avl_to_array(AVLTree *avlt); /* Returns an array with members */
 void 		avl_apply_to_all(AVLTree *avlt, void(*func)(void*) );
-void		fprint_avlt_dot(FILE *f, AVLTree *avlt, avl_prt_f prt);
+void		avl_fprint_dot(FILE *f, AVLTree *avlt, avl_prt_f prt);
 /****************************************************************/
+#endif
+

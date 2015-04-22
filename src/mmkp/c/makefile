@@ -60,7 +60,7 @@ ssum2zpl:
 	gcc -o ssum2zpl ssum2zpl.c mmkp/util.c mmkp/ssum.c $(CFLAGS)
 	mv ssum2zpl $(BINDIR)
 test:
-	gcc -o test test.c mmkp/util.c mmkp/mkp/mkp.c mmkp/lp.c $(CFLAGS) -g
+	gcc -o test test.c mmkp/avl.c mmkp/util.c mmkp/mkp/mkp.c mmkp/lp.c $(CFLAGS) -g
 	mv test $(BINDIR)
 clean:
 	rm -f *.o

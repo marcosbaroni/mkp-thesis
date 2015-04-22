@@ -3,7 +3,45 @@
 #include <string.h>
 
 #include "mmkp/util.h"
+#include "mmkp/avl.h"
 #include "mmkp/mkp/mkp.h"
+
+int int_cmp(int *a, int *b){
+	return *a > *b ? 1 : ( *a < *b ? -1 : 0 );
+}
+void int_ptr(FILE *out, int *a){
+	fprintf(out, "%d", *a);
+}
+
+/*
+ * */
+int execute_avl_teste(int argc, char **argv){
+	AVLTree *avl;
+	int i, n, *v;
+
+	if( argc < 2 ){
+		fprintf(stderr, "usage: %s <n numbers>\n", argv[0]);
+		return 1;
+	}
+
+	n = atoi(argv[1]);
+	avl = new_avltree((avl_cmp_f)int_cmp);
+
+	v = (int*)malloc(sizeof(int));
+
+	for( i = 0 ; i < n ; i++ ){
+		v[i] = rand() % 1000;
+		avl_insert(avl, &(v[i]));
+	}
+
+	avl_fprint_dot(stdout, avl, (avl_prt_f)int_ptr);
+
+	free_avltree(avl);
+	free(v);
+
+	return 0;
+}
+
 
 /* 
  * This funcion prints the maximum number of selectable itens, extracted from
@@ -87,6 +125,7 @@ int execute_surrogate_research(int argc, char **argv){
 }
 
 int main(int argc, char **argv){
-	return execute_surrogate_research(argc, argv);
+	//return execute_surrogate_research(argc, argv);
+	return execute_avl_teste(argc, argv);
 }
 

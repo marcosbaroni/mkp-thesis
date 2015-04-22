@@ -140,31 +140,6 @@ double drand();                          /* Returns a random double in [0,1[. */
 //double normal_dist();
 double *random_normalized_double_array(int n);
 
-/* AVL TREE */
-typedef int(*avl_cmp)(void*, void*);     /* compares teo objs*/
-typedef void(*avl_fprt)(FILE*, void*) ; /* fprints an obj */
-
-typedef struct AVLNode{
-	void *info;
-	struct AVLNode *right, *left;
-	struct AVLNode *father;
-	unsigned char balance;
-}AVLNode;
-
-AVLNode *avl_node_new(void *a);
-
-typedef struct AVLTree{
-	AVLNode *root;
-	avl_cmp *cmp_f;
-	avl_fprt *fprt_f;
-	int n;
-	int height;
-}AVLTree;
-
-AVLTree *avl_new(avl_cmp* cmp_f);
-AVLTree *avl_set_prt(AVLTree *avl, avl_fprt* fprt_f);
-AVLTree *avl_insert(AVLTree *avl, void *a);
-
 /* ZIMPL FORMAT */
 void double_matrix_zimpl_print(FILE *fout, double **mat, int nlin, int ncol);
 void double_array_zimpl_print(FILE *fout, double *array, int n);
