@@ -37,11 +37,12 @@ int execute_avl_teste(int argc, char **argv){
 		avl_insert(avl, &(v[i]));
 
 		/* outputing */
-		sprintf(filename, "/tmp/out%03d.dot", i);
+		sprintf(filename, "/tmp/avl/out%03d.dot", i);
 		out = fopen(filename, "w");
-		avl_fprint_dot(out, avl, (avl_prt_f)int_ptr);
+		//avl_fprint_dot(out, avl, (avl_prt_f)int_ptr);
 		fclose(out);
 	}
+	//system("cd /tmp/avl/; for i in `ls *.dot`; do dot -Tpng -o $i.png $i; done");
 
 	free_avltree(avl);
 	free(v);

@@ -55,9 +55,9 @@ int avl_size(AVLTree *avlt){
  *
  *        f             f
  *        |             |
- *  (-2) 'p'    =>      a (0)
+ *  (-2)  p     =>      a (0)
  *       / \    =>     / \
- * (-1) a   z   =>    x  'p' (0)
+ * (-1) a   z   =>    x   p  (0)
  *     / \               / \
  *    x   y             y   z
  *
@@ -148,6 +148,13 @@ AVLNode *rotate_left(AVLTree *avlt, AVLNode *p){
  *     b   z           x   a           w   x   y   z
  *    / \                 / \
  *   x  y                y   z
+ *
+ *    * BALANCING FACTOR * 
+ *    * AFTER   ROTATION * 
+ *   |  b ||  p'|  a'|  b'|
+ *   | +1 || -1 |  0 |  0 |
+ *   |  0 ||  0 |  0 |  0 |
+ *   | -1 ||  0 | +1 |  0 |
  */
 AVLNode *rotate_right_left(AVLTree *avlt, AVLNode *p){
 	rotate_right(avlt, p->right);
@@ -157,15 +164,22 @@ AVLNode *rotate_right_left(AVLTree *avlt, AVLNode *p){
 /* 
  *                 Rotate Left-Right
  *
- *     f      (left)   f         (right)     f
- *     |               |                     |
- *    'p' (-2)   =>   'p' (+2)     =>        b (0/1)
- *    / \        =>   / \          =>      /   \
- *   a   z (+1)  =>  b   z (-1/0)  =>    a      'p'
- *  / \             / \                 / \     / \
- * w   b           a   y               w   x   y   z
- *    / \         / \
- *   x   y       w   x
+ *       f      (left)   f         (right)     f
+ *       |               |                     |
+ * (-2)  p         =>    p           =>        b
+ *      / \        =>   / \          =>      /   \
+ *(+1) a   z       =>  b   z         =>    a      'p'
+ *    / \             / \                 / \     / \
+ *   w   b           a   y               w   x   y   z
+ *      / \         / \
+ *     x   y       w   x
+ *
+ *    * BALANCING FACTOR * 
+ *    * AFTER   ROTATION * 
+ *   |  b ||  p'|  a'|  b'|
+ *   | +1 ||  0 | -1 |  0 |
+ *   |  0 ||  0 |  0 |  0 |
+ *   | -1 || +1 |  0 |  0 |
  */
 AVLNode *rotate_left_right(AVLTree *avlt, AVLNode *p){
 	rotate_left(avlt, p->left);
@@ -177,64 +191,67 @@ AVLNode *rotate_left_right(AVLTree *avlt, AVLNode *p){
 /* * This function is called to report node 'p' has its height
  * increased (although still balanced).
  * */
-void height_increased(AVLTree *avlt, AVLNode *p){
-	AVLNode *f;
+void height_increased(AVLTree *avlt, AVLNode *a){
+	AVLNode *f, *p, *b;
 	fprintf(stderr, "    height increased\n");
 	fflush(stderr);
 
-	f = p->parent;
+	p = a->parent;
 
-	if(!f){ /* If 'p' is root... */
+	if(!p){ /* If 'p' is root... */
 		fprintf(stderr, "       root reached!\n");
 		return; /* ...nothing to do (tree is all balanced) */
 	}
 
-	if( f->left == p ){ /* If 'p' is a right subtree... */
-		f->balance--; /* ...update balance factor. */
+	if( p->left == a ){ /* If a is a left subtree */
+		p->balance--; /* update balance factor. */
 
-		/* checking 'f' balance factor. Possibilities:
+		/* checking 'p' balance factor. Possibilities:
 		*   +1 : impossible
 		*    0 : tree still balanced, no height increase
 		*   -1 : tree is balanced, but height increased
-		*   -2 : rotation needed! */
-		if( f->balance == -1 )
-			height_increased(avlt, f);
-		else if( f->balance == -2 ){
-			if( p->balance == -1 ){ /* left 'leg' case */
-				rotate_right(avlt, f);
-				f->balance = 0;
-				p->balance = 0;
-			}else{                  /* left 'knee' case */
-				rotate_left(avlt, p);
-				rotate_right(avlt, f);
-				p->balance = f->balance = 0;
-				if( p->parent->balance == 1 )
-					f->balance = -1;
-				else if( p->parent->balance = -1 )
-					p->balance = 1;
+		*   -2 : rotation needed, no further height increase */
+		if( p->balance == -1 )
+			height_increased(avlt, p);
+		else if( p->balance == -2 ){
+			if( a->balance == -1 ){ /* left 'leg' case: (right rotation) */
+				rotate_right(avlt, p);
+				p->balance = a->balance = 0;
+			}else{                  /* left 'knee' case: (left-right rotation) */
+				b = a->right;
+				/* left-right rotation */
+				rotate_left(avlt, a);
+				rotate_right(avlt, p);
+				/* uptading balance factors */
+				p->balance = b->balance == -1 ? +1 : 0;
+				a->balance = b->balance == +1 ? -1 : 0;
+				b->balance = 0;
 			}
 		}
-	}else{    /*  'p' is left subtree... */
-		f->balance++;
+	}else{    /*  a is right subtree... */
+		fprintf(stderr, "      right subtree\n");
+		p->balance++;
 
 		/* checking 'f' balance factor. Possibilities:
-		*   +2 : rotation needed!
+		*   +2 : rotation needed, no further height increase.
 		*   +1 : tree is balanced, but height increased
 		*    0 : tree is balanced, no height increased
 		*   -1 : impossible */
-		if( f->balance == 1 )
-			height_increased(avlt, f);
-		else if( f->balance == +2 ){
-			if( p->balance == 1 ){    /* right 'leg' case */
-				rotate_left(avlt, f);
-				f->balance = p->balance = 0;
-			}else{                    /* right 'knee' case */
-				rotate_right(avlt, p);
-				rotate_left(avlt, f);
-				f->balance = p->balance = 0;
-				if( p->parent->balance == -1 )
-					p->balance = f->balance = +1;
-				p->parent = 0;
+		if( p->balance == 1 )
+			height_increased(avlt, p);
+		else if( p->balance == +2 ){
+			if( a->balance == 1 ){         /* right 'leg' case */
+				rotate_left(avlt, p);
+				p->balance = a->balance = 0;
+			}else{ /* p->balance == -1 */   /* right 'knee' case */
+				b = a->left;
+				/* right-left rotation */
+				rotate_right(avlt, a);
+				rotate_left(avlt, p);
+				/* uptading balance factors */
+				p->balance = b->balance == +1 ? -1 : 0;
+				a->balance = b->balance == -1 ? +1 : 0;
+				b->balance = 0;
 			}
 		}
 	}
