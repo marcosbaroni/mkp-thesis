@@ -314,25 +314,75 @@ AVLTree *avl_insert(AVLTree *avlt, void *a){
 	return avlt;
 }
 
-void *sub_avl_has(AVLNode *node, void *a, avl_cmp_f cmp){
+AVLNode *sub_avl_has(AVLNode *node, void *a, avl_cmp_f cmp){
 	int res;
-	if(!node)
+	if(!node)   /* element not found in tree */
 		return NULL;
 	res = cmp(node->info, a);
-	if(!res)
-		return node->info;
+	if(!res)    /* found it */
+		return node;
 	else if( res < 0 )
 		return sub_avl_has(node->right, a, cmp);
 	else
 		return sub_avl_has(node->left, a, cmp);
+	return NULL;
 }
 
 void *avl_has(AVLTree *avlt, void *a){
-	return sub_avl_has(avlt->root, a, avlt->cmp);
+	AVLNode *node;
+
+	/* finding the node with given element */
+	node = sub_avl_has(avlt->root, a, avlt->cmp);
+	if( node )
+		return node->info;
+	return NULL;
 }
 
 AVLTree *avl_delete(AVLTree *avlt, void *a){
-	fprintf(stderr, "Function \"avl_delete\" not implemented yet.\n");
+	AVLNode *node, *replacer, *parent;
+
+	/* finding the node to be deleted */
+	node = sub_avl_has(avlt, a);
+	parent = node->parent;
+	avlt->n--;
+
+	/* finding the node wich will replace removed one. */
+	if(!node->left){     /* target node has no left child */
+		if(!node->right ){ /* has no child, no replacer */
+			if(parent){
+				if( parent->right == node ){
+					parent->right = NULL;
+					parent->balance--;
+					if( parent->balance = -2 ){
+						if( parent->left->balance < 1 ){
+							/* left 'leg' case */
+							rotate_right(parent);
+							if(!parent->parent->balance){
+								parent->balance = -1;
+								parent->parent->balance = +1;
+							}else{
+								parent->parent->balance = 0;
+								height_decreased(parent->parent);
+							}
+						}else{
+							/* left 'knee' case */
+							rotate_left(parent->left);
+							rotate_right(parent);
+							/* TODO: Stopped here */
+						}
+					}
+				}else{
+					parent->left = NULL;
+				}
+			}else
+				avlt->root = NULL;
+		}else{
+		}
+	}else{  /* node had at least one left child. */
+		while( replacer->right )
+			replacer = replacer->right;
+	}
+
 	return avlt;
 }
 

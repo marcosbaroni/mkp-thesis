@@ -14,6 +14,7 @@ void int_ptr(FILE *out, int *a){
 }
 
 /*
+ * Test AVL Tree implementation.
  * */
 int execute_avl_teste(int argc, char **argv){
 	AVLTree *avl;
