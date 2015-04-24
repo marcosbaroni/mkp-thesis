@@ -338,39 +338,127 @@ void *avl_has(AVLTree *avlt, void *a){
 	return NULL;
 }
 
-AVLTree *avl_delete(AVLTree *avlt, void *a){
-	AVLNode *node, *replacer, *parent;
+AVLTree *height_decreased(AVLTree *avlt, AVLNode *node){
+	if(!node->parent)
+		return avlt;
+	
+	/* TODO: not implemented yet... */
 
-	/* finding the node to be deleted */
-	node = sub_avl_has(avlt, a);
-	parent = node->parent;
+	return avlt;
+}
+
+AVLTree *avl_delete(AVLTree *avlt, void *a){
+	AVLNode *target;    /* the node to be removed */
+	AVLNode *replacer;  /* node to replace the removed node (may be target itself) */
+	AVLNode *parent;    /* parent which lost a child (te replacer) */
+
+
+	/***
+	 * DID NOT FIND NODE TO BE REMOVED
+	 ***/
+	target = sub_avl_has(avlt, a);
+	if(!target){
+		fprintf(stderr, "%s error: No element found.\n", __PRETTY_FUNCTION__);
+		return avlt;
+	}
+	parent = target->parent;
 	avlt->n--;
 
-	/* finding the node wich will replace removed one. */
-	if(!node->left){     /* target node has no left child */
-		if(!node->right){ /* has no child, no replacer */
-			if(parent){  /* checing if its not alone */
-				if( parent->right == node ){ /* node is a right child */
+
+	/*** 
+	 * LOOKING FOR REPLACER OF TARGET NODE
+	 * Later on 'replacer' node will take place of 'target'.
+	 ***/
+	if(!target->left){
+		/* 'target' node has no left child */
+		if(!target->right){
+			/* 'target' node has no child, no replacer needed */
+			replacer = target;
+		}else{
+			/* 'target' node has one right child, which is the replacer */
+			replacer = target->right;
+		}
+	}else{
+		/* target node has a left child */
+		replacer = target->left;
+		/* dig right side of left-most tree of target */
+		while(replacer->right)
+			replacer = replacer->right;
+	}
+
+
+	/***
+	 * REMOVING TARGET NODE FROM TREE, REPLACING IT BY 'replacer'
+	 ***/
+	if(replacer == target){
+		replacer->parent
+		/* TODO: stopped here */
+	}
+
+	if(!node->left){
+		/* target has no left child */
+		if(!node->right){
+			/* target is a leaf */
+			if(!parent){
+				/* target is alone in tree*/
+				avlt->root = NULL;
+			}else{
+				/* target has a parent. */
+				if( parent->right == node ){
+					/* target is a right leaf */
 					parent->right = NULL;
 					parent->balance--;
 					if( parent->balance == -2 ){
+						/* parent is not balanced (rotation needed) */
 						if( parent->left->balance < 1 ){
 							/* left 'leg' case */
 							rotate_right(parent);
+							/* updating balance factors */
 							if(!parent->parent->balance){
+								/* targets left brother had balance = '0' */
 								parent->balance = -1;
 								parent->parent->balance = +1;
 							}else{
+								/* targets left brother had balance = '-1' */
 								parent->parent->balance = 0;
+								parante->balance = 0;
+								/* report height decrease */
 								height_decreased(parent->parent);
 							}
 						}else{
-							/* left 'knee' case */
+							/* left 'knee' case, targets left brother had balance = '+1' */
+							/* (double rotation needed) */
+							aux = parent->left->left;
 							rotate_left(parent->left);
 							rotate_right(parent);
-							/* TODO: Stopped here */
+							/* updating balance factors */
+							aux->left->balance = 0;
+							parent->balance = 0;
+							if(aux->balance = +1){
+								parent->balance = 0;
+								aux->left->balance = -1;
+							else if(aux->balance = -1){
+								parent->balance = 1;
+								aux->left->balance = 0;
+							}
+							aux->balance = 0;
+							/* report height decrease */
+							height_decreased(aux);
 						}
 					}
+				}else if(parent->balance == 0){
+					height_decreased(parent);
+				}
+			}else{
+				/* target is a left leaf */
+				parent->left = NULL;
+				parent->balance++;
+				if( parent->balance == 2){
+					/* */
+				}else if(parent->balance == 0){
+					height_decreased(parent);
+				}
+			}
 				}else{        /* node is a left child */
 					parent->left = NULL;
 					parent->balance++;
@@ -389,7 +477,7 @@ AVLTree *avl_delete(AVLTree *avlt, void *a){
 							/* right 'knee' case */
 							rotate_right(parent->right);
 							rotate_left(parent);
-							/* TODO: Stopped here */
+							/* TODO: ... */ 
 						}
 					}
 				}

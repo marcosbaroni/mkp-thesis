@@ -9,6 +9,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define IS_RIGHT_LEAF(a) if(
+
 #define max(a, b) a > b ? a : b;
 
 /*          AVL BALANCING FACTORS
