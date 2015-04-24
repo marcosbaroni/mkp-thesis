@@ -348,12 +348,12 @@ AVLTree *avl_delete(AVLTree *avlt, void *a){
 
 	/* finding the node wich will replace removed one. */
 	if(!node->left){     /* target node has no left child */
-		if(!node->right ){ /* has no child, no replacer */
-			if(parent){
-				if( parent->right == node ){
+		if(!node->right){ /* has no child, no replacer */
+			if(parent){  /* checing if its not alone */
+				if( parent->right == node ){ /* node is a right child */
 					parent->right = NULL;
 					parent->balance--;
-					if( parent->balance = -2 ){
+					if( parent->balance == -2 ){
 						if( parent->left->balance < 1 ){
 							/* left 'leg' case */
 							rotate_right(parent);
@@ -371,12 +371,31 @@ AVLTree *avl_delete(AVLTree *avlt, void *a){
 							/* TODO: Stopped here */
 						}
 					}
-				}else{
+				}else{        /* node is a left child */
 					parent->left = NULL;
+					parent->balance++;
+					if( parent->balance == +2 ){ /* need rebalance */
+						if( parent->right->balance > -1 ){
+							/* right 'leg' case */
+							rotate_left(parent);
+							if(!parent->parent->balance){
+								parent->balance = +1;
+								parent->parent->balance = -1;
+							}else{
+								parent->parent->balance = 0;
+								height_decreased(parent->parent);
+							}
+						}else{
+							/* right 'knee' case */
+							rotate_right(parent->right);
+							rotate_left(parent);
+							/* TODO: Stopped here */
+						}
+					}
 				}
 			}else
 				avlt->root = NULL;
-		}else{
+		}else{ /* node to be removed*/
 		}
 	}else{  /* node had at least one left child. */
 		while( replacer->right )
