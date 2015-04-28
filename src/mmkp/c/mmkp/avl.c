@@ -361,12 +361,11 @@ AVLTree *avl_delete(AVLTree *avlt, void *a){
 		fprintf(stderr, "%s error: No element found.\n", __PRETTY_FUNCTION__);
 		return avlt;
 	}
-	parent = target->parent;
 	avlt->n--;
 
 
 	/*** 
-	 * LOOKING FOR REPLACER OF TARGET NODE
+	 * DECIDE WHICH NODE WILL REPLACE REMOVED NODE
 	 * Later on 'replacer' node will take place of 'target'.
 	 ***/
 	if(!target->left){
@@ -388,106 +387,120 @@ AVLTree *avl_delete(AVLTree *avlt, void *a){
 
 
 	/***
-	 * REMOVING TARGET NODE FROM TREE, REPLACING IT BY 'replacer'
+	 * REPLACING THE DELETED NODE
+	 *    'parent' will be the node having one less child after replacement
 	 ***/
-	if(replacer == target){
-		replacer->parent
-		/* TODO: stopped here */
-	}
+	parent = target->parent;
+	if(!replacer == target){
+		/* replacer is not the target */
 
-	if(!node->left){
-		/* target has no left child */
-		if(!node->right){
-			/* target is a leaf */
-			if(!parent){
-				/* target is alone in tree*/
-				avlt->root = NULL;
+		if(replacer->parent == target){
+			/* replacer is child of target. */
+
+			/* updating the parent link */
+			replacer->parent = target->parent;
+			if(target->parent){
+				if(replacer->parent->right == target)
+					replacer->parent->right = replacer;
+				else
+					replacer->parent->left = replacer;
 			}else{
-				/* target has a parent. */
-				if( parent->right == node ){
-					/* target is a right leaf */
-					parent->right = NULL;
-					parent->balance--;
-					if( parent->balance == -2 ){
-						/* parent is not balanced (rotation needed) */
-						if( parent->left->balance < 1 ){
-							/* left 'leg' case */
-							rotate_right(parent);
-							/* updating balance factors */
-							if(!parent->parent->balance){
-								/* targets left brother had balance = '0' */
-								parent->balance = -1;
-								parent->parent->balance = +1;
-							}else{
-								/* targets left brother had balance = '-1' */
-								parent->parent->balance = 0;
-								parante->balance = 0;
-								/* report height decrease */
-								height_decreased(parent->parent);
-							}
-						}else{
-							/* left 'knee' case, targets left brother had balance = '+1' */
-							/* (double rotation needed) */
-							aux = parent->left->left;
-							rotate_left(parent->left);
-							rotate_right(parent);
-							/* updating balance factors */
-							aux->left->balance = 0;
-							parent->balance = 0;
-							if(aux->balance = +1){
-								parent->balance = 0;
-								aux->left->balance = -1;
-							else if(aux->balance = -1){
-								parent->balance = 1;
-								aux->left->balance = 0;
-							}
-							aux->balance = 0;
-							/* report height decrease */
-							height_decreased(aux);
-						}
+				/* root case */
+				avlt->root = replacer;
+			}
+
+			/* updating right child link (if any) */
+			if(target->right && target->right != replacer){
+				replacer->right = target->right;
+				replacer->right->parent = replacer;
+				replacer->balance++;
+			}
+
+			/* report subtree height descrease (if needed) */
+			if(!replacer->balance)
+				height_decreased(parent);
+		}else{
+			/* replacer is not direct child of target */
+			/* TODO: 1. replacer pointers;
+			 *       2. report right/left lose of child (same case of below) */
+		}
+	}else{
+		/* replacer is target itself (is a leaf)
+		 * ps: in this case, target parent is losing a child. */
+		if(target->parent){
+			parent = target->parent;
+			if(parent->right == target){
+				parent->right = NULL
+				parent->balance--;
+			}else{
+				parent->left = NULL
+				parent->balance--;
+			}
+
+			/* check if rotation is needed */
+			if(parent->balance == 0){
+				height_decreased(parent);
+			}else if(parent->balance == -2){
+				if(parent->left->balance < 1){
+					/* left leg case */
+					rotate_right(parent);
+					if(!parent->parent->balance){
+						parent->balance = -1;
+						parent->parent->balance = 1;
+					}else{
+						parent->balance = 0;
+						parent->parent->balance = 0;
+						height_decreased(parent->parent);
 					}
-				}else if(parent->balance == 0){
-					height_decreased(parent);
+				}else{
+					/* left knee case */
+					rotate_left(parent->left);
+					rotate_right(parent);
+					parent->balance = parent->parent->left->balance = 0;
+					switch(parent->parent->balance){
+						case 1:
+						parent->parent->left->balance = -1;
+						break;
+						case -1:
+						parent->balance = +1;
+						break;
+					}
+					parent->parent->balance = 0;
+					height_decreased(parent->parent);
 				}
-			}else{
-				/* target is a left leaf */
-				parent->left = NULL;
-				parent->balance++;
-				if( parent->balance == 2){
-					/* */
-				}else if(parent->balance == 0){
-					height_decreased(parent);
+			}else if(parent->balance == +2){
+				/* TODO: FIXME: testar se este escopo esta certo */
+				if(parent->left->balance > -1){
+					/* right leg case */
+					rotate_left(parent);
+					if(!parent->parent->balance){
+						parent->balance = 1;
+						parent->parent->balance = -1;
+					}else{
+						parent->balance = 0;
+						parent->parent->balance = 0;
+						height_decreased(parent->parent);
+					}
+				}else{
+					/* right knee case */
+					rotate_right(parent->right);
+					rotate_left(parent);
+					parent->balance = parent->parent->right->balance = 0;
+					switch(parent->parent->balance){
+						case -1:
+						parent->parent->left->balance = +1;
+						break;
+						case 1:
+						parent->balance = -1;
+						break;
+					}
+					parent->parent->balance = 0;
+					height_decreased(parent->parent);
 				}
 			}
-				}else{        /* node is a left child */
-					parent->left = NULL;
-					parent->balance++;
-					if( parent->balance == +2 ){ /* need rebalance */
-						if( parent->right->balance > -1 ){
-							/* right 'leg' case */
-							rotate_left(parent);
-							if(!parent->parent->balance){
-								parent->balance = +1;
-								parent->parent->balance = -1;
-							}else{
-								parent->parent->balance = 0;
-								height_decreased(parent->parent);
-							}
-						}else{
-							/* right 'knee' case */
-							rotate_right(parent->right);
-							rotate_left(parent);
-							/* TODO: ... */ 
-						}
-					}
-				}
-			}else
-				avlt->root = NULL;
-		}else{ /* node to be removed*/
+		}else{
+			avlt->root = NULL;
 		}
-	}else{  /* node had at least one left child. */
-		while( replacer->right )
-			replacer = replacer->right;
 	}
 
 	return avlt;
