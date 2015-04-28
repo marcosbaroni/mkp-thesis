@@ -347,164 +347,162 @@ AVLTree *height_decreased(AVLTree *avlt, AVLNode *node){
 	return avlt;
 }
 
-AVLTree *avl_delete(AVLTree *avlt, void *a){
-	AVLNode *target;    /* the node to be removed */
-	AVLNode *replacer;  /* node to replace the removed node (may be target itself) */
-	AVLNode *parent;    /* parent which lost a child (te replacer) */
+AVLNode *avl_find_predecessor(AVLTree *avlt, AVLNode *node){
+	AVLNode *pred;
 
+	pred = node->left;
+	if(!pred)
+		return NULL;
+	else
+		while(pred->right)
+			pred = pred->right;
 
-	/***
-	 * DID NOT FIND NODE TO BE REMOVED
-	 ***/
-	target = sub_avl_has(avlt, a);
-	if(!target){
-		fprintf(stderr, "%s error: No element found.\n", __PRETTY_FUNCTION__);
-		return avlt;
-	}
-	avlt->n--;
+	return pred;
+}
 
+void avl_make_me_orphan(AVLTree *avlt, AVLNode *node){
+	AVLNode *parent;
 
-	/*** 
-	 * DECIDE WHICH NODE WILL REPLACE REMOVED NODE
-	 * Later on 'replacer' node will take place of 'target'.
-	 ***/
-	if(!target->left){
-		/* 'target' node has no left child */
-		if(!target->right){
-			/* 'target' node has no child, no replacer needed */
-			replacer = target;
+	parent = node->parent;
+	if(!parent)
+		avlt->root = NULL;
+	else{
+		if(parent->right == targe){
+			parent->right = NULL;
+			parent->balance--;
 		}else{
-			/* 'target' node has one right child, which is the replacer */
-			replacer = target->right;
+			parent->left = NULL;
+			parent->balance++;
 		}
-	}else{
-		/* target node has a left child */
-		replacer = target->left;
-		/* dig right side of left-most tree of target */
-		while(replacer->right)
-			replacer = replacer->right;
-	}
 
+		/* SANITY CHECK */
+		switch(parent->balance){
+			case 2:
+			switch(parent->right->balance){
+				case -1:
+				/* right knee case */
+				rotate_right(parent->right);
+				rotate_left(parent);
+				/* update balance */
+				parent->balance = 0;
+				parent->parent->right->balance = 0;
+				switch(parent->parent->balance){
+					case +1:
+					parent->balance = -1;
+					break;
 
-	/***
-	 * REPLACING THE DELETED NODE
-	 *    'parent' will be the node having one less child after replacement
-	 ***/
-	parent = target->parent;
-	if(!replacer == target){
-		/* replacer is not the target */
-
-		if(replacer->parent == target){
-			/* replacer is child of target. */
-
-			/* updating the parent link */
-			replacer->parent = target->parent;
-			if(target->parent){
-				if(replacer->parent->right == target)
-					replacer->parent->right = replacer;
-				else
-					replacer->parent->left = replacer;
-			}else{
-				/* root case */
-				avlt->root = replacer;
-			}
-
-			/* updating right child link (if any) */
-			if(target->right && target->right != replacer){
-				replacer->right = target->right;
-				replacer->right->parent = replacer;
-				replacer->balance++;
-			}
-
-			/* report subtree height descrease (if needed) */
-			if(!replacer->balance)
-				height_decreased(parent);
-		}else{
-			/* replacer is not direct child of target */
-			/* TODO: 1. replacer pointers;
-			 *       2. report right/left lose of child (same case of below) */
-		}
-	}else{
-		/* replacer is target itself (is a leaf)
-		 * ps: in this case, target parent is losing a child. */
-		if(target->parent){
-			parent = target->parent;
-			if(parent->right == target){
-				parent->right = NULL
-				parent->balance--;
-			}else{
-				parent->left = NULL
-				parent->balance--;
-			}
-
-			/* check if rotation is needed */
-			if(parent->balance == 0){
-				height_decreased(parent);
-			}else if(parent->balance == -2){
-				if(parent->left->balance < 1){
-					/* left leg case */
-					rotate_right(parent);
-					if(!parent->parent->balance){
-						parent->balance = -1;
-						parent->parent->balance = 1;
-					}else{
-						parent->balance = 0;
-						parent->parent->balance = 0;
-						height_decreased(parent->parent);
-					}
-				}else{
-					/* left knee case */
-					rotate_left(parent->left);
-					rotate_right(parent);
-					parent->balance = parent->parent->left->balance = 0;
-					switch(parent->parent->balance){
-						case 1:
-						parent->parent->left->balance = -1;
-						break;
-						case -1:
-						parent->balance = +1;
-						break;
-					}
-					parent->parent->balance = 0;
-					height_decreased(parent->parent);
+					case -1:
+					parent->parent->right->balance = +1;
+					break;
 				}
-			}else if(parent->balance == +2){
-				/* TODO: FIXME: testar se este escopo esta certo */
-				if(parent->left->balance > -1){
-					/* right leg case */
-					rotate_left(parent);
-					if(!parent->parent->balance){
-						parent->balance = 1;
-						parent->parent->balance = -1;
-					}else{
-						parent->balance = 0;
-						parent->parent->balance = 0;
-						height_decreased(parent->parent);
-					}
-				}else{
-					/* right knee case */
-					rotate_right(parent->right);
-					rotate_left(parent);
-					parent->balance = parent->parent->right->balance = 0;
-					switch(parent->parent->balance){
-						case -1:
-						parent->parent->left->balance = +1;
-						break;
-						case 1:
-						parent->balance = -1;
-						break;
-					}
-					parent->parent->balance = 0;
-					height_decreased(parent->parent);
-				}
+				parent->parent->balance = 0;
+				height_decreased(parent->parent);
+				break;
+
+				case  0:
+				/* right leg case */
+				rotate_left(parent);
+				parent->balance = 1;
+				parent->parent->balance = -1;
+				break;
+
+				case +1:
+				/* right leg case */
+				rotate_left(parent);
+				parent->balance = 0;
+				parent->parent->balance = 0;
+				height_decreased(parent->parent);
+				break;
 			}
-		}else{
-			avlt->root = NULL;
+			break;
+
+			case 1:
+			/* balanced, no height decrease */
+			break;
+
+			case 0:
+			/* balanced, height decrease */
+			height_decreased(avlt, node->parent);
+			break;
+
+			case -1:
+			/* balanced, no height decrease */
+			break;
+
+			case -2:
+			switch(parent->left->balance){
+				case +1:
+				/* left knee case */
+				rotate_left(parent->left);
+				rotate_right(parent);
+				/* update balance */
+				parent->balance = 0;
+				parent->parent->left->balance = 0;
+				switch(parent->parent->balance){
+					case -1:
+					parent->balance = 1;
+					break;
+
+					case +1:
+					parent->parent->left->balance = -1;
+					break;
+				}
+				parent->parent->balance = 0;
+				height_decreased(parent->parent);
+				break;
+
+				case  0:
+				/* left leg case */
+				rotate_right(parent);
+				parent->balance = -1;
+				parent->parent->balance = +1;
+				break;
+
+				case -1:
+				/* left leg case */
+				rotate_right(parent);
+				parent->balance = 0;
+				parent->parent->balance = 0;
+				height_decreased(parent->parent);
+				break;
+			}
+			break;
 		}
+	}
+
+	return;
+}
+
+AVLTree *sub_avl_delete(AVLTree *avlt, AVLNode *node){
+	int nkids;
+
+	/* counting children */
+	nkids = 0;
+	if(target->right)
+		nkids++;
+	if(target->left)
+		nkids++;
+
+	/* treating cases */
+	siwtch(nkids){
+		case 0:
+		avl_make_me_orphan(avlt, node);
+		free(target);
+		break;
+
+		case 1:
+		break;
+
+		case 2:
+		pred = avl_find_predecessor(avlt, target);
+		target->info = pred->info;
+		sub_avl_delete(avlt, pred);
+		break;
 	}
 
 	return avlt;
 }
+
 
 /*** OTHERS *********************************************************/
 void sub_avl_apply_to_all(AVLNode *node, void(*func)(void*) ){
