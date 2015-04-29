@@ -237,7 +237,7 @@ static inline struct avltree_node *do_lookup(const struct avltree_node *key,
 		if (get_balance(node) != 0)
 			*unbalanced = node;
 
-		res = tree->cmp_fn(node, key);
+		res = tree->cmp_fn(node->info, key->info);
 		if (res == 0)
 			return node;
 		*pparent = node;

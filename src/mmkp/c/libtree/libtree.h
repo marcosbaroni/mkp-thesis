@@ -139,6 +139,7 @@ int rbtree_init(struct rbtree *tree, rbtree_cmp_fn_t cmp, unsigned long flags);
 
 struct avltree_node {
 	struct avltree_node *left, *right;
+	void *info;
 	uintptr_t parent;		/* balance factor [0:4] */
 } __attribute__((aligned(8)));
 
@@ -147,12 +148,13 @@ struct avltree_node {
 struct avltree_node {
 	struct avltree_node *left, *right;
 	struct avltree_node *parent;
+	void *info;
 	signed balance:3;		/* balance factor [-2:+2] */
 };
 
 #endif
 
-typedef int (*avltree_cmp_fn_t)(const struct avltree_node *, const struct avltree_node *);
+typedef int (*avltree_cmp_fn_t)(void*, void*);
 
 struct avltree {
 	struct avltree_node *root;
