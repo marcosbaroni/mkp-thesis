@@ -278,6 +278,7 @@ struct avltree_node *avltree_insert(struct avltree_node *node, struct avltree *t
 		return key;
 
 	INIT_NODE(node);
+	tree->n++;
 
 	if (!parent) {
 		tree->root = node;
@@ -381,6 +382,7 @@ void avltree_remove(struct avltree_node *node, struct avltree *tree)
 	struct avltree_node *right = node->right;
 	struct avltree_node *next;
 	int is_left = is_left;
+	tree->n--;
 
 	if (node == tree->first)
 		tree->first = avltree_next(node);

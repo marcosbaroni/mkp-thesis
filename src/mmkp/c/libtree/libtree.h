@@ -160,6 +160,7 @@ struct avltree {
 	struct avltree_node *root;
 	avltree_cmp_fn_t cmp_fn;
 	int height;
+	int n;
 	struct avltree_node *first, *last;
 	uint64_t reserved[4];
 };
