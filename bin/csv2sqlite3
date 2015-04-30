@@ -6,7 +6,7 @@
 ################################################################################
 
 # Checkinkg number of arguments
-if [ $# -lt 1 ]; then
+if [ $# -lt 2 ]; then
     echo -e "usage:\n $0 <input: CSV file> <output: Sqlite3 DB file>\n"
     echo -e "   The csv file must be on format like the example:"
     echo -e "tablename"

@@ -16,40 +16,40 @@ void int_ptr(FILE *out, int *a){
 /*
  * Test AVL Tree implementation.
  * */
-int execute_avl_teste(int argc, char **argv){
-	AVLTree *avl;
-	int i, n, *v;
-	char filename[100];
-	FILE *out;
-
-	if( argc < 2 ){
-		fprintf(stderr, "usage: %s <n numbers>\n", argv[0]);
-		return 1;
-	}
-
-	n = atoi(argv[1]);
-	avl = new_avltree((avl_cmp_f)int_cmp);
-	//srand(time(NULL));
-
-	v = (int*)malloc(n*sizeof(int));
-
-	for( i = 0 ; i < n ; i++ ){
-		v[i] = rand() % 1000;
-		avl_insert(avl, &(v[i]));
-
-		/* outputing */
-		sprintf(filename, "/tmp/avl/out%03d.dot", i);
-		out = fopen(filename, "w");
-		//avl_fprint_dot(out, avl, (avl_prt_f)int_ptr);
-		fclose(out);
-	}
-	//system("cd /tmp/avl/; for i in `ls *.dot`; do dot -Tpng -o $i.png $i; done");
-
-	free_avltree(avl);
-	free(v);
-
-	return 0;
-}
+//int execute_avl_teste(int argc, char **argv){
+//	AVLTree *avl;
+//	int i, n, *v;
+//	char filename[100];
+//	FILE *out;
+//
+//	if( argc < 2 ){
+//		fprintf(stderr, "usage: %s <n numbers>\n", argv[0]);
+//		return 1;
+//	}
+//
+//	n = atoi(argv[1]);
+//	avl = new_avltree((avl_cmp_f)int_cmp);
+//	//srand(time(NULL));
+//
+//	v = (int*)malloc(n*sizeof(int));
+//
+//	for( i = 0 ; i < n ; i++ ){
+//		v[i] = rand() % 1000;
+//		avl_insert(avl, &(v[i]));
+//
+//		/* outputing */
+//		sprintf(filename, "/tmp/avl/out%03d.dot", i);
+//		out = fopen(filename, "w");
+//		//avl_fprint_dot(out, avl, (avl_prt_f)int_ptr);
+//		fclose(out);
+//	}
+//	//system("cd /tmp/avl/; for i in `ls *.dot`; do dot -Tpng -o $i.png $i; done");
+//
+//	free_avltree(avl);
+//	free(v);
+//
+//	return 0;
+//}
 
 
 /* 
@@ -133,8 +133,43 @@ int execute_surrogate_research(int argc, char **argv){
 	return 0;
 }
 
+int execute_domset_search(int argc, char **argv){
+	FILE *input;
+	MKP *mkp;
+	int n, m;
+
+	/* default arguments */
+	input = stdin;
+
+	/* checking number of inputs */
+	if( argc < 2 ){
+		fprintf(stderr, "usage: %s <filename>\n", argv[0]);
+		fprintf(stderr, " - filename : name of MKP instance file. \"-\" for stdin.\n");
+		return 1;
+	}
+
+	/* opening input file */
+	if(strcmp(argv[1], "-"))
+		input = fopen(argv[1], "r");
+	
+	/* reading instance */
+	mkp = mkp_read_from_file(input);
+	m = mkp->m;
+	n = mkp->n;
+	fclose(input);
+
+	/* enumerating */
+	mkp_fast_domsets_enum(mkp);
+
+	/* frees */
+	mkp_free(mkp);
+
+	return 0;
+}
+
 int main(int argc, char **argv){
 	//return execute_surrogate_research(argc, argv);
-	return execute_avl_teste(argc, argv);
+	//return execute_avl_teste(argc, argv);
+	return execute_domset_search(argc, argv);
 }
 

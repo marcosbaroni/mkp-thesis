@@ -140,6 +140,38 @@ void dstree_free(DomSetTree *dstree){
 	return;
 }
 
+void dstree_fprint(FILE *out, DomSetTree *dstree){
+	int i, j, n, nx, m;
+	DomSetNode *dsn, *fat;
+
+	n = dstree->mkp->n;
+	m = dstree->mkp->m;
+	dsn = dstree->root->next;
+
+	/*printing header*/
+	fprintf(out, "card;profit;b1;b2;...;bm\n");
+
+	/* tree is empty */
+	if(!dsn)
+		return;
+
+	/* for each node... */
+	do{
+		fat = dsn->father;
+		nx = 0;
+		while(fat = fat->father)
+			nx++;
+		fprintf(out, "%d;%lld", nx, dsn->profit);
+		for( i = 0 ; i < m ; i++ )
+			fprintf(out, ";%lld", dstree->mkp->b[i] - dsn->b_left[i]);
+		fprintf(out, "\n");
+	}while(dsn = dsn->next);
+
+	fprintf(out, "\n");
+
+	return;
+}
+
 	/* TODO: iniciar enumeração das soluções... 
 	 * 	    - iniciar de uma solução vazia (por enquanto);
 	 * 	    - criar novo nó apenas no caso de inserção de item.
@@ -186,7 +218,7 @@ MKPSol *mkp_fast_domsets_enum(MKP *mkp){
 				//	dstree_remove(dstree, dsn_iter);
 				//	dsnode_free(dsn_iter);
 				//}
-				if( dominance == -1 ) /* iter dominates new */
+				if( dominance == -1 ) /* current domset dominates new */
 					promissing = 0;
 			}
 			if( promissing ) /* new is not dominated */
@@ -198,7 +230,8 @@ MKPSol *mkp_fast_domsets_enum(MKP *mkp){
 	}
 
 	/* output */
-	printf("Best: %lld\n", dstree->best->profit);
+	//printf("Best: %lld\n", dstree->best->profit);
+	dstree_fprint(stdout, dstree);
 
 	/* free */
 	dstree_free(dstree);

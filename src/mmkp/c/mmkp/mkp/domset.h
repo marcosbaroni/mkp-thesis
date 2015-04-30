@@ -27,6 +27,7 @@ typedef struct DomSetTree{
 	DomSetNode *tail;
 }DomSetTree;
 
+DomSetTree *dstree_new(MKP *mkp);
 
 
 /* TODO: implementar container final para guardar as soluções. Testar:
@@ -43,11 +44,11 @@ typedef struct LinkedBucket{
 	union{
 		int n_sub_buckets;     /* number of sub buckets (on the 'next' dimension) */
 		int n_dsnodes;         /* number of dsnodes (solution) [leaf bucket case]*/
-	}
+	};
 	union{
 		struct LinkedBucket *sub_buckets; /*array of buckets */
 		Array *dsnodes;           /* array of dsnodes [leaf bucket case] */
-	}
+	};
 }LinkedBucket;
 
 #endif
