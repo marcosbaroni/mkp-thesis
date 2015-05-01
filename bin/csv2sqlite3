@@ -32,7 +32,7 @@ fi
 sqlfile=`tempfile`
 datafile=`tempfile`
 aux=`tempfile`
-tail -n +3 $1 > $datafile
+tail -n +4 $1 > $datafile
 
 # assembling schema of sql table
 tablename=`head -1 $inputfile`                                # table name

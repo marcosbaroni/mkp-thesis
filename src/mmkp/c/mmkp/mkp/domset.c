@@ -67,6 +67,7 @@ DomSetNode *dsnode_new(DomSetNode *father, MKP *mkp, int idx){
 	dsnode = (DomSetNode*)malloc(sizeof(DomSetNode));
 	dsnode->profit = father->profit + mkp->p[idx];
 	dsnode->b_left = (long long*)malloc(m*sizeof(long long));
+	/* setting b_left (checking feasibility) */
 	feasible = 1;
 	for( i = 0 ; i < m ; i++ ){
 		dsnode->b_left[i] = father->b_left[i] - mkp->w[i][idx];
@@ -149,7 +150,6 @@ void dstree_fprint(FILE *out, DomSetTree *dstree){
 	dsn = dstree->root->next;
 
 	/*printing header*/
-	fprintf(out, "card;profit;b1;b2;...;bm\n");
 
 	/* tree is empty */
 	if(!dsn)
@@ -157,8 +157,8 @@ void dstree_fprint(FILE *out, DomSetTree *dstree){
 
 	/* for each node... */
 	do{
-		fat = dsn->father;
 		nx = 0;
+		fat = dsn;
 		while(fat = fat->father)
 			nx++;
 		fprintf(out, "%d;%lld", nx, dsn->profit);
@@ -166,8 +166,6 @@ void dstree_fprint(FILE *out, DomSetTree *dstree){
 			fprintf(out, ";%lld", dstree->mkp->b[i] - dsn->b_left[i]);
 		fprintf(out, "\n");
 	}while(dsn = dsn->next);
-
-	fprintf(out, "\n");
 
 	return;
 }
@@ -226,7 +224,6 @@ MKPSol *mkp_fast_domsets_enum(MKP *mkp){
 			else if( dsn_new )
 				dsnode_free(dsn_new);
 		}
-		printf("%d - %d sets (best=%lld)\n", i+1, dstree->n, dstree->best->profit);
 	}
 
 	/* output */
