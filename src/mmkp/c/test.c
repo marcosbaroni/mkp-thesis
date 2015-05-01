@@ -65,8 +65,9 @@ int execute_surrogate_research(int argc, char **argv){
 	FILE *input;
 	int i, n, m, nmax, *multps;
 	clock_t c0, cf;
+	long long profit;
 
-	double *x, sum;
+	double *x, sum, profit_d;
 
 	/* default arguments */
 	input = stdin;
@@ -95,9 +96,10 @@ int execute_surrogate_research(int argc, char **argv){
 		multps = int_array_init(multps, m, 0);
 		multps[i] = multps[i+1] = 1;
 		mkp2 = mkp_surrogate(mkp, multps);
+		profit_d = mkp_get_lp_obj(mkp2);
 		nmax = mkp_max_cardinality(mkp2);
 
-		printf("d;%d;%d;%d\n", n, m, nmax);
+		printf("d;%d;%.2lf\n", nmax, profit_d);
 
 		mkp_free(mkp2);
 	}
@@ -105,25 +107,31 @@ int execute_surrogate_research(int argc, char **argv){
 	/* surrogating all constraints */
 	multps = int_array_init(multps, m, 1);
 	mkp2 = mkp_surrogate(mkp, multps);
+	profit_d = mkp_get_lp_obj(mkp2);
 	nmax = mkp_max_cardinality(mkp2);
-	printf("a;%d;%d;%d\n", n, m, nmax);
+	printf("a;%d;%.2lf\n", nmax, profit_d);
 	mkp_free(mkp2);
 
 	/* checking LP */
-	x = mkp_get_lp_sol(mkp);;
+	x = mkp_get_lp_sol(mkp);
 	sum = 0;
+	profit_d = mkp_get_lp_obj(mkp);
 	for( i = 0 ;  i < n ; i++ )
 		sum += x[i];
-	printf("l;%d;%d;%.2lf\n", n, m, sum);
+	printf("l;%.2lf;%.2lf\n", sum, profit_d);
 	free(x);
 
 	/* checking exact */
 	x = mkp_solve_with_scip(mkp, 600, 1.0, 0);
 	nmax = 0;
-	for( i = 0 ; i < n ; i++ )
-		if( x[i] >= 1.0 )
+	profit = 0;
+	for( i = 0 ; i < n ; i++ ){
+		if( x[i] >= 1.0 ){
 			nmax++;
-	printf("s;%d;%d;%d\n", n, m, nmax);
+			profit += mkp->p[i];
+		}
+	}
+	printf("s;%d;%lld\n", nmax, profit);
 
 	/* freeing */
 	free(multps);
@@ -133,6 +141,9 @@ int execute_surrogate_research(int argc, char **argv){
 	return 0;
 }
 
+/*
+ * Analyse distribution of dominating solution throught the different dimensions.
+ * */
 int execute_domset_search(int argc, char **argv){
 	FILE *input;
 	MKP *mkp;
@@ -168,8 +179,8 @@ int execute_domset_search(int argc, char **argv){
 }
 
 int main(int argc, char **argv){
-	//return execute_surrogate_research(argc, argv);
+	return execute_surrogate_research(argc, argv);
 	//return execute_avl_teste(argc, argv);
-	return execute_domset_search(argc, argv);
+	//return execute_domset_search(argc, argv);
 }
 
