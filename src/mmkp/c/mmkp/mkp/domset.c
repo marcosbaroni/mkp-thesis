@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <limits.h>
 
 #include "domset.h"
 #include "mkp.h"
@@ -24,6 +25,30 @@ DomSetTree *dstree_new(MKP *mkp){
 	return dstree;
 }
 
+int dsnode_cmp(DomSetNode *dsn1, DomSetNode *dsn2){
+	int j, m;
+	long long res;
+
+	/* comparing profit */
+	res = dsn1->profit - dsn2->profit;
+	if( res > 0 ){
+		return 1;
+	}else if( res < 0 ){
+		return -1;
+	/* comparing weights */
+	else{
+		for( j = 0 ; j < m ; j++ ){
+			res = dsn1->b_left[m-j-1] - dsn2->b_left[m-j-1];
+			if( res > 0 ){
+				return 1;
+			}else if( res < 0 ){
+				return -1;
+			}
+		}
+	}
+	return 0;
+}
+
 /*
  * returns:
  *  -1 : dsn2 dominates dsn1
@@ -34,9 +59,9 @@ DomSetTree *dstree_new(MKP *mkp){
  *    A dominates B iff:
  *       p(A) >= p(B)    AND    w_i(A) <= w_i(B), for all j in [m]
  * */
-int dsnode_dominates(DomSetNode *dsn1, DomSetNode *dsn2, MKP *mkp){
+int dsnode_dominates(DomSetNode *dsn1, DomSetNode *dsn2){
 	int i, m;
-	m = mkp->m;
+	m = dsn1->m;
 
 	/* dsn1 dominates dsn2 ? */
 	if( dsn1->profit >= dsn2->profit ){
@@ -67,6 +92,7 @@ DomSetNode *dsnode_new(DomSetNode *father, MKP *mkp, int idx){
 	dsnode = (DomSetNode*)malloc(sizeof(DomSetNode));
 	dsnode->profit = father->profit + mkp->p[idx];
 	dsnode->b_left = (long long*)malloc(m*sizeof(long long));
+	dsnode->m = m;
 	/* setting b_left (checking feasibility) */
 	feasible = 1;
 	for( i = 0 ; i < m ; i++ ){
@@ -209,7 +235,7 @@ MKPSol *mkp_fast_domsets_enum(MKP *mkp){
 				dsn_iter = dsn_iter->next)
 			{
 				/* check relative dominance */
-				dominance = dsnode_dominates(dsn_new, dsn_iter, mkp);
+				dominance = dsnode_dominates(dsn_new, dsn_iter);
 				//if( dominance == 1 ){ /* dsn_new dominates dsn_iter */
 				//	if( dsn_iter == dsn_tail ) /* update tail, if needed */
 				//		dsn_tail = dsn_tail->prev;
@@ -239,3 +265,101 @@ MKPSol *mkp_fast_domsets_enum(MKP *mkp){
 /*****************************************************************************
  *     LinkedBuckets
  *****************************************************************************/
+
+/*
+ * limits:
+ * nsplits:
+ * dims:
+ * ord:
+ */
+LinkedBucket *sub_lbuckets_new(
+	long long **limits,
+	int nsplits,
+	int dims,
+	int ord
+	){
+	/* final container */
+	LinkedBucket *lbucket;
+	int i;
+
+	lbucket->n = 0;
+	lbucket->dim = dims;
+	lbucket->minW = !ord ? 0 : limits[dims][ord-1];
+	lbucket->maxW = ord > nsplits ? LLONG_MAX : limits[dims][ord]-1;
+	lbucket->minProfit = LLONG_MAX;
+	lbucket->maxProfit = 0;
+	if( !dims ){
+		lbucket->n_dsnodes = 0;
+		lbucket->dsnodes = array_new();
+	}else{
+		lbucket->n_sub_buckets = nsplits+1;
+		lbucket->sub_buckets = (LinkedBucket**)malloc((nsplits+1)sizeof(LinkedBucket*));
+		for( i = 0 ; i < nsplits+1 ; i++ ){
+			lbuecket->sub_buckets[i] = sub_lbuckets_new(
+				limits,
+				nsplits,
+				dims-1,
+				i);
+		}
+	}
+	return lbucket;
+}
+
+/**
+ * dims:   number of indexed dimensions
+ * limits[i]: the points on i-th dimension the space is segmented.
+ */
+LinkedBucket *lbuckets_new(long long **limits, int nsplits, int dims){
+	LinkedBucket *lbucket;
+	int nsplits;
+
+	lbucket = (LinkedBucket*)malloc(sizeof(LinkedBucket));
+	lbucket->n = 0;
+	lbucket->dim = dims;
+	lbucket->minW = LLONG_MAX;
+	lbucket->maxW = 0;
+	lbucket->minProfit = LLONG_MAX;
+	lbucket->maxProfit = 0;
+	lbucket->n_sub_buckets = nsplits+1;
+	lbucket->sub_buckets = (LinkedBucket**)malloc((nsplits+1)*sizeof(LinkedBucket*));
+
+	for( i = 0 ; i < nsplits+1 ; i++ ){
+		lbucket->sub_buckets[i] = sub_lbuckets_new(
+			limits, nsplits, dims, i);
+	}
+
+	return lbucket;
+}
+
+void lbucket_insert_dsnode(LinkedBucket *lbucket, DomSetNode *dsnode){
+	if( lbucket->dim ){
+	}
+}
+
+int lbucket_exists_dominator(LinkedBucket *lbucket, DomSetNode *dsnode){
+	int i, n;
+	long long p, w;
+	Array *a;
+
+	p = dsnode->profit;
+	w = dsnode->b_left[lbucket->dim];
+
+	/* test possible existance of any dominator */
+	if( !lbucket->n || (lbucket->minW > w) || (lbucket->maxProfit < p) )
+		return 0;
+
+	if( lbucket->dim ){
+		n = lbucket->n_sub_buckets;
+		for( i = 0 ; i < n ; i++ )
+			if( lbucket_exists_dominator(lbucket->sub_lbuckets[i], dsnode) )
+				return 1;
+	}else{
+		n = lbucket->n;
+		a = lbucket->dsnodes;
+		for( i = 0 ; i < n ; i++ )
+			if( dsnode_dominates(array_get(a, i), dsnode) )
+				return 1;
+	}
+	return 0;
+}
+

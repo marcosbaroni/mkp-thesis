@@ -11,6 +11,7 @@
 typedef struct DomSetNode{
 	int idx;                   /* the index og variable which was fixed '1' */
 	//int nx;                    /* number of itens in whole solution */
+	int m;
 	long long profit;          /* profit of set/solution */
 	long long *b_left;         /* weight left */
 	struct DomSetNode *father; /* the father its set/solution */
@@ -36,11 +37,11 @@ DomSetTree *dstree_new(MKP *mkp);
  * (STOPPED HERE) */
 typedef struct LinkedBucket{
 	int n;                 /* total number of items (solution) it holds */
-	int dim;               /* the dimension it considers */
+	int dim;               /* the dimension it considers, if '-1' then not applied beacuse is first bucket of all */
 	long long minW;        /* min weight their elements has */
 	long long maxW;
-	//long long minProfit;
-	//long long maxProfit;
+	long long minProfit;
+	long long maxProfit;
 	union{
 		int n_sub_buckets;     /* number of sub buckets (on the 'next' dimension) */
 		int n_dsnodes;         /* number of dsnodes (solution) [leaf bucket case]*/

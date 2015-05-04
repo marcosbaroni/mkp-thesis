@@ -1693,6 +1693,7 @@ MKPSol *mkpsol_set(MKPSol *mkpsol, int a, int val){
 int mkpsol_get(MKPSol *mkpsol, int a){
 	return mkpsol->x[a];
 }
+
 /* cmp-profit */
 int mkpsol_cmp_profit(MKPSol *ms1, MKPSol *ms2){
 	if( ms1->obj > ms2->obj) return 1;
