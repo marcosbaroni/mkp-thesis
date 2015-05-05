@@ -107,6 +107,22 @@ void mkp_sort_by_profit(MKP *mkp){
 	return;
 }
 
+/* 
+ * Returns a MKP, copy of original MKP, with p[i] = 1, i = 1, ..., n.
+ */
+MKP *mkp_card_mkp(MKP *mkp){
+	int i, n;
+	MKP *new;
+
+	n = mkp->n;
+	new = mkp_copy(mkp);
+	/* setting profits to 1 */
+	for( i = 0 ; i < n ; i++ )
+		new->p[i] = 1;
+	
+	return new;
+}
+
 /*
  * Finds an upper bound on number of items on knapsack, based on
  *   max items for each dimension. */
@@ -297,6 +313,29 @@ void mkp_write_to_file(MKP *mkp, FILE *fout){
 	return;
 }
 
+MKP *mkp_copy(MKP *mkp){
+	MKP *new;
+	int i, j, n, m;
+
+	n = mkp->n;
+	m = mkp->m;
+
+	new = mkp_alloc(mkp->n, mkp->m);
+	/* coping profits */
+	for( i = 0 ; i < n ; i++ )
+		new->p[i] = mkp->p[i];
+
+	for( j = 0 ; j < m ; j++ ){
+		/* coping weights */
+		for( i = 0 ; i < n ; i++ )
+			new->w[j][i] = mkp->w[j][i];
+		/* coping capacities */
+		new->b[j] = mkp->b[j];
+	}
+
+	return new;
+}
+
 /*
  * Prints a MKP instance on a human friendly format.
  */
@@ -352,6 +391,7 @@ void mkp_fprint(FILE *fout, MKP *mkp){
 /* Prints MKP dual problem in ZIMPL format */
 void mkp_dual_to_zimpl(FILE *fout, MKP *mkp, char linear){
 	int i, j, n, m;
+
 
 	n = mkp->n;
 	m = mkp->m;

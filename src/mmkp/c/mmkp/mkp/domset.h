@@ -47,7 +47,7 @@ typedef struct LinkedBucket{
 		int n_dsnodes;         /* number of dsnodes (solution) [leaf bucket case]*/
 	};
 	union{
-		struct LinkedBucket *sub_buckets; /*array of buckets */
+		struct LinkedBucket **sub_buckets; /* array of buckets */
 		Array *dsnodes;           /* array of dsnodes [leaf bucket case] */
 	};
 }LinkedBucket;

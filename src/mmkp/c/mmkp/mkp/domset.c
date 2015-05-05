@@ -36,7 +36,7 @@ int dsnode_cmp(DomSetNode *dsn1, DomSetNode *dsn2){
 	}else if( res < 0 ){
 		return -1;
 	/* comparing weights */
-	else{
+	}else{
 		for( j = 0 ; j < m ; j++ ){
 			res = dsn1->b_left[m-j-1] - dsn2->b_left[m-j-1];
 			if( res > 0 ){
@@ -293,9 +293,9 @@ LinkedBucket *sub_lbuckets_new(
 		lbucket->dsnodes = array_new();
 	}else{
 		lbucket->n_sub_buckets = nsplits+1;
-		lbucket->sub_buckets = (LinkedBucket**)malloc((nsplits+1)sizeof(LinkedBucket*));
+		lbucket->sub_buckets = (LinkedBucket**)malloc((nsplits+1)*sizeof(LinkedBucket*));
 		for( i = 0 ; i < nsplits+1 ; i++ ){
-			lbuecket->sub_buckets[i] = sub_lbuckets_new(
+			lbucket->sub_buckets[i] = sub_lbuckets_new(
 				limits,
 				nsplits,
 				dims-1,
@@ -311,7 +311,7 @@ LinkedBucket *sub_lbuckets_new(
  */
 LinkedBucket *lbuckets_new(long long **limits, int nsplits, int dims){
 	LinkedBucket *lbucket;
-	int nsplits;
+	int i;
 
 	lbucket = (LinkedBucket*)malloc(sizeof(LinkedBucket));
 	lbucket->n = 0;
@@ -351,7 +351,7 @@ int lbucket_exists_dominator(LinkedBucket *lbucket, DomSetNode *dsnode){
 	if( lbucket->dim ){
 		n = lbucket->n_sub_buckets;
 		for( i = 0 ; i < n ; i++ )
-			if( lbucket_exists_dominator(lbucket->sub_lbuckets[i], dsnode) )
+			if( lbucket_exists_dominator(lbucket->sub_buckets[i], dsnode) )
 				return 1;
 	}else{
 		n = lbucket->n;

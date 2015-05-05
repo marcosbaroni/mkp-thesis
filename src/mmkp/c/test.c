@@ -121,6 +121,12 @@ int execute_surrogate_research(int argc, char **argv){
 	printf("l;%.2lf;%.2lf\n", sum, profit_d);
 	free(x);
 
+	/* checking LP-maximizing cardinality */
+	mkp2 = mkp_card_mkp(mkp);
+	profit_d = mkp_get_lp_obj(mkp2);
+	printf("m;%.2lf;%.2lf\n", profit_d, profit_d);
+	mkp_free(mkp2);
+
 	/* checking exact */
 	x = mkp_solve_with_scip(mkp, 600, 1.0, 0);
 	nmax = 0;
@@ -179,8 +185,8 @@ int execute_domset_search(int argc, char **argv){
 }
 
 int main(int argc, char **argv){
-	//return execute_surrogate_research(argc, argv);
+	return execute_surrogate_research(argc, argv);
 	//return execute_avl_teste(argc, argv);
-	return execute_domset_search(argc, argv);
+	//return execute_domset_search(argc, argv);
 }
 

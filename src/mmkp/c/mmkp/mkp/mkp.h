@@ -6,6 +6,9 @@
 #include "../sfl.h"
 #include "../lp.h"
 
+#define ZIMPL_LINEAR 1
+#define ZIMPL_CARD 2
+
 /*** MKP PROBLEM INSTANCE ***
 *   Itens are sorting by decreasing order of profit (for greedy propose).
 */
@@ -33,6 +36,7 @@ MKP *mkp_read_from_filename(char *filename);
 MKP *mkp_read_from_file(FILE *fin);
 void mkp_write_to_filename(MKP *mkp, char *filename);
 void mkp_write_to_file(MKP *mkp, FILE *fout);
+MKP *mkp_copy(MKP *mkp);
 
 /*** misc ***/
 void mkp_fprint(FILE *fout, MKP *mkp);
@@ -43,6 +47,7 @@ double *mkp_solve_dual_with_scip(MKP *mkp);
 double* mkp_get_lp_sol(MKP *mkp);
 double mkp_get_lp_obj(MKP *mkp);
 double *mkp_get_em(MKP *mkp);
+MKP *mkp_card_mkp(MKP *mkp);     /* returns a MKP, copy of original MKP, with p[i] = 1, i = 1, ..., n */
 int mkp_max_items(MKP *mkp);
 
 /* generates a reduced MKP, with a subset of variables.
