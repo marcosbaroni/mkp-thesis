@@ -47,5 +47,9 @@ typedef struct LinkedBucket{
 	};
 }LinkedBucket;
 
+void lbucket_insert_dsnode(LinkedBucket *lbucket, DomSetNode *dsnode);
+LinkedBucket *lbucket_new(long long **max_b_lefts, int nsub, int dims);
+void lbucket_free(LinkedBucket *lbucket);
+
 #endif
 

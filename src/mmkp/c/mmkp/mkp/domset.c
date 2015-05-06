@@ -5,26 +5,9 @@
 #include "domset.h"
 #include "mkp.h"
 
-DomSetTree *dstree_new(MKP *mkp){
-	DomSetTree *dstree;
-	DomSetNode *dsnode;
-
-	/* First solution (empty) */
-	dsnode = (DomSetNode*)malloc(sizeof(DomSetNode));
-	dsnode->idx = -1;
-	dsnode->profit = 0;
-	dsnode->b_left = long_long_array_copy(NULL, mkp->b, mkp->m);
-	dsnode->father = dsnode->prev = dsnode->next = NULL;
-
-	/* allocing */
-	dstree = (DomSetTree*)malloc(sizeof(DomSetTree));
-	dstree->mkp = mkp;
-	dstree->root = dstree->tail = dstree->best = dsnode;
-	dstree->n = 1;
-
-	return dstree;
-}
-
+/*****************************************************************************
+ *     Dominating Set Node
+ *****************************************************************************/
 int dsnode_cmp(DomSetNode *dsn1, DomSetNode *dsn2){
 	int j, m;
 	long long res;
@@ -119,6 +102,32 @@ void dsnode_free(DomSetNode *dsnode){
 	return;
 }
 
+
+/*****************************************************************************
+ *     Dominating Set Tree
+ *****************************************************************************/
+
+DomSetTree *dstree_new(MKP *mkp){
+	DomSetTree *dstree;
+	DomSetNode *dsnode;
+
+	/* First solution (empty) */
+	dsnode = (DomSetNode*)malloc(sizeof(DomSetNode));
+	dsnode->idx = -1;
+	dsnode->profit = 0;
+	dsnode->b_left = long_long_array_copy(NULL, mkp->b, mkp->m);
+	dsnode->father = dsnode->prev = dsnode->next = NULL;
+	dsnode->m = mkp->m;
+
+	/* allocing */
+	dstree = (DomSetTree*)malloc(sizeof(DomSetTree));
+	dstree->mkp = mkp;
+	dstree->root = dstree->tail = dstree->best = dsnode;
+	dstree->n = 1;
+
+	return dstree;
+}
+
 DomSetTree *dstree_insert(DomSetTree *dstree, DomSetNode *dsnode){
 	if( dstree->root ){
 		dstree->tail->next = dsnode;
@@ -196,6 +205,142 @@ void dstree_fprint(FILE *out, DomSetTree *dstree){
 	return;
 }
 
+/*****************************************************************************
+ *     LinkedBucket
+ *****************************************************************************/
+/*
+ * limitss[i]: the points on i-th dimension the space is segmented.
+ * dims: number of indexed dimensions
+ * nsub: number of subbuckets (or arrays)
+ */
+LinkedBucket *lbucket_new(
+	long long **max_b_lefts, int nsub, int dims)
+{
+	/* final container */
+	LinkedBucket *lbucket;
+	int i;
+
+	lbucket = (LinkedBucket*)malloc(sizeof(LinkedBucket));
+	lbucket->n_dsnodes = 0;
+	lbucket->dim = dims-1;
+	lbucket->minProfit = LLONG_MAX;
+	lbucket->maxProfit = 0;
+	lbucket->max_b_left = long_long_array_copy(NULL, max_b_lefts[dims-1], nsub);
+	lbucket->nsub = nsub;
+
+	/* final bucket, holding a set of solutions (dsnodes) */
+	if( !lbucket->dim ){
+		/* allocing arrays for holding dsnodes */
+		lbucket->dsnodes = (Array**)malloc(nsub*sizeof(Array*));
+		for( i = 0 ; i < nsub ; i++ ){
+			lbucket->dsnodes[i] = array_new();
+			fprintf(stderr, " %p\n", lbucket->dsnodes[i]);
+		}
+	}else{
+		/* creating sub buckets */
+		lbucket->sub_buckets = (LinkedBucket**)malloc(nsub*sizeof(LinkedBucket*));
+		for( i = 0 ; i < nsub ; i++ )
+			lbucket->sub_buckets[i] = lbucket_new(
+				max_b_lefts, nsub, dims-1);
+	}
+	return lbucket;
+}
+
+void lbucket_insert_dsnode(LinkedBucket *lbucket, DomSetNode *dsnode){
+	int i, dim, nsub;
+	long long b_left;
+
+	dim = lbucket->dim;
+	b_left = dsnode->b_left[dim];
+
+	/* seeking proper bucket (sub bucket-or-array) */
+	i = 0;
+	while( lbucket->max_b_left[i] < b_left )
+		i++;
+
+	/* sub bucket case OR array? */
+	if( dim )
+		lbucket_insert_dsnode(lbucket->sub_buckets[i], dsnode);
+	else
+		array_insert(lbucket->dsnodes[i], dsnode);
+
+	lbucket->n_dsnodes++;
+
+	return;
+}
+
+int lbucket_exists_dominator(LinkedBucket *lbucket, DomSetNode *dsnode){
+	int i, j, n, nsub, dim;
+	long long b_left, *max_b_left;
+	Array *a;
+
+	dim = lbucket->dim;
+	max_b_left = lbucket->max_b_left;
+
+	/* test possible existance of any dominator */
+	if( !lbucket->n_dsnodes )
+		return 0;
+
+	/* test profit range */
+	if( lbucket->minProfit < dsnode->profit )
+		return 0;
+
+	nsub = lbucket->nsub;
+	b_left = dsnode->b_left[dim];
+
+	fprintf(stderr, "  seeking... (%d)\n", dim); fflush(stderr);
+	/* seeking for the first applicable subbucket/array
+	      (those having greater-or-equal b_left) */
+	i = 0;
+	while( max_b_left[i] < b_left )
+		i++;
+	fprintf(stderr, "  done seekign.\n"); fflush(stderr);
+
+	if( dim ){
+		fprintf(stderr, "  sub case...\n"); fflush(stderr);
+		/* sub buckets case */
+		for( ; i < nsub ; i++ )
+			lbucket_exists_dominator(lbucket->sub_buckets[i], dsnode);
+	}else{
+		fprintf(stderr, "  array case...\n"); fflush(stderr);
+		/* arrays of dsnodes case */
+		for( ; i < nsub ; i++ ){
+			a = lbucket->dsnodes[i];
+			fprintf(stderr, "    getting size of %d/%d...\n", i, nsub); fflush(stderr);
+			fprintf(stderr, " point=%p\n", a);
+			n = array_get_size(a);
+			fprintf(stderr, "    array %d has %d\n", i, n); fflush(stderr);
+			for( j = 0 ; j < n ; j++ )
+				if( dsnode_dominates(array_get(a, j), dsnode) )
+					return 1;
+			fprintf(stderr, " finished.\n"); fflush(stderr);
+		}
+	}
+	return 0;
+}
+
+void lbucket_free(LinkedBucket *lbucket){
+	int i, nsub;
+
+	nsub = lbucket->nsub;
+	if( lbucket->dim ){
+		for( i = 0 ; i < nsub ; i++ )
+			lbucket_free(lbucket->sub_buckets[i] );
+		free(lbucket->sub_buckets);
+	}else{
+		for( i = 0 ; i < nsub ; i++ )
+			array_free(lbucket->dsnodes[i]);
+		free(lbucket->dsnodes);
+	}
+	free(lbucket->max_b_left);
+	free(lbucket);
+}
+
+
+
+/*****************************************************************************
+ *     Fast Enumeration Algorithm
+ *****************************************************************************/
 	/* TODO: iniciar enumeração das soluções... 
 	 * 	    - iniciar de uma solução vazia (por enquanto);
 	 * 	    - criar novo nó apenas no caso de inserção de item.
@@ -253,8 +398,8 @@ MKPSol *mkp_fast_domsets_enum(MKP *mkp){
 	}
 
 	/* output */
-	//printf("Best: %lld\n", dstree->best->profit);
-	dstree_fprint(stdout, dstree);
+	printf("Best: %lld\n", dstree->best->profit);
+	//dstree_fprint(stdout, dstree);
 
 	/* free */
 	dstree_free(dstree);
@@ -262,124 +407,80 @@ MKPSol *mkp_fast_domsets_enum(MKP *mkp){
 	return NULL;
 }
 
-/*****************************************************************************
- *     LinkedBuckets
- *****************************************************************************/
-
-/*
- * limitss[i]: the points on i-th dimension the space is segmented.
- * dims: number of indexed dimensions
- * nsub: number of subbuckets (or arrays)
- */
-LinkedBucket *lbuckets_new(
-	long long **max_b_lefts, int nsub, int dims)
-{
-	/* final container */
+MKPSol *mkp_fast_domsets_enum_lbucket(MKP *mkp){
+	DomSetTree *dstree;
+	DomSetNode *dsnode, *dsn_tail, *dsn_new, *dsn_iter;
 	LinkedBucket *lbucket;
-	int i;
+	int i, j, n, m, nsub, ndim, dominance, promissing;
+	long long **max_b_lefts;
 
-	lbucket = (LinkedBucket*)malloc(sizeof(LinkedBucket));
-	lbucket->n_dsnodes = 0;
-	lbucket->dim = dims-1;
-	lbucket->minProfit = LLONG_MAX;
-	lbucket->maxProfit = 0;
-	lbucket->max_b_left = long_long_array_copy(NULL, max_b_lefts[dims-1], nsub);
+	n = mkp->n;
+	m = mkp->m;
 
-	/* final bucket, holding a set of solutions (dsnodes) */
-	if( !dims ){
-		/* allocing arrays for holding dsnodes */
-		lbucket->dsnodes = (Array**)malloc(nsub*sizeof(Array*));
-		for( i = 0 ; i < nsub ; i++ )
-			lbucket->dsnodes[i] = array_new();
-	}else{
-		/* creating sub buckets */
-		lbucket->sub_buckets = (LinkedBucket**)malloc(nsub*sizeof(LinkedBucket*));
-		for( i = 0 ; i < nsub ; i++ )
-			lbucket->sub_buckets[i] = sub_lbuckets_new(
-				max_b_lefts, nsub, dims-1);
+	nsub = 10;
+	ndim = 2;
+
+	/* preparing max_b_lefts */
+	max_b_lefts = (long long**)malloc(ndim*sizeof(long long*));
+	for( i = 0 ; i < ndim ; i++ ){
+		max_b_lefts[i] = (long long*)malloc(nsub*sizeof(long long));
+		for( j = 0 ; j < nsub-1 ; j++ )
+			max_b_lefts[i][j] = mkp->w[i][j]*(j+1)/nsub;
+		max_b_lefts[i][nsub-1] = LLONG_MAX;
 	}
-	return lbucket;
-}
 
-void lbucket_insert_dsnode(LinkedBucket *lbucket, DomSetNode *dsnode){
-	int i, dim, nsub;
-	long long b_left;
+	/* creating linked bucket */
+	lbucket = lbucket_new(max_b_lefts, nsub, ndim);
 
-	dim = lbucket->dim;
-	b_left = dsnode->b_left[dim];
+	/* freeing max_b_lefts */
+	for( i = 0 ; i < ndim ; i++ )
+		free(max_b_lefts[i]);
+	free(max_b_lefts);
 
-	/* seeking proper bucket (sub bucket-or-array) */
-	i = 0;
-	while( max_b_left[i] < b_left )
-		i++;
+	/* initializing domsets tree */
+	dstree = dstree_new(mkp);
 
-	/* sub bucket case OR array? */
-	if( dim )
-		lbucket_insert_dsnode(lbucket->sub_buckets[i], dsnode);
-	else
-		array_insert(lbucket->dsnodes[i], dsnode);
+	lbucket_insert_dsnode(lbucket, dstree->root);
 
-	lbucket->n_dsnodes++;
+	/* ENUMERATING SOLUTIONS */
+	/* for each item... */
+	for( i = 0 ; i < n ; i++ ){
+		/* for each existent dominating set... */
+		for( dsnode = dstree->root, dsn_tail = dstree->tail
+			; dsnode
+				?(dsnode->prev /* if has a prev node and... */
+					?dsnode->prev != dsn_tail /* ... its not the old tail. */
+					:1)
+				:0
+			; dsnode = dsnode->next)
+		{
+			/* new 'child' solution (adding item 'i') */
+			dsn_new = dsnode_new(dsnode, mkp, i); /* null, if unfeasible */
+			promissing = dsn_new ? 1 : 0;
 
-	return;
-}
+			/* checking dominance */
+			fprintf(stderr, "checking...\n"); fflush(stderr);
+			if(promissing)
+				promissing = lbucket_exists_dominator(lbucket, dsn_new);
+			fprintf(stderr, "done checking.\n"); fflush(stderr);
 
-int lbucket_exists_dominator(LinkedBucket *lbucket, DomSetNode *dsnode){
-	int i, j, n, nsub, dim;
-	long long b_left, *max_b_left;
-	Array *a;
-
-	dim = lbucket->dim;
-	max_b_left = lbucket->max_b_left;
-
-	/* test possible existance of any dominator */
-	if( !lbucket->n_dsnodes )
-		return 0;
-
-	/* test profit range */
-	if( lbucket->minProfit < dsnode->profit )
-		return 0;
-
-	nsub = lbucket->nsub;
-	b_left = dsnode->b_left[dim];
-
-	/* seeking for the first applicable subbucket/array
-	      (those having greater-or-equal b_left) */
-	i = 0;
-	while( max_b_left[i] < b_left )
-		i++;
-
-	if( dim ){
-		/* sub buckets case */
-		for( ; i < nsub ; i++ )
-			lbucket_exists_dominator(lbucket->sub_buckets[i], dsnode);
-	}else{
-		/* arrays of dsnodes case */
-		for( ; i < nsub ; i++ ){
-			a = lbucket->dsnodes[i];
-			n = array_get_size(a);
-			for( j = 0 ; j < n ; j++ )
-				if( dsnode_dominates(array_get(a, j), dsnode) )
-					return 1;
+			if( promissing ){ /* new is not dominated */
+				dstree_insert(dstree, dsn_new);
+				lbucket_insert_dsnode(lbucket, dsn_new);
+			}else if( dsn_new ){
+				dsnode_free(dsn_new);
+			}
 		}
 	}
-	return 0;
-}
 
-void lbuckets_free(LinkedBucket *lbucket){
-	int i, nsub;
+	/* output */
+	printf("Best: %lld\n", dstree->best->profit);
+	//dstree_fprint(stdout, dstree);
 
-	nsub = lbucket->nsub;
-	if( lbucket->dim ){
-		for( i = 0 ; i < nsub ; i++ )
-			lbuckets_free(lbucket->sub_buckets[i] );
-		free(lbucket->sub_buckets);
-	}else{
-		for( i = 0 ; i < nsub ; i++ )
-			array_free(lbucket->dsnodes[i]);
-		free(lbucket->dsnodes);
-	}
-	free(lbucket->max_b_left);
-	free(lbucket);
+	/* free */
+	dstree_free(dstree);
+	lbucket_free(lbucket);
+
+	return NULL;
 }
 

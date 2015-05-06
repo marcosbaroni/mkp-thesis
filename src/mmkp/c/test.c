@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #include "mmkp/util.h"
 #include "mmkp/avl.h"
@@ -154,12 +155,14 @@ int execute_domset_search(int argc, char **argv){
 	FILE *input;
 	MKP *mkp;
 	int n, m;
+	clock_t t0, t1;
 
 	/* default arguments */
 	input = stdin;
 
 	/* checking number of inputs */
 	if( argc < 2 ){
+		fprintf(stderr, "MKP dominating set search test\n");
 		fprintf(stderr, "usage: %s <filename>\n", argv[0]);
 		fprintf(stderr, " - filename : name of MKP instance file. \"-\" for stdin.\n");
 		return 1;
@@ -176,7 +179,16 @@ int execute_domset_search(int argc, char **argv){
 	fclose(input);
 
 	/* enumerating */
+	t0 = clock();
 	mkp_fast_domsets_enum(mkp);
+	t1 = clock();
+	printf("1 done in %.3fs\n", (t1-t0)/(float)CLOCKS_PER_SEC);
+
+	/* enumerating (with linked buckets) */
+	t0 = clock();
+	mkp_fast_domsets_enum_lbucket(mkp);
+	t1 = clock();
+	printf("2 done in %.3fs\n", (t1-t0)/(float)CLOCKS_PER_SEC);
 
 	/* frees */
 	mkp_free(mkp);
