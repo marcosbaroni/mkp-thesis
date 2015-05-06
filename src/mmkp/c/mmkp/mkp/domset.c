@@ -272,7 +272,7 @@ MKPSol *mkp_fast_domsets_enum(MKP *mkp){
  * nsub: number of subbuckets (or arrays)
  */
 LinkedBucket *lbuckets_new(
-	long long **limitss, int nsub, int dims)
+	long long **max_b_lefts, int nsub, int dims)
 {
 	/* final container */
 	LinkedBucket *lbucket;
@@ -283,7 +283,7 @@ LinkedBucket *lbuckets_new(
 	lbucket->dim = dims-1;
 	lbucket->minProfit = LLONG_MAX;
 	lbucket->maxProfit = 0;
-	lbucket->limits = limitss[dims-1];
+	lbucket->max_b_left = long_long_array_copy(NULL, max_b_lefts[dims-1], nsub);
 
 	/* final bucket, holding a set of solutions (dsnodes) */
 	if( !dims ){
@@ -296,7 +296,7 @@ LinkedBucket *lbuckets_new(
 		lbucket->sub_buckets = (LinkedBucket**)malloc(nsub*sizeof(LinkedBucket*));
 		for( i = 0 ; i < nsub ; i++ )
 			lbucket->sub_buckets[i] = sub_lbuckets_new(
-				limits, nsub, dims-1);
+				max_b_lefts, nsub, dims-1);
 	}
 	return lbucket;
 }
@@ -305,39 +305,81 @@ void lbucket_insert_dsnode(LinkedBucket *lbucket, DomSetNode *dsnode){
 	int i, dim, nsub;
 	long long b_left;
 
-	while( dim = lbucket->dim ){
-		nsub = lbucket->n_sub_buckets;
-		b_left = dsnode->b_left[dim];
-		for( i = 0 ; i < 
-	}
+	dim = lbucket->dim;
+	b_left = dsnode->b_left[dim];
+
+	/* seeking proper bucket (sub bucket-or-array) */
+	i = 0;
+	while( max_b_left[i] < b_left )
+		i++;
+
+	/* sub bucket case OR array? */
+	if( dim )
+		lbucket_insert_dsnode(lbucket->sub_buckets[i], dsnode);
+	else
+		array_insert(lbucket->dsnodes[i], dsnode);
+
+	lbucket->n_dsnodes++;
 
 	return;
 }
 
 int lbucket_exists_dominator(LinkedBucket *lbucket, DomSetNode *dsnode){
-	int i, n;
-	long long p, w;
+	int i, j, n, nsub, dim;
+	long long b_left, *max_b_left;
 	Array *a;
 
-	p = dsnode->profit;
-	w = dsnode->b_left[lbucket->dim];
+	dim = lbucket->dim;
+	max_b_left = lbucket->max_b_left;
 
 	/* test possible existance of any dominator */
-	if( !lbucket->n || (lbucket->minW > w) || (lbucket->maxProfit < p) )
+	if( !lbucket->n_dsnodes )
 		return 0;
 
-	if( lbucket->dim ){
-		n = lbucket->n_sub_buckets;
-		for( i = 0 ; i < n ; i++ )
-			if( lbucket_exists_dominator(lbucket->sub_buckets[i], dsnode) )
-				return 1;
+	/* test profit range */
+	if( lbucket->minProfit < dsnode->profit )
+		return 0;
+
+	nsub = lbucket->nsub;
+	b_left = dsnode->b_left[dim];
+
+	/* seeking for the first applicable subbucket/array
+	      (those having greater-or-equal b_left) */
+	i = 0;
+	while( max_b_left[i] < b_left )
+		i++;
+
+	if( dim ){
+		/* sub buckets case */
+		for( ; i < nsub ; i++ )
+			lbucket_exists_dominator(lbucket->sub_buckets[i], dsnode);
 	}else{
-		n = lbucket->n;
-		a = lbucket->dsnodes;
-		for( i = 0 ; i < n ; i++ )
-			if( dsnode_dominates(array_get(a, i), dsnode) )
-				return 1;
+		/* arrays of dsnodes case */
+		for( ; i < nsub ; i++ ){
+			a = lbucket->dsnodes[i];
+			n = array_get_size(a);
+			for( j = 0 ; j < n ; j++ )
+				if( dsnode_dominates(array_get(a, j), dsnode) )
+					return 1;
+		}
 	}
 	return 0;
+}
+
+void lbuckets_free(LinkedBucket *lbucket){
+	int i, nsub;
+
+	nsub = lbucket->nsub;
+	if( lbucket->dim ){
+		for( i = 0 ; i < nsub ; i++ )
+			lbuckets_free(lbucket->sub_buckets[i] );
+		free(lbucket->sub_buckets);
+	}else{
+		for( i = 0 ; i < nsub ; i++ )
+			array_free(lbucket->dsnodes[i]);
+		free(lbucket->dsnodes);
+	}
+	free(lbucket->max_b_left);
+	free(lbucket);
 }
 
