@@ -267,73 +267,51 @@ MKPSol *mkp_fast_domsets_enum(MKP *mkp){
  *****************************************************************************/
 
 /*
- * limits:
- * nsplits:
- * dims:
- * ord:
+ * limitss[i]: the points on i-th dimension the space is segmented.
+ * dims: number of indexed dimensions
+ * nsub: number of subbuckets (or arrays)
  */
-LinkedBucket *sub_lbuckets_new(
-	long long **limits,
-	int nsplits,
-	int dims,
-	int ord
-	){
+LinkedBucket *lbuckets_new(
+	long long **limitss, int nsub, int dims)
+{
 	/* final container */
 	LinkedBucket *lbucket;
 	int i;
 
-	lbucket->n = 0;
-	lbucket->dim = dims;
-	lbucket->minW = !ord ? 0 : limits[dims][ord-1];
-	lbucket->maxW = ord > nsplits ? LLONG_MAX : limits[dims][ord]-1;
-	lbucket->minProfit = LLONG_MAX;
-	lbucket->maxProfit = 0;
-	if( !dims ){
-		lbucket->n_dsnodes = 0;
-		lbucket->dsnodes = array_new();
-	}else{
-		lbucket->n_sub_buckets = nsplits+1;
-		lbucket->sub_buckets = (LinkedBucket**)malloc((nsplits+1)*sizeof(LinkedBucket*));
-		for( i = 0 ; i < nsplits+1 ; i++ ){
-			lbucket->sub_buckets[i] = sub_lbuckets_new(
-				limits,
-				nsplits,
-				dims-1,
-				i);
-		}
-	}
-	return lbucket;
-}
-
-/**
- * dims:   number of indexed dimensions
- * limits[i]: the points on i-th dimension the space is segmented.
- */
-LinkedBucket *lbuckets_new(long long **limits, int nsplits, int dims){
-	LinkedBucket *lbucket;
-	int i;
-
 	lbucket = (LinkedBucket*)malloc(sizeof(LinkedBucket));
-	lbucket->n = 0;
-	lbucket->dim = dims;
-	lbucket->minW = LLONG_MAX;
-	lbucket->maxW = 0;
+	lbucket->n_dsnodes = 0;
+	lbucket->dim = dims-1;
 	lbucket->minProfit = LLONG_MAX;
 	lbucket->maxProfit = 0;
-	lbucket->n_sub_buckets = nsplits+1;
-	lbucket->sub_buckets = (LinkedBucket**)malloc((nsplits+1)*sizeof(LinkedBucket*));
+	lbucket->limits = limitss[dims-1];
 
-	for( i = 0 ; i < nsplits+1 ; i++ ){
-		lbucket->sub_buckets[i] = sub_lbuckets_new(
-			limits, nsplits, dims, i);
+	/* final bucket, holding a set of solutions (dsnodes) */
+	if( !dims ){
+		/* allocing arrays for holding dsnodes */
+		lbucket->dsnodes = (Array**)malloc(nsub*sizeof(Array*));
+		for( i = 0 ; i < nsub ; i++ )
+			lbucket->dsnodes[i] = array_new();
+	}else{
+		/* creating sub buckets */
+		lbucket->sub_buckets = (LinkedBucket**)malloc(nsub*sizeof(LinkedBucket*));
+		for( i = 0 ; i < nsub ; i++ )
+			lbucket->sub_buckets[i] = sub_lbuckets_new(
+				limits, nsub, dims-1);
 	}
-
 	return lbucket;
 }
 
 void lbucket_insert_dsnode(LinkedBucket *lbucket, DomSetNode *dsnode){
-	if( lbucket->dim ){
+	int i, dim, nsub;
+	long long b_left;
+
+	while( dim = lbucket->dim ){
+		nsub = lbucket->n_sub_buckets;
+		b_left = dsnode->b_left[dim];
+		for( i = 0 ; i < 
 	}
+
+	return;
 }
 
 int lbucket_exists_dominator(LinkedBucket *lbucket, DomSetNode *dsnode){

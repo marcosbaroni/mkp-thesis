@@ -185,8 +185,8 @@ int execute_domset_search(int argc, char **argv){
 }
 
 int main(int argc, char **argv){
-	return execute_surrogate_research(argc, argv);
+	//return execute_surrogate_research(argc, argv);
 	//return execute_avl_teste(argc, argv);
-	//return execute_domset_search(argc, argv);
+	return execute_domset_search(argc, argv);
 }
 

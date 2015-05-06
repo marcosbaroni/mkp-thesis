@@ -36,19 +36,14 @@ DomSetTree *dstree_new(MKP *mkp);
  *       - List
  * (STOPPED HERE) */
 typedef struct LinkedBucket{
-	int n;                 /* total number of items (solution) it holds */
+	int n_dsnodes;                 /* total number of items (solution) it holds */
 	int dim;               /* the dimension it considers, if '-1' then not applied beacuse is first bucket of all */
-	long long minW;        /* min weight their elements has */
-	long long maxW;
-	long long minProfit;
-	long long maxProfit;
-	union{
-		int n_sub_buckets;     /* number of sub buckets (on the 'next' dimension) */
-		int n_dsnodes;         /* number of dsnodes (solution) [leaf bucket case]*/
-	};
+	long long *limits;
+	long long minProfit, maxProfit;
+	int nsub;               /* number of sub buckets */
 	union{
 		struct LinkedBucket **sub_buckets; /* array of buckets */
-		Array *dsnodes;           /* array of dsnodes [leaf bucket case] */
+		Array **dsnodes;           /* array of dsnodes [leaf bucket case] */
 	};
 }LinkedBucket;
 
