@@ -6,6 +6,7 @@
 #include "mmkp/util.h"
 #include "mmkp/avl.h"
 #include "mmkp/mkp/mkp.h"
+#include "mmkp/mkp/domset.h"
 
 int int_cmp(int *a, int *b){
 	return *a > *b ? 1 : ( *a < *b ? -1 : 0 );
@@ -156,8 +157,10 @@ int ncomp;
 int execute_domset_search(int argc, char **argv){
 	FILE *input;
 	MKP *mkp;
-	int n, m;
-	clock_t t0, t1;
+	MKPSol *mkpsol;
+	int n, m, ndim, nsub;
+	clock_t c0, c1;
+	float t0, t1;
 
 	/* default arguments */
 	input = stdin;
@@ -165,14 +168,21 @@ int execute_domset_search(int argc, char **argv){
 	/* checking number of inputs */
 	if( argc < 2 ){
 		fprintf(stderr, "MKP dominating set search test\n");
-		fprintf(stderr, "usage: %s <filename>\n", argv[0]);
+		fprintf(stderr, "usage: %s <filename> [ndim=2] [nsub=5]\n", argv[0]);
 		fprintf(stderr, " - filename : name of MKP instance file. \"-\" for stdin.\n");
 		return 1;
 	}
 
+	ndim = 2;
+	nsub = 5;
 	/* opening input file */
 	if(strcmp(argv[1], "-"))
 		input = fopen(argv[1], "r");
+	/* reading arguments */
+	if( argc > 2 )
+		ndim = atoll(argv[2]);
+	if( argc > 3 )
+		nsub = atoll(argv[3]);
 	
 	/* reading instance */
 	mkp = mkp_read_from_file(input);
@@ -182,17 +192,21 @@ int execute_domset_search(int argc, char **argv){
 
 	ncomp = 0;
 	/* enumerating */
-	t0 = clock();
-	mkp_fast_domsets_enum(mkp);
-	t1 = clock();
-	printf("1 done in % 3.3fs \n - %d comps\n", (t1-t0)/(float)CLOCKS_PER_SEC, ncomp);
+	c0 = clock();
+	mkpsol = mkp_fast_domsets_enum(mkp);
+	c1 = clock();
+	t0 = (c1-c0)/(float)CLOCKS_PER_SEC, ncomp;
+	printf("%lld;%3.3f;%.2e\n", mkpsol->obj, t0, (double)ncomp);
+	mkpsol_free(mkpsol);
 
 	ncomp = 0;
 	/* enumerating (with linked buckets) */
-	t0 = clock();
-	mkp_fast_domsets_enum_lbucket(mkp);
-	t1 = clock();
-	printf("2 done in % 3.3fs \n - %d comps\n", (t1-t0)/(float)CLOCKS_PER_SEC, ncomp);
+	c0 = clock();
+	mkpsol = mkp_fast_domsets_enum_lbucket(mkp, ndim, nsub);
+	c1 = clock();
+	t1 = (c1-c0)/(float)CLOCKS_PER_SEC, ncomp;
+	printf("%lld;%3.3f;%.2e\n", mkpsol->obj, t1, (double)ncomp);
+	mkpsol_free(mkpsol);
 
 	/* frees */
 	mkp_free(mkp);

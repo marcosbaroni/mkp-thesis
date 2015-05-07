@@ -70,9 +70,12 @@ DomSetNode *dsnode_new(DomSetNode *father, MKP *mkp, int idx){
 	m = mkp->m;
 
 	dsnode = (DomSetNode*)malloc(sizeof(DomSetNode));
+	dsnode->m = m;
+	dsnode->father = father;
+	dsnode->idx = idx;
 	dsnode->profit = father->profit + mkp->p[idx];
 	dsnode->b_left = (long long*)malloc(m*sizeof(long long));
-	dsnode->m = m;
+	dsnode->prev = dsnode->next = NULL;
 	/* setting b_left (checking feasibility) */
 	feasible = 1;
 	for( i = 0 ; i < m ; i++ ){
@@ -80,8 +83,6 @@ DomSetNode *dsnode_new(DomSetNode *father, MKP *mkp, int idx){
 		if( dsnode->b_left[i] < 0 )
 			feasible = 0;
 	}
-	dsnode->father = father;
-	dsnode->prev = dsnode->next = NULL;
 
 	/* if new solution is not feasible... */
 	if( !feasible ){
@@ -99,6 +100,21 @@ void dsnode_free(DomSetNode *dsnode){
 	return;
 }
 
+/*
+ * Extracts the MKP solution from a dominating set node.
+*/
+MKPSol *dsnode_get_mkpsol(DomSetTree *dstree, DomSetNode *dsnode){
+	MKPSol *mkpsol;
+
+	mkpsol = mkpsol_new(dstree->mkp);
+
+	while( dsnode->idx > -1 ){
+		mkpsol_add_item(mkpsol, dsnode->idx);
+		dsnode = dsnode->father;
+	}
+
+	return mkpsol;
+}
 
 /*****************************************************************************
  *     Dominating Set Tree
@@ -389,6 +405,7 @@ void lbucket_fprintf_profile(FILE *out, LinkedBucket *lbucket){
 MKPSol *mkp_fast_domsets_enum(MKP *mkp){
 	DomSetTree *dstree;
 	DomSetNode *dsnode, *dsn_tail, *dsn_new, *dsn_iter;
+	MKPSol *mkpsol;
 	int i, j, n, m, dominance, promissing;
 
 	n = mkp->n;
@@ -437,40 +454,34 @@ MKPSol *mkp_fast_domsets_enum(MKP *mkp){
 		}
 	}
 
-	/* output */
-	printf("Best: %lld\n", dstree->best->profit);
-	//dstree_fprint(stdout, dstree);
+	/* extracting solution from best node */
+	mkpsol = dsnode_get_mkpsol(dstree, dstree->best);
 
 	/* free */
 	dstree_free(dstree);
 
-	return NULL;
+	return mkpsol;
 }
 
-MKPSol *mkp_fast_domsets_enum_lbucket(MKP *mkp){
+MKPSol *mkp_fast_domsets_enum_lbucket(MKP *mkp, int ndim, int nsub){
 	DomSetTree *dstree;
 	DomSetNode *dsnode, *dsn_tail, *dsn_new, *dsn_iter;
 	LinkedBucket *lbucket;
-	int i, j, n, m, nsub, ndim, dominance, promissing;
+	MKPSol *mkpsol;
+	int i, j, n, m, promissing;
 	long long **max_b_lefts, sum;
 
 	n = mkp->n;
 	m = mkp->m;
 
-	nsub = 3;
-	ndim = 2;
-
 	/* preparing max_b_lefts */
 	max_b_lefts = (long long**)malloc(ndim*sizeof(long long*));
 	for( i = 0 ; i < ndim ; i++ ){
 		max_b_lefts[i] = (long long*)malloc(nsub*sizeof(long long));
-		printf("dim %d\n", i);
 		for( j = 0 ; j < nsub-1 ; j++ ){
 			//max_b_lefts[i][j] = mkp->w[i][j]*(j+1)/nsub;
 			max_b_lefts[i][j] = (mkp->b[i]*0.48)*(j+1)/nsub;
-			printf("%lld;", max_b_lefts[i][j]);
 		}
-		printf("\n");
 		max_b_lefts[i][nsub-1] = LLONG_MAX;
 	}
 
@@ -519,17 +530,16 @@ MKPSol *mkp_fast_domsets_enum_lbucket(MKP *mkp){
 		}
 	}
 
-	/* printing profile */
-	lbucket_fprintf_profile(stdout, lbucket);
+	/* extracing solution from best node */
+	mkpsol = dsnode_get_mkpsol(dstree, dstree->best);
 
-	/* output */
-	printf("Best: %lld\n", dstree->best->profit);
-	//dstree_fprint(stdout, dstree);
+	/* printing profile */
+	//lbucket_fprintf_profile(stdout, lbucket);
 
 	/* free */
 	dstree_free(dstree);
 	lbucket_free(lbucket);
 
-	return NULL;
+	return mkpsol;
 }
 
