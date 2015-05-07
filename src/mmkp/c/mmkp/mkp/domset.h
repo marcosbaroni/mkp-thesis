@@ -30,6 +30,8 @@ typedef struct DomSetTree{
 
 DomSetTree *dstree_new(MKP *mkp);
 
+int _hitted;
+int _n_comps;
 
 /* TODO: implementar container final para guardar as soluções. Testar:
  *       - Binary Tree
@@ -37,6 +39,8 @@ DomSetTree *dstree_new(MKP *mkp);
  * (STOPPED HERE) */
 typedef struct LinkedBucket{
 	int n_dsnodes;   /* total number of items (solution) it holds */
+	int _total_hits;        /* performance analysis */
+	int _total_compares;        /* performance analysis */
 	int dim;         /* the dimension it considers */
 	long long *max_b_left;  /* increasing order (last is LLONG_MAX) */
 	long long minProfit, maxProfit;

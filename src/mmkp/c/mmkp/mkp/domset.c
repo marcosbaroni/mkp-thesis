@@ -219,6 +219,8 @@ LinkedBucket *lbucket_new(
 
 	lbucket = (LinkedBucket*)malloc(sizeof(LinkedBucket));
 	lbucket->n_dsnodes = 0;
+	lbucket->_total_hits = 0;
+	lbucket->_total_compares = 0;
 	lbucket->dim = dims-1;
 	lbucket->minProfit = LLONG_MAX;
 	lbucket->maxProfit = 0;
@@ -304,12 +306,19 @@ int lbucket_exists_dominator(LinkedBucket *lbucket, DomSetNode *dsnode){
 	}else{
 		/* arrays of dsnodes case */
 		for( ; i < nsub ; i++ ){
+			_hitted = 1;
 			a = lbucket->dsnodes[i];
 			n = array_get_size(a);
-			for( j = 0 ; j < n ; j++ )
+			for( j = 0 ; j < n ; j++ ){
+				_n_comps++;
 				if( dsnode_dominates(array_get(a, j), dsnode) )
 					return 1;
+			}
 		}
+	}
+	if(_hitted){
+		lbucket->_total_hits++;
+		lbucket->_total_compares += _n_comps;
 	}
 	return 0;
 }
@@ -331,6 +340,42 @@ void lbucket_free(LinkedBucket *lbucket){
 	free(lbucket);
 }
 
+/*
+ * Prints some information about
+ */
+void lbucket_fprintf_profile(FILE *out, LinkedBucket *lbucket){
+	int count, i, j, tot, dim, nsub;
+	int idxs[100];
+	LinkedBucket *buk;
+
+	/* initialization */
+	dim = lbucket->dim; /* should be "->dim+1", but array has no profile yet */
+	nsub = lbucket->nsub;
+	tot = ipow(nsub, dim);
+	for( i = 0 ; i < dim ; i++ )
+		idxs[i] = 0;
+
+	for( count = 0 ; count < tot ; count++ ){
+		/* outputs */
+		buk = lbucket;
+		for( j = 0 ; j < dim ; j++ ){
+			buk = buk->sub_buckets[idxs[j]];
+			fprintf(out, "%d;", idxs[j]);
+		}
+		fprintf(out, "%d;%d\n", buk->_total_hits, buk->_total_compares);
+
+		/* update line */
+		i = dim-1;
+		idxs[i]++;
+		while( idxs[i] == nsub ){
+			idxs[i] = 0;
+			i--;
+			idxs[i]++;
+		}
+	}
+
+	return;
+}
 
 
 /*****************************************************************************
@@ -407,20 +452,25 @@ MKPSol *mkp_fast_domsets_enum_lbucket(MKP *mkp){
 	DomSetNode *dsnode, *dsn_tail, *dsn_new, *dsn_iter;
 	LinkedBucket *lbucket;
 	int i, j, n, m, nsub, ndim, dominance, promissing;
-	long long **max_b_lefts;
+	long long **max_b_lefts, sum;
 
 	n = mkp->n;
 	m = mkp->m;
 
-	nsub = 10;
+	nsub = 3;
 	ndim = 2;
 
 	/* preparing max_b_lefts */
 	max_b_lefts = (long long**)malloc(ndim*sizeof(long long*));
 	for( i = 0 ; i < ndim ; i++ ){
 		max_b_lefts[i] = (long long*)malloc(nsub*sizeof(long long));
-		for( j = 0 ; j < nsub-1 ; j++ )
-			max_b_lefts[i][j] = mkp->w[i][j]*(j+1)/nsub;
+		printf("dim %d\n", i);
+		for( j = 0 ; j < nsub-1 ; j++ ){
+			//max_b_lefts[i][j] = mkp->w[i][j]*(j+1)/nsub;
+			max_b_lefts[i][j] = (mkp->b[i]*0.48)*(j+1)/nsub;
+			printf("%lld;", max_b_lefts[i][j]);
+		}
+		printf("\n");
 		max_b_lefts[i][nsub-1] = LLONG_MAX;
 	}
 
@@ -454,8 +504,11 @@ MKPSol *mkp_fast_domsets_enum_lbucket(MKP *mkp){
 			promissing = dsn_new ? 1 : 0;
 
 			/* checking dominance */
-			if(promissing)
+			if(promissing){
+				_hitted = 0;
+				_n_comps = 0;
 				promissing = !lbucket_exists_dominator(lbucket, dsn_new);
+			}
 
 			if( promissing ){ /* new is not dominated */
 				dstree_insert(dstree, dsn_new);
@@ -465,6 +518,9 @@ MKPSol *mkp_fast_domsets_enum_lbucket(MKP *mkp){
 			}
 		}
 	}
+
+	/* printing profile */
+	lbucket_fprintf_profile(stdout, lbucket);
 
 	/* output */
 	printf("Best: %lld\n", dstree->best->profit);

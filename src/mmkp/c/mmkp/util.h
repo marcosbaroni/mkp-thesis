@@ -166,6 +166,7 @@ void assert_faccess(char *filename, int mode);
 void myassert(int express);
 void debug(char *msg);
 double sigmoid(double x);             /* logistic sigmoid */
+int ipow(int base, int exp);
 
 #endif
 
