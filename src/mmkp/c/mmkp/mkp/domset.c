@@ -53,16 +53,10 @@ int dsnode_dominates(DomSetNode *dsn1, DomSetNode *dsn2){
 	if( dsn1->profit >= dsn2->profit ){
 		/* maybe... */
 		for( i = 0 ; i < m ; i++ )
-			if( dsn1->b_left[i] < dsn2->b_left[i] )
+			if( dsn1->b_left[i] < dsn2->b_left[i] ) /* any bleft1 < bleft2? */
 				return 0; /* no! */
 		return 1; /* yes! */
 	}
-
-	/* maybe dsn2 dominates dsn1... */
-	for( i = 0 ; i < m ; i++ )
-		if( dsn2->b_left[i] < dsn1->b_left[i] )
-			return 0; /* no! */
-	return -1; /* yes! */
 }
 
 /*
@@ -265,7 +259,14 @@ void lbucket_insert_dsnode(LinkedBucket *lbucket, DomSetNode *dsnode){
 		lbucket_insert_dsnode(lbucket->sub_buckets[i], dsnode);
 	else
 		array_insert(lbucket->dsnodes[i], dsnode);
+	
+	/* updating profit range */
+	if( dsnode->profit > lbucket->maxProfit )
+		lbucket->maxProfit = dsnode->profit;
+	if( dsnode->profit < lbucket->minProfit )
+		lbucket->minProfit = dsnode->profit;
 
+	/* updating couting */
 	lbucket->n_dsnodes++;
 
 	return;
@@ -284,7 +285,7 @@ int lbucket_exists_dominator(LinkedBucket *lbucket, DomSetNode *dsnode){
 		return 0;
 
 	/* test profit range */
-	if( lbucket->minProfit < dsnode->profit )
+	if( lbucket->maxProfit < dsnode->profit )
 		return 0;
 
 	nsub = lbucket->nsub;
