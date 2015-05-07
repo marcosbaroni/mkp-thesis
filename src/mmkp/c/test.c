@@ -148,6 +148,8 @@ int execute_surrogate_research(int argc, char **argv){
 	return 0;
 }
 
+int ncomp;
+
 /*
  * Analyse distribution of dominating solution throught the different dimensions.
  * */
@@ -178,17 +180,19 @@ int execute_domset_search(int argc, char **argv){
 	n = mkp->n;
 	fclose(input);
 
+	ncomp = 0;
 	/* enumerating */
 	t0 = clock();
 	mkp_fast_domsets_enum(mkp);
 	t1 = clock();
-	printf("1 done in %.3fs\n", (t1-t0)/(float)CLOCKS_PER_SEC);
+	printf("1 done in % 3.3fs \n - %d comps\n", (t1-t0)/(float)CLOCKS_PER_SEC, ncomp);
 
+	ncomp = 0;
 	/* enumerating (with linked buckets) */
 	t0 = clock();
 	mkp_fast_domsets_enum_lbucket(mkp);
 	t1 = clock();
-	printf("2 done in %.3fs\n", (t1-t0)/(float)CLOCKS_PER_SEC);
+	printf("2 done in % 3.3fs \n - %d comps\n", (t1-t0)/(float)CLOCKS_PER_SEC, ncomp);
 
 	/* frees */
 	mkp_free(mkp);

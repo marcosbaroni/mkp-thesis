@@ -5,6 +5,8 @@
 #include "domset.h"
 #include "mkp.h"
 
+extern int ncomp;
+
 /*****************************************************************************
  *     Dominating Set Node
  *****************************************************************************/
@@ -45,6 +47,7 @@ int dsnode_cmp(DomSetNode *dsn1, DomSetNode *dsn2){
 int dsnode_dominates(DomSetNode *dsn1, DomSetNode *dsn2){
 	int i, m;
 	m = dsn1->m;
+	ncomp++;
 
 	/* dsn1 dominates dsn2 ? */
 	if( dsn1->profit >= dsn2->profit ){
@@ -234,7 +237,6 @@ LinkedBucket *lbucket_new(
 		lbucket->dsnodes = (Array**)malloc(nsub*sizeof(Array*));
 		for( i = 0 ; i < nsub ; i++ ){
 			lbucket->dsnodes[i] = array_new();
-			fprintf(stderr, " %p\n", lbucket->dsnodes[i]);
 		}
 	}else{
 		/* creating sub buckets */
@@ -288,32 +290,24 @@ int lbucket_exists_dominator(LinkedBucket *lbucket, DomSetNode *dsnode){
 	nsub = lbucket->nsub;
 	b_left = dsnode->b_left[dim];
 
-	fprintf(stderr, "  seeking... (%d)\n", dim); fflush(stderr);
 	/* seeking for the first applicable subbucket/array
 	      (those having greater-or-equal b_left) */
 	i = 0;
 	while( max_b_left[i] < b_left )
 		i++;
-	fprintf(stderr, "  done seekign.\n"); fflush(stderr);
 
 	if( dim ){
-		fprintf(stderr, "  sub case...\n"); fflush(stderr);
 		/* sub buckets case */
 		for( ; i < nsub ; i++ )
 			lbucket_exists_dominator(lbucket->sub_buckets[i], dsnode);
 	}else{
-		fprintf(stderr, "  array case...\n"); fflush(stderr);
 		/* arrays of dsnodes case */
 		for( ; i < nsub ; i++ ){
 			a = lbucket->dsnodes[i];
-			fprintf(stderr, "    getting size of %d/%d...\n", i, nsub); fflush(stderr);
-			fprintf(stderr, " point=%p\n", a);
 			n = array_get_size(a);
-			fprintf(stderr, "    array %d has %d\n", i, n); fflush(stderr);
 			for( j = 0 ; j < n ; j++ )
 				if( dsnode_dominates(array_get(a, j), dsnode) )
 					return 1;
-			fprintf(stderr, " finished.\n"); fflush(stderr);
 		}
 	}
 	return 0;
@@ -459,10 +453,8 @@ MKPSol *mkp_fast_domsets_enum_lbucket(MKP *mkp){
 			promissing = dsn_new ? 1 : 0;
 
 			/* checking dominance */
-			fprintf(stderr, "checking...\n"); fflush(stderr);
 			if(promissing)
-				promissing = lbucket_exists_dominator(lbucket, dsn_new);
-			fprintf(stderr, "done checking.\n"); fflush(stderr);
+				promissing = !lbucket_exists_dominator(lbucket, dsn_new);
 
 			if( promissing ){ /* new is not dominated */
 				dstree_insert(dstree, dsn_new);
