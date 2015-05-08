@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
+#include <math.h>
 
 #include "domset.h"
 #include "mkp.h"
@@ -221,6 +222,40 @@ void dstree_fprint(FILE *out, DomSetTree *dstree){
 /*****************************************************************************
  *     LinkedBucket
  *****************************************************************************/
+
+/*
+ * Auxiliary function to prepare max_b_left table, for Linked Bucket creating.
+ */
+long long **lbucket_prepare_max_b_left(MKP *mkp, int ndim, int nsub, char type){
+	int i, j;
+	long long **max_b_lefts, last_max, sum;
+
+	/* allocs */
+	max_b_lefts = (long long**)malloc(ndim*sizeof(long long*));
+	for( i = 0 ; i < ndim ; i++ )
+		max_b_lefts[i] = (long long*)malloc(nsub*sizeof(long long));
+
+	last_max = mkp->b[0]*0.48;
+
+	/* preparing */
+	for( i = 0 ; i < ndim ; i++ ){
+		for( j = 0 ; j < nsub-1 ; j++ ){
+			switch( type ){
+				case 'l': /* linear */
+				max_b_lefts[i][j] = last_max*(j+1)/nsub;
+				break;
+
+				case 's': /* square root */
+				max_b_lefts[i][j] = last_max*sqrt((double)((j+1)/nsub));
+				break;
+			}
+		}
+		max_b_lefts[i][nsub-1] = LLONG_MAX;
+	}
+	return max_b_lefts;
+}
+
+
 /*
  * limitss[i]: the points on i-th dimension the space is segmented.
  * dims: number of indexed dimensions
@@ -468,22 +503,16 @@ MKPSol *mkp_fast_domsets_enum_lbucket(MKP *mkp, int ndim, int nsub){
 	DomSetNode *dsnode, *dsn_tail, *dsn_new, *dsn_iter;
 	LinkedBucket *lbucket;
 	MKPSol *mkpsol;
+	char type; /* type of max_b_lefts contruction */
 	int i, j, n, m, promissing;
 	long long **max_b_lefts, sum;
 
 	n = mkp->n;
 	m = mkp->m;
+	type = 's';
 
 	/* preparing max_b_lefts */
-	max_b_lefts = (long long**)malloc(ndim*sizeof(long long*));
-	for( i = 0 ; i < ndim ; i++ ){
-		max_b_lefts[i] = (long long*)malloc(nsub*sizeof(long long));
-		for( j = 0 ; j < nsub-1 ; j++ ){
-			//max_b_lefts[i][j] = mkp->w[i][j]*(j+1)/nsub;
-			max_b_lefts[i][j] = (mkp->b[i]*0.48)*(j+1)/nsub;
-		}
-		max_b_lefts[i][nsub-1] = LLONG_MAX;
-	}
+	max_b_lefts = lbucket_prepare_max_b_left(mkp, ndim, nsub, type);
 
 	/* creating linked bucket */
 	lbucket = lbucket_new(max_b_lefts, nsub, ndim);
