@@ -159,6 +159,7 @@ int execute_domset_search(int argc, char **argv){
 	MKP *mkp;
 	MKPSol *mkpsol;
 	int n, m, ndim, nsub;
+	char type;
 	clock_t c0, c1;
 	float t0, t1;
 
@@ -168,13 +169,18 @@ int execute_domset_search(int argc, char **argv){
 	/* checking number of inputs */
 	if( argc < 2 ){
 		fprintf(stderr, "MKP dominating set search test\n");
-		fprintf(stderr, "usage: %s <filename> [ndim=2] [nsub=5]\n", argv[0]);
+		fprintf(stderr, "usage: %s <filename> [ndim=2] [nsub=5] [max_b type='l']\n", argv[0]);
 		fprintf(stderr, " - filename : name of MKP instance file. \"-\" for stdin.\n");
+		fprintf(stderr, " - max_b types:");
+		fprintf(stderr, "    'l' : linear\n");
+		fprintf(stderr, "    'q' : quadratic\n");
+		fprintf(stderr, "    's' : square root\n");
 		return 1;
 	}
 
 	ndim = 2;
 	nsub = 5;
+	type = 'l';
 	/* opening input file */
 	if(strcmp(argv[1], "-"))
 		input = fopen(argv[1], "r");
@@ -183,6 +189,8 @@ int execute_domset_search(int argc, char **argv){
 		ndim = atoll(argv[2]);
 	if( argc > 3 )
 		nsub = atoll(argv[3]);
+	if( argc > 4 )
+		nsub = argv[3][0];
 	
 	/* reading instance */
 	mkp = mkp_read_from_file(input);
@@ -202,7 +210,7 @@ int execute_domset_search(int argc, char **argv){
 	ncomp = 0;
 	/* enumerating (with linked buckets) */
 	c0 = clock();
-	mkpsol = mkp_fast_domsets_enum_lbucket(mkp, ndim, nsub);
+	mkpsol = mkp_fast_domsets_enum_lbucket(mkp, ndim, nsub, type);
 	c1 = clock();
 	t1 = (c1-c0)/(float)CLOCKS_PER_SEC, ncomp;
 	printf("%lld;%3.3f;%.2e\n", mkpsol->obj, t1, (double)ncomp);

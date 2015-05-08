@@ -248,6 +248,10 @@ long long **lbucket_prepare_max_b_left(MKP *mkp, int ndim, int nsub, char type){
 				case 's': /* square root */
 				max_b_lefts[i][j] = last_max*sqrt((double)((j+1)/nsub));
 				break;
+
+				case 'q': /* quadratic */
+				max_b_lefts[i][j] = last_max*((j+1)*(j+1)/(nsub*nsub));
+				break;
 			}
 		}
 		max_b_lefts[i][nsub-1] = LLONG_MAX;
@@ -498,18 +502,16 @@ MKPSol *mkp_fast_domsets_enum(MKP *mkp){
 	return mkpsol;
 }
 
-MKPSol *mkp_fast_domsets_enum_lbucket(MKP *mkp, int ndim, int nsub){
+MKPSol *mkp_fast_domsets_enum_lbucket(MKP *mkp, int ndim, int nsub, char type){
 	DomSetTree *dstree;
 	DomSetNode *dsnode, *dsn_tail, *dsn_new, *dsn_iter;
 	LinkedBucket *lbucket;
 	MKPSol *mkpsol;
-	char type; /* type of max_b_lefts contruction */
 	int i, j, n, m, promissing;
 	long long **max_b_lefts, sum;
 
 	n = mkp->n;
 	m = mkp->m;
-	type = 's';
 
 	/* preparing max_b_lefts */
 	max_b_lefts = lbucket_prepare_max_b_left(mkp, ndim, nsub, type);

@@ -55,7 +55,7 @@ void lbucket_insert_dsnode(LinkedBucket *lbucket, DomSetNode *dsnode);
 LinkedBucket *lbucket_new(long long **max_b_lefts, int nsub, int dims);
 void lbucket_free(LinkedBucket *lbucket);
 MKPSol *mkp_fast_domsets_enum(MKP *mkp);
-MKPSol *mkp_fast_domsets_enum_lbucket(MKP *mkp, int ndim, int nsub);
+MKPSol *mkp_fast_domsets_enum_lbucket(MKP *mkp, int ndim, int nsub, char type);
 
 #endif
 
