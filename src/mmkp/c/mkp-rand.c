@@ -59,7 +59,7 @@ void process_arguments(int argc, char **argv, int *n, int *m, double *alpha, dou
 
 				/* custom max_coeficient */
 				case 'm':
-				sscanf(argv[++i], max_coeficient);
+				mkpnum_scanf(argv[++i], max_coeficient);
 				break;
 			}
 		}else{
@@ -78,7 +78,8 @@ void process_arguments(int argc, char **argv, int *n, int *m, double *alpha, dou
 }
 
 int main(int argc, char **argv){
-	int n, m, o, max_coefs, sort, *vec;
+	int n, m, o, sort;
+	mkpnum max_coefs;
 	double beta, alpha;
 	long seed;
 	MKP *mkp;

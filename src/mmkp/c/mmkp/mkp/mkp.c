@@ -12,11 +12,14 @@
 
 /* */
 mkpnum mkpnum_rand(mkpnum max){
-	return rand()/RAND_MAX; /* double */
+	return round(max*(rand()/(mkpnum)RAND_MAX)); /* double */
 }
 
 void mkpnum_fprintf(FILE *out, mkpnum a){
-	fprintf(out, "%lf", a);
+	if( round(a) == a)
+		fprintf(out, "%.0lf", a);
+	else
+		fprintf(out, "%lf", a);
 }
 
 void mkpnum_fscanf(FILE *out, mkpnum *a){
@@ -39,10 +42,11 @@ void mkpnum_array_zimpl_print(FILE *fout, mkpnum *array, int n){
 	for( i = 0 ; i < n-1 ; i++ ){
 		fprintf(fout, "<%d> ", i+1);
 		mkpnum_fprintf(fout, array[i]);
+		fprintf(fout, ",\n");
 	}
 	fprintf(fout, "<%d> ", i+1);
 	mkpnum_fprintf(fout, array[n-1]);
-	fprintf(fout, "\n");
+	fprintf(fout, ";\n");
 
 	return;
 }
@@ -94,8 +98,11 @@ mkpnum mkpnum_array_max(mkpnum *array, int n){
 
 void mkpnum_array_write(FILE *fout, mkpnum *array, int n){
 	int i;
-	for( i = 0 ; i < n ; i++ )
+	for( i = 0 ; i < n ; i++ ){
 		mkpnum_fprintf(fout, array[i]);
+		fprintf(fout, " ");
+	}
+	fprintf(fout, "\n");
 	return;
 }
 
@@ -103,7 +110,6 @@ void mkpnum_matrix_write(FILE *fout, mkpnum **mat, int n, int m){
 	int i;
 	for( i = 0 ; i < n ; i++ )
 		mkpnum_array_write(fout, mat[i], m);
-	fprintf(fout, "\n");
 }
 
 mkpnum *mkpnum_array_read(FILE *fin, mkpnum *array, int n){
@@ -128,7 +134,7 @@ mkpnum **mkpnum_matrix_malloc(int n, int m){
 	return mat;
 }
 
-mkpnum **mkpnum_matrix_read(FILE *fin, mkpnum **mat, int m, int n){
+mkpnum **mkpnum_matrix_read(FILE *fin, mkpnum **mat, int n, int m){
 	int i;
 
 	if(!mat)
@@ -154,6 +160,10 @@ mkpnum *mkpnum_array_init(mkpnum *array, int n, mkpnum x){
 	for( i = 0 ; i < n ; i++ )
 		array[i] = x;
 	return array;
+}
+
+void mkpnum_scanf(const char *str, mkpnum *x){
+	sscanf(str, "%lf", x);
 }
 
 mkpnum *mkpnum_array_copy(mkpnum *dest, mkpnum *src, int n){
@@ -260,7 +270,7 @@ MKP *mkp_random(int n, int m, double alpha, double beta, mkpnum max_coefs){
 			wsum += w;
 		}
 		/* profits */
-		mkp->p[i] = llrand(wsum)/m + llrand((1-beta)*max_coefs);
+		mkp->p[i] = round(mkpnum_rand(wsum)/m + mkpnum_rand((1-beta)*max_coefs));
 	}
 
 	/* capacities */
@@ -503,7 +513,7 @@ void mkp_write_to_filename(MKP *mkp, char *filename){
 void mkp_write_to_file(MKP *mkp, FILE *fout){
 	int i, j;
 
-	fprintf(fout, "%d\n%d\n", mkp->n, mkp->m);
+	fprintf(fout, "%d %d\n", mkp->n, mkp->m);
 	mkpnum_array_write(fout, mkp->p, mkp->n);
 	mkpnum_matrix_write(fout, mkp->w, mkp->m, mkp->n);
 	mkpnum_array_write(fout, mkp->b, mkp->m);

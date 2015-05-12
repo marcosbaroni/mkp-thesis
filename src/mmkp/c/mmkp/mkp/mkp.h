@@ -13,6 +13,7 @@
 
 mkpnum *mkpnum_array_copy(mkpnum *dest, mkpnum *src, int n);
 mkpnum *mkpnum_array_init(mkpnum *array, int n, mkpnum x);
+void mkpnum_scanf(const char *str, mkpnum *x);
 
 /*** MKP PROBLEM INSTANCE ***
 *   Itens are sorting by decreasing order of profit (for greedy propose).
