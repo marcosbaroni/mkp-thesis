@@ -93,6 +93,7 @@ int execute_surrogate_research(int argc, char **argv){
 
 	multps = (mkpnum*)malloc(m*sizeof(mkpnum));
 
+	/* FIXME: Algo errado (provavelmente) com mkp_surrogate */
 	/* surrogating pairs of constraints */
 	for( i = 0 ; i < m-1 ; i++ ){
 		multps = mkpnum_array_init(multps, m, 0);
