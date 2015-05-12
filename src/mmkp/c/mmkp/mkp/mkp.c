@@ -10,15 +10,213 @@
 #include "../sfl.h"
 #include "../lp.h"
 
+/* */
+mkpnum mkpnum_rand(mkpnum max){
+	return rand()/RAND_MAX; /* double */
+}
+
+void mkpnum_fprintf(FILE *out, mkpnum a){
+	fprintf(out, "%lf", a);
+}
+
+void mkpnum_fscanf(FILE *out, mkpnum *a){
+	fscanf(out, "%lf", a);
+}
+
+mkpnum mkpnum_array_sum(mkpnum *array, int n){
+	int i;
+	mkpnum sum;
+
+	sum = 0;
+	for( i = 0 ; i < n ; i++ )
+		sum += array[i];
+
+	return sum;
+}
+
+void mkpnum_array_zimpl_print(FILE *fout, mkpnum *array, int n){
+	int i;
+	for( i = 0 ; i < n-1 ; i++ ){
+		fprintf(fout, "<%d> ", i+1);
+		mkpnum_fprintf(fout, array[i]);
+	}
+	fprintf(fout, "<%d> ", i+1);
+	mkpnum_fprintf(fout, array[n-1]);
+	fprintf(fout, "\n");
+
+	return;
+}
+
+void mkpnum_matrix_zimpl_print(FILE *fout, mkpnum **mat, int nlin, int ncol){
+	int i, j;
+	
+	/* header */
+	fprintf(fout, "|1");
+	for( i = 1 ; i < ncol ; i++ )
+		fprintf(fout, ",%d", i+1);
+	fprintf(fout, "|\n");
+
+	/* values */
+	for( i = 0 ; i < nlin ; i++ ){
+		fprintf(fout, "|%d|", i+1);
+		mkpnum_fprintf(fout, mat[i][0]);
+		for( j = 1 ; j < ncol ; j++ ){
+			fprintf(fout, ",");
+			mkpnum_fprintf(fout, mat[i][0]);
+		}
+		fprintf(fout, "|\n");
+	}
+	fprintf(fout, ";\n");
+	return;
+}
+
+mkpnum mkpnum_matrix_max_col(mkpnum **mat, int n, int m, int col){
+	int i;
+	mkpnum max;
+
+	max = mat[0][col];
+	for( i = 1 ; i < n ; i++ )
+		if( max < mat[i][col] )
+			max = mat[i][col];
+	return max;
+}
+
+mkpnum mkpnum_array_max(mkpnum *array, int n){
+	int i;
+	mkpnum max;
+
+	max = array[0];
+	for( i = 1 ; i < n ; i++ )
+		if( max < array[i] )
+			max = array[i];
+	return max;
+}
+
+void mkpnum_array_write(FILE *fout, mkpnum *array, int n){
+	int i;
+	for( i = 0 ; i < n ; i++ )
+		mkpnum_fprintf(fout, array[i]);
+	return;
+}
+
+void mkpnum_matrix_write(FILE *fout, mkpnum **mat, int n, int m){
+	int i;
+	for( i = 0 ; i < n ; i++ )
+		mkpnum_array_write(fout, mat[i], m);
+	fprintf(fout, "\n");
+}
+
+mkpnum *mkpnum_array_read(FILE *fin, mkpnum *array, int n){
+	int i;
+	for( i = 0 ; i < n ; i++ )
+		mkpnum_fscanf(fin, &(array[i]));
+	return array;
+}
+
+mkpnum *mkpnum_array_malloc(int n){
+	return (mkpnum*)malloc(n*sizeof(mkpnum));
+}
+
+mkpnum **mkpnum_matrix_malloc(int n, int m){
+	mkpnum **mat;
+	int i;
+	
+	mat = (mkpnum**)malloc(n*sizeof(mkpnum*));
+	for( i = 0 ; i < n ; i++ )
+		mat[i] = (mkpnum*)malloc(m*sizeof(mkpnum));
+
+	return mat;
+}
+
+mkpnum **mkpnum_matrix_read(FILE *fin, mkpnum **mat, int m, int n){
+	int i;
+
+	if(!mat)
+		mat = mkpnum_matrix_malloc(n, m);
+	
+	for( i = 0 ; i < n ; i++ )
+		mat[i] = mkpnum_array_read(fin, mat[i], m);
+
+	return mat;
+}
+
+void mkpnum_matrix_free(mkpnum **mat, int n){
+	int i;
+	for( i = 0 ; i < n ; i++ )
+		free(mat[i]);
+	free(mat);
+}
+
+mkpnum *mkpnum_array_init(mkpnum *array, int n, mkpnum x){
+	int i;
+	if(!array)
+		array = (mkpnum*)malloc(n*sizeof(mkpnum));
+	for( i = 0 ; i < n ; i++ )
+		array[i] = x;
+	return array;
+}
+
+mkpnum *mkpnum_array_copy(mkpnum *dest, mkpnum *src, int n){
+	int i;
+
+	if(!dest)
+		dest = mkpnum_array_malloc(n);
+
+	for( i = 0 ; i < n ; i++ )
+		dest[i] = src[i];
+	return dest;
+}
+
+inline void SWAP_MKPNUM(mkpnum *array, int a, int b){
+	mkpnum aux;
+	aux = array[a];
+	array[a] = array[b];
+	array[b] = aux;
+	return;
+}
+
+int mkpnum_array_partition(mkpnum *array, int a, int b){
+	int i, j;
+	mkpnum pivot;
+	
+	i = a; j = b+1;
+	pivot = array[a];
+
+	while( 1 ){
+		while( array[++i] < pivot ) if( i == b ) break;
+		while( pivot < array[--j] ) if( j == a ) break;
+		if( i >= j ) break;            /* Crossed? */
+		SWAP_MKPNUM(array, i, j);        /* swap */
+	}
+	SWAP_MKPNUM(array, j, a);     /* place pivot */
+
+	return j;
+}
+
+mkpnum *mkpnum_array_sub_qsort(mkpnum *array, int a, int b){
+	int m;
+	if( b <= a )
+		return array;
+	m = mkpnum_array_partition(array, a, b);
+	mkpnum_array_sub_qsort(array, a, m-1);
+	mkpnum_array_sub_qsort(array, m+1, b);
+	return array;
+}
+
+mkpnum *mkpnum_array_qsort(mkpnum *array, int n){
+	mkpnum_array_sub_qsort(array, 0, n-1);
+	return array;
+}
+
 /*** memory management ***/
 MKP *mkp_alloc(int n, int m){
 	int i;
 	MKP *mkp;
 
 	mkp = (MKP*)malloc(sizeof(MKP));
-	mkp->p = long_long_array_malloc(n);
-	mkp->w = long_long_matrix_malloc(m, n);
-	mkp->b = long_long_array_malloc(n);
+	mkp->p = mkpnum_array_malloc(n);
+	mkp->w = mkpnum_matrix_malloc(m, n);
+	mkp->b = mkpnum_array_malloc(n);
 	mkp->idxs = (int*)malloc(n*sizeof(int));
 	for( i = 0 ; i < n ; i++ )
 		mkp->idxs[i] = i;
@@ -44,19 +242,19 @@ MKP *mkp_alloc(int n, int m){
  *   p[j] = beta*2*(w[i][0] + w[i][1] + ... + w[i][m-1]) +
  * 	+ (1-beta)*max_coefs*U(0, 1)
  */
-MKP *mkp_random(int n, int m, double alpha, double beta, long long max_coefs){
+MKP *mkp_random(int n, int m, double alpha, double beta, mkpnum max_coefs){
 	int i, j;
-	long long *wsums, wsum, w;
+	mkpnum *wsums, wsum, w;
 	MKP *mkp;
 
 	mkp = mkp_alloc(n, m);
-	wsums = long_long_array_init(NULL, m, 0);
+	wsums = mkpnum_array_init(NULL, m, 0);
 
 	for( i = 0 ; i < n ; i++ ){
 		wsum = 0;
 		for( j = 0 ; j < m ; j++ ){
 			/* weights */
-			w = llrand(max_coefs);
+			w = mkpnum_rand(max_coefs);
 			mkp->w[j][i] = w;
 			wsums[j] += w;
 			wsum += w;
@@ -67,7 +265,7 @@ MKP *mkp_random(int n, int m, double alpha, double beta, long long max_coefs){
 
 	/* capacities */
 	for( j = 0 ; j < m ; j++ ){
-		mkp->b[j] = (long long)(ceil(wsums[j]*alpha));
+		mkp->b[j] = (mkpnum)(ceil(wsums[j]*alpha));
 	}
 
 	free(wsums);
@@ -88,7 +286,7 @@ int mkp_cmp_em(MKP *mkp, int a, int b){
 }
 
 void mkp_swap_itens(MKP *mkp, int a, int b){
-	long long w[mkp->m], p;
+	mkpnum w[mkp->m], p;
 	int i, m;
 
 	m = mkp->m;
@@ -128,17 +326,17 @@ MKP *mkp_card_mkp(MKP *mkp){
  *   max items for each dimension. */
 int mkp_max_items(MKP *mkp){
 	int nx, n, m, i, j;
-	long long *ws, b;
+	mkpnum *ws, b;
 
 	m = mkp->m;
 	n = mkp->n;
-	ws = (long long*)malloc(n*sizeof(long long));
+	ws = (mkpnum*)malloc(n*sizeof(mkpnum));
 
 	/* for each dimension */
 	nx = n;
 	for( j = 0 ; j < m ; j++ ){
-		long_long_array_copy(ws, mkp->w[j], n);
-		long_long_array_qsort(ws, n);
+		mkpnum_array_copy(ws, mkp->w[j], n);
+		mkpnum_array_qsort(ws, n);
 		b = mkp->b[j];
 		for( i = 0 ; i < n && b > 0 ; i++ )
 			b -= ws[i];
@@ -158,7 +356,7 @@ int mkp_max_items(MKP *mkp){
 double *mkp_dual_em(MKP *mkp){
 	double *x, *vals, sum;
 	int j, i, n, m;
-	long long *p, **w;
+	mkpnum *p, **w;
 	LP *lp;
 
 	n = mkp->n;
@@ -189,7 +387,7 @@ void mkp_sort_by_em(MKP *mkp, int reverse){
 }
 
 void mkp_free(MKP *mkp){
-	long_long_matrix_free(mkp->w, mkp->m);
+	mkpnum_matrix_free(mkp->w, mkp->m);
 	if(mkp->em)
 		free(mkp->em);
 	if(mkp->lp_sol)
@@ -285,9 +483,9 @@ MKP *mkp_read_from_file(FILE *fin){
 	mkp = mkp_alloc(n, m);
 	mkp->n = n;
 	mkp->m = m;
-	long_long_array_read(fin, mkp->p, n);
-	long_long_matrix_read(fin, mkp->w, m, n);
-	long_long_array_read(fin, mkp->b, n);
+	mkpnum_array_read(fin, mkp->p, n);
+	mkpnum_matrix_read(fin, mkp->w, m, n);
+	mkpnum_array_read(fin, mkp->b, n);
 	for( i = 0 ; i < n ; i++ )
 		mkp->idxs[i] = i;
 
@@ -306,9 +504,9 @@ void mkp_write_to_file(MKP *mkp, FILE *fout){
 	int i, j;
 
 	fprintf(fout, "%d\n%d\n", mkp->n, mkp->m);
-	long_long_array_write(fout, mkp->p, mkp->n);
-	long_long_matrix_write(fout, mkp->w, mkp->m, mkp->n);
-	long_long_array_write(fout, mkp->b, mkp->m);
+	mkpnum_array_write(fout, mkp->p, mkp->n);
+	mkpnum_matrix_write(fout, mkp->w, mkp->m, mkp->n);
+	mkpnum_array_write(fout, mkp->b, mkp->m);
 
 	return;
 }
@@ -349,11 +547,11 @@ void mkp_fprint(FILE *fout, MKP *mkp){
 
 	/* Deciding ndigits */
 	for( i = 0 ; i < n ; i++ ){
-		max = long_long_matrix_max_col(mkp->w, m, n, i);
+		max = mkpnum_matrix_max_col(mkp->w, m, n, i);
 		max = MAX(max, mkp->p[i]);
 		ndigs[i] = 1 + (int)(floor(log(max)/log(10.)));
 	}
-	ndigs[n] = (int)(ceil(log(MAX(long_long_array_max(mkp->b, mkp->m), mkp->m))) / log(10.));
+	ndigs[n] = (int)(ceil(log(MAX(mkpnum_array_max(mkp->b, mkp->m), mkp->m))) / log(10.));
 
 	/* print profits*/
 	for( i = 0 ; i < n ; i++ ){
@@ -406,15 +604,15 @@ void mkp_dual_to_zimpl(FILE *fout, MKP *mkp, char linear){
 
 	/* profit */
 	fprintf(fout, "param p[N] :=\n");
-	long_long_array_zimpl_print(fout, mkp->p, n);
+	mkpnum_array_zimpl_print(fout, mkp->p, n);
 
 	/* weights */
 	fprintf(fout, "param w[M*N] :=\n");
-	long_long_matrix_zimpl_print(fout, mkp->w, m, n);
+	mkpnum_matrix_zimpl_print(fout, mkp->w, m, n);
 
 	/* capacities */
 	fprintf(fout, "param b[M] :=\n");
-	long_long_array_zimpl_print(fout, mkp->b, m);
+	mkpnum_array_zimpl_print(fout, mkp->b, m);
 
 	/* desicion var */
 	if(linear) {
@@ -487,7 +685,7 @@ void mkp_to_zimpl(FILE *fout, MKP *mkp, double max_opt, double capacity_scale, c
 
 	n = mkp->n;
 	m = mkp->m;
-	total_profit = (double)long_long_array_sum(mkp->p, n);
+	total_profit = (double)mkpnum_array_sum(mkp->p, n);
 	if( max_opt <= 0.0 ) max_opt = 1.0e+40;
 
 	/* sizes */
@@ -500,11 +698,11 @@ void mkp_to_zimpl(FILE *fout, MKP *mkp, double max_opt, double capacity_scale, c
 
 	/* profit */
 	fprintf(fout, "param p[N] :=\n");
-	long_long_array_zimpl_print(fout, mkp->p, n);
+	mkpnum_array_zimpl_print(fout, mkp->p, n);
 
 	/* weights */
 	fprintf(fout, "param w[M*N] :=\n");
-	long_long_matrix_zimpl_print(fout, mkp->w, m, n);
+	mkpnum_matrix_zimpl_print(fout, mkp->w, m, n);
 
 	/* scaling */
 	if(capacity_scale == 0.0)
@@ -904,7 +1102,7 @@ MKP *mkp_reduced(MKP *mkp, int *var_vals){
 	int i, var, j, n, m;
 	int *ones, *zeros, *frees;
 	int nones, nzeros, nfrees;
-	long long *p, **w, *b;
+	mkpnum *p, **w, *b;
 
 	/* problem parameters */
 	p = mkp->p;
@@ -940,7 +1138,7 @@ MKP *mkp_reduced(MKP *mkp, int *var_vals){
 	}
 
 	/* copying capacities */
-	long_long_array_copy(nmkp->b, mkp->b, m);
+	mkpnum_array_copy(nmkp->b, mkp->b, m);
 
 	/* reducing capacities spent by "ones" variables */
 	for( i = 0 ; i < nones ; i++ ){
@@ -969,9 +1167,9 @@ MKP *mkp_select_contraints(MKP *mkp, int *cons, int m2){
 
 	mkp2 = mkp_alloc(n, m2);
 
-	mkp2->p = long_long_array_copy(mkp2->p, mkp->p, n);
+	mkp2->p = mkpnum_array_copy(mkp2->p, mkp->p, n);
 	for( j = 0 ; j < m2 ; j++ ){
-		mkp2->w[j] = long_long_array_copy(mkp2->w[j], mkp->w[cons[j]], n);
+		mkp2->w[j] = mkpnum_array_copy(mkp2->w[j], mkp->w[cons[j]], n);
 		mkp2->b[j] = mkp->b[cons[j]];
 	}
 
@@ -982,7 +1180,7 @@ MKP *mkp_select_contraints(MKP *mkp, int *cons, int m2){
  * Returns a (min)surrogate relaxation for a MKP instance.
  *   - multips: the multiplier of each contraint;
  * */
-MKP *mkp_surrogate(MKP *mkp, int *multips){
+MKP *mkp_surrogate(MKP *mkp, double *multips){
 	MKP *mkp2;
 	int i, j, dim, mult, n, m, m2;
 
@@ -992,8 +1190,8 @@ MKP *mkp_surrogate(MKP *mkp, int *multips){
 	mkp2 = mkp_alloc(n, 1);
 	
 	/* coping profit and capacities */
-	mkp2->p = long_long_array_copy(mkp2->p, mkp->p, n);
-	mkp2->w[0] = long_long_array_init(mkp2->w[0], n, 0);
+	mkp2->p = mkpnum_array_copy(mkp2->p, mkp->p, n);
+	mkp2->w[0] = mkpnum_array_init(mkp2->w[0], n, 0);
 	mkp2->b[0] = 0;
 
 	/* coping-multipling weights */
@@ -1013,13 +1211,13 @@ MKP *mkp_surrogate(MKP *mkp, int *multips){
  * */
 int mkp_max_cardinality(MKP *mkp){
 	int i, n, nmax;
-	long long b_left;
-	long long *ws;
+	mkpnum b_left;
+	mkpnum *ws;
 
 	n = mkp->n;
 
-	ws = long_long_array_copy(NULL, mkp->w[0], n);
-	long_long_array_qsort(ws, n);
+	ws = mkpnum_array_copy(NULL, mkp->w[0], n);
+	mkpnum_array_qsort(ws, n);
 
 	nmax = 0;
 	b_left = mkp->b[0];
@@ -1041,7 +1239,7 @@ int mkp_max_cardinality(MKP *mkp){
  * */
 int *mkp_core_val(MKP *mkp, char type){
 	double *x, *vals, sum, sum2, *r;
-	long long *p, *b, **w;
+	mkpnum *p, *b, **w;
 	int i, j, k, n, m;
 	int *idxs;
 
@@ -1197,7 +1395,7 @@ MKPSol *mkpsol_new(MKP *mkp){
 	mkpsol = (MKPSol*)malloc(sizeof(MKPSol));
 	mkpsol->x = int_array_init(NULL, mkp->n, 0);
 	mkpsol->nx = 0;
-	mkpsol->b_left = long_long_array_copy(NULL, mkp->b, mkp->m);
+	mkpsol->b_left = mkpnum_array_copy(NULL, mkp->b, mkp->m);
 	mkpsol->obj = 0;
 	mkpsol->feasible = 1;
 	mkpsol->mkp = mkp;
@@ -1330,7 +1528,7 @@ MKPSol *mkpsol_copy(MKPSol *mkpsol){
 	mkpsol_new = (MKPSol*)malloc(sizeof(MKPSol));
 	mkpsol_new->x = int_array_copy(NULL, mkpsol->x, mkpsol->mkp->n);
 	mkpsol_new->nx = mkpsol->nx;
-	mkpsol_new->b_left = long_long_array_copy(NULL, mkpsol->b_left, mkpsol->mkp->m);
+	mkpsol_new->b_left = mkpnum_array_copy(NULL, mkpsol->b_left, mkpsol->mkp->m);
 	mkpsol_new->obj = mkpsol->obj;
 	mkpsol_new->feasible = mkpsol->feasible;
 	mkpsol_new->mkp = mkpsol->mkp;
@@ -1389,7 +1587,7 @@ int mkpsol_get_core_size(MKPSol *mkpsol, int *first_0p, int *last_1p){
  *   2 - solution only
  * */
 void mkpsol_fprint(FILE *fout, MKPSol *mkpsol, char ptr_sol){
-	long long *b;
+	mkpnum *b;
 	int i, n, m;
 
 	b = mkpsol->mkp->b;
@@ -1397,9 +1595,12 @@ void mkpsol_fprint(FILE *fout, MKPSol *mkpsol, char ptr_sol){
 	n = mkpsol->mkp->n;
 
 	if( ptr_sol != 2 ){
-		fprintf(fout, "%lld;[", mkpsol->obj);
-		for( i = 0 ; i < m ; i++)
-			fprintf(fout, "%lld%s", b[i]-mkpsol->b_left[i], i+1==m?"]":",");
+		mkpnum_fprintf(fout, mkpsol->obj);
+		fprintf(fout, ";[");
+		for( i = 0 ; i < m ; i++){
+			mkpnum_fprintf(fout, b[i]-mkpsol->b_left[i]);
+			fprintf(fout, "%s", i+1==m?"]":",");
+		}
 	}
 	if(ptr_sol){
 		if( ptr_sol == 1)
@@ -1484,7 +1685,7 @@ MKPSol *greedy_mkp(MKP *mkp){
 
 MKPSol *mkpsol_local_search(MKPSol *mkpsol, int niter){
 	MKPSol *current, *best;
-	long long current_profit;
+	mkpnum current_profit;
 	int best_item, item, i, j, n, q, *idxs;
 
 	/* initialization */
@@ -1543,7 +1744,7 @@ MKPSol *mkpsol_greedy_fill(MKPSol *mkpsol){
 /* repair a solution, removing at first itens that minimum reduces profit */
 MKPSol *mkpsol_greedy_repair(MKPSol *mkpsol){
 	int i, a, n;
-	long long profit;
+	mkpnum profit;
 	n = mkpsol->mkp->n;
 
 	/* removing item */
@@ -1600,8 +1801,8 @@ Array *mkp_nemull(MKP *mkp){
 	Array *dom_sets, *merged_sets;
 	MKPSol *new_sol, *old_sol, *best_sol;
 	int n, m, i, j, k, n_dom_sets, n_merged_sets, not_dominated_by;
-	long long **w, *p, *b;
-	long long best_profit;
+	mkpnum **w, *p, *b;
+	mkpnum best_profit;
 
 	MKP *fixed_mkp;
 	LP *fixed_lp;
@@ -1742,7 +1943,7 @@ int mkpsol_cmp_profit(MKPSol *ms1, MKPSol *ms2){
 }
 /* cmp-j-th-weight */
 int mkpsol_cmp_weight(MKPSol *ms1, MKPSol *ms2, int *j){
-	long long b_left1, b_left2;
+	mkpnum b_left1, b_left2;
 	b_left1 = ms1->b_left[*j];
 	b_left2 = ms2->b_left[*j];
 	if( b_left1 < b_left2 ) return 1;

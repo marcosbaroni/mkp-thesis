@@ -65,9 +65,9 @@ void int_ptr(FILE *out, int *a){
 int execute_surrogate_research(int argc, char **argv){
 	MKP *mkp, *mkp2;
 	FILE *input;
-	int i, n, m, nmax, *multps;
+	int i, n, m, nmax;
 	clock_t c0, cf;
-	long long profit;
+	mkpnum profit, *multps;
 
 	double *x, sum, profit_d;
 
@@ -91,11 +91,11 @@ int execute_surrogate_research(int argc, char **argv){
 	n = mkp->n;
 	fclose(input);
 
-	multps = (int*)malloc(m*sizeof(int));
+	multps = (mkpnum*)malloc(m*sizeof(mkpnum));
 
 	/* surrogating pairs of constraints */
 	for( i = 0 ; i < m-1 ; i++ ){
-		multps = int_array_init(multps, m, 0);
+		multps = mkpnum_array_init(multps, m, 0);
 		multps[i] = multps[i+1] = 1;
 		mkp2 = mkp_surrogate(mkp, multps);
 		profit_d = mkp_get_lp_obj(mkp2);
@@ -106,12 +106,20 @@ int execute_surrogate_research(int argc, char **argv){
 		mkp_free(mkp2);
 	}
 
-	/* surrogating all constraints */
-	multps = int_array_init(multps, m, 1);
+	/* surrogating all constraints equaly */
+	multps = mkpnum_array_init(multps, m, 1);
 	mkp2 = mkp_surrogate(mkp, multps);
 	profit_d = mkp_get_lp_obj(mkp2);
 	nmax = mkp_max_cardinality(mkp2);
 	printf("a;%d;%.2lf\n", nmax, profit_d);
+	mkp_free(mkp2);
+
+	/* surrogating all constraints using duals multipliers */
+	x = mkp_solve_dual_with_scip(mkp);
+	mkp2 = mkp_surrogate(mkp, x);
+	profit_d = mkp_get_lp_obj(mkp2);
+	nmax = mkp_max_cardinality(mkp2);
+	printf("u;%d;%.2lf\n", nmax, profit_d);
 	mkp_free(mkp2);
 
 	/* checking LP */
@@ -139,7 +147,9 @@ int execute_surrogate_research(int argc, char **argv){
 			profit += mkp->p[i];
 		}
 	}
-	printf("s;%d;%lld\n", nmax, profit);
+	printf("s;%d;", nmax);
+	mkpnum_fprintf(stdout, profit);
+	printf("\n");
 
 	/* freeing */
 	free(multps);
@@ -204,7 +214,8 @@ int execute_domset_search(int argc, char **argv){
 	mkpsol = mkp_fast_domsets_enum(mkp);
 	c1 = clock();
 	t0 = (c1-c0)/(float)CLOCKS_PER_SEC, ncomp;
-	printf("%lld;%3.3f;%.2e\n", mkpsol->obj, t0, (double)ncomp);
+	mkpnum_fprintf(stdout, mkpsol->obj);
+	printf(";%3.3f;%.2e\n", t0, (double)ncomp);
 	mkpsol_free(mkpsol);
 
 	ncomp = 0;
@@ -213,7 +224,8 @@ int execute_domset_search(int argc, char **argv){
 	mkpsol = mkp_fast_domsets_enum_lbucket(mkp, ndim, nsub, type);
 	c1 = clock();
 	t1 = (c1-c0)/(float)CLOCKS_PER_SEC, ncomp;
-	printf("%lld;%3.3f;%.2e\n", mkpsol->obj, t1, (double)ncomp);
+	mkpnum_fprintf(stdout, mkpsol->obj);
+	printf(";%3.3f;%.2e\n", t1, (double)ncomp);
 	mkpsol_free(mkpsol);
 
 	/* frees */
@@ -223,8 +235,8 @@ int execute_domset_search(int argc, char **argv){
 }
 
 int main(int argc, char **argv){
-	//return execute_surrogate_research(argc, argv);
+	return execute_surrogate_research(argc, argv);
 	//return execute_avl_teste(argc, argv);
-	return execute_domset_search(argc, argv);
+	//return execute_domset_search(argc, argv);
 }
 

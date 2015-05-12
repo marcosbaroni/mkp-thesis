@@ -13,7 +13,7 @@ extern int ncomp;
  *****************************************************************************/
 int dsnode_cmp(DomSetNode *dsn1, DomSetNode *dsn2){
 	int j, m;
-	long long res;
+	mkpnum res;
 
 	/* comparing profit */
 	res = dsn1->profit - dsn2->profit;
@@ -75,7 +75,7 @@ DomSetNode *dsnode_new(DomSetNode *father, MKP *mkp, int idx){
 	dsnode->father = father;
 	dsnode->idx = idx;
 	dsnode->profit = father->profit + mkp->p[idx];
-	dsnode->b_left = (long long*)malloc(m*sizeof(long long));
+	dsnode->b_left = (mkpnum*)malloc(m*sizeof(mkpnum));
 	dsnode->prev = dsnode->next = NULL;
 	/* setting b_left (checking feasibility) */
 	feasible = 1;
@@ -129,7 +129,7 @@ DomSetTree *dstree_new(MKP *mkp){
 	dsnode = (DomSetNode*)malloc(sizeof(DomSetNode));
 	dsnode->idx = -1;
 	dsnode->profit = 0;
-	dsnode->b_left = long_long_array_copy(NULL, mkp->b, mkp->m);
+	dsnode->b_left = mkpnum_array_copy(NULL, mkp->b, mkp->m);
 	dsnode->father = dsnode->prev = dsnode->next = NULL;
 	dsnode->m = mkp->m;
 
@@ -210,9 +210,12 @@ void dstree_fprint(FILE *out, DomSetTree *dstree){
 		fat = dsn;
 		while(fat = fat->father)
 			nx++;
-		fprintf(out, "%d;%lld", nx, dsn->profit);
-		for( i = 0 ; i < m ; i++ )
-			fprintf(out, ";%lld", dstree->mkp->b[i] - dsn->b_left[i]);
+		fprintf(out, "%d;", nx);
+		mkpnum_fprintf(out, dsn->profit);
+		for( i = 0 ; i < m ; i++ ){
+			fprintf(out, ";");
+			mkpnum_fprintf(out, dstree->mkp->b[i] - dsn->b_left[i]);
+		}
 		fprintf(out, "\n");
 	}while(dsn = dsn->next);
 
@@ -226,14 +229,14 @@ void dstree_fprint(FILE *out, DomSetTree *dstree){
 /*
  * Auxiliary function to prepare max_b_left table, for Linked Bucket creating.
  */
-long long **lbucket_prepare_max_b_left(MKP *mkp, int ndim, int nsub, char type){
+mkpnum **lbucket_prepare_max_b_left(MKP *mkp, int ndim, int nsub, char type){
 	int i, j;
-	long long **max_b_lefts, last_max, sum;
+	mkpnum **max_b_lefts, last_max, sum;
 
 	/* allocs */
-	max_b_lefts = (long long**)malloc(ndim*sizeof(long long*));
+	max_b_lefts = (mkpnum**)malloc(ndim*sizeof(mkpnum*));
 	for( i = 0 ; i < ndim ; i++ )
-		max_b_lefts[i] = (long long*)malloc(nsub*sizeof(long long));
+		max_b_lefts[i] = (mkpnum*)malloc(nsub*sizeof(mkpnum));
 
 	last_max = mkp->b[0]*0.48;
 
@@ -266,7 +269,7 @@ long long **lbucket_prepare_max_b_left(MKP *mkp, int ndim, int nsub, char type){
  * nsub: number of subbuckets (or arrays)
  */
 LinkedBucket *lbucket_new(
-	long long **max_b_lefts, int nsub, int dims)
+	mkpnum **max_b_lefts, int nsub, int dims)
 {
 	/* final container */
 	LinkedBucket *lbucket;
@@ -279,7 +282,7 @@ LinkedBucket *lbucket_new(
 	lbucket->dim = dims-1;
 	lbucket->minProfit = LLONG_MAX;
 	lbucket->maxProfit = 0;
-	lbucket->max_b_left = long_long_array_copy(NULL, max_b_lefts[dims-1], nsub);
+	lbucket->max_b_left = mkpnum_array_copy(NULL, max_b_lefts[dims-1], nsub);
 	lbucket->nsub = nsub;
 
 	/* final bucket, holding a set of solutions (dsnodes) */
@@ -301,7 +304,7 @@ LinkedBucket *lbucket_new(
 
 void lbucket_insert_dsnode(LinkedBucket *lbucket, DomSetNode *dsnode){
 	int i, dim, nsub;
-	long long b_left;
+	mkpnum b_left;
 
 	dim = lbucket->dim;
 	b_left = dsnode->b_left[dim];
@@ -331,7 +334,7 @@ void lbucket_insert_dsnode(LinkedBucket *lbucket, DomSetNode *dsnode){
 
 int lbucket_exists_dominator(LinkedBucket *lbucket, DomSetNode *dsnode){
 	int i, j, n, nsub, dim;
-	long long b_left, *max_b_left;
+	mkpnum b_left, *max_b_left;
 	Array *a;
 
 	dim = lbucket->dim;
@@ -508,7 +511,7 @@ MKPSol *mkp_fast_domsets_enum_lbucket(MKP *mkp, int ndim, int nsub, char type){
 	LinkedBucket *lbucket;
 	MKPSol *mkpsol;
 	int i, j, n, m, promissing;
-	long long **max_b_lefts, sum;
+	mkpnum **max_b_lefts, sum;
 
 	n = mkp->n;
 	m = mkp->m;

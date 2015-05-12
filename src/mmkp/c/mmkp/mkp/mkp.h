@@ -9,15 +9,20 @@
 #define ZIMPL_LINEAR 1
 #define ZIMPL_CARD 2
 
+#define mkpnum double
+
+mkpnum *mkpnum_array_copy(mkpnum *dest, mkpnum *src, int n);
+mkpnum *mkpnum_array_init(mkpnum *array, int n, mkpnum x);
+
 /*** MKP PROBLEM INSTANCE ***
 *   Itens are sorting by decreasing order of profit (for greedy propose).
 */
 typedef struct MKP{
 	int n;            /* Number of itens */
 	int m;            /* Number of dimensions */
-	long long *p;     /* Profit of itens [n] */
-	long long **w;    /* Weight of itens [m x n] */
-	long long *b;     /* Knapsack capacities [m] */
+	mkpnum *p;     /* Profit of itens [n] */
+	mkpnum **w;    /* Weight of itens [m x n] */
+	mkpnum *b;     /* Knapsack capacities [m] */
 	int *idxs;        /* item indexs (no order) */
 	double *em;       /* efficienct measure */
 	double *lp_sol;   /* array with result of lp relaxation */
@@ -27,7 +32,7 @@ typedef struct MKP{
 
 /*** Memory Management ***/
 MKP *mkp_alloc(int n, int m);
-MKP *mkp_random(int n, int m, double alpha, double beta, long long max_coefs);
+MKP *mkp_random(int n, int m, double alpha, double beta, mkpnum max_coefs);
 void mkp_sort_by_profit(MKP *mkp);
 void mkp_free(MKP *mkp);
 
@@ -60,7 +65,7 @@ int mkp_max_items(MKP *mkp);
 MKP *mkp_reduced(MKP *mkp, int *var_vals);
 MKP *mkp_core_problem(MKP *mkp, int core_size, int **vars_fix);
 MKP *mkp_select_contraints(MKP *mkp, int *cons, int m2);
-MKP *mkp_surrogate(MKP *mkp, int *multips);
+MKP *mkp_surrogate(MKP *mkp, double *multips);
 int mkp_max_cardinality(MKP *mkp);
 
 /*** Core functions ***/
@@ -84,8 +89,8 @@ LP *mkp2lp(MKP *mkp, double capacity_scale); /* MKP to LP relaxation */
 typedef struct MKPSol{
 	int *x;                /* The solution vector [n] */
 	int nx;
-	long long *b_left;     /* Resource left on the knapsack [m] */
-	long long obj;         /* Objective function */
+	mkpnum *b_left;     /* Resource left on the knapsack [m] */
+	mkpnum obj;         /* Objective function */
 	int feasible;          /* If solution is feasible*/
 	MKP *mkp;              /* The problem instance */
 }MKPSol;

@@ -12,8 +12,8 @@ typedef struct DomSetNode{
 	int idx;                   /* the index og variable which was fixed '1' */
 	//int nx;                    /* number of itens in whole solution */
 	int m;
-	long long profit;          /* profit of set/solution */
-	long long *b_left;         /* weight left */
+	mkpnum profit;          /* profit of set/solution */
+	mkpnum *b_left;         /* weight left */
 	struct DomSetNode *father; /* the father its set/solution */
 	struct DomSetNode *prev;   /* previous solution (for list navegation) */
 	struct DomSetNode *next;   /* next solution (for list navegation) */
@@ -42,8 +42,8 @@ typedef struct LinkedBucket{
 	int _total_hits;        /* performance analysis */
 	int _total_compares;        /* performance analysis */
 	int dim;         /* the dimension it considers */
-	long long *max_b_left;  /* increasing order (last is LLONG_MAX) */
-	long long minProfit, maxProfit;
+	mkpnum *max_b_left;  /* increasing order (last is LLONG_MAX) */
+	mkpnum minProfit, maxProfit;
 	int nsub;               /* number of sub buckets */
 	union{
 		struct LinkedBucket **sub_buckets; /* array of buckets */
@@ -52,7 +52,7 @@ typedef struct LinkedBucket{
 }LinkedBucket;
 
 void lbucket_insert_dsnode(LinkedBucket *lbucket, DomSetNode *dsnode);
-LinkedBucket *lbucket_new(long long **max_b_lefts, int nsub, int dims);
+LinkedBucket *lbucket_new(mkpnum **max_b_lefts, int nsub, int dims);
 void lbucket_free(LinkedBucket *lbucket);
 MKPSol *mkp_fast_domsets_enum(MKP *mkp);
 MKPSol *mkp_fast_domsets_enum_lbucket(MKP *mkp, int ndim, int nsub, char type);

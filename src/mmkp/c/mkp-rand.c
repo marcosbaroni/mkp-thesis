@@ -23,7 +23,7 @@ void print_usage(int argc, char **argv){
 	exit(EXIT_FAILURE);
 }
 
-void process_arguments(int argc, char **argv, int *n, int *m, double *alpha, double *beta, long *seed, int *max_coeficient, int *sort){
+void process_arguments(int argc, char **argv, int *n, int *m, double *alpha, double *beta, long *seed, mkpnum *max_coeficient, int *sort){
 	int i;
 	*n = atol(argv[1]); /* n. of items */
 	*m = atol(argv[2]); /* n. of dimensions */
@@ -59,7 +59,7 @@ void process_arguments(int argc, char **argv, int *n, int *m, double *alpha, dou
 
 				/* custom max_coeficient */
 				case 'm':
-				*max_coeficient = atol(argv[++i]);
+				sscanf(argv[++i], max_coeficient);
 				break;
 			}
 		}else{
