@@ -412,6 +412,42 @@ void mkp_free(MKP *mkp){
 	return;
 }
 
+double *mkp_solve_with_scip(MKP *mkp, double maxtime, double capacity_scale, char linear){
+	double *x, val;
+	int a, n, nread;
+	char tempf[200], buff[400];
+	FILE *pip, *out;
+
+	n = mkp->n;
+	x = double_array_init(NULL, n, 0.0);  /* solution array */
+
+	/* temp file for mkp model */
+	pip = popen("tempfile", "r");
+	fscanf(pip, "%s", tempf);
+	fclose(pip);
+
+	/* write mkp model on temp file*/
+	out = fopen(tempf, "w");
+	mkp_to_zimpl(out, mkp, 0.0, capacity_scale, linear);
+	fclose(out);
+
+	/* solve model */
+	sprintf(buff, "zpl2lp %s | runscip %lf | scip2summary -s ", tempf, maxtime);
+	pip = popen(buff, "r");
+
+	/* read solution */
+	fscanf(pip, "%s", buff);
+	nread = fscanf(pip, "%d %lf", &a, &val);
+	while( nread == 2 ){
+		x[a-1] = val;
+		nread = fscanf(pip, "%d %lf", &a, &val);
+	}
+	fclose(pip);
+
+	return x;
+}
+
+
 MKPSol *mkp_get_lp_trunc(MKP *mkp){
 	if(!mkp->lp_trunc)
 		mkp->lp_trunc = mkpsol_from_lp(mkp);
@@ -453,7 +489,7 @@ LP *mkp2lp(MKP *mkp, double capacity_scale){
 		lp->b[i] = capacity_scale*mkp->b[i];
 	for( i = 0 ; i < n ; i++ )
 		lp->b[m+i] = 1.0;
-
+	
 	return lp;
 }
 
@@ -761,20 +797,32 @@ void mkp_to_zimpl(FILE *fout, MKP *mkp, double max_opt, double capacity_scale, c
 
 double* mkp_get_lp_sol(MKP *mkp){
 	LP *lp;
+	int i;
+
 	if(!mkp->lp_sol){
-		lp = mkp2lp(mkp, 1.0);
-		mkp->lp_sol = lp_simplex(lp, &(mkp->lp_obj));
-		lp_free(lp);
+		//lp = mkp2lp(mkp, 1.0);
+		//mkp->lp_sol = lp_simplex(lp, &(mkp->lp_obj));
+		mkp->lp_sol = mkp_solve_with_scip(mkp, 60.0, 1.0, 1);
+		mkp->lp_obj = 0;
+		for( i = 0 ; i < mkp->n ; i++ )
+			mkp->lp_obj += mkp->lp_sol[i]*mkp->p[i];
+		//lp_free(lp);
 	}
 	return (double*)memcpy(malloc(mkp->n*sizeof(double)), mkp->lp_sol, mkp->n*sizeof(double));
 }
 
 double mkp_get_lp_obj(MKP *mkp){
 	LP* lp;
+	int i;
+
 	if( !mkp->lp_sol ){
-		lp = mkp2lp(mkp, 1.0);
-		mkp->lp_sol = lp_simplex(lp, &(mkp->lp_obj));
-		lp_free(lp);
+		//lp = mkp2lp(mkp, 1.0);
+		//mkp->lp_sol = lp_simplex(lp, &(mkp->lp_obj));
+		mkp->lp_sol = mkp_solve_with_scip(mkp, 60.0, 1.0, 1);
+		mkp->lp_obj = 0;
+		for( i = 0 ; i < mkp->n ; i++ )
+			mkp->lp_obj += mkp->lp_sol[i]*mkp->p[i];
+		//lp_free(lp);
 	}
 	return mkp->lp_obj;
 }
@@ -1627,41 +1675,6 @@ void mkpsol_free(MKPSol *mkpsol){
 	free(mkpsol->b_left);
 	free(mkpsol);
 	return;
-}
-
-double *mkp_solve_with_scip(MKP *mkp, double maxtime, double capacity_scale, char linear){
-	double *x, val;
-	int a, n, nread;
-	char tempf[200], buff[400];
-	FILE *pip, *out;
-
-	n = mkp->n;
-	x = double_array_init(NULL, n, 0.0);  /* solution array */
-
-	/* temp file for mkp model */
-	pip = popen("tempfile", "r");
-	fscanf(pip, "%s", tempf);
-	fclose(pip);
-
-	/* write mkp model on temp file*/
-	out = fopen(tempf, "w");
-	mkp_to_zimpl(out, mkp, 0.0, capacity_scale, linear);
-	fclose(out);
-
-	/* solve model */
-	sprintf(buff, "zpl2lp %s | runscip %lf | scip2summary -s ", tempf, maxtime);
-	pip = popen(buff, "r");
-
-	/* read solution */
-	fscanf(pip, "%s", buff);
-	nread = fscanf(pip, "%d %lf", &a, &val);
-	while( nread == 2 ){
-		x[a-1] = val;
-		nread = fscanf(pip, "%d %lf", &a, &val);
-	}
-	fclose(pip);
-
-	return x;
 }
 
 MKPSol *mkpsol_solve_with_scip(MKP *mkp, double maxtime, double capacity_scale, char linear){
