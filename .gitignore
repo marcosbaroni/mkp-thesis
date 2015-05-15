@@ -1,9 +1,9 @@
 *~
 *.pyc
 *.swp
-knap.dat
+*.o
+*.so.*
 *.gplot
-scip.set
 *.log
 *.aux
 *.bbl
@@ -11,6 +11,7 @@ scip.set
 src/mmkp/c/*.o
 bin/*2zpl
 bin/rand*
+bin/test
 bin/kpbt
 bin/mkp-domsets
 bin/mkp-nu
