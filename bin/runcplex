@@ -3,7 +3,7 @@
 #  Takes a lp file and solves it on SCIP solver.                             #
 #    If no files is given, reads from standard input.                        #
 ##############################################################################
-SCIP=scip
+CPLEX=cplex
 maxtime="60.0"
 maxgap="0.0"
 temp=`tempfile`
@@ -43,10 +43,11 @@ else
 fi
 
 # running SCIP
-$SCIP -c "set limits time $maxtime" -c "set limits gap $maxgap" -c "read $input" -c "opt" -c "write solution $temp.sol" -c "quit"
+dispsol=""
 if [ $# -lt 4 ] || [ "$4" == "1" ]; then
-	cat $temp.sol
+	dispsol="display solution variables x*"
 fi
+$CPLEX -c "set timelimit $maxtime" "set mip tolerances mipgap $maxgap" "read $input" "opt" "$dispsol" "quit"
 
 # cleaning temp files
 rm $temp*
