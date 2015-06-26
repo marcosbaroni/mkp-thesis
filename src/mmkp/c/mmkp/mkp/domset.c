@@ -536,6 +536,9 @@ MKPSol *mkp_fast_domsets_enum_lbucket(MKP *mkp, int ndim, int nsub, char type){
 	/* for each item... */
 	for( i = 0 ; i < n ; i++ ){
 		/* for each existent dominating set... */
+		printf("fixing %d/%d (%d, %f)\n", i+1, n, dstree->n,
+			log((float)dstree->n)/log(2));
+		fflush(stdout);
 		for( dsnode = dstree->root, dsn_tail = dstree->tail
 			; dsnode
 				?(dsnode->prev /* if has a prev node and... */

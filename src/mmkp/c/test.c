@@ -209,15 +209,15 @@ int execute_domset_search(int argc, char **argv){
 	n = mkp->n;
 	fclose(input);
 
-	ncomp = 0;
-	/* enumerating */
-	c0 = clock();
-	mkpsol = mkp_fast_domsets_enum(mkp);
-	c1 = clock();
-	t0 = (c1-c0)/(float)CLOCKS_PER_SEC, ncomp;
-	mkpnum_fprintf(stdout, mkpsol->obj);
-	printf(";%3.3f;%.2e\n", t0, (double)ncomp);
-	mkpsol_free(mkpsol);
+	//ncomp = 0;
+	///* enumerating */
+	//c0 = clock();
+	//mkpsol = mkp_fast_domsets_enum(mkp);
+	//c1 = clock();
+	//t0 = (c1-c0)/(float)CLOCKS_PER_SEC, ncomp;
+	//mkpnum_fprintf(stdout, mkpsol->obj);
+	//printf(";%3.3f;%.2e\n", t0, (double)ncomp);
+	//mkpsol_free(mkpsol);
 
 	ncomp = 0;
 	/* enumerating (with linked buckets) */
@@ -236,8 +236,8 @@ int execute_domset_search(int argc, char **argv){
 }
 
 int main(int argc, char **argv){
-	return execute_surrogate_research(argc, argv);
+	//return execute_surrogate_research(argc, argv);
 	//return execute_avl_teste(argc, argv);
-	//return execute_domset_search(argc, argv);
+	return execute_domset_search(argc, argv);
 }
 
