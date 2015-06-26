@@ -66,7 +66,7 @@ void mkpnum_matrix_zimpl_print(FILE *fout, mkpnum **mat, int nlin, int ncol){
 		mkpnum_fprintf(fout, mat[i][0]);
 		for( j = 1 ; j < ncol ; j++ ){
 			fprintf(fout, ",");
-			mkpnum_fprintf(fout, mat[i][0]);
+			mkpnum_fprintf(fout, mat[i][j]);
 		}
 		fprintf(fout, "|\n");
 	}
