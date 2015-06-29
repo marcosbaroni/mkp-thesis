@@ -43,7 +43,7 @@ else
 fi
 
 # running SCIP
-$SCIP -c "set limits time $maxtime" -c "set limits gap $maxgap" -c "read $input" -c "opt" -c "write solution $temp.sol" -c "quit"
+$SCIP -c "set display freq 10000" -c "set limits time $maxtime" -c "set limits gap $maxgap" -c "read $input" -c "opt" -c "write solution $temp.sol" -c "quit"
 if [ $# -lt 4 ] || [ "$4" == "1" ]; then
 	cat $temp.sol
 fi

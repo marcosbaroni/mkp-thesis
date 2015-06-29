@@ -47,7 +47,7 @@ dispsol=""
 if [ $# -lt 4 ] || [ "$4" == "1" ]; then
 	dispsol="display solution variables x*"
 fi
-$CPLEX -c "set timelimit $maxtime" "set mip tolerances mipgap $maxgap" "read $input" "opt" "$dispsol" "quit"
+$CPLEX -c "set timelimit $maxtime" "set threads 1" "set mip tolerances mipgap $maxgap" "read $input" "opt" "$dispsol" "quit"
 
 # cleaning temp files
 rm $temp*
