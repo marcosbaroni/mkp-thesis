@@ -7,6 +7,7 @@ elif [[ $1 == "--help" ]]; then
 	echo "  OPTIONS:"
 	echo "  -s     : prints the solution wright below the summary"
 	echo "  --help : prints this help"
+	exit 1
 fi
 
 while read aux

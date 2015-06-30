@@ -67,7 +67,9 @@ int execute_sfl_mkp(int argc, char **argv){
 	cf = clock();
 
 	/* output */
-	printf("%lld;%d;%f\n", sol->obj, best_iter, ((cf-c0)/(float)CLOCKS_PER_SEC));
+	printf(";");
+	mkpnum_fprintf(stdout, sol->obj);
+	mkpnum_fprintf(";%d;%f\n", best_iter, ((cf-c0)/(float)CLOCKS_PER_SEC));
 
 	/* freeing */
 	mkpsol_free(sol);
@@ -175,7 +177,7 @@ int execute_sfl_mkp_core(int argc, char **argv){
 	if(!core_size)
 		core_size = m + n/10;
 	
-	sfli = mkp_sfl_interface(1, 1);
+	sfli = mkp_sfl_interface();
 
 	c0 = clock();
 	/* generation MKP core problem */
@@ -194,7 +196,9 @@ int execute_sfl_mkp_core(int argc, char **argv){
 	sfli_free(sfli);
 
 	/* output */
-	printf("- %lld;%d;%f\n", sol->obj, best_iter, ((cf-c0)/(float)CLOCKS_PER_SEC));
+	printf("- ");
+	mkpnum_fprintf(stdout, sol->obj);
+	printf("%d;%f\n", best_iter, ((cf-c0)/(float)CLOCKS_PER_SEC));
 
 	/* freeing */
 	mkpsol_free(sol);
