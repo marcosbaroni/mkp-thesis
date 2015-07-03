@@ -602,7 +602,10 @@ void mkp_fprint(FILE *fout, MKP *mkp){
 	/* print profits*/
 	for( i = 0 ; i < n ; i++ ){
 		sprintf(format, "%%%dlld ", ndigs[i]);
-		fprintf(fout, format, mkp->p[i]);
+		/* TODO: formatar para mkpnum */
+		//fprintf(fout, format, mkp->p[i]);
+		mkpnum_fprintf(fout, mkp->p[i]);
+		fprintf(fout, " ");
 	}
 	fprintf(fout, "\n");
 
@@ -620,13 +623,18 @@ void mkp_fprint(FILE *fout, MKP *mkp){
 		/* weights */
 		for( j = 0 ; j < n ; j++ ){
 			sprintf(format, "%%%dlld ", ndigs[j]);
-			fprintf(fout, format, mkp->w[i][j]);
+			/* TODO: formatar para mkpnum */
+			//fprintf(fout, format, mkp->w[i][j]);
+			mkpnum_fprintf(fout, mkp->w[i][j]);
+			fprintf(fout, " ");
 		}
 		/* capacity */
 		sprintf(format, "%%%dlld ", ndigs[n]);
 		fprintf(fout, "| ");
-		fprintf(fout, format, mkp->b[i]);
-		fprintf(fout, "\n");
+		/* TODO: formatar para mkpnum */
+		//fprintf(fout, format, mkp->b[i]);
+		mkpnum_fprintf(fout, mkp->b[i]);
+		fprintf(fout, " \n");
 	}
 
 	return;
@@ -2046,8 +2054,12 @@ DES_Interface *mkp_des_interface(){
 	return desi;
 }
 
-SFL_Interface *mkp_sfl_interface(int cross, int newsol){
+SFL_Interface *mkp_sfl_interface(){
 	SFL_Interface *sfli;
+	int cross, newsol;
+
+	cross = 1;
+	newsol = 1;
 
 	sfli = (SFL_Interface*)malloc(sizeof(SFL_Interface));
 	/* crossing rule */
