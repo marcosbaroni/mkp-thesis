@@ -79,26 +79,7 @@ int execute_sfl_mkp(int argc, char **argv){
 	return 0;
 }
 
-int print_usage_core(int argc, char **argv){
-	FILE *out;
-
-	out = stdout;
-	fprintf(out, " usage: %s <input file> <n of memeplex> <size of memeplex> <size of submemeplex> <n of iterations> <n of subiterations> [cross type=(1|2|3)] [new sol type=(1|2)] [seed=time(null)]\n", argv[0]);
-	fprintf(out, " Shuffled Frog Leaping Algorithm for MKP.\n");
-	fprintf(out, " - Input file: a MKP instance. If no file is given, instance is read from stdin.\n");
-	fprintf(out, " - Program outputs \"<profit of solution>;<best iter>\"\n");
-	fprintf(out, " - Cross types:\n");
-	fprintf(out, "    1 - 50%% from father\n");
-	fprintf(out, "    2 - 20%% from father\n");
-	fprintf(out, "    3 - 10%% from father\n");
-	fprintf(out, " - New solutions types:\n");
-	fprintf(out, "    1 - random solution\n");
-	fprintf(out, "    2 - random solution + local search (experimental)\n");
-
-	return 1;
-}
-
-void print_core_usage(int argc, char **argv){
+void print_usage_core(int argc, char **argv){
 	FILE *out;
 
 	out = stderr;
@@ -133,11 +114,11 @@ int execute_sfl_mkp_core(int argc, char **argv){
 	int id_newsol;    /* id of new solution function */
 	int core_size;    /* core size */
 	clock_t c0, cf;   /* c0 = clock(); for couting time spent */
-	int *vars_fix = NULL;
+	int *vars_fix = NULL; /* value of each variable on core problem generation */
 
 	/* checking input */
 	if( argc < 2 ){
-		print_core_usage(argc, argv);
+		print_usage_core(argc, argv);
 		return 1;
 	}
 
@@ -161,16 +142,13 @@ int execute_sfl_mkp_core(int argc, char **argv){
 	if( argc > 6 ) subniter = atoll(argv[6]);
 	if( argc > 7 ) core_size = atoll(argv[7]);
 	if( argc > 8 ) seed = atoll(argv[8]);
-
-	/* inicializing random generation */
 	srand(seed);
 
 	/* reading problem instance */
 	mkp = mkp_read_from_file(input);
 	fclose(input);
-
-	printf("MKP problem\n");
-	mkp_fprint(stdout, mkp); fflush(stdout);
+	//printf("MKP problem\n");
+	//mkp_fprint(stdout, mkp); fflush(stdout);
 
 	n = mkp->n;
 	m = mkp->m;
@@ -179,11 +157,11 @@ int execute_sfl_mkp_core(int argc, char **argv){
 	
 	sfli = mkp_sfl_interface();
 
-	c0 = clock();
 	/* generation MKP core problem */
 	mkp_core = mkp_core_problem(mkp, core_size, &vars_fix);
-	printf("\nMKP CORE problem\n"); fflush(stdout);
-	mkp_fprint(stdout, mkp_core); fflush(stdout);
+	c0 = clock();
+	//printf("\nMKP CORE problem\n"); fflush(stdout);
+	//mkp_fprint(stdout, mkp_core); fflush(stdout);
 	/* solving core problem */
 	core_sol = (MKPSol*)sfl(sfli, mkp_core, nmeme, meme_size, submeme_size, niter, subniter, &best_iter);
 	/* extracting solution from original problem */
@@ -198,7 +176,7 @@ int execute_sfl_mkp_core(int argc, char **argv){
 	/* output */
 	printf("- ");
 	mkpnum_fprintf(stdout, sol->obj);
-	printf("%d;%f\n", best_iter, ((cf-c0)/(float)CLOCKS_PER_SEC));
+	printf(";%d;%f\n", best_iter, ((cf-c0)/(float)CLOCKS_PER_SEC));
 
 	/* freeing */
 	mkpsol_free(sol);

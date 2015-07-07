@@ -716,7 +716,7 @@ double *mkp_solve_dual_with_scip(MKP *mkp){
 	fclose(out);
 
 	/* solve model */
-	sprintf(buff, "zpl2lp %s | runscip %lf | scip2summary -s ", tempf, maxtime);
+	sprintf(buff, "zpl2lp %s | runscip - %lf | tee /tmp/out.log | scip2summary -s ", tempf, maxtime);
 	pip = popen(buff, "r");
 
 	/* reading solution */
@@ -1441,10 +1441,10 @@ MKP *mkp_core_problem(MKP *mkp, int core_size, int **vars_fix){
 	} for( i = core_size+n_fst_fixed ; i < n ; i++ )    /* '0' fixed */
 		(*vars_fix)[efficieny_ordering[i]] = 0;
 	
-	printf("efficiency ordering:\n");
-	int_array_fprint(stdout, efficieny_ordering, n);
-	printf("\nvariable fixing:\n");
-	int_array_fprint(stdout, (*vars_fix), n);
+	//printf("efficiency ordering:\n");
+	//int_array_fprint(stdout, efficieny_ordering, n);
+	//printf("\nvariable fixing:\n");
+	//int_array_fprint(stdout, (*vars_fix), n);
 
 	free(efficieny_ordering);
 
@@ -1815,13 +1815,13 @@ MKPSol *mkpsol_cross(MKPSol *child, MKPSol *father, int c){
 }
 
 /* n/2 */
-MKPSol *mkpsol_cross1(MKPSol *child, MKPSol *father)
+MKPSol *mkpsol_cross50(MKPSol *child, MKPSol *father)
 	{ return mkpsol_cross(child, father, (child->mkp->n/2)); }
 /* n/5 */
-MKPSol *mkpsol_cross2(MKPSol *child, MKPSol *father)
+MKPSol *mkpsol_cross20(MKPSol *child, MKPSol *father)
 	{ return mkpsol_cross(child, father, (child->mkp->n/5)); }
 /* n/10 */
-MKPSol *mkpsol_cross3(MKPSol *child, MKPSol *father)
+MKPSol *mkpsol_cross10(MKPSol *child, MKPSol *father)
 	{ return mkpsol_cross(child, father, (child->mkp->n/10)); }
 
 
@@ -2058,16 +2058,16 @@ SFL_Interface *mkp_sfl_interface(){
 	SFL_Interface *sfli;
 	int cross, newsol;
 
-	cross = 1;
+	cross = 2;
 	newsol = 1;
 
 	sfli = (SFL_Interface*)malloc(sizeof(SFL_Interface));
 	/* crossing rule */
 	switch(cross){
-		case 1: sfli->cross = (sfl_cross_f)mkpsol_cross1; break;
-		case 2: sfli->cross = (sfl_cross_f)mkpsol_cross2; break;
-		case 3: sfli->cross = (sfl_cross_f)mkpsol_cross3; break;
-		default: sfli->cross = (sfl_cross_f)mkpsol_cross3; break;
+		case 1: sfli->cross = (sfl_cross_f)mkpsol_cross50; break;
+		case 2: sfli->cross = (sfl_cross_f)mkpsol_cross20; break;
+		case 3: sfli->cross = (sfl_cross_f)mkpsol_cross10; break;
+		default: sfli->cross = (sfl_cross_f)mkpsol_cross50; break;
 	}
 	switch(newsol){
 		case 1: sfli->new_solution = (sfl_new_solution_f)mkpsol_new_random; break;
