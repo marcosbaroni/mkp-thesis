@@ -42,18 +42,17 @@ Email: fvarejao@ninfa.inf.ufes.br }
 \maketitle
 
 \begin{abstract}
-This work addresses the application of
-a population based evolutionary algorithm
-called shuffled complex evolution (SCE) in the multidimensional knapsack
-core problem.
-The core of the multidimensional knapsack problem is a set of items which are
-hard to decide if they are or not selected in good solutions.
-The core concept is used to reduce the original problem size.
-The SCE regards a natural evolution happening simultaneously in independent communities.
-The performance of the SCE algorithm is verified through computational experiments
-using well-known problems from literature and randomly generated problem as well.
-The SCE applied to the core problem proved to be very effective in finding near
-optimal solutions demanding a very small amount of processing time.
+This work addresses the application of a population based evolutionary algorithm
+called shuffled complex evolution (SCE) in the core of multidimensional knapsack
+problem (MKP).
+The core of the MKP is a set of items which are hard to decide if they are or
+not selected in good solutions.
+This concept is used to reduce the original size of MKP instances.
+%The SCE regards a natural evolution happening simultaneously in independent communities.
+The performance of the SCE applied to the reduced MKP is verified through computational experiments
+using well-known instances from literature and randomly generated problems as well.
+The approach proved to be very effective in finding near optimal solutions
+demanding a very small amount of processing time.
 
 \end{abstract}
 \IEEEpeerreviewmaketitle
@@ -62,16 +61,16 @@ optimal solutions demanding a very small amount of processing time.
 \label{sec:intro}
 \input{intro.tex}
 
+\section{The core concept}
+\label{sec:core}
+\input{core.tex}
+
 \section{The shuffled complex evolution for the MKP}
 \label{sec:sce}
 \input{sce.tex}
 
-\section{The Core of MKP}
-\label{sec:sce}
-\input{core.tex}
-
 \section{Core application...}
-\label{sec:sce}
+\label{sec:core-sce}
 \input{core-sce.tex}
 
 
