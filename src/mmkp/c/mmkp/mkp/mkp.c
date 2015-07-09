@@ -1484,7 +1484,7 @@ int *mkp_core_val(MKP *mkp, char type, int *center){
  * */
 MKP *mkp_core_problem(MKP *mkp, int core_size, int **vars_fix){
 	MKP *mkp_core;
-	int i, j, idx, n, ncore, m, n_fst_fixed, a, b;
+	int i, j, k, idx, n, ncore, m, n_fst_fixed, a, b;
 	int center;
 	int *efficieny_ordering;
 
@@ -1502,38 +1502,35 @@ MKP *mkp_core_problem(MKP *mkp, int core_size, int **vars_fix){
 	for( j = 0 ; j < m ; j++ )
 		mkp_core->b[j] = mkp->b[j];
 
+	/* setting var fixing values */
 	a = center-1;
 	b = center+1;
+	(*vars_fix)[efficieny_ordering[center]] = -1;
 	core_size--;
-	idx = efficieny_ordering[center];
-	(*vars_fix)[idx] = -1;
-	mkp_core->p[0] = mkp->p[idx];  /* coping profits */
-	for( j = 0 ; j < m ; j++ )     /* coping weights */
-		mkp_core->w[j][0] = mkp->w[j][idx];
-	i = 1;
 	while( core_size-- ){
 		if( core_size % 2 && a+1 )
-			idx = efficieny_ordering[a--];
+			idx = (*vars_fix)[efficieny_ordering[a--]] = -1;
 		else
-			idx = efficieny_ordering[b++];
-		(*vars_fix)[idx] = -1;
-		mkp_core->p[i] = mkp->p[idx];  /* coping profits */
-		for( j = 0 ; j < m ; j++ )     /* coping weights */
-			mkp_core->w[j][i] = mkp->w[j][idx];
-		i++;
+			idx = (*vars_fix)[efficieny_ordering[b++]] = -1;
 	}
-	while( a+1 ){
-		idx = efficieny_ordering[a--];
-		(*vars_fix)[idx] = 1;
-		for( j = 0 ; j < m ; j++ )  /* (consumed resources) */
-			mkp_core->b[j] -= mkp->w[j][idx];
-	}
-	while( b < n ){
+	while( a+1 )
+		(*vars_fix)[efficieny_ordering[a--]] = 1;
+	while( b < n )
 		(*vars_fix)[efficieny_ordering[b++]] = 0;
-	}
 
-	printf("\nvariable fixing:\n");
-	int_array_fprint(stdout, (*vars_fix), n);
+	/* building core problem, using vars_fixing values */
+	j = 0;
+	for( i = 0 ; i < n ; i++ ){
+		if( (*vars_fix)[i] == -1 ){
+			mkp_core->p[j] = mkp->p[i];    /* coping profit */
+			for( k = 0 ; k < m ; k++ )     /* coping weights */
+				mkp_core->w[k][j] = mkp->w[k][i];
+			j++;
+		}else if( (*vars_fix)[i] == 1 ){
+			for( k = 0 ; k < m ; k++ )     /* consuming resources */
+				mkp_core->b[k] -= mkp->w[k][i];
+		}
+	}
 
 	free(efficieny_ordering);
 
