@@ -68,7 +68,6 @@ void *sfl(
 			sfli->free_solution(global_best);
 			global_best = sfli->copy_solution(population[0]);
 			*best_iter = iter;
-			printf("*%d;%lf\n", *best_iter, sfli->fitness(global_best));
 		}
 
 		/* shuffling */

@@ -6,6 +6,7 @@
 #include <unistd.h>
 
 #define MAX_COEFFICIENT 1000
+#define feq(x, y) (fabs(x-y) < 0.0000001)
 
 #define MAX(x, y) (x > y ? x : y)
 #define MIN(x, y) (x < y ? x : y)
