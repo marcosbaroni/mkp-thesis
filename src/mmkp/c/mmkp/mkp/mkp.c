@@ -487,7 +487,7 @@ double *mkp_solve_with_scip(MKP *mkp, double maxtime, double capacity_scale, cha
 	fclose(out);
 
 	/* solve model */
-	sprintf(buff, "zpl2lp %s | runscip %lf | scip2summary -s ", tempf, maxtime);
+	sprintf(buff, "zpl2lp %s | runscip - %lf | scip2summary -s ", tempf, maxtime);
 	pip = popen(buff, "r");
 
 	/* read solution */
@@ -771,7 +771,7 @@ double *mkp_solve_dual_with_scip(MKP *mkp){
 	fclose(out);
 
 	/* solve model */
-	sprintf(buff, "zpl2lp %s | runscip - %lf | tee /tmp/out.log | scip2summary -s ", tempf, maxtime);
+	sprintf(buff, "zpl2lp %s | runscip - %lf | scip2summary -s ", tempf, maxtime);
 	pip = popen(buff, "r");
 
 	/* reading solution */

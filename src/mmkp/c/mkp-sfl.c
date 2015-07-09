@@ -217,6 +217,8 @@ int execute_sfl_mkp_core_batch(int argc, char **argv){
 	FILE *input;
 	SFL_Interface *sfli;
 	MKPSol *sol, *core_sol;
+	mkpnum best;
+	double *x;
 	char filename[300];
 	int i, j, k, l, s;
 	int n, m;
@@ -275,10 +277,20 @@ int execute_sfl_mkp_core_batch(int argc, char **argv){
 				t = ts[k];
 				for( l = 0 ; l < 10 ; l++ ){
 					/* reading instance */
-					sprintf(filename, "%sOR%dx%d-%.2f_%d.dat", CBPATH, m, n, t, l+1);
-					//printf("%s\n", filename);
-					mkp = mkp_read_from_filename(filename);
-					fclose(input);
+					if( type == 1 ){
+						sprintf(filename, "%sOR%dx%d-%.2f_%d.dat", CBPATH, m, n, t, l+1);
+						mkp = mkp_read_from_filename(filename);
+						best = chubeas_best[i][j][k][l];
+						fclose(input);
+					}else{
+						mkp = mkp_random(n, m, t, 0.5, 1000);
+						x = mkp_solve_with_scip(mkp, 180, 1.0, 0);
+						best = 0;
+						for( i = 0 ; i < n ; i++ )
+							if( feq(x[i], 1.0) )
+								best += mkp->p[i];
+						free(x);
+					}
 
 					n = mkp->n;
 					m = mkp->m;
@@ -310,7 +322,7 @@ int execute_sfl_mkp_core_batch(int argc, char **argv){
 						printf("%d;%d;%.2lf;%d;%d;", n, m, t, l+1, s);
 						mkpnum_fprintf(stdout, sol->obj);
 						printf(";");
-						mkpnum_fprintf(stdout, chubeas_best[i][j][k][l]);
+						mkpnum_fprintf(stdout, best);
 						printf(";%d;%f\n", best_iter, ((cf-c0)/(float)CLOCKS_PER_SEC));
 	
 						/* freeing sols */
