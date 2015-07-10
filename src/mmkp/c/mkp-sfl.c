@@ -333,6 +333,7 @@ int execute_sfl_mkp_core_batch(int argc, char **argv){
 					free(vars_fix); vars_fix = NULL;
 					mkp_free(mkp_core);
 					mkp_free(mkp);
+					fflush(stdout);
 				}
 			}
 		}
