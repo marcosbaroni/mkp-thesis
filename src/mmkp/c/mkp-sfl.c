@@ -241,7 +241,7 @@ int execute_sfl_mkp_core_batch(int argc, char **argv){
 	int *vars_fix = NULL; /* value of each variable on core problem generation */
 
 	/* checking input */
-	if( argc < 7 ){
+	if( argc < 2 ){
 		print_usage_core_batch(argc, argv);
 		return 1;
 	}
@@ -273,7 +273,7 @@ int execute_sfl_mkp_core_batch(int argc, char **argv){
 		n = ns[i];
 		for( j = 0 ; j < 3 ; j++ ){
 			m = ms[j];
-			for( k = 0 ; k < 3 ; k++ ){
+			for( k = 2 ; k < 3 ; k++ ){
 				t = ts[k];
 				for( l = 0 ; l < 10 ; l++ ){
 					/* reading instance */
@@ -294,7 +294,7 @@ int execute_sfl_mkp_core_batch(int argc, char **argv){
 
 					n = mkp->n;
 					m = mkp->m;
-					core_size = m + n/10;
+					core_size = m + n/5;
 
 					/* generation MKP core problem */
 					mkp_core = mkp_core_problem(mkp, core_size, &vars_fix);
