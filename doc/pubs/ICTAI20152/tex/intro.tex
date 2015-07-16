@@ -1,5 +1,5 @@
 
-The Multidimensional Knapsack Problem (MKP) is a strongly NP-hard combinatorial
+The multidimensional knapsack problem (MKP) is a strongly NP-hard combinatorial
 optimization problem which can be viewed as a resource allocation problem and
 defined as follows:
 
@@ -23,29 +23,42 @@ allocation of processors and databases in distributed computer programs.
 The problem is a generalization of the well-known knapsack problem (KP) in which
 $m = 1$.
 
-The MKP is a NP-Hard problem significantly harder to solve in practice than the KP.
+The MKP is a NP-hard problem significantly harder to solve in practice than the KP.
 Despite the existence of a fully polynomial approximation scheme (FPAS) for the KP,
 finding a FPAS for the MKP is NP-hard for $m \geqslant 2$~\cite{magazine1984note}.
 Due its simple definition but challenging difficulty the MKP is often used to
 to verify the efficiency of novel metaheuristics.
+
+Its well known that the hardness of a NP-hard problem grows exponentially over
+its size.
+Thereupon, a suitable approach for tackling those problems is to reduce their size
+through some variable fixing procedure.
+Despite not guaranteeing optimality of the solution, an efficient variable
+fixing procedure may provide near optimal solutions through a small computational effort.
 
 %A metaheuristic is a set of concepts that can be used to define heuristic methods
 %that can be applied to a wide set of different problems.
 %In other words, a metaheuristic can be seen as a general algorithmic framework which can be applied to
 %different optimization problems with relatively few modifications to make them adapted to a specific problem.”
 
-In this paper we address the application of a metaheuristic called
-shuffled complex evolution (SCE) to the multidimensional knapsack problem.
 The SCE is a metaheuristic, proposed by Duan in \cite{duan1992effective},
 which combines the ideas of a controlled random search with the concepts
 of competitive evolution and shuffling.
 The SCE algorithm has been successfully used to solve several problems
 like flow shop scheduling~\cite{zhao2014shuffled} and project management~\cite{elbeltagi2007modified}.
 
+In this paper we address the development of a hybrid heuristic for the MKP.
+The size of the problem instance is first reduced through a variable fixing
+procedure that uses a known concept among knapsack problems called \emph{core}.
+The reduced problem is then efficiently solved by a SCE algorithm.
+
 The reminder of the paper is organized as follows:
+Section~\ref{sec:core} defines the core concept for the MKP and its application
+for the problem reduction.
 Section~\ref{sec:sce} presents the shuffled complex evolution algorithm
-and proposes its application on the multidimensional knapsack problem.
-Section~\ref{sec:exp} comprises several computational experiments.
-In section~\ref{sec:conc} we make our concluding remarks about the experimental
-results.
+and proposes its application on the MKP.
+Section~\ref{sec:exp} comprises several computational experiments over well-known
+instances from literature.
+In section~\ref{sec:conc} we make our concluding remarks about the developed
+methods and the experimental results.
 

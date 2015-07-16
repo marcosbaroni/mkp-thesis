@@ -15,17 +15,18 @@ If the items are sorted according to descreasing efficiency values
 \begin{displaymath}
   e_j = \frac{p_j}{w_j},
 \end{displaymath}
-it is well known that the solution of the LP-relaxation consists in general of
+it is known that the solution of the LP-relaxation consists in general of
 three consecutive parts: The fisrt part contains variables set to $1$, the second
-pare consists of at most on split item $s$, whose corresponding LP-values is
+pare consists of at most one split item $s$, whose corresponding LP-values is
 factional, and finally the remaining variables, which are always set to zero,
 form the third part.
+
 For most instance of KP (except those with a very special structure) the integer
 optimial solution closely corresponds to this partitioning in the sense that it
 contains most of the highly efficient items of the first part, some items with
 medium efficiencies near the split item, and almost no items with low efficiencies
 from the third part.
-Items of medium efficiency constitute the so called core.
+Items of medium efficiency constitute the core.
 
 Balas and Zemel~\cite{balas1980algorithm} gave the following precise definition
 of the core of a KP, based on the knowledge of an optimal integer solution $x^*$.
@@ -34,7 +35,16 @@ Assume that the items are sorted according to descreasing efficiencies and let
   a := \min\{ j | x_k^* = 0 |\}, \quad b := \max\{ j | x_j^* = 1 \}.
 \end{displaymath}
 The core is given by the items in the interval $C = \{a, \ldots, b\}$.
-It is obvious that the split item is always part of the core.
+It is obvious that the split item is always part of the core, i.e., $a < s < b$.
+
+Figure~\ref{fig:kpecore} illustrates...
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[scale=0.406]{imgs/core}
+  \caption{Example of exact core for a hypothetical KP instance.}
+  \label{fig:kpecore}
+\end{figure}
 
 The KP Core problem (KPC) is defined as
 \begin{align*}
@@ -42,7 +52,8 @@ The KP Core problem (KPC) is defined as
   \text{subject to} & \sum_{j \in C} w_{j} x_j \leqslant c - \tilde{w}\\
   & x_j \in \{0, 1\}, \quad j \in C.
 \end{align*}
-with $\tilde{p} = \sum^{a-1}_{j=1} p_j$  and $\tilde{w} = \sum^{a-1}_{j=1} w_j$.
+with $\tilde{p} = \sum^{a-1}_{j=1} p_j$ and $\tilde{w} = \sum^{a-1}_{j=1} w_j$
+respectively quantifying the total profit and the total weights of items fixed as selected.
 The solution of KPC would suffice to compute teh optimal solution of KP, which
 however, has to be already partially known to determine $C$.
 Nevertheless an approximate core $C = \{s-\delta, \ldots, s+\delta\}$,
@@ -58,8 +69,8 @@ An asterisk indicates a free variable.
 
 \begin{figure}[h]
   \centering
-  \includegraphics[scale=0.37]{imgs/kp_2}
-  \caption{Example of core for a hypothetical KP instance with $n=13$ and core size of $5$ ($\delta = 2$).}
+  \includegraphics[scale=0.406]{imgs/kp_3}
+  \caption{Example of core for a hypothetical KP instance with $n=13$ and approximate core size of $5$ ($\delta = 2$).}
   \label{fig:kpcore}
 \end{figure}
 
@@ -116,17 +127,9 @@ the MKP's LP-relaxation, as suggested in \cite{Chu-Beasley-1998}.
 
 \begin{figure}[h]
   \centering
-  \includegraphics[scale=0.37]{imgs/mkp_2}
-  \caption{Example of core for a hypothetical MKP instace with $n=13$, $m=3$ and core size of $7$ ($\delta = 3$).}
+  \includegraphics[scale=0.406]{imgs/mkp_3}
+  \caption{Example of core for a hypothetical MKP instace with $n=13$, $m=3$ and approximate core size of $5$ ($\delta = 2$).}
   \label{fig:mkpcore}
 \end{figure}
 
-
-\cite{puchinger2006core}
-
-% - Eficieny measure...
-% - the core problem (KPC)
-% - core concept for MKP
-%  - Efficiency measure... (sketch...) the dual efficieny measure
-%  - the Multidimentional kanspack core problem (MKPC)
 
