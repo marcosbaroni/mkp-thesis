@@ -148,8 +148,8 @@ int execute_sfl_mkp_core(int argc, char **argv){
 	/* reading problem instance */
 	mkp = mkp_read_from_file(input);
 	fclose(input);
-	printf("MKP problem\n");
-	mkp_fprint(stdout, mkp); fflush(stdout);
+	//printf("MKP problem\n");
+	//mkp_fprint(stdout, mkp); fflush(stdout);
 
 	n = mkp->n;
 	m = mkp->m;
@@ -158,8 +158,8 @@ int execute_sfl_mkp_core(int argc, char **argv){
 
 	/* generation MKP core problem */
 	mkp_core = mkp_core_problem(mkp, core_size, &vars_fix);
-	printf("MKP Core problem\n");
-	mkp_fprint(stdout, mkp_core); fflush(stdout);
+	//printf("MKP Core problem\n");
+	//mkp_fprint(stdout, mkp_core); fflush(stdout);
 
 	sfli = mkp_sfl_interface();
 	c0 = clock();
@@ -169,12 +169,12 @@ int execute_sfl_mkp_core(int argc, char **argv){
 	core_sol = (MKPSol*)sfl(sfli, mkp_core, nmeme, meme_size, submeme_size, niter, subniter, &best_iter);
 	/* extracting solution from original problem */
 
-	printf("core solution\n");
-	mkpsol_fprint(stdout, core_sol, 1);
+	//printf("core solution\n");
+	//mkpsol_fprint(stdout, core_sol, 1);
 
 	sol = mkpsol_from_mkp_core(core_sol, mkp, vars_fix);
-	printf("solution\n");
-	mkpsol_fprint(stdout, sol, 1);
+	//printf("solution\n");
+	//mkpsol_fprint(stdout, sol, 1);
 	cf = clock();
 
 	/* TODO: test/validate this code... */
@@ -183,7 +183,6 @@ int execute_sfl_mkp_core(int argc, char **argv){
 	sfli_free(sfli);
 
 	/* output */
-	printf("- ");
 	mkpnum_fprintf(stdout, sol->obj);
 	printf(";%d;%f\n", best_iter, ((cf-c0)/(float)CLOCKS_PER_SEC));
 
@@ -344,7 +343,7 @@ int execute_sfl_mkp_core_batch(int argc, char **argv){
 }
 
 int main(int argc, char **argv){
-	//return execute_sfl_mkp_core(argc, argv);
-	return execute_sfl_mkp_core_batch(argc, argv);
+	return execute_sfl_mkp_core(argc, argv);
+	//return execute_sfl_mkp_core_batch(argc, argv);
 }
 

@@ -16,22 +16,25 @@ Each item $j$ consumes an amount $w_{ij}$ from each resource $i$, if selected.
 The objective is to select a subset of items with maximum total profit,
 not exceeding the defined resource capacities.
 The decision variable $x_j$ indicates if $j$-th item is selected.
+It is considered an integer programming problem (IP) since its variables $x_i$
+are restricted to be integers.
 
 The multidimensional knapsack problem can be applied on budget planning 
-scenarios, subset project selections, cutting stock problems, task scheduling,
-allocation of processors and databases in distributed computer programs.
+scenarios and project selections~\cite{mcmillan1973resource},
+cutting stock problems~\cite{Gilmore-Gomory-1966}, loading problems~\cite{Shih-1979},
+allocation of processors and databases in distributed computer programs~\cite{Gavish-Pirckul-1982}.
+
 The problem is a generalization of the well-known knapsack problem (KP) in which
 $m = 1$.
-
-The MKP is a NP-hard problem significantly harder to solve in practice than the KP.
-Despite the existence of a fully polynomial approximation scheme (FPAS) for the KP,
-finding a FPAS for the MKP is NP-hard for $m \geqslant 2$~\cite{magazine1984note}.
-Due its simple definition but challenging difficulty the MKP is often used to
+However it is a NP-hard problem significantly harder to solve in practice than the KP.
+%Despite the existence of a fully polynomial approximation scheme (FPAS) for the KP,
+%finding a FPAS for the MKP is NP-hard for $m \geqslant 2$~\cite{magazine1984note}.
+Due its simple definition but challenging difficulty of solving, the MKP is often used to
 to verify the efficiency of novel metaheuristics.
 
 Its well known that the hardness of a NP-hard problem grows exponentially over
 its size.
-Thereupon, a suitable approach for tackling those problems is to reduce their size
+Thereupon, a suitable approach for tackling NP-hard problems is to reduce their size
 through some variable fixing procedure.
 Despite not guaranteeing optimality of the solution, an efficient variable
 fixing procedure may provide near optimal solutions through a small computational effort.
@@ -41,7 +44,10 @@ fixing procedure may provide near optimal solutions through a small computationa
 %In other words, a metaheuristic can be seen as a general algorithmic framework which can be applied to
 %different optimization problems with relatively few modifications to make them adapted to a specific problem.”
 
-The SCE is a metaheuristic, proposed by Duan in \cite{duan1992effective},
+This work addresses the development of an hybrid heuristic using an
+efficient variable fixing procedure and a population based metaheuristic called
+shuffled complex evolution (SCE).
+The SCE is a metaheuristic proposed by Duan in \cite{duan1992effective}
 which combines the ideas of a controlled random search with the concepts
 of competitive evolution and shuffling.
 The SCE algorithm has been successfully used to solve several problems
@@ -51,10 +57,12 @@ In this paper we address the development of a hybrid heuristic for the MKP.
 The size of the problem instance is first reduced through a variable fixing
 procedure that uses a known concept among knapsack problems called \emph{core}.
 The reduced problem is then efficiently solved by a SCE algorithm.
+According to our knowledge this is the very first application of SCE
+for the MKP.
 
 The reminder of the paper is organized as follows:
 Section~\ref{sec:core} defines the core concept for the MKP and its application
-for the problem reduction.
+in the problem reduction.
 Section~\ref{sec:sce} presents the shuffled complex evolution algorithm
 and proposes its application on the MKP.
 Section~\ref{sec:exp} comprises several computational experiments over well-known
