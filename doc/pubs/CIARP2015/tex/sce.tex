@@ -17,7 +17,7 @@ problem is considered.
 \subsection{The shuffled complex evolution}
 In the SCE a population of $N*M$ individuals is randomly taken from the
 feasible solution space.
-After this initializing the population is sorted by descending order according
+After this initialization the population is sorted by descending order according
 to their fitness and the best global solution is identified.
 The entire population is then partitioned (shuffled) into $N$ complexes,
 each containing $M$ individuals.
@@ -55,15 +55,17 @@ a stop condition is satisfied.
 Fig.~\ref{fig:flow1} shows the SCE algorithm in a flowchart diagram.
 
 \begin{figure}[htp]
-\subfigure[Evolving stage of SCE for a complex.]{
-    \includegraphics[width=0.47\linewidth]{imgs/flow2}
-    \label{fig:flow2}
-  }
-  ~
-  \subfigure[Shuffled complex evolution algorithm.]{
+  \subfigure[The SCE algorithm overview.]{
     \includegraphics[width=0.47\linewidth]{imgs/flow1}
     \label{fig:flow1}
   }
+  ~
+  \subfigure[Evolving stage for a single complex.]{
+    \includegraphics[width=0.47\linewidth]{imgs/flow2}
+    \label{fig:flow2}
+  }
+  \caption{Flowchart representing the shuffled complex evolution algorithm.}
+  \label{fig:sce}
 \end{figure}
 
 
