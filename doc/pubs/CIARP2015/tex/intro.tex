@@ -1,0 +1,46 @@
+
+The multidimensional knapsack problem (MKP) is a strongly NP-hard combinatorial
+optimization problem which can be viewed as a resource allocation problem and
+defined as follows:
+
+\begin{align*}
+  \text{maximize} & \sum_{j=1}^n p_j x_j \\
+  \text{subject to} & \sum_{j=1}^n w_{ij} x_j \leqslant c_i \quad i \in \{1, \ldots, m\}\\
+   & x_j \in \{0, 1\}, \quad j \in \{1, \ldots, n\}.
+\end{align*}
+
+% Define the MKP
+The problem can be interpreted as a set of $n$ items with profits $p_j$
+and a set of $m$ resources with capacities $c_i$.
+Each item $j$ consumes an amount $w_{ij}$ from each resource $i$, if selected.
+The objective is to select a subset of items with maximum total profit,
+not exceeding the defined resource capacities.
+The decision variable $x_j$ indicates if $j$-th item is selected.
+
+The multidimensional knapsack problem can be applied on budget planning 
+scenarios and project selections~\cite{mcmillan1973resource},
+cutting stock problems~\cite{Gilmore-Gomory-1966}, loading problems~\cite{Shih-1979},
+allocation of processors and databases in distributed computer programs~\cite{Gavish-Pirckul-1982}.
+
+The problem is a generalization of the well-known knapsack problem (KP) in which
+$m = 1$.
+However it is a NP-hard problem significantly harder to solve in practice than the KP.
+Due its simple definition but challenging difficulty of solving, the MKP is often used to
+to verify the efficiency of novel metaheuristics.
+
+In this paper we address the application of a metaheuristic called
+shuffled complex evolution (SCE) to the multidimensional knapsack problem.
+The SCE is a metaheuristic, proposed by Duan in \cite{duan1992effective},
+which combines the ideas of a controlled random search with the concepts
+of competitive evolution and shuffling.
+The SCE algorithm has been successfully used to solve several problems
+like flow shop scheduling~\cite{zhao2014shuffled} and project management~\cite{elbeltagi2007modified}.
+
+The reminder of the paper is organized as follows:
+Section~\ref{sec:sce} presents the shuffled complex evolution algorithm
+and proposes its application on the multidimensional knapsack problem.
+Section~\ref{sec:exp} comprises several computational experiments.
+In section~\ref{sec:conc} we make our concluding remarks about the experimental
+results.
+
+

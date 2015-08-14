@@ -1,0 +1,114 @@
+For the computational experiments a batch of tests was driven to find the best
+parameters for the problem.
+Afterwards two main tests was considered:
+(a) using the well-known set of problems defined by Chu and Beasley (\cite{Chu-Beasley-1998})
+and (b) a large set of randomly generated instances using uniform distribution.
+
+\subsection{The Chu-Beasley instances}
+
+The set of MKP instances provided by Chu and Beasley was generated using a
+procedure suggested by Freville and Plateau~\cite{freville1994efficient}, which
+attempts to generate instances hard to solve.
+The number of constraints $m$ varies among $5$, $10$ and $30$, and the number
+of variables $n$ varies among $100$, $250$ and $500$.
+
+The $w_{ij}$ were integer numbers drawn from the discrete uniform distribution
+$U(0, 1000)$.
+The capacity coefficient $c_i$ were set using
+$b_i = \alpha\sum_{j=1}^{n} w_{ij}$ where $\alpha$ is a tightness ratio and
+varies among $0.25$, $0.5$ and $0.75$.
+For each combination of $(m,n,\alpha)$ parameters, $10$ random problems was generated,
+totaling $270$ problems.
+The profit $p_j$ of the items were correlated to $w_{ij}$ and generated as follows:
+\begin{displaymath}
+  p_j = \sum_{i=1}^m \frac{w_{ij}}{m} + 500q_j \qquad j = 1, \ldots, n
+\end{displaymath}
+
+\subsection{The set of random instances}
+
+The second set of instances is composed by problems generated using a similar
+setup.
+The only differences is that the profit $p_j$ is also drawn from a discrete uniform
+distribution $U(0, 1000)$.
+For each combination of $(m, n, \alpha)$ parameter, $600$ random problems was
+generated, totaling $16200$ problems.
+
+\subsection{Experimental results}
+
+All the experiments was run on a Intel$^R$ Core i5-3570 CPU @3.40GHz computer
+with 4GB of RAM.
+The SCE algorithm for MKP was implemented in C programming language.
+For the set of random instance all best known solution was found by the solver
+SCIP 3.0.1 running for at least 10 minutes.
+
+After a previous test batch parameters for SCE was defined as shown in
+Table~\ref{tab:params} and used in all executions of SCE.
+%\begin{itemize}
+%  \item $N = 20$: number of complexes;
+%  \item $M = 20$: number of individuals in each complex;
+%  \item $P = 5$: number of individuals in each subcomplex;
+%  \item $K = 300$: number of algorithm iterations;
+%  \item $K' = 20$: number of iterations used in the complex evolving process;
+%  \item $c = n/5$: number of genes carried from parent in crossing process.
+%\end{itemize}
+
+\begin{table}
+  \centering
+  \begin{tabular}{c|c|l}
+  \hline
+  \multicolumn{1}{c}{\rule{0pt}{12pt} \bf Parameter \spc } & \multicolumn{1}{|c|}{\bf \spc Value \spc } & \multicolumn{1}{c}{\bf Description} \\[2pt]
+  \hline\rule{0pt}{12pt}
+  $N$  & $20$  & \spc \# of complexes \\
+  $M$  & $20$  & \spc \# of individuals in each complex \\
+  $P$  & $5$   & \spc \# of individuals in each subcomplex \\
+  $K$  & $300$ & \spc \# of algorithm iterations \\
+  $K'$ & $20$  & \spc \# of iterations used in the complex evolving process \\
+  $c$  & $n/5$ & \spc \# of genes carried from parent in crossing process \\[2pt]
+  \hline
+  \end{tabular}
+  \caption{Parameters used in SCE algorithm.}
+  \label{tab:params}
+\end{table}
+
+Table~\ref{tab:chu} shows the performance of the SCE on the Chu-Beasley set of instance.
+Each instance in the set was executed 10 times on SCE.
+The \textit{SCE t} column shows the average execution time of SCE algorithm.
+The \textit{gap} column shows the average ratio of the solution found by SCE and
+the best known solution of each instance.
+It can be observed that the SCE has a fast convergence speed, achieving high
+quality solutions in few seconds.
+
+\begin{table}
+\parbox{.45\linewidth}{
+\centering
+{
+  \input{tab1.tex}
+}
+ \caption{SCE performance on Chu-Beasley problems.}
+ \label{tab:chu}
+}
+\hfill
+\parbox{.45\linewidth}{
+\centering
+{
+  \input{tab2.tex}
+}
+ \caption{SCE performance on the random generated problems.}
+ \label{tab:rand}
+}
+\end{table}
+
+\begin{figure}
+  \centering
+  \includegraphics[scale=0.5]{imgs/iter}
+  \caption{Convergence process of SCE for MKP
+    for a problem with $n=500$, $m=30$ and $t=0.50$.}
+  \label{fig:iter}
+\end{figure}
+
+The fast convergence speed of SCE for MKP can be noticed in Fig.~\ref{fig:iter}.
+The figure shows for each iterations step, the quality of best solution found
+for the first $100$ iterations.
+The problem instance used was taken from the second set of problem (random instances).
+The best known solution was found with $600$s of execution on SCIP solver and
+the execution of the SCE algorithm expended $1.1$ seconds.
