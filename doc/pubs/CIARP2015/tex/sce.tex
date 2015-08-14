@@ -73,10 +73,10 @@ As it can be noted in its description the SCE is easly applied to any
 optimization problem.
 The only steps needed to be specified is (a) the creation of a new random
 solution and (b) the crossing procedure of two solutions.
-These two procedures are respectively presented by Fig.~\ref{alg:new} and
-Fig.~\ref{alg:cross}.
+These two procedures are respectively presented by Algorithm.~\ref{alg:new} and
+Algorithm~\ref{alg:cross}.
 
-\begin{figure}
+\begin{algorithm}
 \begin{algorithmic}[1]
   \Procedure{New random solution}{}
     \State $v \leftarrow $ shuffle($1, 2, \ldots, n$)
@@ -92,9 +92,9 @@ Fig.~\ref{alg:cross}.
 \end{algorithmic}
 \caption{Generation of a new random solution for the MKP.}
 \label{alg:new}
-\end{figure}
+\end{algorithm}
 
-To construct a new random solution (Fig.~\ref{alg:new}) the items are
+To construct a new random solution (Algorithm~\ref{alg:new}) the items are
 at first shuffled in random order and stored in a list (line 2).
 A new empty solution is then defined (line 3).
 The algorithm iteratively tries to fill the solution's knapsack with 
@@ -103,7 +103,7 @@ The feasibility of the solution is then checked: if the item insertion let
 the solution unfeasible (line 6) its removed from knapsack (line 7).
 After trying to place all available items the new solution is returned.
 
-\begin{figure}
+\begin{algorithm}
 \begin{algorithmic}[1]
   \Procedure{Crossing}{$x^w:$ worst individual, $x^b:$ better individual, $c$}
     \State $v \leftarrow $ shuffle($1, 2, \ldots, n$)
@@ -120,9 +120,9 @@ After trying to place all available items the new solution is returned.
 \end{algorithmic}
 \caption{Crossing procedure used on SCE algorithm.}
 \label{alg:cross}
-\end{figure}
+\end{algorithm}
 
-The crossing procedure (Fig.~\ref{alg:cross}) takes as input the worst
+The crossing procedure (Algorithm~\ref{alg:cross}) takes as input the worst
 solution taken from the subcomplex $x^w = (x^w_1, x^w_2, \ldots, x^w_n$),
 the selected better solution $x_b = (x^b_1, x^b_2, \ldots, x^b_n$)
 and the number $c$ of genes that will be carried from the better solution.
