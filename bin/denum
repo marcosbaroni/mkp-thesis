@@ -1,0 +1,12 @@
+#!/bin/bash
+if [ $# -lt 2 ] || [ "$1" == "--help" ] ; then
+	echo -e "usage:\n $0 <enumeration> <sizes>..."
+	exit 1
+fi
+
+n=$1
+
+shift
+# TODO: finish it...
+echo $@
+echo $n
