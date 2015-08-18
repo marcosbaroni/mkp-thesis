@@ -4,7 +4,7 @@ Afterwards two main tests was considered:
 (a) using the well-known set of problems defined by Chu and Beasley \cite{Chu-Beasley-1998}
 and (b) a large set of randomly generated instances using uniform distribution.
 
-\subsection{The Chu-Beasley instances}
+%\subsection{The Chu-Beasley instances}
 
 The set of MKP instances provided by Chu and Beasley was generated using a
 procedure suggested by Freville and Plateau~\cite{freville1994efficient}, which
@@ -24,7 +24,7 @@ The profit $p_j$ of the items were correlated to $w_{ij}$ and generated as follo
   p_j = \sum_{i=1}^m \frac{w_{ij}}{m} + 500q_j \qquad j = 1, \ldots, n
 \end{displaymath}
 
-\subsection{The set of random instances}
+%\subsection{The set of random instances}
 
 The second set of instances is composed by problems generated using a similar
 setup.
@@ -33,13 +33,15 @@ distribution $U(0, 1000)$.
 For each combination of $(m, n, \alpha)$ parameter, $600$ random problems was
 generated, totaling $16200$ problems.
 
-\subsection{Experimental results}
+%\subsection{Experimental results}
 
-All the experiments was run on a Intel$^R$ Core i5-3570 CPU @3.40GHz computer
+All the experiments was run on a Intel Core i5-3570 CPU @3.40GHz computer
 with 4GB of RAM.
 The SCE algorithm for MKP was implemented in C programming language.
 For the set of random instance all best known solution was found by the solver
 SCIP 3.0.1 running for at least 10 minutes.
+SCIP~\cite{Achterberg2009} is an open-source integer programming solver which
+implements the branch-and-cut algorithm~\cite{padberg1991branch}.
 
 After a previous test batch parameters for SCE was defined as shown in
 Table~\ref{tab:params} and used in all executions of SCE.
@@ -63,7 +65,7 @@ Table~\ref{tab:params} and used in all executions of SCE.
 
 Table~\ref{tab:chu} shows the performance of the SCE on the Chu-Beasley set of instance.
 Each instance in the set was executed 10 times on SCE.
-The \textit{SCE t} column shows the average execution time of SCE algorithm.
+The \textit{SCE t} column shows the average execution time of SCE.
 The \textit{gap} column shows the average ratio of the solution found by SCE and
 the best known solution of each instance.
 It can be observed that the SCE has a fast convergence speed, achieving high

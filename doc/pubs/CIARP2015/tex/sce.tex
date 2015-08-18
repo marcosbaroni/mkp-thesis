@@ -54,7 +54,7 @@ sorted by descending order of fitness quality and the process continues until
 a stop condition is satisfied.
 Fig.~\ref{fig:flow1} shows the SCE algorithm in a flowchart diagram.
 
-\begin{figure}[htp]
+\begin{figure}[t]
   \subfigure[The SCE algorithm overview.]{
     \includegraphics[width=0.47\linewidth]{imgs/flow1}
     \label{fig:flow1}
@@ -105,7 +105,23 @@ The feasibility of the solution is then checked: if the item insertion let
 the solution unfeasible (line 6) its removed from knapsack (line 7).
 After trying to place all available items the new solution is returned.
 
-\begin{algorithm}
+The crossing procedure (Algorithm~\ref{alg:cross}) takes as input the worst
+solution taken from the subcomplex $x^w = (x^w_1, x^w_2, \ldots, x^w_n$),
+the selected better solution $x_b = (x^b_1, x^b_2, \ldots, x^b_n$)
+and the number $c$ of genes that will be carried from the better solution.
+The $c$ parameter will control how similar the worst individual will be from the
+given better individual.
+At first the items are shuffled in random order and stored in a list (line 2).
+Then $c$ randomly chosen genes are carried from the better individual to the worst
+individual (line 5).
+At the end of steps the feasibility of the solution is checked (line 7) and
+the solution is repaired if needed.
+The repair stage is a greedy procedure that iteratively removes the item that less
+decreases the objective function.
+Finally the fitness of the generated solution is updated (line 10) and
+returned (line 11).
+
+\begin{algorithm}[t]
 \begin{algorithmic}[1]
   \Procedure{Crossing}{$x^w:$ worst individual, $x^b:$ better individual, $c$}
     \State $v \leftarrow $ shuffle($1, 2, \ldots, n$)
@@ -123,22 +139,6 @@ After trying to place all available items the new solution is returned.
 \caption{Crossing procedure used on SCE algorithm.}
 \label{alg:cross}
 \end{algorithm}
-
-The crossing procedure (Algorithm~\ref{alg:cross}) takes as input the worst
-solution taken from the subcomplex $x^w = (x^w_1, x^w_2, \ldots, x^w_n$),
-the selected better solution $x_b = (x^b_1, x^b_2, \ldots, x^b_n$)
-and the number $c$ of genes that will be carried from the better solution.
-The $c$ parameter will control how similar the worst individual will be from the
-given better individual.
-At first the items are shuffled in random order and stored in a list (line 2).
-Then $c$ randomly chosen genes are carried from the better individual to the worst
-individual (line 5).
-At the end of steps the feasibility of the solution is checked (line 7) and
-the solution is repaired if needed.
-The repair stage is a greedy procedure that iteratively removes the item that less
-decreases the objective function.
-Finally the fitness of the generated solution is updated (line 10) and
-returned (line 11).
 
 %\begin{algorithmic}
 %  \Procedure{The SCE for the MKP}{$\vec{p}, W, \vec{b}$}
