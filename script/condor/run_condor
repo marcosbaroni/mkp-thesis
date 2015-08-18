@@ -1,7 +1,7 @@
 Requirements = Memory >= 1500 && !CAN_RUN_WHOLE_MACHINE
 arguments = $(Process) $(Cluster)
 
-Executable = run2.sh
+Executable = /home/mbaroni/Computacao/dmkp/script/batch/chub.sh
 Universe  = vanilla
 Log  = run.log
 
@@ -9,4 +9,4 @@ Log  = run.log
 JobLeaseDuration = 120
 
 #Output = out
-Queue 200
+Queue 10
