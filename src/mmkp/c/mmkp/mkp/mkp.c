@@ -1264,6 +1264,22 @@ MKP *mkp_surrogate(MKP *mkp, double *multips){
 	return mkp2;
 }
 
+/*
+ * Returns a (min)surrogate relaxation for a MKP instance using
+ *    the dual solution variables as multipliers.
+ * */
+MKP *mkp_dual_surrogate(MKP *mkp){
+	double *multips;
+	MKP *mkp2;
+
+	multips = mkp_solve_dual_with_scip(mkp);
+	mkp2 = mkp_surrogate(mkp, multips);
+
+	free(multips);
+
+	return mkp2;
+}
+
 /* Extracts a cardinality constraint: a maximum number of itens that can be
  * putted in knapsack.
  * */

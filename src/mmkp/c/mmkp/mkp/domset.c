@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <limits.h>
 #include <math.h>
+#include <alloca.h>
 
 #include "domset.h"
 #include "mkp.h"
@@ -64,28 +65,69 @@ int dsnode_dominates(DomSetNode *dsn1, DomSetNode *dsn2){
  * idx: index od the item to be inserted in solution.
  * WARINING: returning NULL if new node is not feasible.
  * */
-DomSetNode *dsnode_new(DomSetNode *father, MKP *mkp, int idx){
+DomSetNode *dsnode_new(DomSetNode *father, DomSetTree *dstree, int idx){
 	DomSetNode *dsnode;
 	int i, m, feasible;
+	double relax_w_free, relax_w_item;
+	uchar x;
 
+	x = dstree->x[idx];
 	m = mkp->m;
 
+	/* initializing new node */
 	dsnode = (DomSetNode*)malloc(sizeof(DomSetNode));
-	dsnode->m = m;
-	dsnode->father = father;
-	dsnode->idx = idx;
-	dsnode->profit = father->profit + mkp->p[idx];
 	dsnode->b_left = (mkpnum*)malloc(m*sizeof(mkpnum));
-	dsnode->prev = dsnode->next = NULL;
-	/* setting b_left (checking feasibility) */
-	feasible = 1;
-	for( i = 0 ; i < m ; i++ ){
-		dsnode->b_left[i] = father->b_left[i] - mkp->w[i][idx];
-		if( dsnode->b_left[i] < 0 )
-			feasible = 0;
+	/* updating node info*/
+	dsnode->idx = idx;
+	dsnode->m = m;
+	if( x ){	/* original value of variable was '1' */
+		dsnode->profit = father->profit - dstree->p[idx];
+		for( i = 0 ; i < m ; i++ )
+			dsnode->b_left[i] = father->b_left[i] - dstree->w[i][idx];
+	}else{		/* original value of variable was '0' */
+		dsnode->profit = father->profit + dstree->p[idx];
+		for( i = 0 ; i < m ; i++ )
+			dsnode->b_left[i] = father->b_left[i] + dstree->w[i][idx];
 	}
+	/* updating node relaxation info */
+	relax_w_free = dstree->relax_w[idx];
+	if( x ){ /* new solution relaxation needs update -- item removed */
+		/* remove item from relaxed knapsack */
+		dsnode->upper_profit -= dstree->p[idx];
 
-	/* if new solution is not feasible... */
+		/* update relaxed knapsack filling */
+		relax_w_item = (1.-frac)*dstree->relax_w[dsnode->last_idx];
+		if( relax_w_item >= relax_w_free ){
+			/* adding rest of last item inside relaxed knapsack */
+			dsnode->upper_profit += (1-frac)*dstree->p[dsnode->last_idx];
+			relax_w_free -= relax_w_item;
+			dsnode->last_idx;
+			dsnode->frac = 0.0;
+			/* keep fitting relaxed knapsack with next items */
+			while( relax_w_free > 0.0 ){
+				dsnode->last_idx++;
+				relax_w_item = dstree->relax_w[dsnode->last_idx];
+				if( relax_w_item >= relax_w_free )
+					dsnode->upper_profit += dstree->p[dsnode->last_idx];
+					relax_w_free -= dstree->relax_w[dsnode->last_idx];
+				else{
+					dsnode->frac = dstree->relax_w[dsnode->last_idx]/relax_w_item;
+					dsnode->upper_profit += dsnode->frac*dstree->p[dsnode->last_idx];
+					relax_w_free = 0.0;
+				}
+			}
+		}else{
+			/* adding part of last item inside relaxed knapsack */
+			dsnode->upper_profit += dstree->p[dsnode->last_idx];
+		}
+	}else{ /* father node relaxation needs update -- variable fixed. */
+		/* TODO: do samething with father node... (maybe just switching 'dsnode' pointer for father) */
+	}
+	/* initializinf tree info */
+	dsnode->prev = dsnode->next = NULL;
+	dsnode->father = father;
+
+	/* */
 	if( !feasible ){
 		free(dsnode->b_left);
 		free(dsnode);
@@ -121,23 +163,79 @@ MKPSol *dsnode_get_mkpsol(DomSetTree *dstree, DomSetNode *dsnode){
  *     Dominating Set Tree
  *****************************************************************************/
 
-DomSetTree *dstree_new(MKP *mkp){
-	DomSetTree *dstree;
-	DomSetNode *dsnode;
+DomSetTree *dstree_new(MKPSol *mkpsol){
+	return dstree_init(NULL, mkpsol, NULL, NULL, NULL, NULL);
+}
 
-	/* First solution (empty) */
-	dsnode = (DomSetNode*)malloc(sizeof(DomSetNode));
-	dsnode->idx = -1;
-	dsnode->profit = 0;
-	dsnode->b_left = mkpnum_array_copy(NULL, mkp->b, mkp->m);
-	dsnode->father = dsnode->prev = dsnode->next = NULL;
-	dsnode->m = mkp->m;
+/*
+ * Initialize a DomSetTree (for the case of stack allocation)
+ * */
+DomSetTree *dstree_init(DomSetTree *dstree, MKPSol *mkpsol, unsigned char *x, mkpnum *p, mkpnum **w, mkpnum *relax_w){
+	DomSetNode *root;
+	MKP *mkp_surrogate;
+	mkpnum profit, weight;
+	double frac;
+	int i, n, m;
 
-	/* allocing */
-	dstree = (DomSetTree*)malloc(sizeof(DomSetTree));
+	n = mkp->n;
+	m = mkp->m;
+
+	/* heap alloc */
+	if( !dstree )
+		dstree = (DomSetTree*)malloc(sizeof(DomSetTree));
+	if( !x )
+		x = (unsigned char*)malloc(n*sizeof(unsigned char));
+	if( !p )
+		p = (mkpnum*)malloc(n*sizeof(mkpnum));
+	if( !w ){
+		w = (mkpnum**)malloc(m*sizeof(mkpnum*));
+		for( i = 0 ; i < m ; i++ )
+		w[i] = (mkpnum*)malloc(n*sizeof(mkpnum));
+	}
+	if( !relax_w )
+		relax_w = (mkpnum*)malloc(n*sizeof(mkpnum));
+
+	/* Computing dual surrogate and initial upperbound */
+	mkp_surrogate = mkp_dual_surrogate(mkp);
+	weight = profit = 0;
+	i = 0;
+	while( weight < mkp_surrogate->b[0] ){
+		profit += mkp_surrogate->p[i];
+		weight += mkp_surrogate->w[0][i];
+		i++;
+	}
+	frac = ((mkp_surrogate->b[0] - weight)/mkp_surrogate->w[0][i]);
+	profit += frac*mkp_surrogate->p[i];
+
+	/* first solution (empty node) */
+	root = (DomSetNode*)malloc(sizeof(DomSetNode));
+	root->idx = -1;
+	root->profit = mkpsol->obj;
+	root->b_left = mkpnum_array_copy(NULL, mkpsol->b_left, mkp->m);
+	root->father = dsnode->prev = dsnode->next = NULL;
+	root->m = m;
+
+	/* INITIALIZATION */
+	/* problem instance info */
 	dstree->mkp = mkp;
-	dstree->root = dstree->tail = dstree->best = dsnode;
+	dstree->mkpsol = mkpsol;
+	for( i = 0 ; i < n ; i++ )
+		dstree->x[i] = mkpsol->x[i];
+	dstree->p = mkpnum_array_copy(dstree->p, mkp_surrogate->p, n);
+	for( i = 0 ; i < m ; i++ )
+		for( j = 0 ; j < n ; j++ )
+			dstree->w[i][j] = mkp->w[i][j];
+	dstree->relax_w = mkpnum_array_copy(dstree->relax_w, mkp_surrogate->w[0], n);
+	/* structure info */
 	dstree->n = 1;
+	dstree->root = root;
+	dstree->best = root;
+	dstree->tail = root;
+	/* execution info */
+	dstree->upper_profit = profit;
+	dstree->lower_profit = mkpsol->obj;
+
+	mkp_free(mkp_surrogate);
 
 	return dstree;
 }
@@ -454,7 +552,9 @@ MKPSol *mkp_fast_domsets_enum(MKP *mkp){
 	m = mkp->m;
 
 	/* initializing domsets tree */
-	dstree = dstree_new(mkp);
+	mkpsol = mkpsol_new(mkp); /* empty solution */
+	dstree = dstree_new(mkpsol);
+	mkpsol_free(mkpsol);
 
 	/* ENUMERATING SOLUTIONS */
 	/* for each item... */
@@ -516,21 +616,17 @@ MKPSol *mkp_fast_domsets_enum_lbucket(MKP *mkp, int ndim, int nsub, char type){
 	n = mkp->n;
 	m = mkp->m;
 
-	/* preparing max_b_lefts */
+	/* initializing linked buckets */
 	max_b_lefts = lbucket_prepare_max_b_left(mkp, ndim, nsub, type);
-
-	/* creating linked bucket */
 	lbucket = lbucket_new(max_b_lefts, nsub, ndim);
-
-	/* freeing max_b_lefts */
-	for( i = 0 ; i < ndim ; i++ )
+	for( i = 0 ; i < ndim ; i++ ) /* freeing max_b_lefts */
 		free(max_b_lefts[i]);
 	free(max_b_lefts);
 
 	/* initializing domsets tree */
-	dstree = dstree_new(mkp);
-
+	dstree = dstree_new(mkpsol);
 	lbucket_insert_dsnode(lbucket, dstree->root);
+	mkpsol_free(mkpsol);
 
 	/* ENUMERATING SOLUTIONS */
 	/* for each item... */
@@ -544,7 +640,7 @@ MKPSol *mkp_fast_domsets_enum_lbucket(MKP *mkp, int ndim, int nsub, char type){
 				:0
 			; dsnode = dsnode->next)
 		{
-			/* new 'child' solution (adding item 'i') */
+			/* Creating new child solution (adding item 'i') */
 			dsn_new = dsnode_new(dsnode, mkp, i); /* null, if unfeasible */
 			promissing = dsn_new ? 1 : 0;
 
@@ -555,7 +651,8 @@ MKPSol *mkp_fast_domsets_enum_lbucket(MKP *mkp, int ndim, int nsub, char type){
 				promissing = !lbucket_exists_dominator(lbucket, dsn_new);
 			}
 
-			if( promissing ){ /* new is not dominated */
+			/* Is it a promissing node? */
+			if( promissing ){
 				dstree_insert(dstree, dsn_new);
 				lbucket_insert_dsnode(lbucket, dsn_new);
 			}else if( dsn_new ){
@@ -577,3 +674,85 @@ MKPSol *mkp_fast_domsets_enum_lbucket(MKP *mkp, int ndim, int nsub, char type){
 	return mkpsol;
 }
 
+/* 
+ * MKP fast enumeration with linked buckets, using initial solution
+ *  'dismantling'.
+ */
+MKPSol *mkp_minknap(MKP *mkp, MKPSol mkpsol, int ndim, int nsub, char type){
+	DomSetTree dstree;
+	DomSetNode *dsnode, *dsn_tail, *dsn_new, *dsn_iter;
+	LinkedBucket *lbucket;
+	MKPSol *mkpsol;
+	int i, j, n, m, promissing;
+	mkpnum **max_b_lefts, sum;
+	mkpnum p[mkp->n], relax_w[mkp->n];
+	mkpnum w[mkp-m][mkp->m];
+	uchar x[mkp->n];
+
+	n = mkp->n;
+	m = mkp->m;
+
+	/* initializing linked buckets */
+	max_b_lefts = lbucket_prepare_max_b_left(mkp, ndim, nsub, type);
+	lbucket = lbucket_new(max_b_lefts, nsub, ndim);
+	for( i = 0 ; i < ndim ; i++ ) /* freeing max_b_lefts */
+		free(max_b_lefts[i]);
+	free(max_b_lefts);
+
+	/* initializing domsets tree */
+	dstree = dstree_init(dstree, mkpsol, x, p, w, relax_w);
+	lbucket_insert_dsnode(lbucket, dstree->root);
+
+	/* ENUMERATING SOLUTIONS */
+	/* for each item... */
+	for( i = 0 ; i < n ; i++ ){
+		/* TODO: Review stop condition of 'for' */
+		/* for each existent dominating set... */
+		for( dsnode = dstree->root, dsn_tail = dstree->tail
+			; dsnode ?
+				(dsnode->prev /* if has a prev node and... */
+					? dsnode->prev != dsn_tail /* ... its not the old tail. */
+					:1)
+				:0
+			; dsnode = dsnode->next)
+		{
+			/* Creating new child solution (adding item 'i') */
+			dsn_new = dsnode_new(dsnode, dstree, i); /* null, if unfeasible */
+			promissing = dsn_new ? 1 : 0;
+
+			/* checking dominance */
+			if(promissing){
+				_hitted = 0;
+				_n_comps = 0;
+				promissing = !lbucket_exists_dominator(lbucket, dsn_new);
+			}
+
+			/* Is it a promissing node? */
+			if( promissing ){
+				dstree_insert(dstree, dsn_new);
+				lbucket_insert_dsnode(lbucket, dsn_new);
+			}else if( dsn_new ){
+				dsnode_free(dsn_new);
+			}
+		}
+	}
+
+	/* extracing solution from best node */
+	mkpsol = dsnode_get_mkpsol(dstree, dstree->best);
+
+	/* printing profile */
+	//lbucket_fprintf_profile(stdout, lbucket);
+
+	/* free */
+	lbucket_free(lbucket);
+	//dstree_free(dstree);
+	/* 'manual' free */
+	dsnode = dstree->root;
+	while( dsnode->next ){
+		dsnode = dsnode->next;
+		dsnode_free(dsnode->prev);
+	}
+	dsnode_free(dsnode);
+
+	return mkpsol;
+}

@@ -24,6 +24,9 @@ typedef int (*mp_cmp_f)(void*, int, int);
 void mp_qsort_r(void *collection, int n, mp_cmp_r_f, mp_swap_f, void *arg, char reverse);
 void mp_qsort(void *collection, int n, mp_cmp_f, mp_swap_f, char reverse);
 
+/* unsigned char */
+typedef unsigned char uchar;
+
 /* INT ARRAY */
 typedef void(*array_apply_f)(void*);
 int *int_array_malloc(int n);                    /* mallocs a int array*/

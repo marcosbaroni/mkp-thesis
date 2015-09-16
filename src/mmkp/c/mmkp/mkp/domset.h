@@ -11,16 +11,16 @@
  *****************************************************************************/
 typedef struct DomSetNode{
 	/* NODE INFO */
-	int idx;					/* the index og variable which was fixed '1' */
-	//int nx;					/* number of itens in whole solution */
+	int idx;					/* the index of variable which was fixed */
 	int m;						/* dimension of problem */
 	mkpnum profit;				/* profit of set/solution */
 	mkpnum *b_left;				/* weight left */
+	//int nx;					/* cardinality of node solution */
 
 	/* SURR. RELAXATION INFO */
-	mkpnum relax_profit;		/* current upper bound of node */
+	mkpnum upper_profit;		/* current upper bound of node */
 	int last_idx;				/* last item added on relaxed solution */
-	double partial;				/* the fraction of last added item */
+	double frac;				/* the fraction of last added item */
 	//double relax_card;		/* cardinality of relaxed solution */
 
 	/* TREE INFO */
@@ -35,21 +35,25 @@ typedef struct DomSetNode{
  *****************************************************************************/
 typedef struct DomSetTree{
 	/* PROBLEM INSTANCE INFO */
-	MKP *mkp;
+	MKP *mkp;					/* the problem instance */
+	MKPSol *mkpsol				/* the initial solution */
+	uchar *x;					/* the initial solution array */
+	mkpnum **w;
+	mkpnum *p;					/* profit of itens */
 	mkpnum *relax_w;			/* weight of itens on surrogate relax */
-	mkpnum *relax_p;			/* profit of itens */
-
-	/* EXECUTION INFO */
-	mkpnum upper_profit;		/* current upper bound of problem */
 
 	/* STRUCTURE INFO */
 	int n;						/* total number of solution in tree */
 	DomSetNode *root;			/* the iinitial solution node */
 	DomSetNode *best;			/* the current best solution node */
 	DomSetNode *tail;			/* last added node (for append operation) */
+
+	/* EXECUTION INFO */
+	mkpnum upper_profit;		/* current upper bound of problem */
+	mkpnum lower_profit;		/* current lower bound of problem */
 }DomSetTree;
 
-DomSetTree *dstree_new(MKP *mkp);	/* create a new empty tree */
+DomSetTree *dstree_new(MKPSol *mkpsol);	/* create a new empty tree */
 
 
 /* PROFILING VARIABLES */

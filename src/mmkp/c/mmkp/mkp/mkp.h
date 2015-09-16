@@ -10,6 +10,8 @@
 #define ZIMPL_CARD 2
 
 #define mkpnum double
+#define MKPNUM_MAX 1.0E307
+#define MKPNUM_MIN -1.0E307
 
 mkpnum *mkpnum_array_copy(mkpnum *dest, mkpnum *src, int n);
 mkpnum *mkpnum_array_init(mkpnum *array, int n, mkpnum x);
