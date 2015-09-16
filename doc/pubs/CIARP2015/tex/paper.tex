@@ -1,0 +1,69 @@
+\documentclass{llncs}
+
+%\usepackage{makeidx}  % allows for indexgeneration
+\usepackage{amsfonts}
+\usepackage{amssymb,amsmath}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{graphicx}
+\usepackage{multicol}
+\usepackage{subfigure}
+
+\newcommand{\spc}{\phantom{a}}
+
+\begin{document}
+
+%\frontmatter          % for the preliminaries
+
+\pagestyle{headings}  % switches on printing of running heads
+
+\title{A shuffled complex evolution algorithm for
+the multidimensional knapsack problem}
+
+\author{
+   Marcos Daniel Valad\~ao Baroni\thanks{Research supported by Funda\c c\~ao de Amparo \`a Pesquisa do Esp\'irito Santo.}
+   \and
+   Fl\'avio Miguel Varej\~ao
+}
+
+\institute{Universidade Federal do Esp\'irito Santo,\\
+Av. Fernando Ferrari, 514, Goiabeiras, Vit\'oria, ES, Brazil\\
+\texttt{http://ninfa.inf.ufes.br/}
+}
+
+\maketitle              % typeset the title of the contribution
+
+\begin{abstract}
+This work addresses the application of
+a population based evolutionary algorithm
+called shuffled complex evolution (SCE) in the multidimensional knapsack
+problem.
+The SCE regards a natural evolution happening simultaneously in independent communities.
+The performance of the SCE algorithm is verified through computational experiments
+using well-known problems from literature and randomly generated problem as well.
+The SCE proved to be very effective in finding good solutions demanding a
+very small amount of processing time.
+\keywords{ Multidimensional knapsack problem, Meta-heuristics, Artificial Intelligence}
+\end{abstract}
+
+\section{Introduction}
+\label{sec:intro}
+\input{intro.tex}
+
+\section{The shuffled complex evolution for the MKP}
+\label{sec:sce}
+\input{sce.tex}
+
+\section{Computational experiments}
+\label{sec:exp}
+\input{exp.tex}
+
+\section{Conclusions and future remarks}
+\label{sec:conc}
+\input{conc.tex}
+
+\bibliographystyle{splncs03}
+\bibliography{refs}
+
+\end{document}
+

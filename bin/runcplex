@@ -1,0 +1,54 @@
+#!/bin/bash
+##############################################################################
+#  Takes a lp file and solves it on SCIP solver.                             #
+#    If no files is given, reads from standard input.                        #
+##############################################################################
+CPLEX=cplex
+maxtime="60.0"
+maxgap="0.0"
+temp=`tempfile`
+input=$temp.lp
+
+# Checkinkg number of arguments
+if [ $# -lt 1 ] || [ "$1" == "--help" ] ; then
+	echo -e "usage:\n $0 <input LP file> [<max-time(sec)>=60.0] [max-gap([0-1])=0.0] [print sol=1]"
+	echo -e " if input file is '-', reads from stdin."
+	echo -e " print sol: (1 yes, 0 no)"
+	rm $temp*
+	exit 1
+fi
+
+# Getting first arguments
+if [ $# -gt 1 ]; then
+	maxtime=$2
+	if [ $# -gt 2 ]; then
+		maxgap=$3
+	fi
+fi
+
+# Checking input source
+if [ $1 != '-' ]; then
+	# checking if file exists
+	if [ ! -f $1 ]; then
+		echo "Could not find file $1."
+		rm $temp*
+		exit 1
+	else
+		cp $1 $input
+		echo copied $1 to $input
+	fi
+else
+	# No file given, redirecting input to temp file
+	tee > $input
+fi
+
+# running SCIP
+dispsol=""
+if [ $# -lt 4 ] || [ "$4" == "1" ]; then
+	dispsol="display solution variables x*"
+fi
+$CPLEX -c "set timelimit $maxtime" "set threads 1" "set mip tolerances mipgap $maxgap" "read $input" "opt" "$dispsol" "quit"
+
+# cleaning temp files
+rm $temp*
+

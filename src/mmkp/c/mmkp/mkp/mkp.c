@@ -9,6 +9,61 @@
 #include "../des.h"
 #include "../sfl.h"
 #include "../lp.h"
+/* chu beasley instance best known objectives */
+mkpnum chubeas_best[3][3][3][10] = {
+  { /* n = 100 */
+   { /* m = 5 */
+    {24381, 24274, 23551, 23534, 23991, 24613, 25591, 23410, 24216, 24411}, /* t = 0.25 */
+    {42757, 42545, 41968, 45090, 42218, 42927, 42009, 45020, 43441, 44554}, /* t = 0.50 */
+    {59822, 62081, 59802, 60479, 61091, 58959, 61538, 61520, 59453, 59965} /* t = 0.75 */
+   },
+   { /* m = 10 */
+    {23064, 22801, 22131, 22772, 22751, 22777, 21875, 22635, 22511, 22702}, /* 0.25 */
+    {41395, 42344, 42401, 45624, 41884, 42995, 43574, 42970, 42212, 41207}, /* 0.50 */
+    {57375, 58978, 58391, 61966, 60803, 61437, 56377, 59391, 60205, 60633} /* 0.75 */
+   },
+   { /* m = 30 */
+    {21946, 21716, 20754, 21464, 21844, 22176, 21799, 21397, 22525, 20983}, /* 0.25 */
+    {40767, 41308, 41630, 41041, 40889, 41058, 41062, 42719, 42230, 41700}, /* 0.50 */
+    {57494, 60027, 58052, 60776, 58884, 60011, 58132, 59064, 58975, 60603} /* 0.75 */
+   }
+  },
+  { /* n = 250 */
+   { /* m = 5 */
+    {59312, 61472, 62130, 59463, 58951, 60077, 60414, 61472, 61885, 58959}, /* 0.25 */
+    {109109, 109841, 108508, 109383, 110720, 110256, 109040, 109042, 109971, 107058}, /* 0.50 */
+    {149665, 155944, 149334, 152130, 150353, 150045, 148607, 149782, 155075, 154668} /* 0.75 */
+   },
+   { /* m = 10 */
+    {59187, 58781, 58097, 61000, 58092, 58824, 58704, 58936, 59387, 59208}, /* 0.25 */
+    {110913, 108717, 108932, 110086, 108485, 110845, 106077, 106686, 109829, 106723}, /* 0.50 */
+    {151809, 148772, 151909, 151324, 151966, 152109, 153131, 153578, 149160, 149704} /* 0.75 */
+   },
+   { /* m = 30 */
+    {56842, 58520, 56614, 56930, 56629, 57205, 56357, 56457, 57474, 56447}, /* 0.25 */
+    {107770, 108392, 106442, 106876, 107414, 107271, 106372, 104032, 106856, 105780}, /* 0.50 */
+    {150163, 149958, 153007, 153234, 150287, 148574, 147477, 152912, 149570, 149668} /* 0.75 */
+   }
+  },
+  { /* n = 500 */
+   { /* m = 5 */
+    {120148, 117879, 121131, 120804, 122319, 122024, 119127, 120568, 121586, 120717}, /* 0.25 */
+    {218428, 221202, 217542, 223560, 218966, 220530, 219989, 218215, 216976, 219719}, /* 0.50*/
+    {295828, 308086, 299796, 306480, 300342, 302571, 301339, 306454, 302828, 299910} /* 0.75 */
+   },
+   { /* m = 10 */
+    {117821, 119249, 119215, 118829, 116530, 119504, 119827, 118344, 117815, 119251}, /* 0.25 */
+    {217377, 219077, 217847, 216868, 213873, 215086, 217940, 219990, 214382, 220899}, /* 0.50 */
+    {304387, 302379, 302417, 300784, 304374, 301836, 304952, 296478, 301359, 307089} /* 0.75 */
+   },
+   { /* m = 30 */
+    {116056, 114810, 116741, 115354, 116525, 115741, 114181, 114403, 115419, 117116}, /* 0.25 */
+    {218104, 214648, 215978, 217910, 215689, 215919, 215907, 216542, 217340, 214739}, /* 0.50 */
+    {301675, 300055, 305087, 302032, 304462, 297012, 303364, 307007, 303199, 300572} /* 0.75 */
+   }
+  }
+ };
+
 
 /* */
 mkpnum mkpnum_rand(mkpnum max){
@@ -66,7 +121,7 @@ void mkpnum_matrix_zimpl_print(FILE *fout, mkpnum **mat, int nlin, int ncol){
 		mkpnum_fprintf(fout, mat[i][0]);
 		for( j = 1 ; j < ncol ; j++ ){
 			fprintf(fout, ",");
-			mkpnum_fprintf(fout, mat[i][0]);
+			mkpnum_fprintf(fout, mat[i][j]);
 		}
 		fprintf(fout, "|\n");
 	}
@@ -432,7 +487,7 @@ double *mkp_solve_with_scip(MKP *mkp, double maxtime, double capacity_scale, cha
 	fclose(out);
 
 	/* solve model */
-	sprintf(buff, "zpl2lp %s | runscip %lf | scip2summary -s ", tempf, maxtime);
+	sprintf(buff, "zpl2lp %s | runscip - %lf | scip2summary -s ", tempf, maxtime);
 	pip = popen(buff, "r");
 
 	/* read solution */
@@ -602,7 +657,10 @@ void mkp_fprint(FILE *fout, MKP *mkp){
 	/* print profits*/
 	for( i = 0 ; i < n ; i++ ){
 		sprintf(format, "%%%dlld ", ndigs[i]);
-		fprintf(fout, format, mkp->p[i]);
+		/* TODO: formatar para mkpnum */
+		//fprintf(fout, format, mkp->p[i]);
+		mkpnum_fprintf(fout, mkp->p[i]);
+		fprintf(fout, " ");
 	}
 	fprintf(fout, "\n");
 
@@ -620,13 +678,18 @@ void mkp_fprint(FILE *fout, MKP *mkp){
 		/* weights */
 		for( j = 0 ; j < n ; j++ ){
 			sprintf(format, "%%%dlld ", ndigs[j]);
-			fprintf(fout, format, mkp->w[i][j]);
+			/* TODO: formatar para mkpnum */
+			//fprintf(fout, format, mkp->w[i][j]);
+			mkpnum_fprintf(fout, mkp->w[i][j]);
+			fprintf(fout, " ");
 		}
 		/* capacity */
 		sprintf(format, "%%%dlld ", ndigs[n]);
 		fprintf(fout, "| ");
-		fprintf(fout, format, mkp->b[i]);
-		fprintf(fout, "\n");
+		/* TODO: formatar para mkpnum */
+		//fprintf(fout, format, mkp->b[i]);
+		mkpnum_fprintf(fout, mkp->b[i]);
+		fprintf(fout, " \n");
 	}
 
 	return;
@@ -708,7 +771,7 @@ double *mkp_solve_dual_with_scip(MKP *mkp){
 	fclose(out);
 
 	/* solve model */
-	sprintf(buff, "zpl2lp %s | runscip %lf | scip2summary -s ", tempf, maxtime);
+	sprintf(buff, "zpl2lp %s | runscip - %lf | scip2summary -s ", tempf, maxtime);
 	pip = popen(buff, "r");
 
 	/* reading solution */
@@ -1308,10 +1371,10 @@ int mkp_max_cardinality(MKP *mkp){
 	return nmax;
 }
 
-/* Returns an array with the indexs of variables, sorted by increasing order
+/* Returns an array with the indexs of variables, sorted by decreasing order
  * of efficiency.
  * */
-int *mkp_core_val(MKP *mkp, char type){
+int *mkp_core_val(MKP *mkp, char type, int *center){
 	double *x, *vals, sum, sum2, *r;
 	mkpnum *p, *b, **w;
 	int i, j, k, n, m;
@@ -1401,6 +1464,27 @@ int *mkp_core_val(MKP *mkp, char type){
 	}
 	idxs = double_index_sort(vals, n);
 
+	/* FIXME: lines below wont work for efficiencies other than DUALS */
+	/* looking for center */
+	j = 0; k = n-1;
+	i = n/2;
+	while( !feq(vals[idxs[i]], 1.0) ){ /* floating point comparison */
+		if( vals[idxs[i]] > 1.0 )
+			j = i+1;
+		else
+			k = i-1;
+		i = (j+k)/2;
+	}
+	k = j = i;
+	/* looking for "first" '1.0' */
+	while( j > 0 && feq(vals[idxs[j-1]], 1.0))
+		j--;
+	/* looking for "last" '1.0' */
+	while( k < n-1 && feq(vals[idxs[k+1]], 1.0))
+		k++;
+	if(center)
+		*center = (j+k)/2;
+
 	free(r);
 	free(vals);
 
@@ -1416,7 +1500,8 @@ int *mkp_core_val(MKP *mkp, char type){
  * */
 MKP *mkp_core_problem(MKP *mkp, int core_size, int **vars_fix){
 	MKP *mkp_core;
-	int i, j, idx, n, ncore, m, n_fst_fixed;
+	int i, j, k, idx, n, ncore, m, n_fst_fixed, a, b;
+	int center;
 	int *efficieny_ordering;
 
 	n = mkp->n;
@@ -1426,33 +1511,42 @@ MKP *mkp_core_problem(MKP *mkp, int core_size, int **vars_fix){
 	/* computing efficiency measure */
 	if( !(*vars_fix) )
 		(*vars_fix) = (int*)malloc(n*sizeof(int));
-	efficieny_ordering = mkp_core_val(mkp, MKP_CORE_DUALS);
+	efficieny_ordering = mkp_core_val(mkp, MKP_CORE_DUALS, &center);
 	mkp_core = mkp_alloc(core_size, m);
 
 	/* initializing capacities */
 	for( j = 0 ; j < m ; j++ )
 		mkp_core->b[j] = mkp->b[j];
 
-	/* defining fixed variables */
-	n_fst_fixed = (n-core_size)/2;
-	for( i = 0 ; i < n_fst_fixed ; i++ ){                /* '1' fixed */
-		idx = efficieny_ordering[i];
-		(*vars_fix)[idx] = 1;
-		for( j = 0 ; j < m ; j++ )  /* (consumed resources) */
-			mkp_core->b[j] -= mkp->w[j][idx];
-	}for( i = 0 ; i < core_size ; i++ ){                 /* free variables */
-		idx = efficieny_ordering[n_fst_fixed+i];
-		(*vars_fix)[idx] = -1;
-		mkp_core->p[i] = mkp->p[idx];  /* coping profits */
-		for( j = 0 ; j < m ; j++ )     /* coping weights */
-			mkp_core->w[j][i] = mkp->w[j][idx];
-	} for( i = core_size+n_fst_fixed ; i < n ; i++ )    /* '0' fixed */
-		(*vars_fix)[efficieny_ordering[i]] = 0;
-	
-	printf("efficiency ordering:\n");
-	int_array_fprint(stdout, efficieny_ordering, n);
-	printf("\nvariable fixing:\n");
-	int_array_fprint(stdout, (*vars_fix), n);
+	/* setting var fixing values */
+	a = center-1;
+	b = center+1;
+	(*vars_fix)[efficieny_ordering[center]] = -1;
+	core_size--;
+	while( core_size-- ){
+		if( core_size % 2 && a+1 )
+			idx = (*vars_fix)[efficieny_ordering[a--]] = -1;
+		else
+			idx = (*vars_fix)[efficieny_ordering[b++]] = -1;
+	}
+	while( a+1 )
+		(*vars_fix)[efficieny_ordering[a--]] = 1;
+	while( b < n )
+		(*vars_fix)[efficieny_ordering[b++]] = 0;
+
+	/* building core problem, using vars_fixing values */
+	j = 0;
+	for( i = 0 ; i < n ; i++ ){
+		if( (*vars_fix)[i] == -1 ){
+			mkp_core->p[j] = mkp->p[i];    /* coping profit */
+			for( k = 0 ; k < m ; k++ )     /* coping weights */
+				mkp_core->w[k][j] = mkp->w[k][i];
+			j++;
+		}else if( (*vars_fix)[i] == 1 ){
+			for( k = 0 ; k < m ; k++ )     /* consuming resources */
+				mkp_core->b[k] -= mkp->w[k][i];
+		}
+	}
 
 	free(efficieny_ordering);
 
@@ -1823,13 +1917,13 @@ MKPSol *mkpsol_cross(MKPSol *child, MKPSol *father, int c){
 }
 
 /* n/2 */
-MKPSol *mkpsol_cross1(MKPSol *child, MKPSol *father)
+MKPSol *mkpsol_cross50(MKPSol *child, MKPSol *father)
 	{ return mkpsol_cross(child, father, (child->mkp->n/2)); }
 /* n/5 */
-MKPSol *mkpsol_cross2(MKPSol *child, MKPSol *father)
+MKPSol *mkpsol_cross20(MKPSol *child, MKPSol *father)
 	{ return mkpsol_cross(child, father, (child->mkp->n/5)); }
 /* n/10 */
-MKPSol *mkpsol_cross3(MKPSol *child, MKPSol *father)
+MKPSol *mkpsol_cross10(MKPSol *child, MKPSol *father)
 	{ return mkpsol_cross(child, father, (child->mkp->n/10)); }
 
 
@@ -2034,10 +2128,12 @@ MKPSol *mkpsol_from_mkp_core(MKPSol *core_sol, MKP *orig_mkp, int *vars_fix){
 		/* fixed in '1' */
 		if( vars_fix[i] == 1 ){
 			mkpsol_add_item(sol, i);
+			//printf("%d was fixed at 1\n", i+1);
 		/* variable in core problem */
-		}else if( vars_fix[i] ){
+		}else if( vars_fix[i] == -1 ){
 			if( core_sol->x[j++] ){
 				mkpsol_add_item(sol, i);
+				//printf("%d was free, but has one\n", i+1);
 			}
 		}
 	}
@@ -2062,16 +2158,20 @@ DES_Interface *mkp_des_interface(){
 	return desi;
 }
 
-SFL_Interface *mkp_sfl_interface(int cross, int newsol){
+SFL_Interface *mkp_sfl_interface(){
 	SFL_Interface *sfli;
+	int cross, newsol;
+
+	cross = 2;
+	newsol = 1;
 
 	sfli = (SFL_Interface*)malloc(sizeof(SFL_Interface));
 	/* crossing rule */
 	switch(cross){
-		case 1: sfli->cross = (sfl_cross_f)mkpsol_cross1; break;
-		case 2: sfli->cross = (sfl_cross_f)mkpsol_cross2; break;
-		case 3: sfli->cross = (sfl_cross_f)mkpsol_cross3; break;
-		default: sfli->cross = (sfl_cross_f)mkpsol_cross3; break;
+		case 1: sfli->cross = (sfl_cross_f)mkpsol_cross50; break;
+		case 2: sfli->cross = (sfl_cross_f)mkpsol_cross20; break;
+		case 3: sfli->cross = (sfl_cross_f)mkpsol_cross10; break;
+		default: sfli->cross = (sfl_cross_f)mkpsol_cross50; break;
 	}
 	switch(newsol){
 		case 1: sfli->new_solution = (sfl_new_solution_f)mkpsol_new_random; break;

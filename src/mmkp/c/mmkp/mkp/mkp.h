@@ -13,6 +13,8 @@
 #define MKPNUM_MAX 1.0E307
 #define MKPNUM_MIN -1.0E307
 
+mkpnum chubeas_best[3][3][3][10];
+
 mkpnum *mkpnum_array_copy(mkpnum *dest, mkpnum *src, int n);
 mkpnum *mkpnum_array_init(mkpnum *array, int n, mkpnum x);
 void mkpnum_scanf(const char *str, mkpnum *x);
@@ -83,7 +85,7 @@ int mkp_max_cardinality(MKP *mkp);
  *   - mkp: the problem
  *   - type: efficiency measure choosen
  * */
-int *mkp_core_val(MKP *mkp, char type);
+int *mkp_core_val(MKP *mkp, char type, int* center);
 
 LP *mkp2lp(MKP *mkp, double capacity_scale); /* MKP to LP relaxation */
 

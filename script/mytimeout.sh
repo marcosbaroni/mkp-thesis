@@ -1,6 +1,9 @@
+#!/bin/bash
 ###############################################################################
 # Script to abort a command after a given time is passed and it didnt return
 #   (a custom message is printed)
+# Author: Marcos Daniel V. Baroni
+# Date: Jan 10, 2015
 ###############################################################################
 if [[ $# -le 2 ]] ; then
 	echo "usage ./mytimeout <time> <abort message> <command>"

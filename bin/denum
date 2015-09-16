@@ -1,0 +1,24 @@
+#!/usr/bin/python
+from sys import argv
+
+def div(x, y):
+    d = x/y
+    r = x - d*y
+    return (d, r)
+
+def prod(xs):
+    p = 1
+    for x in xs:
+        p *= x
+    return x
+
+def denum(nums, idx, l):
+    if len(nums) == 1:
+        return l + [idx];
+    else:
+        d, r = div(idx, prod(nums[1:]))
+        return denum(nums[1:], r, [d+1])
+
+xs = map(int, argv[1:])
+ds = denum(xs[:-1], xs[-1], [])
+print ds

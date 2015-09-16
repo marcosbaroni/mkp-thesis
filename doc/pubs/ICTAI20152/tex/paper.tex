@@ -1,0 +1,89 @@
+\documentclass[10pt,conference, compsocconf]{IEEEtran}
+
+\usepackage{amsfonts}
+\usepackage{amssymb,amsmath}
+\usepackage{hyperref}
+\usepackage{algpseudocode}
+\usepackage{graphicx}
+\usepackage{anyfontsize}   % for fontsize and selectfont command
+\usepackage{array}         % better padding of cell content of tabulars
+\usepackage[skip=2pt,font=footnotesize]{caption}
+
+\usepackage{tikz}       % for flowcharts
+\usetikzlibrary{shapes, arrows}
+
+\newsavebox{\ieeealgbox}
+\newenvironment{boxedalgorithmic}
+  {\begin{lrbox}{\ieeealgbox}
+   \begin{minipage}{\dimexpr\columnwidth-2\fboxsep-2\fboxrule}
+   \begin{algorithmic}}
+  {\end{algorithmic}
+   \end{minipage}
+   \end{lrbox}\noindent\fbox{\usebox{\ieeealgbox}}}
+
+\begin{document}
+
+\title{A shuffled complex evolution algorithm for
+the multidimensional knapsack problem using core concept}
+
+%\author{\IEEEauthorblockN{Marcos Daniel Valad\~ao Baroni}
+%\IEEEauthorblockA{ Departamento de Inform\'atica\\
+%Universidade Federal do Esp\'irito Santo\\
+%Vit\'oria, Esp\'irito Santo, Brazil\\
+%Email: mbaroni@ninfa.inf.ufes.br }
+%\and
+%\IEEEauthorblockN{Fl\'avio Miguel Varej\~ao}
+%\IEEEauthorblockA{ Departamento de Inform\'atica\\
+%Universidade Federal do Esp\'irito Santo\\
+%Vit\'oria, Esp\'irito Santo, Brazil\\
+%Email: fvarejao@ninfa.inf.ufes.br }
+%}
+
+\maketitle
+
+\begin{abstract}
+This work addresses the application of a population based evolutionary algorithm
+called shuffled complex evolution (SCE) in the core of multidimensional knapsack
+problem (MKP).
+The core of the MKP is a set of items which are hard to decide if they are or
+not selected in good solutions.
+This concept is used to reduce the original size of MKP instances.
+%The SCE regards a natural evolution happening simultaneously in independent communities.
+The performance of the SCE applied to the reduced MKP is verified through computational experiments
+using well-known instances from literature.
+The approach proved to be very effective in finding near optimal solutions
+demanding a very small amount of processing time.
+\end{abstract}
+\IEEEpeerreviewmaketitle
+
+\section{Introduction}
+\label{sec:intro}
+\input{intro.tex}
+
+\section{The core concept for MKP}
+\label{sec:core}
+\input{core.tex}
+
+\section{The shuffled complex evolution for the MKP}
+\label{sec:sce}
+\input{sce.tex}
+
+\section{Computational experiments}
+\label{sec:exp}
+\input{compexp.tex}
+
+
+\section{Conclusions and future remarks}
+\label{sec:conc}
+\input{concl.tex}
+
+%\newpage
+
+%\bibliographystyle{abbrv}
+\bibliographystyle{IEEEtran}
+\bibliography{../../../refs}
+
+%\printbibliography
+
+\end{document}
+
