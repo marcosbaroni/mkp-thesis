@@ -5,12 +5,13 @@
 \usepackage{multicol}
 \usepackage{graphicx}
 
-\usepackage{pgffor}   % for 'for loop' usage
+%\usepackage{pgffor}   % for 'for loop' usage
 
-\usepackage{pstricks}
+%\usepackage{pstricks}
 
-\newcommand{\exerc}[3]{ \vspace{5pt} {$\mathbf{#1)}$} #2 \hfill {\it #3} }
+\newcommand{\exerc}[3]{ \vspace*{25pt} {$\mathbf{#1)}$} #2 \hfill {\it #3} }
 \newcommand{\exitem}[2]{ \texttt{\bf #1)} #2 \\ }
+\newcommand*\xor{\mathbin{\oplus}}
 
 %\newcommand{\clock}[1]{
 %    \psset{yunit=0.8}
@@ -72,37 +73,40 @@
 {\Large \bf Elementos de Lógica Digital - 2015/2}
 \end{center}
 
-\vfill
-
 {\large \bf 1ª Lista de exercícios}
 
 {\bf dia:} 24/09/2015
 
-\exerc{1}{Realize as seguintes conversões entre sistemas numéricos:}{2.0 pontos}
+\exerc{1}{Realize as seguintes conversões entre sistemas numéricos:}{(2.0 pontos)}
 \begin{exitems}{2}
 	\exitem{a}{ $1011,010_2$ para decimal;}
-	\exitem{b}{ $1011,110_2$ }
+	\exitem{b}{ $3A_{16}$ para binário;}
+	\exitem{c}{ $15A_{16}$ para decimal;}
 	\\
-	\exitem{c}{ $19_{16}$ }
-	\exitem{d}{ $4$CE$_{16}$ }
+	\exitem{d}{ $451_{10}$ para hexadecimal;}
+	\exitem{e}{ $0110 1010 1101_{2}$ para hexadecimal;}
+	\exitem{f}{ $9D3_{16}$ para binário;}
 \end{exitems}
 
-\exerc{2}{Execute as operações abaixo utilizando representação binária, utilizando a notação de complemento de 2 para números negativos.}{2.0 pontos}
+\exerc{2}{Execute as operações abaixo utilizando representação binária. Utilize a notação de complemento de 2 para números negativos.}{(2.0 pontos)}
 \begin{exitems}{2}
-	\exitem{a}{ $94-87$}
-	\exitem{b}{ $41-86$}
+	\exitem{a}{ $94 + (-87)$}
+	\exitem{b}{ $41 + (-86)$}
 \end{exitems}
 
-\exerc{3}{Simplifique a expressão abaixo utilizando álgebra de Boole e monte o circuito que execute a expressão, utilizando apenas portas NOU.}{1.0 pontos}
+\exerc{3}{Simplifique a expressão abaixo utilizando álgebra de Boole e monte o circuito que execute a expressão, utilizando apenas portas NOU.}{(2.0 pontos)}
+$S = \neg{(\neg{A}B + C\neg{D} + AD)}\neg{\{\neg{B}\neg{[C\xor D + \neg{A}\neg{(\neg{B} + \neg{C})} + A\neg{B}\neg{C}]}\}}+\neg{A}$
 
-\exerc{4}{Realize o projeto de um subtrator completo.}{2.0 pontos}
+\exerc{4}{Realize o projeto de um somador completo: tabela verdade, mapa de Karnaugh e circuito.}{(2.0 pontos)}
 
-\exerc{5}{Determine a forma de onda da saída $\mathtt{Q}$ para o flip-flop JK da figura, segundo as ondas do diagrama.}{2.0 pontos}
+\exerc{5}{Determine a forma de onda da saída $\mathtt{Q}$ para o flip-flop JK da figura, segundo as ondas do diagrama.}{(2.0 pontos)}
 \\
 \begin{multicols}{2}
 \begin{center}
 \includegraphics{fp-jk} \\ \vspace{15pt}
-%\includegraphics[scale=0.5]{sig1} \\
+\includegraphics[scale=0.5]{sig1} \\
+%\includegraphics{fp-jk} \\ \vspace{15pt}
+%\includegraphics[scale=0.5]{sig2}
 \end{center}
 \end{multicols}
 
