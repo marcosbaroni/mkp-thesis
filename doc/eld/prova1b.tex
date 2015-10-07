@@ -77,7 +77,7 @@
 
 {\bf Professor:} Marcos Daniel Baroni
 
-{\bf Data:} 05/10/2015 (2ª chamada)
+{\bf Data:} 08/10/2015
 
 
 \exerc{1}{Realize as seguintes conversões entre sistemas numéricos:}{(2.0 pontos)}
@@ -98,7 +98,10 @@
 \end{exitems}
 
 \exerc{3}{Simplifique a expressão abaixo utilizando álgebra de Boole e monte o circuito que execute a expressão, utilizando apenas portas NOU.}{(2.0 pontos)}
-$S = \neg{(\neg{A}B + C\neg{D} + AD)}\neg{\{\neg{B}\neg{[C\xor D + \neg{A}\neg{(\neg{B} + \neg{C})} + A\neg{B}\neg{C}]}\}}+\neg{A}$
+% $S = \neg{(\neg{A}B + C\neg{D} + AD)}\neg{\{\neg{B}\neg{[C\xor D + \neg{A}\neg{(\neg{B} + \neg{C})} + A\neg{B}\neg{C}]}\}}+\neg{A}$
+\begin{displaymath}
+		S = [\neg{ (\neg{\neg{B} + \neg{D}})\neg{(B + C)}+ C}] + \neg{A}\neg{B}C + \neg{B}(\neg{A+C})
+\end{displaymath}
 
 \exerc{4}{Realize o projeto de um subtrator completo: tabela verdade, mapa de Karnaugh e circuito.}{(2.0 pontos)}
 
