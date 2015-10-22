@@ -1,0 +1,98 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage[cm]{fullpage}
+\usepackage{amssymb}
+\usepackage{multicol}
+\usepackage{graphicx}
+\usepackage{multicol}
+
+\renewcommand{\emph}[1]{\textbf{#1}}
+
+%\newcommand{\mycell}[3]{ #1 & #2 & \parbox{12cm}{#3} \\ \hline }
+\newcommand{\mycell}[3]{
+
+  #1 & #2 & \parbox{6cm}{
+    \vspace{.1\baselineskip}
+    #3
+    \vspace{.1\baselineskip}
+  } \\ \hline
+}
+\newcommand{\titulo}[1]{{\bf #1}}
+
+\newcommand{\itspc}{
+  \vspace{-8pt}
+  \setlength\itemsep{-2pt}
+}
+
+\begin{document}
+
+\pagenumbering{gobble}
+
+\begin{center}
+{\Large \bf Segundo Trabalho de Elementos de Lógica Digital - 2015/2}
+\\
+10/09/2015
+\vspace{5mm}
+\end{center}
+
+\noindent
+\titulo{Professor:} Marcos Daniel Baroni $<$\texttt{marcos.baroni@aluno.ufes.br}$>$
+
+\noindent
+\titulo{Data de entrega:} 12 de novembro de 2015
+
+\noindent
+\titulo{Regras:}
+\begin{enumerate}
+  \itspc
+  \item O trabalho será feito em dupla;
+  \item \underline{Não será tolerado plágio.} Trabalhos copiados serão penalizados com nota zero.
+\end{enumerate}
+
+\noindent
+\titulo{Ferramenta para simulação:} Logisim (\texttt{http://www.cburch.com/logisim/})
+
+\noindent
+\titulo{Material a ser entregue:}
+\begin{enumerate}
+  \itspc
+  \item{Arquivo de simulação}:
+  \begin{itemize}
+    \itspc
+    \item{Enviar por email para \texttt{marcos.baroni@aluno.ufes.br} com arquivo em anexo;}
+	\item{O título do email deve estar no formato \texttt{"ELD:TRAB2:nome1:nome2"} ({\it Ex.: \texttt{"ELD:TRAB2:alanturing:donaldknuth"}});}
+	\item{Apenas {\bf um arquivo} (\texttt{.circ}) será entregue, contendo os circuitos simulados. Os devidos circuitos devem estar separados em blocos, conforme enunciado.
+		Trabalhos fora de padrão serão penalizados.}
+  \end{itemize}
+  \item{Relatório:}
+  \begin{itemize}
+    \itspc
+	\item{O relatório poderá em papel ou digital (formato PDF) enviado por email juntamente com o arquivo das simulações. Relatórios em outros formatos (.doc, .xls, etc) não serão aceitos.}
+	\item{Podem estar manuscritos, desde que estejam claras e organizadas. \underline{A clareza e a organização serão avaliadas};}
+    \item{As resoluções devem conter explicações dos passos realizados.}
+  \end{itemize}
+\end{enumerate}
+
+\noindent
+\titulo{\large Simulação 1: Conversão de dado paralelo-série} \\
+Projetas os seguintes circuitos:
+\begin{enumerate}
+	\item{Conversor paralelo-série de 4 bits:}
+	\begin{itemize}
+		\item{Deve possuir uma entrada "Enable" para escrita do dado em paralelo;}
+	\end{itemize}
+	\item{Conversor série-paralelo:}
+	\item{Simulação1:}
+	\begin{itemize}
+		\item{}
+	\end{itemize}
+\end{enumerate}
+
+\vspace{3mm}
+\noindent
+\titulo{\large Simulação 2: Contador de sequência qualquer} \\
+Projetar um contador síncrono que conte a sequência:
+\\
+
+\end{document}
+
