@@ -1,10 +1,14 @@
-\documentclass{article}
+\documentclass[8pt]{article}
 \usepackage[utf8]{inputenc}
-\usepackage[cm]{fullpage}
+%\usepackage{fullpage}
+\usepackage[portuguese]{babel}
 \usepackage{amssymb}
 \usepackage{multicol}
 \usepackage{graphicx}
 \usepackage{multicol}
+\usepackage{wrapfig} % para colocar figura flutuando ao lado do texto
+\usepackage{caption} % para retirar caption de figura
+\usepackage{subcaption} % para colocar figuras lado a lado
 
 \renewcommand{\emph}[1]{\textbf{#1}}
 
@@ -21,7 +25,7 @@
 
 \newcommand{\itspc}{
   \vspace{-8pt}
-  \setlength\itemsep{-2pt}
+  \setlength\itemsep{-4pt}
 }
 
 \begin{document}
@@ -31,7 +35,7 @@
 \begin{center}
 {\Large \bf Segundo Trabalho de Elementos de Lógica Digital - 2015/2}
 \\
-10/09/2015
+23/10/2015
 \vspace{5mm}
 \end{center}
 
@@ -44,55 +48,99 @@
 \noindent
 \titulo{Regras:}
 \begin{enumerate}
-  \itspc
-  \item O trabalho será feito em dupla;
-  \item \underline{Não será tolerado plágio.} Trabalhos copiados serão penalizados com nota zero.
+  \item O trabalho será feito sozinho ou em dupla;
+  \item Não será tolerado plágio;
+  \item Utilizar o Logisim (\texttt{http://www.cburch.com/logisim/}) e o arquivo
+    \texttt{trab2.circ} que foi enviado.
+  \item \underline{Trabalhos fora de padrão serão penalizados.}
 \end{enumerate}
 
-\noindent
-\titulo{Ferramenta para simulação:} Logisim (\texttt{http://www.cburch.com/logisim/})
 
 \noindent
 \titulo{Material a ser entregue:}
 \begin{enumerate}
-  \itspc
-  \item{Arquivo de simulação}:
+  \item{Arquivo de simulação ``\texttt{trab2.circ}'' contendo os devidos circuitos:}
   \begin{itemize}
-    \itspc
-    \item{Enviar por email para \texttt{marcos.baroni@aluno.ufes.br} com arquivo em anexo;}
-	\item{O título do email deve estar no formato \texttt{"ELD:TRAB2:nome1:nome2"} ({\it Ex.: \texttt{"ELD:TRAB2:alanturing:donaldknuth"}});}
-	\item{Apenas {\bf um arquivo} (\texttt{.circ}) será entregue, contendo os circuitos simulados. Os devidos circuitos devem estar separados em blocos, conforme enunciado.
-		Trabalhos fora de padrão serão penalizados.}
+	\item{Enviar por email para \texttt{marcos.baroni@aluno.ufes.br} contendo os devidos circuitos;}
+	\item{O título do email deve ser \texttt{"ELD:TRAB2:nome1:nome2"} \\ { Ex.: \texttt{"ELD:TRAB2:alanturing:donaldknuth"}};}
+	\item{Os circuitos devem estar separados em blocos, conforme enunciado. }
   \end{itemize}
   \item{Relatório:}
   \begin{itemize}
-    \itspc
-	\item{O relatório poderá em papel ou digital (formato PDF) enviado por email juntamente com o arquivo das simulações. Relatórios em outros formatos (.doc, .xls, etc) não serão aceitos.}
-	\item{Podem estar manuscritos, desde que estejam claras e organizadas. \underline{A clareza e a organização serão avaliadas};}
-    \item{As resoluções devem conter explicações dos passos realizados.}
+	\item{Deverá ser entregue \underline{em formato PDF}, enviado por email, juntamente do arquivo ``trab2.circ''.}
+    \item{O relatório deve conter explicações dos passos realizados.}
   \end{itemize}
 \end{enumerate}
 
 \noindent
+\titulo{Orientações para utilização do Logisim:}
+\begin{itemize}
+  \item Para testar os circuitos, sugiro utilizar o tipo ``Botão'' como clock.
+  \item Para criar um novo circuito:
+  \begin{enumerate}
+    \item No painel lateral, clique com o botão direito do mouse em "trab2";
+    \item Selecione ``Acrescentar circuito...''.
+  \end{enumerate}
+  \item Para adicionar um bloco ao circuito:
+  \begin{enumerate}
+    \item No painel lateral, clique com o mouse sobre o circuito ao qual deseja-se utilizar como bloco e arraste-o para a área de montagem.
+  \end{enumerate}
+\end{itemize}
+
+\newpage
+\noindent
 \titulo{\large Simulação 1: Conversão de dado paralelo-série} \\
-Projetas os seguintes circuitos:
-\begin{enumerate}
-	\item{Conversor paralelo-série de 4 bits:}
-	\begin{itemize}
-		\item{Deve possuir uma entrada "Enable" para escrita do dado em paralelo;}
-	\end{itemize}
-	\item{Conversor série-paralelo:}
-	\item{Simulação1:}
-	\begin{itemize}
-		\item{}
-	\end{itemize}
-\end{enumerate}
+Construir um conversor de dado ``paralelo-série'' e um conversor ``série-paralelo'',
+para dados de 4 bits.
+O conversor ``paralelo-série'' deve possuir uma porta ``Enable'' que ao ser ligada habilita a escrita do dado em paralelo.
+Para fins de organização deverão ser criados (ao menos) 2 circuitos auxiliares, um circuito para cada conversor.
+A Figura~\ref{fig:sim1} apresenta um esboço desta simulação, que deverá ser montada no circuito ``Simulação 1''.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[scale=0.3]{figs/sim1}
+  \caption{Esboço da Simulação 1.}
+  \label{fig:sim1}
+\end{figure}
 
 \vspace{3mm}
 \noindent
 \titulo{\large Simulação 2: Contador de sequência qualquer} \\
-Projetar um contador síncrono que conte a sequência:
-\\
+\noindent
+Construir um contador síncrono que conte a sequência apresentada na Figura~\ref{fig:seq}.
+O contador deve possuir uma entrada ``Clear'' que reinicia o contador imediatamente (coloca-o em $0$).
+Para fins de organização deverá ser criado (ao menos) 1 circuito auxiliar, contendo o contador.
+Para testar o funcionamento do circuito, utilize o display de 7 segmentos e o bloco ``controle-display'' já existente no arquivo.
+A Figura~\ref{fig:sim2} apresenta um esboço desta simulação, que deverá ser montada no circuito {``Simulação~2''}.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[scale=0.28]{figs/seq_b}
+  \caption{Sequência a ser contada.}
+  \label{fig:seq}
+\end{figure}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[scale=0.4]{figs/sim2}
+  \caption{Esboço da Simulação 2.}
+  \label{fig:sim2}
+\end{figure}
+
+%\vspace{-18mm}
+%\begin{figure}
+%\begin{minipage}{.5\textwidth}
+%  \centering
+%  \includegraphics[scale=0.28]{figs/seq}
+%  \caption{Sequência a ser contada.}
+%  \label{fig:seq}
+%\end{minipage}%
+%\begin{minipage}{.5\textwidth}
+%  \includegraphics[scale=0.6]{figs/sim2}
+%  \caption{Esboço da simulação 2.}
+%  \label{fig:sim2}
+%\end{minipage}
+%\end{figure}
 
 \end{document}
 

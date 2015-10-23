@@ -1,0 +1,8 @@
+Prova2:
+ 1 - Montagem de circuito, a partir de tabela verdade de 4 variáveis e 4
+	saídas (verificar habilidade do aluno em projetar circuitos na mão);
+ 2 - Contador assíncrono
+ 3 - Contados síncrono
+ 4 - Demultiplexador/Multiplexador
+ 5 - Memória
+
