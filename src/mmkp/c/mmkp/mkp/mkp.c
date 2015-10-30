@@ -325,7 +325,7 @@ MKP *mkp_random(int n, int m, double alpha, double beta, mkpnum max_coefs){
 			wsum += w;
 		}
 		/* profits */
-		mkp->p[i] = round(mkpnum_rand(wsum)/m + mkpnum_rand((1-beta)*max_coefs));
+		mkp->p[i] = round(beta*mkpnum_rand(wsum)/m + mkpnum_rand((1-beta)*max_coefs));
 	}
 
 	/* capacities */
