@@ -39,11 +39,10 @@
 % To use subfigure
 \usepackage{caption}
 \usepackage{subcaption}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
 
-
-\newcommand{\brasaoufes}{
-  \includegraphics[width=4cm]{../../brasao-ufes}
-}
+\newcommand{\spc}{\phantom{a}}
 
 \begin{document}
 
@@ -98,8 +97,9 @@ The SCE regards a natural evolution happening simultaneously in independent comm
 The performance of the SCE algorithm is verified through computational experiments
 using well-known problems from literature and randomly generated problem as well.
 The SCE proved to be very effective in finding good solutions demanding a
-very small amount of processing time. \\
-{ \bf Multidimensional knapsack problem, Meta-heuristics, Artificial Intelligence}
+very small amount of processing time.
+
+{\bf Keywords: } Multidimensional knapsack problem, Meta-heuristics, Artificial Intelligence
 
 \end{abstract}
 
@@ -111,57 +111,134 @@ very small amount of processing time. \\
 
 \section*{Introduction}
 
-Aliquam non lacus dolor, \textit{a aliquam quam} \cite{Smith:2012qr}. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla in nibh mauris. Donec vel ligula nisi, a lacinia arcu. Sed mi dui, malesuada vel consectetur et, egestas porta nisi. Sed eleifend pharetra dolor, et dapibus est vulputate eu. \textbf{Integer faucibus elementum felis vitae fringilla.} In hac habitasse platea dictumst. Duis tristique rutrum nisl, nec vulputate elit porta ut. Donec sodales sollicitudin turpis sed convallis. Etiam mauris ligula, blandit adipiscing condimentum eu, dapibus pellentesque risus.
+The multidimensional knapsack problem (MKP) is a strongly NP-hard combinatorial
+optimization problem which can be viewed as a resource allocation problem and
+defined as follows:
 
-\textit{Aliquam auctor}, metus id ultrices porta, risus enim cursus sapien, quis iaculis sapien tortor sed odio. Mauris ante orci, euismod vitae tincidunt eu, porta ut neque. Aenean sapien est, viverra vel lacinia nec, venenatis eu nulla. Maecenas ut nunc nibh, et tempus libero. Aenean vitae risus ante. Pellentesque condimentum dui. Etiam sagittis purus non tellus tempor volutpat. Donec et dui non massa tristique adipiscing.
+\begin{align*}
+  \text{maximize} & \sum_{j=1}^n p_j x_j \\
+  \text{subject to} & \sum_{j=1}^n w_{ij} x_j \leqslant c_i \quad i \in \{1, \ldots, m\}\\
+   & x_j \in \{0, 1\}, \quad j \in \{1, \ldots, n\}.
+\end{align*}
 
-%----------------------------------------------------------------------------------------
-%	OBJECTIVES
-%----------------------------------------------------------------------------------------
+The multidimensional knapsack problem can be applied on budget planning 
+scenarios and project selections~\cite{mcmillan1973resource},
+cutting stock problems~\cite{Gilmore-Gomory-1966}, loading problems~\cite{Shih-1979},
+allocation of processors and databases in distributed computer programs~\cite{Gavish-Pirckul-1982}.
+
+The problem is a generalization of the well-known knapsack problem (KP) in which
+$m = 1$.
+However it is a NP-hard problem significantly harder to solve in practice than the KP.
+Due its simple definition but challenging difficulty of solving, the MKP is often used to
+to verify the efficiency of novel metaheuristics.
+A good review for the MKP is given by \cite{freville1994efficient}.
+
+In this paper we address the application of a metaheuristic called
+shuffled complex evolution (SCE) to the multidimensional knapsack problem.
+The SCE is a metaheuristic, proposed by Duan in \cite{duan1992effective},
+which combines the ideas of a controlled random search with the concepts
+of competitive evolution and shuffling.
 
 \color{DarkSlateGray} % DarkSlateGray color for the rest of the content
 
-\section*{Main Objectives}
-
-\begin{enumerate}
-\item Lorem ipsum dolor sit amet, consectetur.
-\item Nullam at mi nisl. Vestibulum est purus, ultricies cursus volutpat sit amet, vestibulum eu.
-\item Praesent tortor libero, vulputate quis elementum a, iaculis.
-\item Phasellus a quam mauris, non varius mauris. Fusce tristique, enim tempor varius porta, elit purus commodo velit, pretium mattis ligula nisl nec ante.
-\item Ut adipiscing accumsan sapien, sit amet pretium.
-\item Estibulum est purus, ultricies cursus volutpat
-\item Nullam at mi nisl. Vestibulum est purus, ultricies cursus volutpat sit amet, vestibulum eu.
-\item Praesent tortor libero, vulputate quis elementum a, iaculis.
-\end{enumerate}
-
-\begin{figure}
-  \begin{subfigure}[t]{0.48\textwidth}
-    \includegraphics[scale=1.5]{flow1}
-  \end{subfigure}
-  \begin{subfigure}[t]{0.48\textwidth}
-    \includegraphics[scale=1.5]{flow2}
-  \end{subfigure}
-\end{figure}
+\section*{The SCE for the MKP}
 
 \begin{center}
-\begin{minipage}{0.3\linewidth}
-    \includegraphics[scale=1.5]{flow1}
+\begin{minipage}{0.30\linewidth}
+  \centering
+  \includegraphics[scale=1.5]{flow1}
+  \captionof{figure}{figure caption}
+  \label{fig:flow1}
 \end{minipage}
-\begin{minipage}{0.3\linewidth}
+\begin{minipage}{0.30\linewidth}
     \includegraphics[scale=1.5]{flow2}
+  \captionof{figure}{figure caption}
+  \label{fig:flow2}
+\end{minipage}
+\begin{minipage}{0.30\linewidth}
+    \includegraphics[scale=1.5]{alg-new}
+	\\[1cm]
+    \includegraphics[scale=1.5]{alg-cross}
+  \captionof{figure}{figure caption}
+  \label{fig:alg-new}
 \end{minipage}
 \end{center}
+
+\section*{Computational experiments}
+
+
+
+
+  \begin{tabular}{|c|c|l|}
+  \hline
+  \multicolumn{1}{|c}{\rule{0pt}{12pt} \spc } & \multicolumn{1}{|c|}{\bf \spc Value \spc } & \multicolumn{1}{c|}{\bf Description} \\[2pt]
+  \hline\rule{0pt}{12pt}
+  $N$  & $20$  & \spc \# of complexes \\
+  $M$  & $20$  & \spc \# of individuals in each complex \\
+  $P$  & $5$   & \spc \# of individuals in each subcomplex \\
+  $K$  & $300$ & \spc \# of algorithm iterations \\
+  $K'$ & $20$  & \spc \# of iterations of evolving process \\
+  $c$  & $n/5$ & \spc \# of genes carried from parent in crossing \\[2pt]
+  \hline
+  \end{tabular}
+  \captionof{table}{Parameters used in SCE algorithm.}
+  \label{tab:params}
+
+
+
+\begin{minipage}[t]{0.5\linewidth}
+\hspace{3cm}
+\begin{tabular}{|r|r|rr|} \hline
+\textbf{n}   & \textbf{m}  & \textbf{SCE t (s)} & \textbf{gap (\%)} \\ \hline
+   $100$ & $5$  & $0.81$ & $97.6$ \\
+	   & $10$ & $0.86$ & $97.0$ \\
+	   & $30$ & $1.02$ & $96.7$ \\ \cline{2-4}
+    & \multicolumn{2}{r}{{\bf average gap}}  & $\bf 97.1$  \\ \hline
+   $250$ & $5$  & $1.75$ & $95.3$ \\
+	   & $10$ & $1.83$ & $95.0$ \\
+	   & $30$ & $2.24$ & $94.7$ \\ \cline{2-4}
+    & \multicolumn{2}{r}{{\bf average gap}}  & $\bf 95.0$  \\ \hline
+   $500$ & $5$  & $3.23$ & $93.7$ \\
+	   & $10$ & $3.40$ & $93.7$ \\
+	   & $30$ & $3.91$ & $93.3$ \\ \cline{2-4}
+    & \multicolumn{2}{r}{{\bf average gap}}  & $\bf 93.6$  \\ \hline
+\end{tabular}
+ \captionof{table}{SCE performance on Chu-Beasley problems.}
+ \label{tab:chu}
+\end{minipage}
+\begin{minipage}[t]{0.5\linewidth}
+\centering
+\begin{tabular}[c]{|r|r|r|rrr|} \hline
+\textbf{n}   & \textbf{m}  & \textbf{$\alpha$}    &\textbf{SCIP t (s)}& \textbf{SCE t (s)} & \textbf{gap (\%)} \\ \hline
+$500$ & $10$ & $0.25$ & $278.85$ & $  2.23$  & $96.1$ \\
+    &    & $0.50$ & $177.32$ & $  2.14$  & $98.4$ \\
+    &    & $0.75$ & $  8.47$ & $  1.87$  & $99.6$ \\ \cline{2-6}
+    & \multicolumn{4}{r}{\textbf{average gap}}  & $\bf 98.0$  \\ \hline
+    & $20$ & $0.25$ & $284.11$ & $  2.30$  & $96.7$ \\
+    &    & $0.50$ & $275.68$ & $  2.16$  & $98.6$ \\
+    &    & $0.75$ & $ 33.67$ & $  1.90$  & $99.7$ \\ \cline{2-6}
+    & \multicolumn{4}{r}{\textbf{average gap}}  & $\bf 98.3$  \\ \hline
+    & $30$ & $0.25$ & $283.78$ & $  2.50$  & $96.9$ \\
+    &    & $0.50$ & $283.54$ & $  2.32$  & $98.7$ \\
+    &    & $0.75$ & $ 71.66$ & $  1.96$  & $99.7$ \\ \cline{2-6}
+    & \multicolumn{4}{r}{\textbf{average gap}}  & $\bf 98.3$  \\ \hline
+\end{tabular}
+ \captionof{table}{SCE performance on random generated problems.}
+ \label{tab:rand}
+\end{minipage}
 
 \color{SaddleBrown} % SaddleBrown color for the conclusions to make them stand out
 
 \section*{Conclusions}
 
-\begin{itemize}
-\item Pellentesque eget orci eros. Fusce ultricies, tellus et pellentesque fringilla, ante massa luctus libero, quis tristique purus urna nec nibh. Phasellus fermentum rutrum elementum. Nam quis justo lectus.
-\item Vestibulum sem ante, hendrerit a gravida ac, blandit quis magna.
-\item Donec sem metus, facilisis at condimentum eget, vehicula ut massa. Morbi consequat, diam sed convallis tincidunt, arcu nunc.
-\item Nunc at convallis urna. isus ante. Pellentesque condimentum dui. Etiam sagittis purus non tellus tempor volutpat. Donec et dui non massa tristique adipiscing.
-\end{itemize}
+In this work we addressed the application of the shuffled complex
+evolution (SCE) to the multidimensional knapsack problem and investigated it
+performance through several computational experiments.
+
+The SCE algorithm, which combines the ideas of a controlled random search with
+the concepts of competitive evolution proved to be very effective in finding
+good solution for hard instances of MKP, demanding a very small amount of
+processing time to reach high quality solutions for MKP.
 
 \color{DarkSlateGray} % Set the color back to DarkSlateGray for the rest of the content
 
@@ -169,14 +246,21 @@ Aliquam non lacus dolor, \textit{a aliquam quam} \cite{Smith:2012qr}. Cum sociis
 %	FORTHCOMING RESEARCH
 %----------------------------------------------------------------------------------------
 
-\section*{Forthcoming Research}
+\section*{Future remarks}
+\begin{itemize}
+	\item Application of problem reduction procedures for the MKP;
+	\item Investigation of different crossing procedures;
+	\item Use of local search in the process of evolving complexes.
+\end{itemize}
 
-\nocite{*} % Print all references regardless of whether they were cited in the poster or not
+
+%\nocite{*} % Print all references regardless of whether they were cited in the poster or not
 \bibliographystyle{plain} % Plain referencing style
-\bibliography{sample} % Use the example bibliography file sample.bib
+\bibliography{../../../refs} % Use the example bibliography file sample.bib
 
 
 \section*{Acknowledgements}
+Research supported by Funda\c c\~ao de Amparo \`a Pesquisa do Esp\'irito Santo.
 
 \end{multicols}
 
