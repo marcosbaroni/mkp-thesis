@@ -9,13 +9,14 @@ the \nth{2} in second complex, individual N\ts{th} goes to N\ts{th} complex,
 individual $M+1$ goes back to the first complex, etc.
 \begin{center}
 \noindent\begin{tabular}{@{\hspace{0.0em}}c@{\hspace{1.0em}}c@{\hspace{0.0em}}}
-\includegraphics[width=0.46\linewidth]{imgs/flow1a} &
-\includegraphics[width=0.46\linewidth]{imgs/flow2} 
+\hspace{-3mm}\includegraphics[width=0.46\linewidth]{imgs/flow1a} &
+\hspace{-3mm}\includegraphics[width=0.46\linewidth]{imgs/flow2} \\
+{\small The SCE algorithm.} & {\small Evolving stage.}
 \end{tabular}
 \end{center}
 \nocite{duan1992effective}
 The next step after shuffling the complexes is to evolve each complex through
-a given fixed amount of $K'$ steps:
+a fixed amount of $K'$ steps:
 the individuals in each complex is sorted by descending order of fitness quality.
 In each step a subcomplex of $P$ individuals is selected from the
 complex, prioritizing individuals with better fitness.
