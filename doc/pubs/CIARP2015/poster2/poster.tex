@@ -9,12 +9,14 @@
 \usepackage{rotating}
 \usepackage{bm}
 \usepackage{url}
-\usepackage[brazil]{babel}   
+%\usepackage[brazil]{babel}   
 \usepackage[utf8]{inputenc}  
 \usepackage{algpseudocode}
 \usepackage{algorithm}
 \usepackage{graphicx}
 \usepackage{multicol}
+\usepackage{setspace}
+\usepackage[super]{nth}
 
 %\usepackage{times}
 %\usepackage{helvet}
@@ -41,6 +43,9 @@
 \newcommand{\NegE}{\SET N}
 \newcommand{\Occluded}{\SET O}
 \newcommand{\occluded}{o}
+
+\newcommand{\ts}{\textsuperscript}
+\newcommand{\spc}{\phantom{a}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%% Some math symbols used in the text
@@ -141,8 +146,9 @@
   % Eye Catcher
   {\includegraphics[height=8em]{imgs/ninfa_logo.png}} 
   % Title
-  {\bf\textsc{A shuffled complex evolution algorithm for
-the multidimensional knapsack problem}\vspace{0.5em}}
+  {
+\bf\textsc{\huge A Shuffled Complex Evolution Algorithm for
+The Multidimensional Knapsack Problem}\vspace{0.5em}}
   % Authors
   %{\textsc{\{dluchi,wsantos,arodrigues,fvarejao\}@ninfa.inf.ufes.br}}
 {\textsc{Marcos Baroni \& Flávio Varejão}}
@@ -166,35 +172,41 @@ the multidimensional knapsack problem}\vspace{0.5em}}
     \newcommand{\colouredcircle}{%
       \tikz{\useasboundingbox (-0.2em,-0.32em) rectangle(0.2em,0.32em); \draw[draw=black,fill=lightblue,line width=0.03em] (0,0) circle(0.18em);}}
 
-	  \headerbox{The Problem (MKP)}{name=problem,column=0,row=0}{
+\headerbox{The Problem (MKP)}{name=mkp,column=0,row=0}{
 	\input{texs/mkp.tex}
  }
 
- \headerbox{The Meta-heuristic (SCE)}{name=contribution,column=0,below=problem}{
+\headerbox{The Meta-heuristic (SCE)}{name=sce,column=0,below=mkp}{
 	\input{texs/sce.tex}
 }
 
-\headerbox{The SCE for MKP}{name=results,column=1,span=2,row=0}{
+\headerbox{Results}{name=results,column=1,span=2,row=0}{
+	\input{texs/results.tex}
+}
+
+\headerbox{The SCE for MKP}{name=scemkp,column=1,span=1,row=0, below=results}{
 	\input{texs/sce-mkp.tex}
 }
 
-\headerbox{References}{name=references,column=0,above=bottom}{
+\headerbox{References}{name=references,column=1,above=bottom}{
+  \bibliographystyle{plain} % Plain referencing style
+  \bibliography{../../../refs} % Use the example bibliography file sample.bib
 }
 
-\headerbox{Genetic Operators}{name=background model,column=1,below=results}{
+\headerbox{Experimental Setup}{name=setup,column=2,below=results}{
+	\input{texs/setup.tex}
 }
 
-\headerbox{Scalability}{name=speed,column=2,row=0,below=results,bottomaligned=background model}{
+\headerbox{Conclusions}{name=conclusions,column=2,below=setup}{
+	\input{texs/conclusions.tex}
 }
 
-\headerbox{Acknowledgement}{name=source,column=2,below=speed,above=bottom}{
+\headerbox{Future Remarks}{name=future,column=2,below=conclusions}{
+	\input{texs/future.tex}
 }
 
-\headerbox{A Future Direction}{name=questions,column=1,span=1,below=background model,above=bottom}{
-}
-
-\headerbox{Method}{name=method,column=0,below=contribution,above=references}{
-	jjjj
+\headerbox{Acknowledgement}{name=acknowledgement,column=2,above=bottom}{
+Research supported by Funda\c c\~ao de Amparo \`a Pesquisa do Esp\'irito Santo.
 }
 
 \end{poster}

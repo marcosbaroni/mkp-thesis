@@ -1,0 +1,25 @@
+Two main tests was considered:
+(a) using the well-known set of problems defined by Chu and Beasley \cite{Chu-Beasley-1998}
+and (b) a large set of randomly generated instances using uniform distribution.
+The number of constraints $m$ varies among $5$, $10$ and $30$, and the number
+of variables $n$ varies among $100$, $250$ and $500$.
+\\[2mm]
+\begin{minipage}[c]{0.4\linewidth}
+  \begin{center}
+    \input{texs/tab1.tex}
+	\\[2mm]
+	Chu-Beasley problems.
+  \end{center}
+\end{minipage}
+\begin{minipage}[c]{0.6\linewidth}
+  \begin{center}
+    \input{texs/tab2.tex}
+	\\[2mm]
+	Random generated problems.
+  \end{center}
+\end{minipage}
+\\[2mm]
+For the set of random instances all best known solution was found by the solver
+SCIP running for at least 10 minutes.
+SCIP is an open-source integer programming solver which
+implements the branch-and-cut algorithm.
