@@ -1,8 +1,8 @@
-Prova2:
- 1 - Montagem de circuito, a partir de tabela verdade de 4 variáveis e 4
-	saídas (verificar habilidade do aluno em projetar circuitos na mão);
- 2 - Contador assíncrono
- 3 - Contados síncrono
- 4 - Demultiplexador/Multiplexador
- 5 - Memória
 
+1 - Projeto de um contador assíncrono de década.
+2 - Projeto de um contador síncrono de sequencia qualquer (3 variáveis).
+3 - Projeto de RAM
+    a) Projetar uma RAM 2x4.
+    b) Ampliar para uma RAM maior.
+4 - Apliação de MUX/DEMUX.
+5 - Classificação de RAM.
