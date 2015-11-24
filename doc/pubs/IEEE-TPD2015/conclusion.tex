@@ -1,0 +1,29 @@
+\section{Conclusion}
+\label{sec:conclu}
+
+The main objectives on this work were (1) to understand and formally model the EDCO's loss reduction problem, (2) test the hardness
+of the created model and (3) solve the model with exact and heuristic approaches.
+
+The electricity loss reduction problem was modelled as a generalization of the famous Knapsack Problem. So the first goal was met
+with the creation of a mathematical model combining characteristics of the Bounded Knapsack Problem, the Multidimensional Knapsack
+Problem, the Multiple Knapsack Problem and the Partially-Odered Knapsack Problem. While reaching this first goal, two 
+generalizations of the Knapsack Problem were created, the POMMBKP and the POMMBKPDSA, the first being a generalization of
+all those Knapsack Problem variations and the second being a generalization of the first. No work concerning any of these two new 
+Knapsack Problem versions was found on the literature, and we believe that, due to their generality, they may be used to model 
+several real world problems with greater details.
+
+Due to the lack of real world instances for the EDCO's problem (the POMMBKPDSA), another contribution was made in the form of an 
+artificial instance generator and a set of benchmark instances for the problem, available under request to the authors. As a way to achieve objective (2)
+those bechmark instances were solved with the CPLEX solver. These experiments demonstrated that with the increase of some dimensions
+of the instances, the exact solver is no longer able to prove the optimal solution within a limited time. It was shown that this 
+incarnation of the Knapsack Problem, even if not exactly as predicted by literature, is also sensitive to the instances correlation level.
+
+To achieve objective (3), besides the CPLEX solver two heuristics were proposed, the first based on a greedy approach (GALP) and the second based 
+on the metaheuristic Tabu Search (TSLP). The heuristics were used to solve the benchmark instances and their solutions were compared to the best
+known ones. Both heuristics where able to find good quality solution, quite close to the best known. Particularly, the TSLP obtained better results
+concerning the quality of the solutions found, but at a greater time cost.
+
+However it is worthy to note that the best solutions were still found by the CPLEX solver. Besides, even when the CPLEX's solving 
+process was interrupted before the end, on the worst cases the solution was at most at 0.35\% of the optimal solution. Being the method which
+found the best solutions, even in the cases it was interrupted, the CPLEX is probably the best option 
+to solve instances of the problem with the dimensions expected to be found in practice.

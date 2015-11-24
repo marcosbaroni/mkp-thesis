@@ -1,0 +1,103 @@
+\documentclass[review]{elsarticle}
+
+\usepackage{lineno,hyperref}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage[longend,linesnumbered]{algorithm2e}
+\usepackage{subfig}
+\usepackage{pstricks}
+\usepackage{setspace}
+\modulolinenumbers[5]
+
+
+
+\usepackage{float}
+
+
+\journal{European Journal of Operational Research}
+
+%%%%%%%%%%%%%%%%%%%%%%%
+%% Elsevier bibliography styles
+%%%%%%%%%%%%%%%%%%%%%%%
+%% To change the style, put a % in front of the second line of the current style and
+%% remove the % from the second line of the style you would like to use.
+%%%%%%%%%%%%%%%%%%%%%%%
+
+%% Numbered
+%\bibliographystyle{templates/model1-num-names}
+
+%% Numbered without titles
+%\bibliographystyle{templates/model1a-num-names}
+
+%% Harvard
+%\bibliographystyle{templates/model2-names.bst}\biboptions{authoryear}
+
+%% Vancouver numbered
+%\usepackage{templates/numcompress}\bibliographystyle{templates/model3-num-names}
+
+%% Vancouver name/year
+%\usepackage{numcompress}\bibliographystyle{templates/model4-names}\biboptions{authoryear}
+
+%% APA style
+%\bibliographystyle{templates/model5-names}\biboptions{authoryear}
+
+%% AMA style
+%\usepackage{templates/numcompress}\bibliographystyle{templates/model6-num-names}
+
+%% `Elsevier LaTeX' style
+\bibliographystyle{templates/elsarticle-num}
+%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\makeatletter
+\def\@author#1{\g@addto@macro\elsauthors{\normalsize%
+    \def\baselinestretch{1}%
+    \upshape\authorsep#1\unskip\textsuperscript{%
+      \ifx\@fnmark\@empty\else\unskip\sep\@fnmark\let\sep=,\fi
+      \ifx\@corref\@empty\else\unskip\sep\@corref\let\sep=,\fi
+      }%
+    \def\authorsep{\unskip,\space}%
+    \global\let\@fnmark\@empty
+    \global\let\@corref\@empty  %% Added
+    \global\let\sep\@empty}%
+    \@eadauthor={#1}
+}
+\makeatother
+
+\begin{document}
+
+\begin{frontmatter}
+
+\title{An Empirical Comparison of three Computational Approaches for Minimizing Losses on Electricity Distribution}
+
+%% Group authors per affiliation:
+\author[ufes]{Jo\~ao Carlos H. Moreira \corref{cor1}}
+\ead{joao.c.moreira@ufes.br}
+\cortext[cor1]{Corresponding author}
+
+\author[ufes]{Marcos Daniel V. Baroni}
+\ead{mbaroni@ninfa.inf.ufes.br}
+\author[ufes]{Fl\'avio Miguel Varej\~ao}
+\ead{fvarejao@ninfa.inf.ufes.br }
+
+\address[ufes]{N\'ucleo de Infer\^encia e Algoritmos, Universidade Federal do Esp\'irito Santo,
+Goiabeiras, Vit\'oria, Esp\'irito Santo, Brasil 29075-910}
+
+\input{abstract.tex}
+
+\end{frontmatter}
+
+
+\input{intro.tex}
+\input{model.tex}
+\input{approach.tex}
+\input{exp_data.tex}
+\input{exp_result.tex}
+\input{conclusion.tex}
+
+
+\section*{References}
+
+\bibliography{mybibfile}
+
+\end{document}

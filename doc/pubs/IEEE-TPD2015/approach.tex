@@ -1,0 +1,167 @@
+\section{Computational Approach}
+\label{sec:approach}
+
+To solve the POMMBKPDSA we used three approaches:
+
+\begin{itemize}
+  \item An exact approach, using integer programming techniques;
+  \item a heuristic based on a greedy strategy, using the truncated solution of the linear relaxation of the problem, called GALP;
+  \item a Tabu Search based heuristic, also using the truncated solution of the linear relaxation of the problem, called TSLP.
+\end{itemize}
+
+The first approach used, the exact approach, was to solve the formulation of the problem described in 
+equation~\ref{eq:pmmlpo++} using the \textit{branch-and-cut} method~\cite{padberg1991branch} implemented on the
+CPLEX solver~\cite{Cplex}.
+
+Before explaining the other two approaches, it is important to explain the reason why both heuristics used 
+the truncated solution of the LP-relaxed version of the problem as starting points. During our tests, we tried 
+to use other alternatives as starting points for the heuristics, like empty solutions or randomly generated 
+solutions. Still those alternatives never yielded better results than starting the heuristics from the truncated
+solution of the LP-relaxed version of the problem. In fact, we found out that this solution was on the worst case
+97.7\% of the solution of the LP-relaxed version of the problem, which is an upper bound, and at 99.65\% on the average case.
+Being such a good starting point, and so easily obtainable by modern solvers, it seems a good choice to start the 
+heuristic from this solution.
+
+The second applied technique, the GALP, is a local search heuristic using a greedy strategy. Generally, greedy strategies have the disadvantage 
+of not being able to escape any local optimum they reach. On the other hand, they usually converge faster than other methods, 
+making them suitable alternatives when fast viable solutions are desired. Also, they are usually easy to understand and implement.
+
+Algorithm~\ref{alg:galp} describes the greedy algorithm developed for the POMMBKPDSA. The heuristic receives as initial solution 
+the truncated solution of the LP-relaxed version of the problem. It then tries to improve it by iteratively adding items to the 
+knapsacks until no more additions are possible. It is divided in three phases: On the first phase, the algorithm generates a list
+of all possible allocations which may be made on a solution. Those alocations are all the possible combinations of item vs. knapsack, 
+and represent the addition of a certain item to a knapsack. That list is then sorted by decreasing order of each alocation's efficiency,
+i.e. how much each alocation contributes to the increase of the objective function. In the last phase, that sorted list of alocations
+is used to iterativelly improve the initial solution.
+
+\begin{algorithm}
+  \caption{Greedy Algorithm}
+  \label{alg:galp}
+  \KwIn{Initial Solution: $S_{initial}$}
+  \KwOut{Best Solution: $S_{best}$}
+  \Begin{
+
+	$S_{best} \gets S_{initial}$ 
+
+	$AlocationList \gets GenerateAlocations()$ \label{alg:galp:gera}
+	
+	$AlocationList \gets DecreasingOrder(AlocationList)$ \label{alg:galp:ordena}
+
+	$Improved \gets True$ 
+
+	\While {$Improved$}{\label{alg:galp:inicioloop}
+	  $Improved \gets False$ 
+	  
+	  \For{$Alocation \in AlocationList \ \&\& \ not\  Improved$}{\label{alg:galp:inicioloopinterno}
+	    \If{$isViable(S_{best}, Alocation)$}{
+	    
+	      $S_{best} \gets S_{best} + Alocation$ \label{alg:galp:melhoria}
+	      
+	      $Improved \gets True$ 
+	    }
+	  }\label{alg:galp:fimloopinterno}
+	}\label{alg:galp:fimloop}
+	
+	retorna $S_{best}$ 
+  }
+\end{algorithm}
+
+At line~\ref{alg:galp:gera}, GenerateAlocations() function generates a list with all the possible alocations of items in knapsacks. 
+For example, for an instance of the problem with two knapsacks and three items, the list generated would be \{(1,1), (1,2), (2,1), (2,2), (3,1), (3,2)\},
+where each pair from the list represents adding one copy of an item to a knapsack. On the sequence, on line~\ref{alg:galp:ordena} that list is 
+ordered by descending order of efficiency, i.e. how much each item contributes to the increase on the objective function's value. The initial solution is 
+then iteratively improved on the loop between lines~\ref{alg:galp:inicioloop} 
+and~\ref{alg:galp:fimloop}. At each step, the alocation list is searched for the alocation with the highest efficiency which leads to a viable solution.
+Once that alocation is found, the currently best solution is updated with the alocation (line~\ref{alg:galp:melhoria}) and the loop continues, until no
+alocation can lead to a viable solution. At that point, the algorithm stops and returns the best solution found.
+
+The last applied heuristic, the TSLP, is an implementation of the metaheuristic Tabu Search~\cite{glover1989tabup1}. This metaheuristic has been heavilly used on the
+last decades to tackle Combinatorial Optimization problems, has already been applied on the dKP in~\cite{danmeyer1993} and for some time the Tabu Search presented at~\cite{vasquez2001} 
+and improved at~\cite{vasquez2005} was the method which obtained the best results for the dKP intances commonly used in the litarature.
+
+Like the greedy algorithm previously presented, the Tabu Search is also essentially a local search method, so it should also present a tendency to 
+become stuck at local optima. To work around this problem, the Tabu Search allows that during the search, when no solution better than the current one is found,
+a worse solution may be chosen with the spectation that this choice will lead to better solutions on the long run. Also, in this method, the characteristics
+of all the choices made during the search may be taken in consideration when making the next choice. Because of those characteristics, the Tabu Search is usually
+able to escape local optima and find better solutions than other simple local searches.
+
+Before explaining the implemented heuristic, it's useful to explain some terms which will be used ahead. The first of them are the 
+\textit{moves}. Moves are the operations applied on a solution which takes them to another solution. The set of solutions which can be reached
+from solution $x$ by applying one of the possible movements is called x's \textit{Neighborhood}. One characteristic component of the Tabu Search is the
+\textit{Tabu List}. This list usually contains moves or characteristics that lead to unwanted solutions, and is used during the search to forbid certain moves
+as a way to escape local optima and hopefully guide the search towards better solutions.
+
+The pseudocode presented in algorithm~\ref{alg:tabu} describes the implemented heuristic. It receives the 
+initial solution and tries to improve that solution by iteractively searching its neighborhood.
+
+\begin{algorithm}
+\caption{Tabu Search}
+\label{alg:tabu}
+\KwIn{Initial Solution: $S_{initial}$}
+\KwOut{Best Solution: $S_{best}$}
+\Begin{
+
+  $S_{current} \gets S_{initial}$
+  
+  $S_{best} \gets S_{initial}$ 
+  
+  $ListaTabu \gets \emptyset$
+
+  \While{$\neg stoppingCondition$}{\label{alg:tabu:inicioloop}
+  
+      $moves \gets Neighborhood(S_{current})$\label{alg:tabu:vizinhanca}
+      
+      $move \gets BestNonTabuMove(moves)$\label{alg:tabu:melhormovimento}
+      
+      $S_{current} \gets S_{current} + move$\label{alg:tabu:movimento}
+      
+      $TabuList \gets TabuList + move$\label{alg:tabu:tabu}
+      
+      \If{$S_{current} \geq S_{best}$}{
+	 $S_{best} \gets S_{current}$\label{alg:tabu:melhor}
+	 
+	 $ResetTabuList()$
+      }
+  }\label{alg:tabu:fimloop}
+  return $S_{best}$
+}
+\end{algorithm}
+
+The most relevant part of the heuristic happens on the loop between lines~\ref{alg:tabu:inicioloop}
+and~\ref{alg:tabu:fimloop}. Firstly, all the moves leading to neighbours of the current solutions are obtained at 
+line~\ref{alg:tabu:vizinhanca}. At line~\ref{alg:tabu:melhormovimento} the function \textit{BestMoveNotTabu()} searches
+the movement list for the move which will lead to the greatest value for the objective function and is not forbidden
+by the Tabu List. The current solution is then updated with the chosen move (line~\ref{alg:tabu:movimento}), 
+the Tabu List is also updated with the chosen move (line ~\ref{alg:tabu:tabu}) 
+and finally if the current solution is better than the best solution found so far, the best solution is updated 
+with the current solution (line~\ref{alg:tabu:melhor}) and the tabu list is reset.
+
+An important aspect to be considered when implementing a Tabu Search is how to implement and manage the Tabu List (TL).
+In this work, a dynamic TL management method was implemented based on the Reverse Elimination Method (REM)~\cite{glover1990tabup2}. This method leads to
+an exact tabu status, meaning that any move present in the TL leads to a solution that was already visited by the search. The method works
+by adding the move made at each iteraction to the Tabu List. When a new move is added to the Tabu List, the list is traced in reverse order
+to build an Active Tabu List (ATL), which contains every move that will lead to a solution already visited during the search. Now, in order to check if a move
+is forbidden, all we have to do is check if it is contained in the ATL. When a new global optimum is found during the search, the TL is cleared.
+For more details on the Reverse Elimination Method the reader is directed to~\cite{glover1990tabup2}.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

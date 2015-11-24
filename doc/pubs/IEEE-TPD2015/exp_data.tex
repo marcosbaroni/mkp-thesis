@@ -1,0 +1,102 @@
+\section{Experimental Data}
+\label{sec:exp_data}
+
+In order to test the hardness of the POMMBKPDSA and assess the quality of the solutions obtained by the methods 
+proposed on the previous section, a large number of instances of the problem are needed to make useful 
+conclusions. Unfortunatelly, our local EDCO wasn't able to provide that number of instances, so we had 
+to develop an instance generator to create a sufficient amount of artificial instances to run the tests. 
+The generator creates instances according to the formulation of the POMMBKPDSA, with parameters that can be 
+adjusted to build instances of different sizes and characteristics. It receives as parameters:
+
+\begin{itemize}
+  \item $Y$, the number of years (knapsacks);
+  \item $A$, the number of actions (items);
+  \item $R$, the number of budgets or resources (dimensions);
+  \item $\alpha$, the level of correlation between each action's cost and profit.
+\end{itemize}
+
+The algorithm for the instance generator is composed of three parts: the actions generation,
+the budgets and goals generation and the dependencies generation. When the actions are 
+being generated, the first characteristic created is the elecricity value ($v_a$), followed
+by the yearly ($u_{a,y}$) and global ($m_a$) markets. This part also generates the cost of the
+action on each budget ($c_{a,r}$) and the action's electricity recovery curve ($e_{j,k}$). The 
+algorithm's second part covers the creation of the yearly goals ($g_y$) and the yearly budgets
+for each resource ($o_{y,r}$). The last part generates some random dependencies between actions.
+The code for the generator is presented in algorithm~\ref{alg:gen}.
+
+Firstly, lines~\ref{alg:gen:line:actionbegin} to~\ref{alg:gen:line:actionend} show the creation of the $A$ actions.
+The electricity value is created at line~\ref{alg:gen:line:actionvalue} as a real value between
+1.0 and 2.0. The yearly market is generated at line~\ref{alg:gen:line:market} as a random integer between 0 e 50 
+and the global market is created at line~\ref{alg:gen:line:uc} as $90\%$ of the yearly markets sum.
+The global market is created a bit below the yearly markets sum because if it is equal or greater than that sum, the 
+global market restriction becomes useless, as it will never be reached. At line~\ref{alg:gen:line:cost}, 
+the action's costs over each resource are created. Lines~\ref{alg:gen:line:vectorbegin} to~\ref{alg:gen:line:vectorend} build a 
+random array of size $Y$ where the sum of all components is 1. This array is used to create the actions loss reduction curve at 
+line~\ref{alg:gen:line:rec}.
+
+The total electricity loss avoided by the action (the electricity recovered) is created as a function of two components: the sum of the action's
+cost plus a fixed value and a random number. The correlation parameter ($\alpha$) is used to dose how much each component will be used on the curve's 
+creation. When $\alpha$ is zero, only the first component is utilized and the amount of electricity recovered by the action, and consequently its profit,
+is strongly correlated to the action's total cost, in other words, costlier actions recover more electricity. On the other side, when $\alpha$ equals
+one, there is no correlation between an action's cost and it's profit. The total electricity loss is then divided by the number of years to generate the 
+action's loss reduction curve, using the normalized array created before.
+
+\begin{spacing}{1.2}
+\begin{algorithm}[H]
+\caption{Instance Generator}
+\label{alg:gen}
+\KwIn{$Y$, $A$, $R$, $\alpha$}
+\KwOut{Generated instance}
+\Begin{
+    $r \gets 0.10$ \\
+    \For {$a=1$ to $A$}{ \label{alg:gen:line:actionbegin}
+      $v_a \gets RandomReal(1.0, 2.0)$ \label{alg:gen:line:actionvalue}
+      
+      \For {$y=1$ to $Y$}{ 
+	  $u_{a,y} \gets RandomInteger(0, 50)$  \label{alg:gen:line:market}
+      }
+      
+      $m_{a} \gets 0.9 * Sum(u_{a})$ \label{alg:gen:line:uc}
+      
+      \For {$r=1$ to $R$}{
+	  $c_{a,r} \gets RandomReal(1.0, 100.0)$ \label{alg:gen:line:cost}
+      }
+      
+      \For {$y=1$ to $Y$}{ \label{alg:gen:line:vectorbegin}
+	  $W_{y} \gets RandomReal(0.0, 1.0)$
+      }
+      
+      \For {$y=1$ to $Y$}{
+	  $W_{y} \gets W_{y}/Sum(W_y)$
+      } \label{alg:gen:line:vectorend}
+      
+      \For {$y=1$ to $Y$}{
+	  $e_{a,y} \gets ((1 - \alpha) \times ((2 \times Sum(c_{a}) + 10)/v_a) + (\alpha \times RandomReal(1.0, 100.0) \times R)) \times W_{y} \times (1 + r)^y$ \label{alg:gen:line:rec}
+      }
+    
+    } \label{alg:gen:line:actionend}
+    
+    \For {$y=1$ to $Y$} {\label{alg:gen:line:budgbegin}
+	$aux \gets 0.5 * Sum(e_{y})/Y$ \\
+	$g_{y} \gets RandomReal(0.95*aux, 1.05*aux)$ \\
+	\For {$r=1$ to $R$} {
+	    $aux \gets 0.5 * Sum(c_{y,r})/Y$
+	    $o_{y,r} \gets RandomReal(0.95*aux, 1.05*aux)$
+	}
+    } \label{alg:gen:line:budgend}
+
+    \For {$i=1$ to $A/10$} {
+	GenerateDependency() \label{alg:gen:line:deps}
+    }
+}
+\end{algorithm}
+\end{spacing}
+
+At the second part, between lines~\ref{alg:gen:line:budgbegin} and~\ref{alg:gen:line:budgend}, the loss reduction goals and the budgets for
+each resource are created, for each year. Yearly goals are created as half the sum of all electricity recovered by all actions, divided 
+by the number of years($\pm5\%$). This approach ensures solutions won't have too few actions, and won't be composed of all possible 
+actions allocations. Bugdets are created analogously, but one budget per resource per year is created.
+
+Line~\ref{alg:gen:line:deps} creates the dependencies between actions. For each execution of the loop, function GenerateDependency() 
+choses two random actions and creates a dependency between them, avoiding cyclical dependencies, as any action involved in a cyclical 
+dependency would never be chosen.
