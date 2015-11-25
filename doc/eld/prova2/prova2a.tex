@@ -1,0 +1,100 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[cm]{fullpage}
+\usepackage{amssymb}
+\usepackage{multicol}
+\usepackage{graphicx}
+
+\newcommand{\exerc}[3]{ \vspace*{25pt} {$\mathbf{#1)}$} #2 \hfill {\it #3} }
+\newcommand{\exitem}[2]{ \texttt{\bf #1)} #2 \\ }
+\newcommand*\xor{\mathbin{\oplus}}
+
+\renewcommand{\neg}[1]{ 
+  \mkern 1.5mu\overline{\mkern-1.5mu#1\mkern-1.5mu}\mkern 1.5mu
+}
+
+\newenvironment{exitems}[1]{
+\\
+\hspace*{30pt}
+\begin{minipage}{0.8\textwidth}
+\begin{multicols}{#1} 
+}{
+\end{multicols}
+\end{minipage}
+}
+
+\newenvironment{exitemss}[1]{
+\\
+\hspace*{30pt}
+\begin{minipage}{0.8\textwidth}
+#1
+}{
+\end{minipage}
+}
+
+\begin{document}
+
+\pagenumbering{gobble}
+
+\begin{center}
+{\Large \bf Elementos de Lógica Digital - 2015/2}
+\end{center}
+\vspace{2pt}
+
+{\large \bf 2ª Prova (2ª chamada)}
+
+{\bf Professor:} Marcos Daniel Baroni
+
+{\bf Data:} 24/11/2015
+
+\vspace{2pt}
+{\bf Nome:} \rule[-2mm]{130mm}{1pt}
+
+\exerc{1}{A partir de três blocos multiplexadores de 4 canais, projete um
+  multiplexador de 8 canais.}{(2.0 pontos)}
+  \begin{center}
+		  \includegraphics[width=20mm]{mux4}
+  \end{center}
+
+\vspace{-10pt}
+\exerc{2}{Esquematize o circuito interno de um contador assíncrono que conte de 0 a 7.}{(2.0 pontos)}
+
+%\exerc{3}{Projete um contador síncrono que conte a seguinte sequência:
+%$0 \rightarrow 
+% 3 \rightarrow
+% 4 \rightarrow
+% 6 \rightarrow
+% 2 \rightarrow
+% 5 \rightarrow 0$. Considere que o contador inicia ``zerado''.}{(2.0 pontos)}
+\exerc{3}{O contador abaixo realiza a contagem de qual sequencia?}{(2.0 pontos)}
+\begin{center}
+  \includegraphics[scale=0.6]{cont1} \\ \vspace{15pt}
+\end{center}
+
+\vspace{-20pt}
+\exerc{4}{Esquematize o circuito interno de uma memória tipo RAM 2x2,
+  utilizando uma célula básica de memória.}{(2.0 ponto)}
+  \begin{center}
+    \includegraphics[width=30mm]{mem}
+  \end{center}
+
+%\exerc{5}{A partir de dois blocos de memória RAM 2x2, realize o projeto
+%  de uma memória RAM 2x4.}{(1.0 ponto)}
+
+\exerc{5}{Preencha os atributos de acordo com os modelos de RAM indicados:}{(2.0 pontos)}
+\\
+\begin{center}
+\begin{tabular}{|l|c|c|}
+ \cline{2-3}
+ \multicolumn{1}{c|}{} & \multicolumn{2}{c|}{\bf RAM} \\ \cline{2-3}
+ \multicolumn{1}{c|}{} & {\bf 16k x 8} & {\bf 128 x 16} \\ \hline
+ Capacidade total (em bits) & \phantom{aaaaaaaaaaaaaa} & \phantom{aaaaaaaaaaaaaa} \\ \hline
+ Largura de palavra de dados & & \\ \hline
+ Largura da barra de endereços & & \\ \hline
+ Palavra de endereço inicial & & \\ \hline
+ Palavra de endereço final & & \\ \hline
+\end{tabular}
+\end{center}
+
+\end{document}
+

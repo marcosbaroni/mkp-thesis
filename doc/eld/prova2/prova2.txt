@@ -4,5 +4,5 @@
 3 - Projeto de RAM
     a) Projetar uma RAM 2x4.
     b) Ampliar para uma RAM maior.
-4 - Apliação de MUX/DEMUX.
+4 - Ampliação de MUX/DEMUX.
 5 - Classificação de RAM.
