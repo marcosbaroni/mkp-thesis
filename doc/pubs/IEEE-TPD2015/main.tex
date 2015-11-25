@@ -1,0 +1,65 @@
+%\documentclass[journal]{IEEEtran}
+\documentclass[peerreview]{IEEEtran}
+
+%\usepackage{lineno,hyperref}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage[longend,linesnumbered]{algorithm2e}
+\usepackage{subfig}
+\usepackage{pstricks}
+\usepackage{setspace}
+\usepackage{graphics}
+\usepackage{array}
+
+%\modulolinenumbers[5]
+
+\usepackage{float}
+
+\hyphenation{op-tical net-works semi-conduc-tor}
+
+\begin{document}
+
+\title{An Empirical Comparison of three Computational Approaches for Minimizing Losses on Electricity Distribution}
+
+\author{Jo\~ao Carlos.~H.~Moreira,
+	Marcos Daniel.~V.~Baroni,
+	Fl\'avio~M.~Varej\~ao,
+\thanks{Research supported by Funda\c c\~ao de Amparo \`a Pesquisa do Esp\'irito Santo.}}
+
+\markboth{IEEE TRANSACTIONS ON POWER DELIVERY ,Vol.~--, No.~--, --~2015}%
+{Moreira \MakeLowercase{\textit{et al.}}: An Empirical Comparison of three Computational Approaches for Minimizing Losses on Electricity Distribution}
+
+\maketitle
+
+\begin{abstract}
+\input{abstract.tex}
+\end{abstract}
+
+\begin{IEEEkeywords}
+OR in energy, combinatorial optimization, metaheuristics
+\end{IEEEkeywords}
+
+\IEEEpeerreviewmaketitle
+
+\input{intro.tex}
+
+\input{model.tex}
+\input{approach.tex}
+\input{exp_data.tex}
+\input{exp_result.tex}
+\input{conclusion.tex}
+
+% Can use something like this to put references on a page
+% by themselves when using endfloat and the captionsoff option.
+\ifCLASSOPTIONcaptionsoff
+  \newpage
+\fi
+
+%\section*{References}
+
+\bibliographystyle{ieeetr}
+\bibliography{mybibfile}
+
+\end{document}
+
+
