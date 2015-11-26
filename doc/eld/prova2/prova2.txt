@@ -1,8 +1,0 @@
-
-1 - Projeto de um contador assíncrono de década.
-2 - Projeto de um contador síncrono de sequencia qualquer (3 variáveis).
-3 - Projeto de RAM
-    a) Projetar uma RAM 2x4.
-    b) Ampliar para uma RAM maior.
-4 - Ampliação de MUX/DEMUX.
-5 - Classificação de RAM.
