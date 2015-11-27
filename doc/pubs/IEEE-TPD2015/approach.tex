@@ -34,37 +34,7 @@ and represent the addition of a certain item to a knapsack. That list is then so
 i.e. how much each alocation contributes to the increase of the objective function. In the last phase, that sorted list of alocations
 is used to iterativelly improve the initial solution.
 
-\begin{algorithm}
-  \caption{Greedy Algorithm}
-  \label{alg:galp}
-  \KwIn{Initial Solution: $S_{initial}$}
-  \KwOut{Best Solution: $S_{best}$}
-  \Begin{
-
-	$S_{best} \gets S_{initial}$ 
-
-	$AlocationList \gets GenerateAlocations()$ \label{alg:galp:gera}
-	
-	$AlocationList \gets DecreasingOrder(AlocationList)$ \label{alg:galp:ordena}
-
-	$Improved \gets True$ 
-
-	\While {$Improved$}{\label{alg:galp:inicioloop}
-	  $Improved \gets False$ 
-	  
-	  \For{$Alocation \in AlocationList \ \&\& \ not\  Improved$}{\label{alg:galp:inicioloopinterno}
-	    \If{$isViable(S_{best}, Alocation)$}{
-	    
-	      $S_{best} \gets S_{best} + Alocation$ \label{alg:galp:melhoria}
-	      
-	      $Improved \gets True$ 
-	    }
-	  }\label{alg:galp:fimloopinterno}
-	}\label{alg:galp:fimloop}
-	
-	retorna $S_{best}$ 
-  }
-\end{algorithm}
+\input{alg-greedy.tex}
 
 At line~\ref{alg:galp:gera}, GenerateAlocations() function generates a list with all the possible alocations of items in knapsacks. 
 For example, for an instance of the problem with two knapsacks and three items, the list generated would be \{(1,1), (1,2), (2,1), (2,2), (3,1), (3,2)\},
@@ -94,38 +64,7 @@ as a way to escape local optima and hopefully guide the search towards better so
 The pseudocode presented in algorithm~\ref{alg:tabu} describes the implemented heuristic. It receives the 
 initial solution and tries to improve that solution by iteractively searching its neighborhood.
 
-\begin{algorithm}
-\caption{Tabu Search}
-\label{alg:tabu}
-\KwIn{Initial Solution: $S_{initial}$}
-\KwOut{Best Solution: $S_{best}$}
-\Begin{
-
-  $S_{current} \gets S_{initial}$
-  
-  $S_{best} \gets S_{initial}$ 
-  
-  $ListaTabu \gets \emptyset$
-
-  \While{$\neg stoppingCondition$}{\label{alg:tabu:inicioloop}
-  
-      $moves \gets Neighborhood(S_{current})$\label{alg:tabu:vizinhanca}
-      
-      $move \gets BestNonTabuMove(moves)$\label{alg:tabu:melhormovimento}
-      
-      $S_{current} \gets S_{current} + move$\label{alg:tabu:movimento}
-      
-      $TabuList \gets TabuList + move$\label{alg:tabu:tabu}
-      
-      \If{$S_{current} \geq S_{best}$}{
-	 $S_{best} \gets S_{current}$\label{alg:tabu:melhor}
-	 
-	 $ResetTabuList()$
-      }
-  }\label{alg:tabu:fimloop}
-  return $S_{best}$
-}
-\end{algorithm}
+\input{alg-tabu.tex}
 
 The most relevant part of the heuristic happens on the loop between lines~\ref{alg:tabu:inicioloop}
 and~\ref{alg:tabu:fimloop}. Firstly, all the moves leading to neighbours of the current solutions are obtained at 
