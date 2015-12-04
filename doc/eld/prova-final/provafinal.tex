@@ -1,0 +1,55 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[cm]{fullpage}
+\usepackage{amssymb}
+\usepackage{multicol}
+\usepackage{graphicx}
+
+\newcommand{\exerc}[3]{ \vspace*{25pt} {$\mathbf{#1)}$} #2 \hfill {\it #3} }
+\newcommand{\exitem}[2]{ \texttt{\bf #1)} #2 \\ }
+\newcommand*\xor{\mathbin{\oplus}}
+\renewcommand{\neg}[1]{ 
+  \mkern 1.5mu\overline{\mkern-1.5mu#1\mkern-1.5mu}\mkern 1.5mu
+}
+
+\newenvironment{exitems}[1]{
+\\
+\hspace*{30pt}
+\begin{minipage}{0.8\textwidth}
+\begin{multicols}{#1} 
+}{
+\end{multicols}
+\end{minipage}
+}
+
+\newenvironment{exitemss}[1]{
+\\
+\hspace*{30pt}
+\begin{minipage}{0.8\textwidth}
+#1
+}{
+\end{minipage}
+}
+
+\begin{document}
+
+\pagenumbering{gobble}
+
+\begin{center}
+{\Large \bf Elementos de Lógica Digital - 2015/2}
+\end{center}
+{\large \bf Prova Final}
+{\bf Professor:} Marcos Daniel Baroni
+{\bf Data:} 10/12/2015
+
+% 1. Conversão sistemas numéricos (+complemento de 2)
+% 2. Algebra de boole (Simplificação)
+% 3. Contador assíncrono
+% 4. Projeto de contador síncrono
+% 5. Circuito interno de RAM (Expansão?)
+% 6. Atributos de uma memória RAM
+% 7. Curva do flip-flop JK (??)
+% 8. Tabela verdade de somador
+
+\end{document}
+
