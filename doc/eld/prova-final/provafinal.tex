@@ -38,54 +38,46 @@
 \begin{center}
 {\Large \bf Elementos de Lógica Digital - 2015/2}
 \end{center}
+
 {\large \bf Prova Final}
+
 {\bf Professor:} Marcos Daniel Baroni
+
 {\bf Data:} 10/12/2015
 
 \exerc{1}{Simplifique as expressão abaixo utilizando álgebra de Boole.}{(2.5 pontos)}
-\\ \hspace*{3em} \exitem{a}{ $S = \neg{A}B + C\neg{D}$ }
-   \hspace*{3em} \exitem{b}{ $S = \neg{A}B + C\neg{D}$ }
+\\ \hspace*{3em} \exitem{a}{
+     $S = \neg{(\neg{A}B + C\neg{D} + AD)}+\neg{A}$
+   }
+   \hspace*{3em} \exitem{b}{
+      $S = [\neg{ (\neg{\neg{B} + \neg{D}})\neg{(B + C)}+ C}] + \neg{A}\neg{B}C + \neg{B}(\neg{A+C})$
+   }
 
-\exerc{2}{Implemente a tabela verdade de um somador completo.}{(2.5 pontos)}
-\begin{multicols}{2}
-  \begin{tabular}{|c|c|c||c|c|}
-    \hline
-    $A$ & $B$ & $T_e$ & $S$ & $T_s$ \\ \hline
-    $0$ & $0$ & $0$ & & \\ \hline
-    $0$ & $0$ & $1$ & & \\ \hline
-    $0$ & $1$ & $0$ & & \\ \hline
-    $0$ & $1$ & $1$ & & \\ \hline
-    $1$ & $0$ & $0$ & & \\ \hline
-    $1$ & $0$ & $1$ & & \\ \hline
-    $1$ & $1$ & $0$ & & \\ \hline
-    $1$ & $1$ & $1$ & & \\ \hline
-  \end{tabular}
-\end{multicols}
+\exerc{2}{Implemente a tabela verdade de circuito contenha uma entrada $X$ que
+  funcione como um somador completo quando $X=0$ e como um subtrator completo quando $X=1$.}{(2.5 pontos)}
+\begin{center}
+  \includegraphics[scale=0.5]{circ}
+\end{center}
 
 \exerc{3}{Projete um contador síncrono que execute a sequência abaixo.}{(2.5 pontos)}
+\begin{center}
+  \includegraphics[scale=0.25]{seq}
+\end{center}
 
-\exerc{4}{Utilizando blocos RAM 64x4, esquematize uma RAM 64x8.}{(2.5 pontos)}
-\\ \exitem{a}{.}
-   \exitem{b}{
+\exerc{4}{Utilizando blocos RAM 64x4, esquematize uma RAM 64x8 e especifique as
+  características abaixo sobre a memória resultante.}{(2.5 pontos)}
+\\
+\begin{center}
 \begin{tabular}{|l|c|c|}
  \cline{2-2}
  \multicolumn{1}{c|}{} & {\bf RAM 64x8} \\ \hline
- Capacidade total (em bits) & \phantom{aaaaaaaaaaaaaa} \\ \hline
+ Capacidade total & \phantom{aaaaaaaaaaaaaa} \\ \hline
  Largura de palavra de dados & \\ \hline
  Largura da barra de endereços & \\ \hline
- Palavra de endereço inicial & \\ \hline
- Palavra de endereço final & \\ \hline
+ Palavra de endereço inicial (em hexadecimal) & \\ \hline
+ Palavra de endereço final (em hexadecimal) & \\ \hline
 \end{tabular}
-}
-
-% 1. Álgebra de boole (Simplificação)
-%  1.1.
-%  1.2.
-% 2. Tabela verdade de somador
-% 3. Projeto de contador síncrono (utilizando flip-flop JK)
-% 4. RAM:
-%  4.1. Expansão de uma memória RAM
-%  4.2. Atributos (capacidade total, end. inicial e final)
+\end{center}
 
 \end{document}
 
