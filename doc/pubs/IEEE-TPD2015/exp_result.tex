@@ -2,7 +2,8 @@
 \label{sec:exp_results}
 
 In order to evaluate the hardness of the instances created with the generator and the effectiveness of the proposed
-solution approaches, computational tests were conducted using both heuristics and the generic solver CPLEX~\cite{Cplex}.
+solution approaches, computational tests were conducted using both heuristics and the generic solver CPLEX.
+%solution approaches, computational tests were conducted using both heuristics and the generic solver CPLEX~\cite{Cplex}.
 
 Firstly, the created instances were solved with the CPLEX solver version 12.5.0, in order to verify their hardness. 
 The solver was used in its default configuration. Then, the GALP and TSLP algorithms were executed on the same instances.
@@ -194,5 +195,6 @@ Even considering that the heuristics starting point was already a good solution,
 the solutions found by the GALP were 99.912\% of the best known solutions, and the TSLP obtained 
 even better results, with it's solutions being 99.967\% of the best known ones, on average.
 
-Regarding the execution time, the TSLP had a maximum execution time of 2 minutes, with an average of 30 seconds.
+%Regarding the execution time,
+The TSLP had a maximum execution time of 2 minutes, with an average of 30 seconds.
 GALP had a negligible running time, below 1 second for all instances.

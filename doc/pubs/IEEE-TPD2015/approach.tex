@@ -11,7 +11,8 @@ To solve the POMMBKPDSA we used three approaches:
 
 The first approach used, the exact approach, was to solve the formulation of the problem described in 
 equation~\ref{eq:pmmlpo++} using the \textit{branch-and-cut} method~\cite{padberg1991branch} implemented on the
-CPLEX solver~\cite{Cplex}.
+CPLEX solver.
+%CPLEX solver~\cite{Cplex}.
 
 Before explaining the other two approaches, it is important to explain the reason why both heuristics used 
 the truncated solution of the LP-relaxed version of the problem as starting points. During our tests, we tried 
@@ -26,7 +27,7 @@ The second applied technique, the GALP, is a local search heuristic using a gree
 of not being able to escape any local optimum they reach. On the other hand, they usually converge faster than other methods, 
 making them suitable alternatives when fast viable solutions are desired. Also, they are usually easy to understand and implement.
 
-Algorithm~\ref{alg:galp} describes the greedy algorithm developed for the POMMBKPDSA. The heuristic receives as initial solution 
+Fig~\ref{alg:galp} describes the greedy algorithm developed for the POMMBKPDSA. The heuristic receives as initial solution 
 the truncated solution of the LP-relaxed version of the problem. It then tries to improve it by iteratively adding items to the 
 knapsacks until no more additions are possible. It is divided in three phases: On the first phase, the algorithm generates a list
 of all possible allocations which may be made on a solution. Those alocations are all the possible combinations of item vs. knapsack, 
@@ -35,7 +36,6 @@ i.e. how much each alocation contributes to the increase of the objective functi
 is used to iterativelly improve the initial solution.
 
 \input{alg-greedy.tex}
-
 At line~\ref{alg:galp:gera}, GenerateAlocations() function generates a list with all the possible alocations of items in knapsacks. 
 For example, for an instance of the problem with two knapsacks and three items, the list generated would be \{(1,1), (1,2), (2,1), (2,2), (3,1), (3,2)\},
 where each pair from the list represents adding one copy of an item to a knapsack. On the sequence, on line~\ref{alg:galp:ordena} that list is 
@@ -61,11 +61,10 @@ from solution $x$ by applying one of the possible movements is called x's \texti
 \textit{Tabu List}. This list usually contains moves or characteristics that lead to unwanted solutions, and is used during the search to forbid certain moves
 as a way to escape local optima and hopefully guide the search towards better solutions.
 
-The pseudocode presented in algorithm~\ref{alg:tabu} describes the implemented heuristic. It receives the 
+Fig.~\ref{alg:tabu} describes the implemented heuristic. It receives the 
 initial solution and tries to improve that solution by iteractively searching its neighborhood.
 
 \input{alg-tabu.tex}
-
 The most relevant part of the heuristic happens on the loop between lines~\ref{alg:tabu:inicioloop}
 and~\ref{alg:tabu:fimloop}. Firstly, all the moves leading to neighbours of the current solutions are obtained at 
 line~\ref{alg:tabu:vizinhanca}. At line~\ref{alg:tabu:melhormovimento} the function \textit{BestMoveNotTabu()} searches

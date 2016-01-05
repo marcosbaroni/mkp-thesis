@@ -8,14 +8,14 @@ to develop an instance generator to create a sufficient amount of artificial ins
 The generator creates instances according to the formulation of the POMMBKPDSA, with parameters that can be 
 adjusted to build instances of different sizes and characteristics. It receives as parameters:
 \begin{itemize}
-  \item $Y$, the number of years (knapsacks);
-  \item $A$, the number of actions (items);
-  \item $R$, the number of budgets or resources (dimensions);
-  \item $\alpha$, the level of correlation between each action's cost and profit.
+  \item the number of years (knapsacks);
+  \item the number of actions (items);
+  \item the number of budgets or resources (dimensions);
+  \item the level of correlation between each action's cost and profit ($\alpha$).
 \end{itemize}
-After those input parameters, the instance generation procedure follows three steps.
+After those input parameters are set, the instance generation procedure follows three steps.
 At first the actions characteristics are generated (recovery curve, costs, markets and electricity value)
-using uniform distributions with variations similar to those found in real context.
+using uniform distributions with variations similar to those found in real world applications.
 The second step is to compute yearly goals and yearly budgets,
 based on total sums of the characteristics of the actions.
 The last step generates some random dependencies between actions.
