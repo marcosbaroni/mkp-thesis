@@ -1,16 +1,20 @@
-\documentclass[10pt,conference, compsocconf]{IEEEtran}
+\documentclass[10pt, conference, compsocconf]{IEEEtran}
+
+\usepackage[margin=0.75in]{geometry}
 
 \usepackage{amsfonts}
 \usepackage{amssymb,amsmath}
 \usepackage{hyperref}
 \usepackage{algpseudocode}
 \usepackage{graphicx}
-\usepackage{anyfontsize}   % for fontsize and selectfont command
+%\usepackage{anyfontsize}   % for fontsize and selectfont command
 \usepackage{array}         % better padding of cell content of tabulars
 \usepackage[skip=2pt,font=footnotesize]{caption}
 
 \usepackage{tikz}       % for flowcharts
 \usetikzlibrary{shapes, arrows}
+
+\usepackage{times}
 
 \newsavebox{\ieeealgbox}
 \newenvironment{boxedalgorithmic}
@@ -23,7 +27,8 @@
 
 \begin{document}
 
-\title{A shuffled complex evolution algorithm for
+\title{ \vspace{0.25in}
+A shuffled complex evolution algorithm for
 the multidimensional knapsack problem using core concept}
 
 %\author{\IEEEauthorblockN{Marcos Daniel Valad\~ao Baroni}
