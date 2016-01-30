@@ -25,7 +25,7 @@ while subsection~\ref{subsec:scemkp} considers its application to MKP.
 \label{subsec:sce}
 In the SCE a population of $N*M$ individuals is randomly taken from the
 feasible solution space.
-After this initializing the population is sorted by descending order according
+After this initialization the population is sorted by descending order according
 to their fitness and the best global solution is identified.
 The entire population is then partitioned (shuffled) into $N$ complexes,
 each containing $M$ individuals.
@@ -35,7 +35,7 @@ individual $(M+1)$-th goes back to the first complex, etc.
 
 The next step after shuffling the complexes is to evolve each complex through
 a given fixed amount of $K'$ steps.
-The individuals in each complex is sorted by descending order of fitness quality.
+The individuals in each complex are sorted by descending order of fitness quality.
 In each step a subcomplex of $P$ individuals is selected from the
 complex using a triangular probability distribution, where the $i$-th individual
 has a probability $p_i = \frac{2(n+1-i)}{n(n+1)}$ of being selected.
@@ -60,7 +60,8 @@ Fig.~\ref{fig:flow2} presents the evolving procedure described above in a flowch
 After evolving all the $N$ complexes the whole population is again
 sorted by descending order of fitness quality and the process continues until
 a stop condition is satisfied.
-Fig.~\ref{fig:flow1} shows the SCE algorithm in a flowchart diagram.
+Fig.~\ref{fig:flow1} shows the SCE algorithm in a flowchart diagram in which
+the stop condition is a fixed amount of $K$ evolving steps.
 
 \begin{figure}
   \includegraphics{imgs/flow2}
@@ -82,7 +83,7 @@ As it can be noted in its description the SCE is easily applied to any
 optimization problem.
 The only steps needed to be specified is (a) the creation of a new random
 solution and (b) the crossing procedure of two solutions.
-These two procedures are respectively presented by algorithms on
+These two procedures for the MKP are respectively presented by algorithms on
 Fig.~\ref{alg:new} and Fig.~\ref{alg:cross}.
 
 \begin{figure}

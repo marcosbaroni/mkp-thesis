@@ -37,7 +37,7 @@ The profit $p_j$ of the items were correlated to $w_{ij}$ and generated as follo
 
 \subsection{Experimental results}
 
-All the experiments was run on a Intel$^R$ Core i5-3570 CPU @3.40GHz computer
+All the experiments were run on a Intel$^R$ Core i5-3570 CPU @3.40GHz computer
 with 4GB of RAM.
 The SCE algorithm for MKP was implemented in C programming language.
 %For the set of random instance all best known solution was found by the solver
@@ -45,7 +45,7 @@ The SCE algorithm for MKP was implemented in C programming language.
 
 For the variable fixing procedure, the range size of the approximate core was
 $|C| = m+\frac{n}{10}$ for all instances.
-After a previous test batch the following parameters for SCE was defined and used
+After a previous batch test the following parameters for SCE were defined and used
 in all executions of SCE:
 \begin{itemize}
   \item $N = 20$: number of complexes;
@@ -56,13 +56,13 @@ in all executions of SCE:
   \item $c = n/5$: number of genes carried from parent in crossing process.
 \end{itemize}
 
-Table~\ref{tab:chu} shows the performance of the SCE on the Chu-Beasley set of instance.
+Table~\ref{tab:chu} shows the performance of the SCE on the Chu-Beasley set of instances.
 Each instance in the set was executed 10 times on SCE.
 Columns \textit{n}, \textit{m} and \textit{$\alpha$} shows the parameters used
 on each instance generation.
 The \textit{SCE time} column shows the average execution time of SCE algorithm.
 The \textit{quality} column shows the average ratio of the solution found by SCE and
-the best known solution of each instance.
+the best known solution from literature of each instance (\cite{vimont2008reduced, della2012improved}).
 It can be observed that the SCE has a fast convergence speed, achieving high
 quality solutions, at least $99.02\%$ of best known, in less than $2$ seconds
 for every instance.
@@ -113,7 +113,7 @@ for every instance.
  \label{tab:chu}
 \end{table}
 
-Table~\ref{tab:gk} shows the performance of the SCE on the Glover-Kochenberger set of instance.
+Table~\ref{tab:gk} shows the performance of the SCE on the Glover-Kochenberger set of instances.
 Each instance in the set was executed 10 times on SCE.
 Columns \textit{n} and \textit{m} indicate the size of each instance.
 The \textit{SCE time} column shows the average execution time of SCE algorithm.

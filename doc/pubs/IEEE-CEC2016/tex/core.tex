@@ -25,7 +25,7 @@ If the items are sorted according to decreasing efficiency values
 it is known that the solution of the LP-relaxation consists of
 three consecutive parts: the first part contains variables set to $1$, the second
 pare consists of at most one split item $s$, whose corresponding LP-values is
-factional, and finally the remaining variables, which are always set to zero,
+fractional, and finally the remaining variables, which are always set to zero,
 form the third part.
 
 For most instance of KP (except those with a very special structure) the integer
@@ -39,7 +39,7 @@ Balas and Zemel~\cite{balas1980algorithm} gave the following precise definition
 of the core of a KP, based on the knowledge of an optimal integer solution $x^*$.
 Assume that the items are sorted according to decreasing efficiencies and let
 \begin{displaymath}
-  a := \min\{ j | x_k^* = 0 |\}, \quad b := \max\{ j | x_j^* = 1 \}.
+  a := \min\{ j | x_j^* = 0 |\}, \quad b := \max\{ j | x_j^* = 1 \}.
 \end{displaymath}
 The core is given by the items in the interval $C = \{a, \ldots, b\}$.
 It is obvious that the split item is always part of the core, i.e., $a < s < b$.
@@ -134,7 +134,7 @@ constraint:
 \begin{displaymath}
 	e_j(relevance) = \frac{p_j}{\sum_{i=1}^{m} r_i w_{ij}}
 \end{displaymath}
-Several proposals for setting the relevance values $r_i$ was discussed and
+Several proposals for setting the relevance values $r_i$ were discussed and
 tested by Puchinger, Raidl and Pferschy in \cite{puchinger2006core}.
 According to their work setting the relevance values $r_i$ to the values of an
 optimal solution to the dual problem of the MKP's LP-relaxation, as suggested
