@@ -64,6 +64,24 @@ Fig.~\ref{fig:flow1} shows the SCE algorithm in a flowchart diagram in which
 the stop condition is a fixed amount of $K$ evolving steps.
 
 \begin{figure}
+\begin{algorithmic}[1]
+  \Procedure{New random solution}{}
+    \State $v \leftarrow $ shuffle($1, 2, \ldots, n$)
+	\State $s \leftarrow \emptyset$ \Comment{empty solution}
+    \For{$ i \leftarrow 1:n$ }
+	  \State $s \leftarrow s \cup \{v_i\}$ \Comment{adding item}
+	  \If{ $s$ is not feasible} \Comment{checking feasibility}
+	    \State $s \leftarrow s - \{v_i\}$
+      \EndIf
+	\EndFor
+  \State return $s$
+  \EndProcedure
+\end{algorithmic}
+\caption{Generation of a new random solution for the MKP.}
+\label{alg:new}
+\end{figure}
+
+\begin{figure}
   \includegraphics{imgs/flow2}
   \caption{The evolving stage of SCE for a single complex.}
   \label{fig:flow2}
@@ -82,27 +100,10 @@ As it can be noted in its description the SCE is easily applied to any
 optimization problem.
 The only steps needed to be specified is (a) the creation of a new random
 solution and (b) the crossing procedure of two solutions.
+The procedures presented in this section are based
+on the work in \cite{baroni2015shuffled}.
 These two procedures for the MKP are respectively presented by algorithms on
-Fig.~\ref{alg:new} and Fig.~\ref{alg:cross}. Thoses are the same procedures
-specified in \cite{baroni2015shuffled}.
-
-\begin{figure}
-\begin{algorithmic}[1]
-  \Procedure{New random solution}{}
-    \State $v \leftarrow $ shuffle($1, 2, \ldots, n$)
-	\State $s \leftarrow \emptyset$ \Comment{empty solution}
-    \For{$ i \leftarrow 1:n$ }
-	  \State $s \leftarrow s \cup \{v_i\}$ \Comment{adding item}
-	  \If{ $s$ is not feasible} \Comment{checking feasibility}
-	    \State $s \leftarrow s - \{v_i\}$
-      \EndIf
-	\EndFor
-  \State return $s$
-  \EndProcedure
-\end{algorithmic}
-\caption{Generation of a new random solution for the MKP.}
-\label{alg:new}
-\end{figure}
+Fig.~\ref{alg:new} and Fig.~\ref{alg:cross}.
 
 To construct a new random solution (Fig.~\ref{alg:new}) the items are
 at first shuffled in random order and stored in a list (line 2).
