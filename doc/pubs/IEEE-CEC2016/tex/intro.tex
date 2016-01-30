@@ -44,22 +44,15 @@ fixing procedure may provide near optimal solutions through a small computationa
 %In other words, a metaheuristic can be seen as a general algorithmic framework which can be applied to
 %different optimization problems with relatively few modifications to make them adapted to a specific problem.”
 
-This work addresses the development of an hybrid heuristic using an
-efficient variable fixing procedure and a population based metaheuristic called
-shuffled complex evolution (SCE).
 The SCE is a metaheuristic proposed by Duan in \cite{duan1992effective}
 which combines the ideas of a controlled random search with the concepts
 of competitive evolution and shuffling.
 The SCE algorithm has been successfully used to solve several problems
 like flow shop scheduling~\cite{zhao2014shuffled}, project management~\cite{elbeltagi2007modified}
 and MKP~\cite{baroni2015shuffled}.
-
-In this paper we address the development of a hybrid heuristic for the MKP.
-The size of the problem instance is first reduced through a variable fixing
-procedure that uses a known concept among knapsack problems called \emph{core}.
-The reduced problem is then efficiently solved by a SCE algorithm.
-According to our knowledge this is the very first application of SCE
-for the MKP.
+This work addresses the development of an hybrid heuristic using an
+efficient variable fixing procedure and the SCE metaheuristic, as an improvement
+proposal for the work in \cite{baroni2015shuffled}
 
 The reminder of the paper is organized as follows:
 Section~\ref{sec:core} defines the core concept for the MKP and its application

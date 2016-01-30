@@ -1,5 +1,9 @@
-For the computational experiments a batch of tests was driven to find the best
-parameters for the problem using the well-known set of problems defined by two sets:
+To verify the efficiency of the proposed hybrid metaheuristic, several computational
+experiments was executed considering the original SCE for the MKP proposed in
+\cite{baroni2015shuffled} and the hybrid SCE, proposed in this work.
+For brevity the hybrid SCE proposed in this work will be referred to as \scecore.
+
+For the experiments, two sets of MKP instances was used:
 a first set composed by 270 instances provided by Chu and Beasley (\cite{Chu-Beasley-1998})
 and a second set composed by 11 instances provided by Glover and Kochenberger in
 \cite{glover1996critical}.
@@ -39,14 +43,14 @@ The profit $p_j$ of the items were correlated to $w_{ij}$ and generated as follo
 
 All the experiments were run on a Intel$^R$ Core i5-3570 CPU @3.40GHz computer
 with 4GB of RAM.
-The SCE algorithm for MKP was implemented in C programming language.
+The original SCE and \scecore was both implemented in C programming language.
 %For the set of random instance all best known solution was found by the solver
 %SCIP 3.0.1 running for at least 10 minutes.
 
-For the variable fixing procedure, the range size of the approximate core was
+For the variable fixing procedure used on \scecore, the range size of the approximate core was
 $|C| = m+\frac{n}{10}$ for all instances.
-After a previous batch test the following parameters for SCE were defined and used
-in all executions of SCE:
+In all instances the parameters used for SCE and \scecore were the same recommended
+in \cite{baroni2015shuffled} which was found after a batch test using Chu and Beasley instances:
 \begin{itemize}
   \item $N = 20$: number of complexes;
   \item $M = 20$: number of individuals in each complex;
@@ -56,75 +60,51 @@ in all executions of SCE:
   \item $c = n/5$: number of genes carried from parent in crossing process.
 \end{itemize}
 
-Table~\ref{tab:chu} shows the performance of the SCE on the Chu-Beasley set of instances.
-Each instance in the set was executed 10 times on SCE.
+Table~\ref{tab:chu} shows the performance of the SCE and \scecore on the Chu-Beasley set of instances.
+Each instance in the set was executed 10 times for each algorithm.
 Columns \textit{n}, \textit{m} and \textit{$\alpha$} shows the parameters used
 on each instance generation.
-The \textit{SCE time} column shows the average execution time of SCE algorithm.
-The \textit{quality} column shows the average ratio of the solution found by SCE and
-the best known solution from literature of each instance (\cite{vimont2008reduced, della2012improved}).
-It can be observed that the SCE has a fast convergence speed, achieving high
-quality solutions, at least $99.02\%$ of best known, in less than $2$ seconds
+The \textit{time} column shows the average execution time of the algorithms (lower is better).
+The \textit{quality} column shows the average ratio of the solution found and
+the best known solution from literature (\cite{vimont2008reduced, della2012improved}) of each instance (higher is better).
+
+It can be observed that the \scecore had faster convergence speed, achieving higher
+quality solutions in all cases, achieving at least $99.02\%$ of best known, in less than $2$ seconds
 for every instance.
+
+It can be also noticed that \scecore executed in much less processing time than original
+SCE.
+This is due the variable fixing procedure which reduced the problem size,
+resulting in less genes operations during the evolving procedures.
+The variable fixing procedure also brought robustness for the method, as the quality
+of the solution found increased in case of larger instances while on original
+SCE the quality decreased considerably.
 
 \begin{table}
 {
-\renewcommand{\arraystretch}{1.5}%
+\renewcommand{\arraystretch}{1.3}%
 \fontsize{8.5pt}{1em}\selectfont 
 \begin{center}
-\begin{tabular}{|r|r|r|rr|} \hline
-\textbf{n}   & \textbf{m}  & \textbf{$\alpha$} & \textbf{SCE time (s)} & \textbf{quality (\%)} \\ \hline
-100 &  5 & 0.25 & 0.15 & 99.73 \\
-    &    & 0.50 & 0.15 & 99.86 \\
-    &    & 0.75 & 0.13 & 99.91 \\ \cline{2-5}
-    & 10 & 0.25 & 0.22 & 99.53 \\
-    &    & 0.50 & 0.22 & 99.76 \\
-    &    & 0.75 & 0.22 & 99.96 \\ \cline{2-5}
-    & 30 & 0.25 & 1.00 & 99.02 \\
-    &    & 0.50 & 0.79 & 99.21 \\
-    &    & 0.75 & 0.77 & 99.52 \\ \cline{2-5}
-    & \multicolumn{3}{r}{\textbf{average quality}}  & $\bf 99.50$  \\ \hline \hline
-\textbf{n}   & \textbf{m}  & \textbf{$\alpha$} & \textbf{SCE time (s)} & \textbf{quality (\%)} \\ \hline
-250 &  5 & 0.25 & 0.54 & 99.87 \\
-    &    & 0.50 & 0.55 & 99.94 \\
-    &    & 0.75 & 0.51 & 99.95 \\ \cline{2-5}
-    & 10 & 0.25 & 0.67 & 99.57 \\
-    &    & 0.50 & 0.62 & 99.80 \\
-    &    & 0.75 & 0.64 & 99.88 \\ \cline{2-5}
-    & 30 & 0.25 & 1.16 & 99.46 \\
-    &    & 0.50 & 0.96 & 99.36 \\
-    &    & 0.75 & 1.03 & 99.59 \\ \cline{2-5}
-    & \multicolumn{3}{r}{\textbf{average quality}}  & $\bf 99.60$  \\ \hline \hline
-\textbf{n}   & \textbf{m}  & \textbf{$\alpha$} & \textbf{SCE time (s)} & \textbf{quality (\%)} \\ \hline
-500 &  5 & 0.25 & 0.85 & 99.77 \\
-    &    & 0.50 & 0.86 & 99.87 \\
-    &    & 0.75 & 0.84 & 99.92 \\ \cline{2-5}
-    & 10 & 0.25 & 0.99 & 99.49 \\
-    &    & 0.50 & 0.97 & 99.78 \\
-    &    & 0.75 & 0.95 & 99.83 \\ \cline{2-5}
-    & 30 & 0.25 & 1.53 & 99.75 \\
-    &    & 0.50 & 1.48 & 99.42 \\
-    &    & 0.75 & 1.42 & 99.68 \\ \cline{2-5}
-    & \multicolumn{3}{r}{\textbf{average quality}}  & $\bf 99.61$  \\ \hline
-\end{tabular}
+  \input{tab-chub.tex}
 \end{center}
 }
- \caption{SCE performance on Chu-Beasley problems.}
+ \caption{SCE and \scecore  performance on Chu-Beasley problems.}
  \label{tab:chu}
 \end{table}
 
-Table~\ref{tab:gk} shows the performance of the SCE on the Glover-Kochenberger set of instances.
-Each instance in the set was executed 10 times on SCE.
+Table~\ref{tab:gk} shows the performance of \scecore on the Glover-Kochenberger set of instances.
+Each instance in the set was executed 10 times.
 Columns \textit{n} and \textit{m} indicate the size of each instance.
 The \textit{SCE time} column shows the average execution time of SCE algorithm.
-The \textit{quality} column shows the average ratio of the solution found by SCE and
+The \textit{quality} column shows the average ratio of the solution found by \scecore and
 the best known solution of each instance.
 It can be noticed that SCE achieved high quality solutions, at least $99.10\%$
-of best known solution, spending very small amount of processing time.
+of best known solution, spending very small amount of processing time, compared
+to the time taken to find the best known solutions.
 
 \begin{table}
 {
-\renewcommand{\arraystretch}{1.5}%
+\renewcommand{\arraystretch}{1.7}%
 \fontsize{8.5pt}{1em}\selectfont 
 \begin{center}
 \begin{tabular}{|r|r|r|r|r|} \hline
@@ -144,7 +124,7 @@ of best known solution, spending very small amount of processing time.
 \end{tabular}
 \end{center}
 }
- \caption{SCE performance on Glover-Kochenberger problems.}
+ \caption{\scecore performance on Glover-Kochenberger problems.}
  \label{tab:gk}
 \end{table}
 

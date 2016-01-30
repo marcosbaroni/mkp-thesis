@@ -1,28 +1,32 @@
 
-In this work we addressed the application of the shuffled complex
-evolution (SCE) to the multidimensional knapsack problem and investigated its
-performance through several computational experiments.
-
 In this paper we addressed the development of a hybrid heuristic for the MKP
 implementing a population based algorithm called shuffled complex evolution
 for solving the multidimensional knapsack problem assisted by an efficient
 variable fixing procedure.
+Its performance was verified through several computational experiments.
 
 The SCE algorithm, which combines the ideas of a controlled random search with
 the concepts of competitive evolution, proved to be able to achieve fast
 convergence ratio, finding good quality near optimal solutions, demanding small
 amount of computational time.
-The application of the core concept for MKP proved to be efficient to reduce
-the size of the problems which provided fast execution time yet producing
-high quality solutions.
 
-The hybrid heuristic developed is very well suitable if it is necessary
+The application of the core concept, through a variable fixing procedure for MKP,
+proved to be efficient to reduce the size of the problems which provided fast
+execution time, producing higher quality solutions.
+
+\scecore algorithm presented faster convergence speed, achieving higher
+quality solutions in all cases, achieving at least $99.02\%$ of best known, in less than $2$ seconds
+for every instance.
+The variable fixing procedure also brought robustness for the method, as the quality
+of the solution found increased in case of larger instances.
+
+The hybrid heuristic developed in this papter is very well suitable if it is necessary
 to compute a good solution in a small processing time.
-The heuristic could achieved $99.61\%$ on average of quality of the best known solution for
+The hybrid heuristic could achieved $99.61\%$ on average of quality of the best known solution for
 the 270 Chu-Beasley instances and $99.46\%$ on average for the Glover-Kochenberger instances.
 
 Future works include the investigation of different crossing procedures 
 and the use of local search in the process of evolving complexes.
 Besides we want to investigate the possibility of using the efficiency measure
-directly on metaheuristics.
+concept directly on metaheuristics.
 
