@@ -8,9 +8,11 @@ a first set composed by 270 instances provided by Chu and Beasley (\cite{Chu-Bea
 and a second set composed by 11 instances provided by Glover and Kochenberger in
 \cite{glover1996critical}.
 These instances are all available at \cite{ORLibrary}.
-%Afterwards two main tests was considered:
-%(a) using the well-known set of problems defined by Chu and Beasley (\cite{Chu-Beasley-1998})
-%and (b) a large set of randomly generated instances using uniform distribution.
+
+The best known solution for all instances were taken from the literature and
+were found by different algorithms which we had no access to the implementation.
+In mosts cases those are exact algorithms which took
+minutes or hours of execution time.
 
 The set of MKP instances provided by Chu and Beasley was generated using a
 procedure suggested by Freville and Plateau~\cite{freville1994efficient}, which
@@ -92,11 +94,11 @@ SCE the quality decreased considerably.
  \label{tab:chu}
 \end{table}
 
-Table~\ref{tab:gk} shows the performance of \scecore on the Glover-Kochenberger set of instances.
-Each instance in the set was executed 10 times.
+Table~\ref{tab:gk} shows the performance of SCE and \scecore on the Glover-Kochenberger set of instances.
+Each instance in the set was executed 10 times for each algorithm.
 Columns \textit{n} and \textit{m} indicate the size of each instance.
-The \textit{SCEcr time} column shows the average execution time of SCEcr algorithm.
-The \textit{quality} column shows the average ratio of the solution found by \scecore and
+The \textit{time} column shows the average execution (lower is better).
+The \textit{quality} column shows the average ratio of the solution found and
 the best known solution of each instance.
 It can be noticed that SCEcr achieved high quality solutions, at least $99.10\%$
 of best known solution, spending very small amount of processing time, compared
@@ -107,20 +109,21 @@ to the time taken to find the best known solutions.
 \renewcommand{\arraystretch}{1.7}%
 \fontsize{8.5pt}{1em}\selectfont 
 \begin{center}
-\begin{tabular}{|r|r|r|r|r|} \hline
-		\textbf{\#} & \textbf{n}   & \textbf{m}  & \textbf{SCEcr time (s)} & \textbf{quality (\%)} \\ \hline
-01 & 100 & 15 & 0.31 & 99.68 \\ \hline
-02 & 100 & 25 & 0.47 & 99.51 \\ \hline
-03 & 150 & 25 & 0.79 & 99.60 \\ \hline
-04 & 150 & 50 & 1.61 & 99.10 \\ \hline
-05 & 200 & 25 & 0.83 & 99.73 \\ \hline
-06 & 200 & 50 & 1.67 & 99.30 \\ \hline
-07 & 500 & 25 & 1.27 & 99.72 \\ \hline
-08 & 500 & 50 & 2.06 & 99.62 \\ \hline
-09 &1500 & 25 & 1.83 & 99.32 \\ \hline
-10 &1500 & 50 & 5.25 & 99.76 \\ \hline
-11 &2500 &100 &11.94 & 99.77 \\ \cline{1-5}
-    \multicolumn{4}{|r|}{\textbf{average quality}}  & $\bf 99.46$  \\ \hline
+\begin{tabular}{|r|r|r|r|r|r|r|} \cline{4-7}
+		\multicolumn{3}{c|}{} & \multicolumn{2}{c|}{\bf time (s)} & \multicolumn{2}{c|}{\bf quality (\%)} \\ \hline
+		\textbf{\#} & \textbf{n}   & \textbf{m}  & {\bf SCE } & {\bf SCEcr } & {\bf SCE} & {\bf SCEcr} \\ \hline
+01 & 100 & 15 & 1.48   & 0.31 & 97.67 &  99.68 \\ \hline
+02 & 100 & 25 & 1.60   & 0.47 & 97.93 &  99.51 \\ \hline
+03 & 150 & 25 & 2.48   & 0.79 & 97.25 &  99.60 \\ \hline
+04 & 150 & 50 & 3.44   & 1.61 & 97.38 &  99.10 \\ \hline
+05 & 200 & 25 & 3.30   & 0.83 & 96.89 &  99.73 \\ \hline
+06 & 200 & 50 & 4.26   & 1.67 & 97.69 &  99.30 \\ \hline
+07 & 500 & 25 & 6.74   & 1.27 & 97.12 &  99.72 \\ \hline
+08 & 500 & 50 & 11.23  & 2.06 & 97.29 &  99.62 \\ \hline
+09 &1500 & 25 & 22.28  & 1.83 & 96.90 &  99.32 \\ \hline
+10 &1500 & 50 & 31.60  & 5.25 & 97.49 &  99.76 \\ \hline
+11 &2500 &100 &107.76  &11.94 & 97.94 & 99.77 \\ \hline
+    \multicolumn{3}{|r|}{\textbf{average }} & {17.83} & \multicolumn{1}{r|}{\bf 2.55 } & {97.41} & {\bf 99.46}  \\ \hline
 \end{tabular}
 \end{center}
 }
