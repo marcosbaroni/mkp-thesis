@@ -19,9 +19,9 @@ continuity of the variable.
 The LP-relaxation of a KP is found by replacing the constraint $x_i \in \{0,1\}$
 by $0 \leqslant x_i \leqslant 1$ for all $i \in \{1, \ldots, n\}$.
 If the items are sorted according to decreasing efficiency values
-\begin{displaymath}
+\begin{equation}
   e_j = \frac{p_j}{w_j},
-\end{displaymath}
+\end{equation}
 it is known that the solution of the LP-relaxation consists of
 three consecutive parts: the first part contains variables set to $1$, the second
 pare consists of at most one split item $s$, whose corresponding LP-values is
@@ -38,9 +38,9 @@ Items of medium efficiency constitute the core.
 Balas and Zemel~\cite{balas1980algorithm} gave the following precise definition
 of the core of a KP, based on the knowledge of an optimal integer solution $x^*$.
 Assume that the items are sorted according to decreasing efficiencies and let
-\begin{displaymath}
+\begin{equation}
   a := \min\{ j | x_j^* = 0 |\}, \quad b := \max\{ j | x_j^* = 1 \}.
-\end{displaymath}
+\end{equation}
 The core is given by the items in the interval $C = \{a, \ldots, b\}$.
 It is obvious that the split item is always part of the core, i.e., $a < s < b$.
 
@@ -61,11 +61,11 @@ Notice that the split item is within the exact core.
 \end{figure}
 
 The KP Core problem (KPC) is defined as
-\begin{align*}
+\begin{align}
   \text{maximize} & \sum_{j \in C} p_j x_j  + \tilde{p}\\
   \text{subject to} & \sum_{j \in C} w_{j} x_j \leqslant c - \tilde{w}\\
   & x_j \in \{0, 1\}, \quad j \in C.
-\end{align*}
+\end{align}
 with $\tilde{p} = \sum^{a-1}_{j=1} p_j$ and $\tilde{w} = \sum^{a-1}_{j=1} w_j$
 respectively quantifying the total profit and the total weights of items fixed as selected.
 The solution of KPC would suffice to compute the optimal solution of KP, which
@@ -100,16 +100,16 @@ A well accepted efficiency measure is discussed in Section~\ref{subsec:dual}.
 
 Now let $x^*$ be an optimal solution for a MKP and assume that the items are
 sorted in descending order after some given efficiency measure. Then let
-\begin{displaymath}
+\begin{align}
   a = \min \{ j | x_j^* = 0 \}, \quad b = \max \{ j | x_j^* = 1 \}.
-\end{displaymath}
+\end{align}
 The core is given by the items in the interval $C = \{ a, \ldots, b \}$,
 and the multidimensional knapsack core problem (MKPC) defined as
-\begin{align*}
+\begin{align}
   \text{maximize} & \sum_{j \in C} p_j x_j  + \tilde{p}\\
   \text{subject to} & \sum_{j \in C} w_{ij} x_j \leqslant c_i - \tilde{w}_i, \quad i = 1, \ldots, m\\
   & x_j \in \{0, 1\}, \quad j \in C.
-\end{align*}
+\end{align}
 with $\tilde{p} = \sum^{a-1}_{j=1} p_j$  and $\tilde{w}_i = \sum^{a-1}_{j=1} w_{ij}, i = 1, \ldots, m$.
 
 In contrast to KP, the solution of the LP-relaxation of MKP in general does not
@@ -124,16 +124,16 @@ can be used as the center of an approximate core.
 \label{subsec:dual}
 For defining a reasonable efficiency measure for MKP consider the most obvious
 form of efficiency which is a direct generalization of the one-dimensional case:
-\begin{displaymath}
+\begin{equation}
 	e_j(simple) = \frac{p_j}{\sum_{i=1}^{m} w_{ij}}
-\end{displaymath}
+\end{equation}
 In this definition different orders of magnitude of the constraints are not
 considered and a single constraint may dominate the others.
 This drawback can be avoided by introducing relevance values $r_i$ for every
 constraint:
-\begin{displaymath}
+\begin{equation}
 	e_j(relevance) = \frac{p_j}{\sum_{i=1}^{m} r_i w_{ij}}
-\end{displaymath}
+\end{equation}
 Several proposals for setting the relevance values $r_i$ were discussed and
 tested by Puchinger, Raidl and Pferschy in \cite{puchinger2006core}.
 According to their work setting the relevance values $r_i$ to the values of an

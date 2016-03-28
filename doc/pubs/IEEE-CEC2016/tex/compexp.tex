@@ -28,9 +28,9 @@ varies among $0.25$, $0.5$ and $0.75$.
 For each combination of $(m,n,\alpha)$ parameters, $10$ random problems was generated,
 totaling $270$ problems.
 The profit $p_j$ of the items were correlated to $w_{ij}$ and generated as follows:
-\begin{displaymath}
+\begin{equation}
   p_j = \sum_{i=1}^m \frac{w_{ij}}{m} + 500q_j \qquad j = 1, \ldots, n
-\end{displaymath}
+\end{equation}
 
 %\subsection{The set of random instances}
 
@@ -83,6 +83,7 @@ of the solution found increased in case of larger instances while on original
 SCE the quality decreased considerably.
 
 \begin{table}
+ \caption{SCE and \scecore  performance on Chu-Beasley problems.}
 {
 \renewcommand{\arraystretch}{1.3}%
 \fontsize{8.5pt}{1em}\selectfont 
@@ -90,7 +91,6 @@ SCE the quality decreased considerably.
   \input{tab-chub.tex}
 \end{center}
 }
- \caption{SCE and \scecore  performance on Chu-Beasley problems.}
  \label{tab:chu}
 \end{table}
 
@@ -105,6 +105,7 @@ of best known solution, spending very small amount of processing time, compared
 to the time taken to find the best known solutions.
 
 \begin{table}
+ \caption{\scecore performance on Glover-Kochenberger problems.}
 {
 \renewcommand{\arraystretch}{1.7}%
 \fontsize{8.5pt}{1em}\selectfont 
@@ -127,7 +128,6 @@ to the time taken to find the best known solutions.
 \end{tabular}
 \end{center}
 }
- \caption{\scecore performance on Glover-Kochenberger problems.}
  \label{tab:gk}
 \end{table}
 
