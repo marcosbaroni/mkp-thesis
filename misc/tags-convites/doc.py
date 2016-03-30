@@ -16,7 +16,8 @@ header='''
 \\usepackage{pgf}
 
 %%%%%%   SET FONT   %%%%%%%%
-\\setmainfont{Lobster Two}
+%\\setmainfont{Lobster Two}
+\\setmainfont{Alex Brush}
 
 \\definecolor{mycolor}{RGB}{73,73,73}
 
@@ -46,7 +47,7 @@ header='''
 \\pgfmathsetmacro{\\yIV}{int(round(\\yoffset + 3*\\ystep))}
 
 %%%%%%   TEXT FORMATING   %%%%%%%
-\\newcommand{\yield}[1]{ \\centering \\Large #1}
+\\newcommand{\yield}[1]{ \\centering \\LARGE #1}
 
 
 %%%%%%   BODY   %%%%%%%
