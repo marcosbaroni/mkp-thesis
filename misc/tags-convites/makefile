@@ -1,9 +1,9 @@
 all: ptex pdf
-ptex:
-	python doc.py names.txt > doc.tex
 pdf: xelatex
 xelatex:
 	xelatex doc.tex
+ptex:
+	python doc.py names.txt > doc.tex
 pdflatex:
 	pdflatex doc.tex
 latex:
