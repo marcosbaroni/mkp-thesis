@@ -17,7 +17,9 @@ header='''
 
 %%%%%%   SET FONT   %%%%%%%%
 %\\setmainfont{Lobster Two}
-\\setmainfont{Alex Brush}
+%\\setmainfont{Alex Brush}
+\\setmainfont{CAC Champagne}
+%\\setmainfont{Allura}
 
 \\definecolor{mycolor}{RGB}{73,73,73}
 
@@ -34,17 +36,22 @@ header='''
 \\ULCornerWallPaper{1}{tags.pdf}
 
 %%%%%%   DISTANCES   %%%%%%%
-\\newcommand{\\xoffset}{305}
-\\newcommand{\\yoffset}{-30}
+\\newcommand{\\xoffset}{-32}
+\\newcommand{\\yoffset}{-40}
+\\newcommand{\\xstep}{170}
 \\newcommand{\\ystep}{-160}
 \\newcommand{\\pwid}{40mm}
 
 %%%%%%   POSITIONING   %%%%%%%
-\\pgfmathsetmacro{\\x}{int(round(250))}
 \\pgfmathsetmacro{\\yI}{int(round(\\yoffset ))}
 \\pgfmathsetmacro{\\yII}{int(round(\\yoffset + \\ystep))}
 \\pgfmathsetmacro{\\yIII}{int(round(\\yoffset + 2*\\ystep))}
 \\pgfmathsetmacro{\\yIV}{int(round(\\yoffset + 3*\\ystep))}
+
+\\pgfmathsetmacro{\\xI}{int(round(\\xoffset ))}
+\\pgfmathsetmacro{\\xII}{int(round(\\xoffset + \\xstep))}
+\\pgfmathsetmacro{\\xIII}{int(round(\\xoffset + 2*\\xstep))}
+\\pgfmathsetmacro{\\xIV}{int(round(\\xoffset + 3*\\xstep))}
 
 %%%%%%   TEXT FORMATING   %%%%%%%
 \\newcommand{\yield}[1]{ \\centering \\LARGE #1}
@@ -58,10 +65,11 @@ footer='''
 \\end{document}
 '''
 
-iList=['\\yI', '\\yII', '\\yIII', '\\yIV']
+yList = ['\\yI', '\\yII', '\\yIII', '\\yIV']
+xList = ['\\xI', '\\xII', '\\xIII']
 
-def yeld(name, i):
-    return '\\put(\\xoffset, ' + iList[i] + '){\\parbox{\\pwid}{\\yield{' + name + '}}}\n'
+def yeld(name, x, y):
+    return '\\put(' + xList[x] + ', ' + yList[y] + '){\\parbox{\\pwid}{\\yield{' + name + '}}}\n'
 
 def printBody(names):
     s = ''
@@ -70,10 +78,18 @@ def printBody(names):
         if first: first = False
         else: s+= '\\newpage\n'
         s += '\\begin{picture}(0,0)\n'
-        s += yeld(names.pop(0), 0)
-        if len(names) > 0: s+= yeld(names.pop(0), 1)
-        if len(names) > 0: s+= yeld(names.pop(0), 2)
-        if len(names) > 0: s+= yeld(names.pop(0), 3)
+        s += yeld(names.pop(0), 0, 0)
+        if len(names) > 0: s+= yeld(names.pop(0), 1, 0)
+        if len(names) > 0: s+= yeld(names.pop(0), 2, 0)
+        if len(names) > 0: s+= yeld(names.pop(0), 0, 1)
+        if len(names) > 0: s+= yeld(names.pop(0), 1, 1)
+        if len(names) > 0: s+= yeld(names.pop(0), 2, 1)
+        if len(names) > 0: s+= yeld(names.pop(0), 0, 2)
+        if len(names) > 0: s+= yeld(names.pop(0), 1, 2)
+        if len(names) > 0: s+= yeld(names.pop(0), 2, 2)
+        if len(names) > 0: s+= yeld(names.pop(0), 0, 3)
+        if len(names) > 0: s+= yeld(names.pop(0), 1, 3)
+        if len(names) > 0: s+= yeld(names.pop(0), 2, 3)
         s += '\\end{picture}\n'
     return s
 
