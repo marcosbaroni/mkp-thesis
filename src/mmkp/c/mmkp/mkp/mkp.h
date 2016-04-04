@@ -15,6 +15,7 @@
 
 mkpnum chubeas_best[3][3][3][10];
 
+void mkpnum_fprintf(FILE *out, mkpnum a);
 mkpnum *mkpnum_array_copy(mkpnum *dest, mkpnum *src, int n);
 mkpnum *mkpnum_array_init(mkpnum *array, int n, mkpnum x);
 void mkpnum_scanf(const char *str, mkpnum *x);

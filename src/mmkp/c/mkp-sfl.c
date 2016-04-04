@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
+#include <string.h>
 #include "mmkp/mkp/mkp.h"
 #include "mmkp/util.h"
 #include "mmkp/sfl.h"
@@ -15,7 +16,7 @@ int print_usage(int argc, char **argv){
 	fprintf(out, " usage: %s <input file> <n of memeplex> <size of memeplex> <size of submemeplex> <n of iterations> <n of subiterations> [seed=time(null)]\n", argv[0]);
 	fprintf(out, " Shuffled Frog Leaping Algorithm for MKP.\n");
 	fprintf(out, " - input file: a MKP instance. If no file is given, instance is read from stdin.\n");
-	fprintf(out, " - Program outputs \"<profit of solution>;<best iter>\"\n");
+	fprintf(out, " - Program outputs \"<profit of solution>;<best iter>;<time (s)>\"\n");
 
 	return 1;
 }

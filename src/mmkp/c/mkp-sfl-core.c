@@ -1,5 +1,6 @@
 # include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <math.h>
 #include <time.h>
 #include "mmkp/mkp/mkp.h"
@@ -70,7 +71,7 @@ int execute_sfl_mkp(int argc, char **argv){
 	/* output */
 	printf(";");
 	mkpnum_fprintf(stdout, sol->obj);
-	mkpnum_fprintf(";%d;%f\n", best_iter, ((cf-c0)/(float)CLOCKS_PER_SEC));
+	fprintf(stdout, ";%d;%f\n", best_iter, ((cf-c0)/(float)CLOCKS_PER_SEC));
 
 	/* freeing */
 	mkpsol_free(sol);
