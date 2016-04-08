@@ -1,0 +1,335 @@
+
+\documentclass{article}
+\usepackage[paperheight=11.25in,paperwidth=8.25in]{geometry}
+\usepackage{wallpaper}
+\usepackage[brazilian]{babel}
+\usepackage{fontspec}
+\usepackage{xcolor}
+\usepackage{pgf}
+
+%%%%%%   SET FONT   %%%%%%%%
+%\setmainfont{Lobster Two}
+%\setmainfont{Alex Brush}
+\setmainfont{CAC Champagne}
+%\setmainfont{Allura}
+
+\definecolor{mycolor}{RGB}{73,73,73}
+
+%%%%%%   SET COLOR %%%%%%%%
+\makeatletter
+\newcommand{\globalcolor}[1]{%
+  \color{#1}\global\let\default@color\current@color
+}
+\makeatother
+
+\AtBeginDocument{\globalcolor{mycolor}}
+
+%%%%%%   BACKGROUND   %%%%%%%
+\ULCornerWallPaper{1}{tags.pdf}
+
+%%%%%%   DISTANCES   %%%%%%%
+\newcommand{\xoffset}{-32}
+\newcommand{\yoffset}{-40}
+\newcommand{\xstep}{170}
+\newcommand{\ystep}{-160}
+\newcommand{\pwid}{40mm}
+
+%%%%%%   POSITIONING   %%%%%%%
+\pgfmathsetmacro{\yI}{int(round(\yoffset ))}
+\pgfmathsetmacro{\yII}{int(round(\yoffset + \ystep))}
+\pgfmathsetmacro{\yIII}{int(round(\yoffset + 2*\ystep))}
+\pgfmathsetmacro{\yIV}{int(round(\yoffset + 3*\ystep))}
+
+\pgfmathsetmacro{\xI}{int(round(\xoffset ))}
+\pgfmathsetmacro{\xII}{int(round(\xoffset + \xstep))}
+\pgfmathsetmacro{\xIII}{int(round(\xoffset + 2*\xstep))}
+\pgfmathsetmacro{\xIV}{int(round(\xoffset + 3*\xstep))}
+
+%%%%%%   TEXT FORMATING   %%%%%%%
+\newcommand{\yield}[1]{ \centering \LARGE #1}
+
+
+%%%%%%   BODY   %%%%%%%
+\begin{document}
+\begin{picture}(0,0)
+\put(\xI, \yI){\parbox{\pwid}{\yield{Papai}}}
+\put(\xII, \yI){\parbox{\pwid}{\yield{Mamãe}}}
+\put(\xIII, \yI){\parbox{\pwid}{\yield{Pedro Henrique e Amanda}}}
+\put(\xI, \yII){\parbox{\pwid}{\yield{Pedro e Ivana}}}
+\put(\xII, \yII){\parbox{\pwid}{\yield{Rafael e Letícia}}}
+\put(\xIII, \yII){\parbox{\pwid}{\yield{Vovô e Vovó}}}
+\put(\xI, \yIII){\parbox{\pwid}{\yield{Tio Charles e família}}}
+\put(\xII, \yIII){\parbox{\pwid}{\yield{Raphael e Daiane}}}
+\put(\xIII, \yIII){\parbox{\pwid}{\yield{Léo e Mirele}}}
+\put(\xI, \yIV){\parbox{\pwid}{\yield{Bruno}}}
+\put(\xII, \yIV){\parbox{\pwid}{\yield{Washington e família}}}
+\put(\xIII, \yIV){\parbox{\pwid}{\yield{Carol e família}}}
+\end{picture}
+\newpage
+\begin{picture}(0,0)
+\put(\xI, \yI){\parbox{\pwid}{\yield{Vitor e Priscila}}}
+\put(\xII, \yI){\parbox{\pwid}{\yield{Michele e família}}}
+\put(\xIII, \yI){\parbox{\pwid}{\yield{Lauro e Vovó}}}
+\put(\xI, \yII){\parbox{\pwid}{\yield{Tio Celestrino}}}
+\put(\xII, \yII){\parbox{\pwid}{\yield{Robian e Marcela}}}
+\put(\xIII, \yII){\parbox{\pwid}{\yield{Tia Gê e família}}}
+\put(\xI, \yIII){\parbox{\pwid}{\yield{Tia Leilda e família}}}
+\put(\xII, \yIII){\parbox{\pwid}{\yield{Felipe e Júnia}}}
+\put(\xIII, \yIII){\parbox{\pwid}{\yield{Tia Marlene e Kenia}}}
+\put(\xI, \yIV){\parbox{\pwid}{\yield{Thiago e família}}}
+\put(\xII, \yIV){\parbox{\pwid}{\yield{Léo e Cláudia}}}
+\put(\xIII, \yIV){\parbox{\pwid}{\yield{Mônia e família}}}
+\end{picture}
+\newpage
+\begin{picture}(0,0)
+\put(\xI, \yI){\parbox{\pwid}{\yield{Aline e família}}}
+\put(\xII, \yI){\parbox{\pwid}{\yield{Patrícia}}}
+\put(\xIII, \yI){\parbox{\pwid}{\yield{Jô}}}
+\put(\xI, \yII){\parbox{\pwid}{\yield{Ivone}}}
+\put(\xII, \yII){\parbox{\pwid}{\yield{Dedéia e família}}}
+\put(\xIII, \yII){\parbox{\pwid}{\yield{Ricardo e família}}}
+\put(\xI, \yIII){\parbox{\pwid}{\yield{Fernanda e família}}}
+\put(\xII, \yIII){\parbox{\pwid}{\yield{Lúcia e Fabrício}}}
+\put(\xIII, \yIII){\parbox{\pwid}{\yield{Flávio e família}}}
+\put(\xI, \yIV){\parbox{\pwid}{\yield{Paulo e família}}}
+\put(\xII, \yIV){\parbox{\pwid}{\yield{Eduardo e família}}}
+\put(\xIII, \yIV){\parbox{\pwid}{\yield{Ludmila}}}
+\end{picture}
+\newpage
+\begin{picture}(0,0)
+\put(\xI, \yI){\parbox{\pwid}{\yield{Gabriela}}}
+\put(\xII, \yI){\parbox{\pwid}{\yield{Eunice e Genivaldo}}}
+\put(\xIII, \yI){\parbox{\pwid}{\yield{Edmar e família}}}
+\put(\xI, \yII){\parbox{\pwid}{\yield{Gecimar e família}}}
+\put(\xII, \yII){\parbox{\pwid}{\yield{Rinzo}}}
+\put(\xIII, \yII){\parbox{\pwid}{\yield{Alexandre e família}}}
+\put(\xI, \yIII){\parbox{\pwid}{\yield{Gugu e família}}}
+\put(\xII, \yIII){\parbox{\pwid}{\yield{Roberta}}}
+\put(\xIII, \yIII){\parbox{\pwid}{\yield{Sayonara e família}}}
+\put(\xI, \yIV){\parbox{\pwid}{\yield{Bruna e família}}}
+\put(\xII, \yIV){\parbox{\pwid}{\yield{Lucas e Bárbara}}}
+\put(\xIII, \yIV){\parbox{\pwid}{\yield{Hélio e família}}}
+\end{picture}
+\newpage
+\begin{picture}(0,0)
+\put(\xI, \yI){\parbox{\pwid}{\yield{Talita e José Luiz}}}
+\put(\xII, \yI){\parbox{\pwid}{\yield{Luiz Zanoni e Francesca}}}
+\put(\xIII, \yI){\parbox{\pwid}{\yield{Jurema}}}
+\put(\xI, \yII){\parbox{\pwid}{\yield{Felipe e Kethlyn}}}
+\put(\xII, \yII){\parbox{\pwid}{\yield{Roberto e família}}}
+\put(\xIII, \yII){\parbox{\pwid}{\yield{Kátia}}}
+\put(\xI, \yIII){\parbox{\pwid}{\yield{Luciana e Fernando}}}
+\put(\xII, \yIII){\parbox{\pwid}{\yield{André e Priscilla}}}
+\put(\xIII, \yIII){\parbox{\pwid}{\yield{Aline}}}
+\put(\xI, \yIV){\parbox{\pwid}{\yield{Thais}}}
+\put(\xII, \yIV){\parbox{\pwid}{\yield{Anderson e família}}}
+\put(\xIII, \yIV){\parbox{\pwid}{\yield{Abner e Ramona}}}
+\end{picture}
+\newpage
+\begin{picture}(0,0)
+\put(\xI, \yI){\parbox{\pwid}{\yield{Hudson e Luane}}}
+\put(\xII, \yI){\parbox{\pwid}{\yield{Jerônimo e Viviane}}}
+\put(\xIII, \yI){\parbox{\pwid}{\yield{Pastor Marcelo e Patrícia}}}
+\put(\xI, \yII){\parbox{\pwid}{\yield{Edvaldo e Lays}}}
+\put(\xII, \yII){\parbox{\pwid}{\yield{Alex e Kássia}}}
+\put(\xIII, \yII){\parbox{\pwid}{\yield{Enrico e Michelini}}}
+\put(\xI, \yIII){\parbox{\pwid}{\yield{Marcelo e Kadija}}}
+\put(\xII, \yIII){\parbox{\pwid}{\yield{Vinícius Fraga}}}
+\put(\xIII, \yIII){\parbox{\pwid}{\yield{Gabriel e Tassianne}}}
+\put(\xI, \yIV){\parbox{\pwid}{\yield{Jean}}}
+\put(\xII, \yIV){\parbox{\pwid}{\yield{Gabriel e Ester}}}
+\put(\xIII, \yIV){\parbox{\pwid}{\yield{Alexandre e Meire}}}
+\end{picture}
+\newpage
+\begin{picture}(0,0)
+\put(\xI, \yI){\parbox{\pwid}{\yield{Moisés e Thaís}}}
+\put(\xII, \yI){\parbox{\pwid}{\yield{Elisa e Thiago}}}
+\put(\xIII, \yI){\parbox{\pwid}{\yield{Douglas e flávia}}}
+\put(\xI, \yII){\parbox{\pwid}{\yield{Cláudio e Bárbara}}}
+\put(\xII, \yII){\parbox{\pwid}{\yield{Sônia e família}}}
+\put(\xIII, \yII){\parbox{\pwid}{\yield{Marcus Filipe e Thayanne}}}
+\put(\xI, \yIII){\parbox{\pwid}{\yield{Fabrísio e Jordana}}}
+\put(\xII, \yIII){\parbox{\pwid}{\yield{Beatriz e Rodrigo}}}
+\put(\xIII, \yIII){\parbox{\pwid}{\yield{Marina e família}}}
+\put(\xI, \yIV){\parbox{\pwid}{\yield{Jocasta e Paulo Henrique}}}
+\put(\xII, \yIV){\parbox{\pwid}{\yield{Marcelo Dornelas e família}}}
+\put(\xIII, \yIV){\parbox{\pwid}{\yield{Heráclito e Marlene}}}
+\end{picture}
+\newpage
+\begin{picture}(0,0)
+\put(\xI, \yI){\parbox{\pwid}{\yield{Rita e Marinalva}}}
+\put(\xII, \yI){\parbox{\pwid}{\yield{Iracy}}}
+\put(\xIII, \yI){\parbox{\pwid}{\yield{Léa}}}
+\put(\xI, \yII){\parbox{\pwid}{\yield{Glória e família}}}
+\put(\xII, \yII){\parbox{\pwid}{\yield{Abraão e Thaís}}}
+\put(\xIII, \yII){\parbox{\pwid}{\yield{João e Rogéria}}}
+\put(\xI, \yIII){\parbox{\pwid}{\yield{Marcelo Rauta e Daniele}}}
+\put(\xII, \yIII){\parbox{\pwid}{\yield{Brenno e Nayara}}}
+\put(\xIII, \yIII){\parbox{\pwid}{\yield{Ana Carolina e família}}}
+\put(\xI, \yIV){\parbox{\pwid}{\yield{Fernanda e Lucas}}}
+\put(\xII, \yIV){\parbox{\pwid}{\yield{Marcelo Nobre}}}
+\put(\xIII, \yIV){\parbox{\pwid}{\yield{Conrado e Júlia}}}
+\end{picture}
+\newpage
+\begin{picture}(0,0)
+\put(\xI, \yI){\parbox{\pwid}{\yield{Thales e família}}}
+\put(\xII, \yI){\parbox{\pwid}{\yield{Giovana e família}}}
+\put(\xIII, \yI){\parbox{\pwid}{\yield{Helena e família}}}
+\put(\xI, \yII){\parbox{\pwid}{\yield{André e Evelyne}}}
+\put(\xII, \yII){\parbox{\pwid}{\yield{Rodrigo e Josiane}}}
+\put(\xIII, \yII){\parbox{\pwid}{\yield{Gustavo e família}}}
+\put(\xI, \yIII){\parbox{\pwid}{\yield{Priscila e família}}}
+\put(\xII, \yIII){\parbox{\pwid}{\yield{Felippe e família}}}
+\put(\xIII, \yIII){\parbox{\pwid}{\yield{Margareth}}}
+\put(\xI, \yIV){\parbox{\pwid}{\yield{Késia}}}
+\put(\xII, \yIV){\parbox{\pwid}{\yield{Rodrigo e Sara}}}
+\put(\xIII, \yIV){\parbox{\pwid}{\yield{Laudicéia}}}
+\end{picture}
+\newpage
+\begin{picture}(0,0)
+\put(\xI, \yI){\parbox{\pwid}{\yield{Matheus Lani}}}
+\put(\xII, \yI){\parbox{\pwid}{\yield{Carolina e família}}}
+\put(\xIII, \yI){\parbox{\pwid}{\yield{Nicoli e família}}}
+\put(\xI, \yII){\parbox{\pwid}{\yield{Tayla e família}}}
+\put(\xII, \yII){\parbox{\pwid}{\yield{Daniel e Laryssa}}}
+\put(\xIII, \yII){\parbox{\pwid}{\yield{Beto e família}}}
+\put(\xI, \yIII){\parbox{\pwid}{\yield{Marco Aurélio e família}}}
+\put(\xII, \yIII){\parbox{\pwid}{\yield{Irmã Jô}}}
+\put(\xIII, \yIII){\parbox{\pwid}{\yield{Shaylonh e Rebeca}}}
+\put(\xI, \yIV){\parbox{\pwid}{\yield{Lucas}}}
+\put(\xII, \yIV){\parbox{\pwid}{\yield{Rafael e Júlia}}}
+\put(\xIII, \yIV){\parbox{\pwid}{\yield{Marcelo e Sabrina}}}
+\end{picture}
+\newpage
+\begin{picture}(0,0)
+\put(\xI, \yI){\parbox{\pwid}{\yield{Ronaldo e Cida}}}
+\put(\xII, \yI){\parbox{\pwid}{\yield{Marcelo e Tatiana}}}
+\put(\xIII, \yI){\parbox{\pwid}{\yield{Diana}}}
+\put(\xI, \yII){\parbox{\pwid}{\yield{Marcelo e Kelly}}}
+\put(\xII, \yII){\parbox{\pwid}{\yield{Zaloar e Andressa}}}
+\put(\xIII, \yII){\parbox{\pwid}{\yield{Uellington e Hilana}}}
+\put(\xI, \yIII){\parbox{\pwid}{\yield{Larissa}}}
+\put(\xII, \yIII){\parbox{\pwid}{\yield{Marcos e Lorena}}}
+\put(\xIII, \yIII){\parbox{\pwid}{\yield{Vinícius Armond}}}
+\put(\xI, \yIV){\parbox{\pwid}{\yield{Fábio Rocha}}}
+\put(\xII, \yIV){\parbox{\pwid}{\yield{Ramiro e Kely}}}
+\put(\xIII, \yIV){\parbox{\pwid}{\yield{Felipe e Fernanda}}}
+\end{picture}
+\newpage
+\begin{picture}(0,0)
+\put(\xI, \yI){\parbox{\pwid}{\yield{André e Camilla}}}
+\put(\xII, \yI){\parbox{\pwid}{\yield{Sara Dodd}}}
+\put(\xIII, \yI){\parbox{\pwid}{\yield{Euza Santos}}}
+\put(\xI, \yII){\parbox{\pwid}{\yield{Denise Souza}}}
+\put(\xII, \yII){\parbox{\pwid}{\yield{Rafael Martins}}}
+\put(\xIII, \yII){\parbox{\pwid}{\yield{Valdecy Moreira}}}
+\put(\xI, \yIII){\parbox{\pwid}{\yield{Cicero e família}}}
+\put(\xII, \yIII){\parbox{\pwid}{\yield{Lilian Mara}}}
+\put(\xIII, \yIII){\parbox{\pwid}{\yield{Edisson e Lívia}}}
+\put(\xI, \yIV){\parbox{\pwid}{\yield{Fabio Moraes}}}
+\put(\xII, \yIV){\parbox{\pwid}{\yield{Guilherme e família}}}
+\put(\xIII, \yIV){\parbox{\pwid}{\yield{Daniel Medeiros}}}
+\end{picture}
+\newpage
+\begin{picture}(0,0)
+\put(\xI, \yI){\parbox{\pwid}{\yield{Augusto Tedesco}}}
+\put(\xII, \yI){\parbox{\pwid}{\yield{Aucilene e Mauro}}}
+\put(\xIII, \yI){\parbox{\pwid}{\yield{Sara e Bruno}}}
+\put(\xI, \yII){\parbox{\pwid}{\yield{Zilda e Zilene}}}
+\put(\xII, \yII){\parbox{\pwid}{\yield{Felipe Valadão e família}}}
+\put(\xIII, \yII){\parbox{\pwid}{\yield{Rafael Valadão}}}
+\put(\xI, \yIII){\parbox{\pwid}{\yield{Tia Leda}}}
+\put(\xII, \yIII){\parbox{\pwid}{\yield{João e família}}}
+\put(\xIII, \yIII){\parbox{\pwid}{\yield{Roberta Valadão}}}
+\put(\xI, \yIV){\parbox{\pwid}{\yield{Julmar Valadão}}}
+\put(\xII, \yIV){\parbox{\pwid}{\yield{Alfredo e família}}}
+\put(\xIII, \yIV){\parbox{\pwid}{\yield{Diego Lucchi}}}
+\end{picture}
+\newpage
+\begin{picture}(0,0)
+\put(\xI, \yI){\parbox{\pwid}{\yield{Lucas Mello}}}
+\put(\xII, \yI){\parbox{\pwid}{\yield{Cleisson Guterres}}}
+\put(\xIII, \yI){\parbox{\pwid}{\yield{Flávio e família}}}
+\put(\xI, \yII){\parbox{\pwid}{\yield{Claudia e Davidson}}}
+\put(\xII, \yII){\parbox{\pwid}{\yield{Cristina Rangel}}}
+\put(\xIII, \yII){\parbox{\pwid}{\yield{Felipe Guimarães}}}
+\put(\xI, \yIII){\parbox{\pwid}{\yield{Filipe Souza e família}}}
+\put(\xII, \yIII){\parbox{\pwid}{\yield{Gabriela Oliveira}}}
+\put(\xIII, \yIII){\parbox{\pwid}{\yield{Ester Santana}}}
+\put(\xI, \yIV){\parbox{\pwid}{\yield{Thayara Ferreira}}}
+\put(\xII, \yIV){\parbox{\pwid}{\yield{Daniely França}}}
+\put(\xIII, \yIV){\parbox{\pwid}{\yield{Daniel Carrareto}}}
+\end{picture}
+\newpage
+\begin{picture}(0,0)
+\put(\xI, \yI){\parbox{\pwid}{\yield{Juliana Aleixo}}}
+\put(\xII, \yI){\parbox{\pwid}{\yield{Roniery e família}}}
+\put(\xIII, \yI){\parbox{\pwid}{\yield{Guilherme e Rayssa}}}
+\put(\xI, \yII){\parbox{\pwid}{\yield{Costa e família}}}
+\put(\xII, \yII){\parbox{\pwid}{\yield{Matheus Camargo}}}
+\put(\xIII, \yII){\parbox{\pwid}{\yield{Davi e Layssa}}}
+\put(\xI, \yIII){\parbox{\pwid}{\yield{Alfredo Felipe}}}
+\put(\xII, \yIII){\parbox{\pwid}{\yield{Fábio Salazar e família}}}
+\put(\xIII, \yIII){\parbox{\pwid}{\yield{Guttiery e Priscilla}}}
+\put(\xI, \yIV){\parbox{\pwid}{\yield{Thiago Rangel}}}
+\put(\xII, \yIV){\parbox{\pwid}{\yield{Israel e Betânia}}}
+\put(\xIII, \yIV){\parbox{\pwid}{\yield{Rafael e Dabiane}}}
+\end{picture}
+\newpage
+\begin{picture}(0,0)
+\put(\xI, \yI){\parbox{\pwid}{\yield{Eduardo Cunha}}}
+\put(\xII, \yI){\parbox{\pwid}{\yield{Alexandre e família}}}
+\put(\xIII, \yI){\parbox{\pwid}{\yield{Cezar Casagrande}}}
+\put(\xI, \yII){\parbox{\pwid}{\yield{Leonardo e família}}}
+\put(\xII, \yII){\parbox{\pwid}{\yield{Fábio Gonçalves}}}
+\put(\xIII, \yII){\parbox{\pwid}{\yield{Gilberto e família}}}
+\put(\xI, \yIII){\parbox{\pwid}{\yield{Douglas e Natália}}}
+\put(\xII, \yIII){\parbox{\pwid}{\yield{Wagner e família}}}
+\put(\xIII, \yIII){\parbox{\pwid}{\yield{Rafael e Ester Miriam}}}
+\put(\xI, \yIV){\parbox{\pwid}{\yield{Victor e Larissa}}}
+\put(\xII, \yIV){\parbox{\pwid}{\yield{Marcelo e família}}}
+\put(\xIII, \yIV){\parbox{\pwid}{\yield{Pedro David e Flávia}}}
+\end{picture}
+\newpage
+\begin{picture}(0,0)
+\put(\xI, \yI){\parbox{\pwid}{\yield{Lúcia e Izabel}}}
+\put(\xII, \yI){\parbox{\pwid}{\yield{Phillipe Galdino}}}
+\put(\xIII, \yI){\parbox{\pwid}{\yield{Samila e Paulo}}}
+\put(\xI, \yII){\parbox{\pwid}{\yield{Allan e Ariana}}}
+\put(\xII, \yII){\parbox{\pwid}{\yield{Weber Mendonça}}}
+\put(\xIII, \yII){\parbox{\pwid}{\yield{Jania Camargo}}}
+\put(\xI, \yIII){\parbox{\pwid}{\yield{Natália e família}}}
+\put(\xII, \yIII){\parbox{\pwid}{\yield{Paula Sant'anna}}}
+\put(\xIII, \yIII){\parbox{\pwid}{\yield{Priscila Calmon}}}
+\put(\xI, \yIV){\parbox{\pwid}{\yield{Gabrielle Possatti e família}}}
+\put(\xII, \yIV){\parbox{\pwid}{\yield{Chequer}}}
+\put(\xIII, \yIV){\parbox{\pwid}{\yield{Walace Junior}}}
+\end{picture}
+\newpage
+\begin{picture}(0,0)
+\put(\xI, \yI){\parbox{\pwid}{\yield{Ivone e Luiz}}}
+\put(\xII, \yI){\parbox{\pwid}{\yield{João Neves}}}
+\put(\xIII, \yI){\parbox{\pwid}{\yield{Amanda e família}}}
+\put(\xI, \yII){\parbox{\pwid}{\yield{Altair e Gláucia}}}
+\put(\xII, \yII){\parbox{\pwid}{\yield{Willian e Karina}}}
+\put(\xIII, \yII){\parbox{\pwid}{\yield{Alexander e Nice}}}
+\put(\xI, \yIII){\parbox{\pwid}{\yield{Francine Becacici}}}
+\put(\xII, \yIII){\parbox{\pwid}{\yield{Camilla Bastos}}}
+\put(\xIII, \yIII){\parbox{\pwid}{\yield{Alerrachi e Micheline}}}
+\put(\xI, \yIV){\parbox{\pwid}{\yield{Alexandre e Renata}}}
+\put(\xII, \yIV){\parbox{\pwid}{\yield{Andrey e Alina}}}
+\put(\xIII, \yIV){\parbox{\pwid}{\yield{Else Maia}}}
+\end{picture}
+\newpage
+\begin{picture}(0,0)
+\put(\xI, \yI){\parbox{\pwid}{\yield{Heitor Negreiros}}}
+\put(\xII, \yI){\parbox{\pwid}{\yield{Paula Fonseca}}}
+\put(\xIII, \yI){\parbox{\pwid}{\yield{Aos amigos da Informática}}}
+\put(\xI, \yII){\parbox{\pwid}{\yield{Fernando e família}}}
+\put(\xII, \yII){\parbox{\pwid}{\yield{Polyana Rodrigues}}}
+\put(\xIII, \yII){\parbox{\pwid}{\yield{Elizabeth e família}}}
+\put(\xI, \yIII){\parbox{\pwid}{\yield{Issac e família}}}
+\put(\xII, \yIII){\parbox{\pwid}{\yield{Fábio e Débora}}}
+\end{picture}
+
+\end{document}
