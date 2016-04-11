@@ -17,7 +17,7 @@ kp-rand:
 kp-des:
 	gcc -o kp-des kp-des.c mmkp/kp.c mmkp/util.c mmkp/des.c $(CFLAGS)
 	mv kp-des $(BINDIR)
-mkp: mkp-rand mkp2zpl mkp-nu mkp-sfl mkp-sfl-core mkp-simplex mkp-sfl-batch mkp-core mkp-domsets mkp-fast-nu mkp-chubbest
+mkp: mkp-rand mkp2zpl mkp-nu mkp-sfl mkp-sfl-core mkp-simplex mkp-sfl-batch mkp-core mkp-domsets mkp-fast-nu mkp-chubbest mkp-gkbest
 mkp-rand:
 	gcc -o mkp-rand mkp-rand.c mmkp/mkp/mkp.c mmkp/lp.c mmkp/util.c $(CFLAGS)
 	mv mkp-rand $(BINDIR)
@@ -51,6 +51,9 @@ mkp-domsets:
 mkp-chubbest:
 	gcc -o mkp-chubbest mmkp/mkp/mkp.c mkp-chubbest.c mmkp/util.c mmkp/lp.c $(CFLAGS)
 	mv mkp-chubbest $(BINDIR)
+mkp-gkbest:
+	gcc -o mkp-gkbest mmkp/mkp/mkp.c mkp-gkbest.c mmkp/util.c mmkp/lp.c $(CFLAGS)
+	mv mkp-gkbest $(BINDIR)
 mmkp: mmkp-rand mmkp2zpl
 mmkp-rand:
 	gcc -o mmkp-rand mmkp-rand.c mmkp/mmkp/mkp.c mmkp/util.c $(CFLAGS)

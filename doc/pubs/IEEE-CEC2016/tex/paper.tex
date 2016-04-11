@@ -7,13 +7,15 @@
 \usepackage{hyperref}
 \usepackage{algpseudocode}
 \usepackage{graphicx}
-%\usepackage{anyfontsize}   % for fontsize and selectfont command
+\usepackage{siunitx}       % to align numbers by decimal points on tabular cells
+\usepackage{tabularx}      % to use \textwidth command on tabulars
+%\usepackage{anyfontsize}  % for fontsize and selectfont command
 \usepackage{array}         % better padding of cell content of tabulars
 \usepackage[skip=2pt,font=footnotesize]{caption}
 
-\usepackage{flushend}     % para usar flushend (no final)
+\usepackage{flushend}      % para usar flushend (no final)
 
-\usepackage{tikz}       % for flowcharts
+\usepackage{tikz}          % for flowcharts
 \usetikzlibrary{shapes, arrows}
 
 \usepackage{times}
@@ -27,7 +29,11 @@
    \end{minipage}
    \end{lrbox}\noindent\fbox{\usebox{\ieeealgbox}}}
 
+% Name of Algoritmh with core usage
 \newcommand{\scecore}{SCEcr }
+
+% command to format the presentation of variance on result tables
+\newcommand{\fvar}[1]{ {\tiny(#1)}}
 
 \begin{document}
 
@@ -70,6 +76,7 @@ demanding a small amount of processing time.
 \input{intro.tex}
 
 \section{The core concept for MKP}
+\vspace*{-5pt}      % gambiarra para gerar apenas 6 páginas
 \label{sec:core}
 \input{core.tex}
 

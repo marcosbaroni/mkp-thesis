@@ -71,7 +71,7 @@ The \textit{quality} column shows the average ratio of the solution found and
 the best known solution from literature (\cite{vimont2008reduced, della2012improved}) of each instance (higher is better).
 
 It can be observed that the \scecore had faster convergence speed, achieving higher
-quality solutions in all cases, achieving at least $99.02\%$ of best known, in less than $2$ seconds
+quality solutions in all cases, achieving at least $97.96\%$ of best known, in less than $2$ seconds
 for every instance.
 
 It can be also noticed that \scecore executed in much less processing time than original
@@ -85,10 +85,10 @@ SCE the quality decreased considerably.
 \begin{table}
  \caption{SCE and \scecore  performance on Chu-Beasley problems.}
 {
-\renewcommand{\arraystretch}{1.3}%
-\fontsize{8.5pt}{1em}\selectfont 
+\renewcommand{\arraystretch}{0.9}%
+\fontsize{7.0pt}{1.2em}\selectfont 
 \begin{center}
-  \input{tab-chub.tex}
+  \input{tab-chub2.tex}
 \end{center}
 }
  \label{tab:chu}
@@ -100,33 +100,19 @@ Columns \textit{n} and \textit{m} indicate the size of each instance.
 The \textit{time} column shows the average execution (lower is better).
 The \textit{quality} column shows the average ratio of the solution found and
 the best known solution of each instance.
-It can be noticed that SCEcr achieved high quality solutions, at least $99.10\%$
-of best known solution, spending very small amount of processing time, compared
+Variance the values is shown in parentheses.
+It can be noticed that SCEcr achieved high quality solutions, at least $98.22\%$
+of best known solution, spending small amount of processing time, compared
 to the time taken to find the best known solutions.
 
 \begin{table}
  \caption{\scecore performance on Glover-Kochenberger problems.}
 {
-\renewcommand{\arraystretch}{1.7}%
-\fontsize{8.5pt}{1em}\selectfont 
+\renewcommand{\arraystretch}{1.5}%
+\fontsize{7.3pt}{1em}\selectfont 
 \begin{center}
-\begin{tabular}{|r|r|r|r|r|r|r|} \cline{4-7}
-		\multicolumn{3}{c|}{} & \multicolumn{2}{c|}{\bf time (s)} & \multicolumn{2}{c|}{\bf quality (\%)} \\ \hline
-		\textbf{\#} & \textbf{n}   & \textbf{m}  & {\bf SCE } & {\bf SCEcr } & {\bf SCE} & {\bf SCEcr} \\ \hline
-01 & 100 & 15 & 1.48   & 0.31 & 97.67 &  99.68 \\ \hline
-02 & 100 & 25 & 1.60   & 0.47 & 97.93 &  99.51 \\ \hline
-03 & 150 & 25 & 2.48   & 0.79 & 97.25 &  99.60 \\ \hline
-04 & 150 & 50 & 3.44   & 1.61 & 97.38 &  99.10 \\ \hline
-05 & 200 & 25 & 3.30   & 0.83 & 96.89 &  99.73 \\ \hline
-06 & 200 & 50 & 4.26   & 1.67 & 97.69 &  99.30 \\ \hline
-07 & 500 & 25 & 6.74   & 1.27 & 97.12 &  99.72 \\ \hline
-08 & 500 & 50 & 11.23  & 2.06 & 97.29 &  99.62 \\ \hline
-09 &1500 & 25 & 22.28  & 1.83 & 96.90 &  99.32 \\ \hline
-10 &1500 & 50 & 31.60  & 5.25 & 97.49 &  99.76 \\ \hline
-11 &2500 &100 &107.76  &11.94 & 97.94 & 99.77 \\ \hline
-    \multicolumn{3}{|r|}{\textbf{average }} & {17.83} & \multicolumn{1}{r|}{\bf 2.55 } & {97.41} & {\bf 99.46}  \\ \hline
-\end{tabular}
 \end{center}
+  \input{tab-gk2.tex}
 }
  \label{tab:gk}
 \end{table}
