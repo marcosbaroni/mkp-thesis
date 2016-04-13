@@ -67,6 +67,7 @@ footer='''
 
 yList = ['\\yI', '\\yII', '\\yIII', '\\yIV']
 xList = ['\\xI', '\\xII', '\\xIII']
+footerPos = (190, -650)
 
 def yeld(name, x, y):
     return '\\put(' + xList[x] + ', ' + yList[y] + '){\\parbox{\\pwid}{\\yield{' + name + '}}}\n'
@@ -74,6 +75,7 @@ def yeld(name, x, y):
 def printBody(names):
     s = ''
     first = True
+    page = 1
     while len(names) > 0:
         if first: first = False
         else: s+= '\\newpage\n'
@@ -90,7 +92,9 @@ def printBody(names):
         if len(names) > 0: s+= yeld(names.pop(0), 0, 3)
         if len(names) > 0: s+= yeld(names.pop(0), 1, 3)
         if len(names) > 0: s+= yeld(names.pop(0), 2, 3)
+        s += '\\put{0}{{\LARGE{1}}} \n'.format(footerPos, page)
         s += '\\end{picture}\n'
+        page += 1
     return s
 
 if __name__ == '__main__':
