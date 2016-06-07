@@ -30,8 +30,8 @@ a lot of time to solve some others. So to be able to continue the experiments, a
 that took more than 20 minutes to be solved were considered prohibitive for the continuity of the experiment, so when an 
 instance reached this threshold, it was interrupted and the current solution saved.
 
-Figures~\ref{fig:result00},~\ref{fig:result01} and~\ref{fig:result10} show the results of the first tests, 
-considering the interruption rate. Each of the three figures represents a level of correlation, while each heatmap 
+Figure~\ref{fig:result10} shows the results of the first tests, 
+considering the interruption rate. Each of the three heatmaps represents a level of correlation, while each heatmap 
 shows the instances with certain number of resources. The colors on the heatmaps represent the ratio of interrupted 
 instances during the CPLEX execution, varying from the combinations of actions/years where no instance was interrupted 
 (paler squares) to the combinations where all instances were interrupted (darker squares).
@@ -44,8 +44,8 @@ instances during the CPLEX execution, varying from the combinations of actions/y
     \subfloat[2 resources]{\input{imgs/exp/0.0-2-ntrv.tex}}
     \subfloat[4 resources]{\input{imgs/exp/0.0-4-ntrv.tex}}
   }
-  \caption{Ratio of strongly correlated instances interrupted ($\alpha = 0.0$).}
-  \label{fig:result00}
+  $\alpha = 0.0$
+  %\label{fig:result00}
 \end{figure}
 
 \figspaces
@@ -56,8 +56,8 @@ instances during the CPLEX execution, varying from the combinations of actions/y
     \subfloat[2 resources]{\input{imgs/exp/0.1-2-ntrv.tex}}
     \subfloat[4 resources]{\input{imgs/exp/0.1-4-ntrv.tex}}
   }
-  \caption{Ratio of weakly correlated instances interrupted ($\alpha = 0.1$).}
-  \label{fig:result01}
+  $\alpha = 0.1$
+  %\label{fig:result01}
 \end{figure}
 
 \figspaces
@@ -68,20 +68,21 @@ instances during the CPLEX execution, varying from the combinations of actions/y
     \subfloat[2 resources]{\input{imgs/exp/1.0-2-ntrv.tex}}
     \subfloat[4 resources]{\input{imgs/exp/1.0-4-ntrv.tex}}
   }
-  \caption{Ratio of uncorrelated instances interrupted ($\alpha = 1.0$).}
+  $\alpha = 1.0$
+  \caption{Ratio of uncorrelated instances interrupted.}
   \label{fig:result10}
 \end{figure}
 
-Comparing figures~\ref{fig:result00} and~\ref{fig:result01} to figure~\ref{fig:result10} one can see the first two figures are darker 
+Comparing figure~\ref{fig:result10} one can see the first two heatmaps are darker 
 than the last, meaning that the correlation level indeed affects the instances hardness. As expected, uncorrelated instances
-are easier for the CPLEX to solve, with just a few instances with bigger dimensions being interrupted. However, comparing only 
-figure~\ref{fig:result00} to figure~\ref{fig:result01}, it appears that weakly correlated instances are harder to solve than
+are easier for the CPLEX to solve, with just a few instances with bigger dimensions being interrupted. However, comparing just
+the two first heatmaps, it appears that weakly correlated instances are harder to solve than
 strongly correlated instances, as opposed to the expected.
 
 Concerning quantity of years and resources of the instances, the obtained results confirm what was expected, since 
-figures~\ref{fig:result00} to~\ref{fig:result10}
+Figure~\ref{fig:result10}
 show that the bigger the instances are on this two parameters, the harder it gets for the CPLEX solver to solve them to optimality. 
-Still, comparing the three figures observing the hardness in relation to the variation on the number of actions, it seems that instances with fewer actions are 
+Still, comparing the figure observing the hardness in relation to the variation on the number of actions, it seems that instances with fewer actions are 
 harder to solve to optimallity.
 
 In relation to the time taken to solve the instances, the CPLEX took on average 380 seconds to solve the instances. The average gap was 
@@ -91,10 +92,10 @@ In relation to the time taken to solve the instances, the CPLEX took on average 
 
 To analyse the quality of the solutions obtained by the heuristics, the same instances previously solved with CPLEX were now solved with
 the GALP and TSLP, and the solutions found were compared to the ones obtained by CPLEX before reaching the time limit. 
-Figures~\ref{fig:tabusolcomp00} to \ref{fig:tabusolcomp10} show the results for the TSLP. The heatmaps follow the same configuration 
+Figure~\ref{fig:tabusolcomp10} shows the results for the TSLP. The heatmaps follow the same configuration 
 of the CPLEX tests, but now showing the average quality of the solutions. The color scale represents
 the average ratio between the solutions found by the TSLP and the best known solution, in other words, darker tones indicate solutions
-with better quality were found by the TSLP. The same representations are used on figures~\ref{fig:greedysolcomp00} to \ref{fig:greedysolcomp10} 
+with better quality were found by the TSLP. The same representations are used on Figure~\ref{fig:greedysolcomp10} 
 to present the results obtained with GALP.
 
 \figpar
@@ -105,8 +106,8 @@ to present the results obtained with GALP.
     \subfloat[2 resources]{\input{imgs/exp/0.0-2-tabusolcomp.tex}}
     \subfloat[4 resources]{\input{imgs/exp/0.0-4-tabusolcomp.tex}}
   }
-  \caption{TSLP solution quality on strongly correlated instances ($\alpha = 0.0$).}
-  \label{fig:tabusolcomp00}
+  $\alpha = 0.0$
+  %\label{fig:tabusolcomp00}
 \end{figure}
 
 \figspaces
@@ -117,8 +118,8 @@ to present the results obtained with GALP.
     \subfloat[2 resources]{\input{imgs/exp/0.1-2-tabusolcomp.tex}}
     \subfloat[4 resources]{\input{imgs/exp/0.1-4-tabusolcomp.tex}}
   }
-  \caption{TSLP solution quality on weakly correlated instances ($\alpha = 0.1$).}
-  \label{fig:tabusolcomp01}
+  $\alpha = 0.1$
+  %\label{fig:tabusolcomp01}
 \end{figure}
 
 \figspaces
@@ -129,21 +130,22 @@ to present the results obtained with GALP.
     \subfloat[2 resources]{\input{imgs/exp/1.0-2-tabusolcomp.tex}}
     \subfloat[4 resources]{\input{imgs/exp/1.0-4-tabusolcomp.tex}}
   }
-  \caption{TSLP solution quality on uncorrelated instances ($\alpha = 1.0$).}
+  $\alpha = 1.0$
+  \caption{TSLP solution quality on uncorrelated instances.}
   \label{fig:tabusolcomp10}
 \end{figure}
 
-Looking at figures~\ref{fig:tabusolcomp00}, \ref{fig:tabusolcomp01} and \ref{fig:tabusolcomp10}, which show the results of the TSLP tests, some impact of
+Looking at figure~\ref{fig:tabusolcomp10}, which shows the results of the TSLP tests, some impact of
 the correlation level on the quality of the obtained solutions can again be seen, as the heatmaps for the instances with some level of correlation
-are paler than the ones for the uncorrelated instances. Specially on the instances with weak correlation (figure~\ref{fig:tabusolcomp01}), the algorithm seems
+are paler than the ones for the uncorrelated instances. Specially on the instances with weak correlation (the second heatmap), the algorithm seems
 to obtain the worst solutions.
 
 Comparing the results in respect to the number of resources, it can be seen that instances with more resources are harder to solve. That influence
-can be seen mainly on figure~\ref{fig:tabusolcomp01}. Once again, an observation of the quality of the solutions related to the amount of actions on the instance
+can be seen mainly on the second heatmap. Once again, an observation of the quality of the solutions related to the amount of actions on the instance
 shows that the TSLP also obtained worse solutions on instances with fewer actions. The influence of the number of years in those tests was too weak to be 
 considered significant.
 
-Figures~\ref{fig:greedysolcomp00}, \ref{fig:greedysolcomp01} and \ref{fig:greedysolcomp10} present the results of the GALP heuristic.
+Figure~\ref{fig:greedysolcomp10} presents the results of the GALP heuristic.
 Once again, it is possible to see a reduction on the quality of the solutions found when the quantity of resources or level of correlation on
 the instances are increased. Besides, increasing the number of actions on the instances also enabled GALP to find better solutions, and
 the influence of the number of years was also not significant, as observed on the TSLP tests.
@@ -156,8 +158,8 @@ the influence of the number of years was also not significant, as observed on th
     \subfloat[2 resources]{\input{imgs/exp/0.0-2-greedysolcomp.tex}}
     \subfloat[4 resources]{\input{imgs/exp/0.0-4-greedysolcomp.tex}} 
   }
-  \caption{GALP solution quality on strongly correlated instances ($\alpha = 0.0$).}
-  \label{fig:greedysolcomp00}
+  $\alpha = 0.0$
+  %\label{fig:greedysolcomp00}
 \end{figure}
 
 \figspaces
@@ -168,8 +170,8 @@ the influence of the number of years was also not significant, as observed on th
     \subfloat[2 resources]{\input{imgs/exp/0.1-2-greedysolcomp.tex}}
     \subfloat[4 resources]{\input{imgs/exp/0.1-4-greedysolcomp.tex}}
   }
-  \caption{GALP solution quality on weakly correlated instances ($\alpha = 0.1$).}
-  \label{fig:greedysolcomp01}
+  $\alpha = 0.1$
+  %\label{fig:greedysolcomp01}
 \end{figure}
 
 \figspaces
@@ -180,14 +182,15 @@ the influence of the number of years was also not significant, as observed on th
     \subfloat[2 resources]{\input{imgs/exp/1.0-2-greedysolcomp.tex}}
     \subfloat[4 resources]{\input{imgs/exp/1.0-4-greedysolcomp.tex}}
   }
-  \caption{GALP solution quality on uncorrelated instances ($\alpha = 1.0$).}
+  $\alpha = 1.0$
+  \caption{GALP solution quality on uncorrelated instances.}
   \label{fig:greedysolcomp10}
 \end{figure}
 
-Observing the figures a comparison between the two heuristics can also be made.
-By comparing figures~\ref{fig:tabusolcomp00}, \ref{fig:tabusolcomp01} and \ref{fig:tabusolcomp10} to 
-figures~\ref{fig:greedysolcomp00}, \ref{fig:greedysolcomp01} and \ref{fig:greedysolcomp10}, the first group 
-of figures show a darker tone than the second. It indicates that on average the TSLP was able to find better
+Observing the figure a comparison between the two heuristics can also be made.
+By comparing figure~\ref{fig:tabusolcomp10} to 
+figure~\ref{fig:greedysolcomp10}, the first group 
+of figure show a darker tone than the second. It indicates that on average the TSLP was able to find better
 solutions than the GALP on the tested instances. All the experiments results are available under request to the authors.
 
 Even considering that the heuristics starting point was already a good solution, since it was on average
