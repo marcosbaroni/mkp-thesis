@@ -5,7 +5,7 @@ In this section we show the mathematical model defined to tackle the EDCO's prob
 Firstly, section~\ref{sec:model:model} details the mathematical model proposed to solve the problem.
 This section is followed by section~\ref{sec:model:knap}, where we show how the model defined relates 
 to the available literature, more specificcally, we show that the model is a generalization of the 
-well known Knapsack Problem, and discuss about the problem hardness.
+well known knapsack problem, and discuss about the problem hardness.
 
 \subsection{Mathematical Model}
 \label{sec:model:model}
@@ -49,18 +49,21 @@ three auxiliary equations must be defined first:
         In other words, it calculates how much electricity loss the execution of action $j$ on the year $k$ will avoid at year $i$:
     \begin{equation}
 	\label{eq:rec}
+        \mymathstyle
 	R_{i,j,k}(\bar{x}) = x_{j, k} \cdot e_{j, i - k + 1} \ %, \forall k \leq i,
     \end{equation}
 
   \item The second, equation~\ref{eq:lucro}, represents the total yearly profit $V_i$, which is the sum of all energy recovered on year $i$ multiplied by each action's energy value:
     \begin{equation}
       \label{eq:lucro}
+      \mymathstyle
 	V_{i}(\bar{x}) = \sum_{j=1}^{N} \sum_{k=1}^{i} R_{i, j, k}(\bar{x}) \cdot v_j,
     \end{equation}
     
   \item Finally, equation~\ref{eq:cost} represents the total yearly cost $C_i$, i.e., the sum of the costs on every resource for all actions executed on the $i-th$ year of the plan:
     \begin{equation}
     \label{eq:cost}
+    \mymathstyle
     C_{i}(\bar{x}) =  \sum_{j=1}^{N} \sum_{l=1}^{L} x_{j, i} \cdot c_{j,l}
     \end{equation}
     
@@ -73,6 +76,7 @@ to other solutions with lower NPV. So, the problem's objective is to maximize th
 
 \begin{equation}
     \label{eq:objective}
+    \mymathstyle
     \underset{\bar{x}}{max(O(\bar{x}))} = \underset{\bar{x}}{max}\left(\sum_{i=1}^{M} \frac{V_i(\bar{x}) - C_i(\bar{x})}{(1 + r)^i}\right)
 \end{equation}
 
@@ -81,26 +85,31 @@ The problem's objective function must be maximized respecting some constraints. 
 \begin{itemize}
   \item The yearly budget constraint (equation~\ref{eq:budget}), which ensures that the solution's cost won't exceed the yearly budgets for each resource, 
     \begin{equation}
+        \mymathstyle
 	\sum_{j=1}^{N} x_{j, i} \cdot c_{j,l} \le o_{i,l} \, \; \forall i, l,
 	    \label{eq:budget}
     \end{equation}
   \item the market constraint (equation~\ref{eq:market}), which prevents the solution from surpassing any action's market,
     \begin{equation}
+        \mymathstyle
 	\sum_{i=1}^{M} x_{j, i} \le m_j \, \; \forall j,
 	    \label{eq:market}
     \end{equation} 
   \item the yearly market constraint (equation~\ref{eq:maxacts}), analogous to the market constraint, but now enforcing each action's yearly market,
     \begin{equation}
+        \mymathstyle
 	x_{j, i} \le u_{j, i} \, \; \forall j, i,
 	    \label{eq:maxacts}
     \end{equation} 
   \item  the yearly reduction goal constraint (equation~\ref{eq:goal}), which ensures that the yearly reduction goals won't be exceeded,
     \begin{equation}
+        \mymathstyle
 	\label{eq:goal}
 	\sum_{j=1}^{N} \sum_{k=1}^{i}R_{i,j,k}(\bar{x}) \leq g_i \, \; \forall i, \\
     \end{equation} 
   \item the dependency restriction (equation~\ref{eq:dep}), which ensures that the solution will respect the dependency relations between actions for all actions of the plan,
     \begin{equation}
+        \mymathstyle
 	\label{eq:dep}
 	\sum_{i=1}^{k} x_{d, i} \ge \sum_{i'=1}^{k} x_{j, i'} \cdot Q_{j, d} \, \; \quad \forall d \in D_j \quad \forall j,k.
     \end{equation}
@@ -110,17 +119,18 @@ The resulting problem obtained by the concatenation of equations~\ref{eq:rec} to
 
     \begin{equation}
     \label{eq:pmmlpo++}
+      \mymathstyle
       \begin{aligned}
-	 & \underset{\bar{x}}{\text{max}}  & & \sum_{i=1}^{M} \frac{V_i(\bar{x}) - C_i(\bar{x})}{(1 + r)^i}	\hspace{25ex} \textit{\scriptsize (NPV)} \\
-	 & \text{s. to} 			& & \sum_{j=1}^{N} x_{j, i} \cdot c_{j,l} \le o_{i,l} \, \; \forall i, l \hspace{15ex} \textit{\scriptsize (Yearly Budgets)} \\
-	 & 					& & \sum_{i=1}^{M} x_{j, i} \le m_j \, \; \forall j 			\hspace{25ex} \textit{\scriptsize (Market)} \\
-	 & 					& & x_{j, i} \le u_{j, i} \, \; \forall j, i 			\hspace{22ex} \textit{\scriptsize (Yearly Market)} \\
-	 & 					& & \sum_{j=1}^{N} \sum_{k=1}^{i}R_{i,j,k}(\bar{x}) \leq g_i \, \; \forall i    \hspace{18ex}  \textit{\scriptsize (Goals)} \\
-	 & 					& & \sum_{i=1}^{k} x_{d, i} \ge \sum_{i'=1}^{k} x_{j, i'} \cdot Q_{j, d} \, \; \forall d \in D_j\;  \forall j,k  \hspace{4ex} \textit{\scriptsize (Deps.)}\\
-	 & \text{where}				& &  R_{i,j,k}(\bar{x}) = x_{j, k} \cdot e_{j, i - k + 1} 	\hspace{10ex}  \textit{\scriptsize (Energy Recovery)}\\
-	 & 					& & V_{i}(\bar{x}) = \sum_{j=1}^{N} \sum_{k=1}^{i} R_{i, j, k}(\bar{x}) \cdot v_j   \hspace{10ex}  \textit{\scriptsize (Yearly Profit)}\\
-	 & 					& & C_{i}(\bar{x}) = \sum_{j=1}^{N} \sum_{l=1}^{L} x_{j, i} \cdot c_{j,l}   \hspace{15ex} \textit{\scriptsize (Yearly Cost)}\\
-	 & 					& & x_{j,i} \in N, \quad i \le M, \quad j \le N, \quad l \le L
+	 & \underset{\bar{x}}{\text{max}}       & & \mymathstyle \sum_{i=1}^{M} \frac{V_i(\bar{x}) - C_i(\bar{x})}{(1 + r)^i}	\hspace{27.5ex} \textit{\scriptsize (NPV)} \\
+	 & \text{s. to} 			& & \mymathstyle \sum_{j=1}^{N} x_{j, i} \cdot c_{j,l} \le o_{i,l} \, \; \forall i, l \hspace{13ex} \textit{\scriptsize (Yearly Budgets)} \\
+	 & 					& & \mymathstyle \sum_{i=1}^{M} x_{j, i} \le m_j \, \; \forall j 			\hspace{24ex} \textit{\scriptsize (Market)} \\
+	 & 					& & \mymathstyle x_{j, i} \le u_{j, i} \, \; \forall j, i 			\hspace{23.5ex} \textit{\scriptsize (Yearly Market)} \\
+	 & 					& & \mymathstyle \sum_{j=1}^{N} \sum_{k=1}^{i}R_{i,j,k}(\bar{x}) \leq g_i \, \; \forall i    \hspace{15ex}  \textit{\scriptsize (Goals)} \\
+	 & 					& & \mymathstyle \sum_{i=1}^{k} x_{d, i} \ge \sum_{i'=1}^{k} x_{j, i'} \cdot Q_{j, d} \, \; \forall d \in D_j\;  \forall j,k  \hspace{1ex} \textit{\scriptsize (Deps.)}\\
+	 & \text{where}				& & \mymathstyle  R_{i,j,k}(\bar{x}) = x_{j, k} \cdot e_{j, i - k + 1} 	\hspace{12ex}  \textit{\scriptsize (Energy Recovery)}\\
+	 & 					& & \mymathstyle V_{i}(\bar{x}) = \sum_{j=1}^{N} \sum_{k=1}^{i} R_{i, j, k}(\bar{x}) \cdot v_j   \hspace{7ex}  \textit{\scriptsize (Yearly Profit)}\\
+	 & 					& & \mymathstyle C_{i}(\bar{x}) = \sum_{j=1}^{N} \sum_{l=1}^{L} x_{j, i} \cdot c_{j,l}   \hspace{12ex} \textit{\scriptsize (Yearly Cost)}\\
+	 & 					& & \mymathstyle x_{j,i} \in N, \quad i \le M, \quad j \le N, \quad l \le L
       \end{aligned}
     \end{equation}
 
@@ -129,7 +139,7 @@ The resulting problem obtained by the concatenation of equations~\ref{eq:rec} to
 
 The exact formulation of the problem has shown to be quite particular and no work addressing 
 a similar problem was found in literature. In this work, we face it as a generalization
-of the well known Knapsack Problem, which has lots of practical applications. 
+of the well known knapsack problem, which has lots of practical applications. 
 Even though our problem is not the exact generalization of the classical knapsack
 and its variants, we try to relate the hardness of those problems to our formulation of the
 EDCO's problem.
@@ -142,32 +152,32 @@ maximize the profit of the items in the knapsack, without exceeding its capacity
 \label{eq:knap01}
   \begin{aligned}
     & \text{maximize}
-    & & \sum_{j=1}^{N} p_j \cdot x_j \\
+    & & \mymathstyle \sum_{j=1}^{N} p_j \cdot x_j \\
     & \text{subject to} 
-    & & \sum_{j=1}^{N} w_j \cdot x_j \leq c, \\
+    & & \mymathstyle \sum_{j=1}^{N} w_j \cdot x_j \leq c, \\
     & & & x_j \in \{0,1\}, &j = 1,...,N.
   \end{aligned}
 \end{equation}
 
 One possible generalization of the classical problem is to relax the restrictions in a way that more than one 
-copy of the same item can be in the knapsack. That generalization is called \textit{Bounded Knapsack Problem} (BKP)~\cite{pisinger1995}, 
+copy of the same item can be in the knapsack. That generalization is called \textit{Bounded knapsack problem} (BKP)~\cite{pisinger1995}, 
 and is usually solved with a transformation of the BKP instance to a KP instance with more variables~\cite{kellerer2004knapsack}, 
 solving the resulting problem with KP techniques.
 
 Another possible generalization can be achieved when we consider some kind of ordering between the items, or a dependency relation. 
-That generalization is called the \textit{Partially-Ordered Knapsack Problem} (POKP)\cite{pok2002}. In this problem, an item $a$ may depend on item $b$, meaning
-that to be able to put item $b$ in the knapsack, item $a$ must also be on the knapsack. A review on Knapsack Problems With Neighbour Constraints, a generalization of the POKP, is presented
+That generalization is called the \textit{partially-ordered knapsack problem} (POKP)\cite{pok2002}. In this problem, an item $a$ may depend on item $b$, meaning
+that to be able to put item $b$ in the knapsack, item $a$ must also be on the knapsack. A review on knapsack problems with neighbour constraints, a generalization of the POKP, is presented
 in~\cite{borradaile2012}, and a real application is demonstrated in~\cite{lambert2014}, where the Open Pit Block Sequencing problem is modelled using the POKP.
 
-We may also consider a Knapsack Problem with several knapsacks available, each of them with its own capacity. This generalization is called 
-\textit{Multiple Knapsack Problem} (MKP)~\cite{kellerer2004knapsack}. In~\cite{amarante2013} the MKP is used to model the allocation of virtual mahines in a 
+We may also consider a knapsack problem with several knapsacks available, each of them with its own capacity. This generalization is called 
+\textit{multiple knapsack problem} (MKP)~\cite{kellerer2004knapsack}. In~\cite{amarante2013} the MKP is used to model the allocation of virtual mahines in a 
 cloud computing environment, and the resulting model is solved using an Ant Colony Optimization based heuristic. 
 In ~\cite{patvardhan2014}, the authors propose a Quantum-Inspired Evolutionary Algorithm to solve the MKP.
 
 Finally, another generalization is obtained when we consider a knapsack with more than one dimension, like weight and volume. In this variation, 
-each item has a diferent weigth $w_{j,r}$ on each dimension $c_r$. This generalization is known as the \textit{Mutidimensional Knapsack Problem} 
-or \textit{d-Dimensional Knapsack Problem} (dKP)~\cite{kellerer2004knapsack}. Due to its hardness and several pratical applications, the dKP is probably 
-the most studied variation of the Knapsack Problem. For an overview on this variation the reader is directed to~\cite{freville2004}. 
+each item has a diferent weigth $w_{j,r}$ on each dimension $c_r$. This generalization is known as the \textit{mutidimensional knapsack problem} 
+or \textit{d-dimensional knapsack problem} (dKP)~\cite{kellerer2004knapsack}. Due to its hardness and several pratical applications, the dKP is probably 
+the most studied variation of the knapsack problem. For an overview on this variation the reader is directed to~\cite{freville2004}. 
 Recently, several heuristic approaches have been proposed to solve the dKP. For instance,~\cite{beheshti2013} and~\cite{chih2014} propose two Particle
 Swarm Optimization (PSO) algorithms to solve the dKP. The first proposes a binary PSO with accelerated particles and the second presents a binary PSO 
 with acceleration varying with time. In~\cite{wang2013} the Fruit Fly algorithm is adapted for binary variables, and the resulting implementation is 
@@ -181,17 +191,17 @@ while the other variants mentioned above are hard to aproximate and there are on
 to solve them with a certain degree of approximation to the optimal solution, as shown in~\cite{pok2002, puchinger2006core, dawande2000approximation}. 
 
 If we consider a knapsack with the characteristics of every gerenalization presented so far we can define a new generalization
-called \textit{Partially-Ordered Multidimensional Multiple Bounded Knapsack Problem} (POMMBKP), which is as far as we know, a novel generalization of the
-Knapsack Problem. Looking at the model described at section~\ref{sec:model:model} it is possible to see that it is a generalization of the POMMBKP, 
+called \textit{partially-ordered multidimensional multiple bounded knapsack problem} (POMMBKP), which is as far as we know, a novel generalization of the
+knapsack problem. Looking at the model described at section~\ref{sec:model:model} it is possible to see that it is a generalization of the POMMBKP, 
 when we make the following assumptions:
 
 \begin{itemize}
   \item the model's actions are the POMMBKP's items;
   \item the model's years are the POMMBKP's knapsacks;
   \item each resource an action consumes can be seen as a POMMBKP dimension;
-  \item in the model, the actions can be executed more than one time, representing the Bounded Knapsack Problem part of the POMMBKP;
-  \item the loss reduction plan can be defined for many years, and each year may have several budgets. That may be seen as the Multiple Knapsacks Problem and Multidimensional Knapsack Problem respectively;
-  \item actions may depend on other actions being executed previously, like on the Partially-Ordered Knapsack Problem.
+  \item in the model, the actions can be executed more than one time, representing the bounded knapsack problem part of the POMMBKP;
+  \item the loss reduction plan can be defined for many years, and each year may have several budgets. That may be seen as the multiple knapsacks problem and multidimensional knapsack problem respectively;
+  \item actions may depend on other actions being executed previously, like on the partially-ordered knapsack problem.
 \end{itemize}
 
 Even with all the similarities, some differences between the model and the POMMBKP are noted. Firstly, the 
@@ -203,7 +213,7 @@ an action (item) can consume resources from more than one year (knapsack), somet
 Considering the EDCO's problem with an internal return rate equal to zero, only single dependencies and actions recovering energy 
 only on the year they were executed, characteristics that can be representend on the model presented in equation~\ref{eq:pmmlpo++}, 
 it can be seen as a generalization of the POMMBKP (for a proof the user is directed to~\cite{Moreira2015}). From now on, we refer to 
-the EDCO's problem as the \textit{Partially-Ordered Multidimensional Multiple Bounded Knapsack with Multiple Dependencies, 
+the EDCO's problem as the \textit{partially-ordered multidimensional multiple bounded knapsack with multiple dependencies, 
 Spread Weights and Adjustment Rate} (POMMBKPDSA).
 
 In~\cite{Moreira2015} it is shown that the POMMBKPDSA is a generalization of the POMMBKP, so we can tell 
