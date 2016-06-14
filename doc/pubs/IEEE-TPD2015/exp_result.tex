@@ -36,39 +36,42 @@ shows the instances with certain number of resources. The colors on the heatmaps
 instances during the CPLEX execution, varying from the combinations of actions/years where no instance was interrupted 
 (paler squares) to the combinations where all instances were interrupted (darker squares).
 
-\figpar
+%\figpar
 \begin{figure}[H]
-  \centering
+  \putHeatAlpha{0.0}
+  \begin{center}
   \resizebox{\columnwidth}{!}{%
     \subfloat[1 resource]{\input{imgs/exp/0.0-1-ntrv.tex}}
     \subfloat[2 resources]{\input{imgs/exp/0.0-2-ntrv.tex}}
     \subfloat[4 resources]{\input{imgs/exp/0.0-4-ntrv.tex}}
   }
-  $\alpha = 0.0$
+  \end{center}
   %\label{fig:result00}
 \end{figure}
 
 \figspaces
 \begin{figure}[H]
-  \centering
+  \putHeatAlpha{0.1}
+  \begin{center}
   \resizebox{\columnwidth}{!}{%
     \subfloat[1 resource]{\input{imgs/exp/0.1-1-ntrv.tex}}
     \subfloat[2 resources]{\input{imgs/exp/0.1-2-ntrv.tex}}
     \subfloat[4 resources]{\input{imgs/exp/0.1-4-ntrv.tex}}
   }
-  $\alpha = 0.1$
+  \end{center}
   %\label{fig:result01}
 \end{figure}
 
 \figspaces
 \begin{figure}[H]
-  \centering
+  \putHeatAlpha{1.0}
+  \begin{center}
   \resizebox{\columnwidth}{!}{%
     \subfloat[1 resource]{\input{imgs/exp/1.0-1-ntrv.tex}}
     \subfloat[2 resources]{\input{imgs/exp/1.0-2-ntrv.tex}}
     \subfloat[4 resources]{\input{imgs/exp/1.0-4-ntrv.tex}}
   }
-  $\alpha = 1.0$
+  \end{center}
   \caption{Ratio of uncorrelated instances interrupted.}
   \label{fig:result10}
 \end{figure}
@@ -98,39 +101,42 @@ the average ratio between the solutions found by the TSLP and the best known sol
 with better quality were found by the TSLP. The same representations are used on Figure~\ref{fig:greedysolcomp10} 
 to present the results obtained with GALP.
 
-\figpar
+%\figpar
 \begin{figure}[H]
-  \centering
+  \putHeatAlpha{0.0}
+  \begin{center}
   \resizebox{\columnwidth}{!}{%
     \subfloat[1 resource]{\input{imgs/exp/0.0-1-tabusolcomp.tex}}
     \subfloat[2 resources]{\input{imgs/exp/0.0-2-tabusolcomp.tex}}
     \subfloat[4 resources]{\input{imgs/exp/0.0-4-tabusolcomp.tex}}
   }
-  $\alpha = 0.0$
+  \end{center}
   %\label{fig:tabusolcomp00}
 \end{figure}
 
 \figspaces
 \begin{figure}[H]
-  \centering
+  \putHeatAlpha{0.1}
+  \begin{center}
   \resizebox{\columnwidth}{!}{%
     \subfloat[1 resource]{\input{imgs/exp/0.1-1-tabusolcomp.tex}}
     \subfloat[2 resources]{\input{imgs/exp/0.1-2-tabusolcomp.tex}}
     \subfloat[4 resources]{\input{imgs/exp/0.1-4-tabusolcomp.tex}}
   }
-  $\alpha = 0.1$
+  \end{center}
   %\label{fig:tabusolcomp01}
 \end{figure}
 
 \figspaces
 \begin{figure}[H]
-  \centering
+  \putHeatAlpha{1.0}
+  \begin{center}
   \resizebox{\columnwidth}{!}{%
     \subfloat[1 resource]{\input{imgs/exp/1.0-1-tabusolcomp.tex}} 
     \subfloat[2 resources]{\input{imgs/exp/1.0-2-tabusolcomp.tex}}
     \subfloat[4 resources]{\input{imgs/exp/1.0-4-tabusolcomp.tex}}
   }
-  $\alpha = 1.0$
+  \end{center}
   \caption{TSLP solution quality on uncorrelated instances.}
   \label{fig:tabusolcomp10}
 \end{figure}
@@ -150,39 +156,42 @@ Once again, it is possible to see a reduction on the quality of the solutions fo
 the instances are increased. Besides, increasing the number of actions on the instances also enabled GALP to find better solutions, and
 the influence of the number of years was also not significant, as observed on the TSLP tests.
 
-\figpar
+%\figpar
 \begin{figure}[H]
-  \centering
+  \putHeatAlpha{0.0}
+  \begin{center}
   \resizebox{\columnwidth}{!}{%
     \subfloat[1 resource]{\input{imgs/exp/0.0-1-greedysolcomp.tex}} 
     \subfloat[2 resources]{\input{imgs/exp/0.0-2-greedysolcomp.tex}}
     \subfloat[4 resources]{\input{imgs/exp/0.0-4-greedysolcomp.tex}} 
   }
-  $\alpha = 0.0$
+  \end{center}
   %\label{fig:greedysolcomp00}
 \end{figure}
 
 \figspaces
 \begin{figure}[H]
-  \centering
+  \putHeatAlpha{0.1}
+  \begin{center}
   \resizebox{\columnwidth}{!}{%
     \subfloat[1 resource]{\input{imgs/exp/0.1-1-greedysolcomp.tex}} 
     \subfloat[2 resources]{\input{imgs/exp/0.1-2-greedysolcomp.tex}}
     \subfloat[4 resources]{\input{imgs/exp/0.1-4-greedysolcomp.tex}}
   }
-  $\alpha = 0.1$
+  \end{center}
   %\label{fig:greedysolcomp01}
 \end{figure}
 
 \figspaces
 \begin{figure}[H]
-  \centering
+  \putHeatAlpha{1.0}
+  \begin{center}
   \resizebox{\columnwidth}{!}{%
     \subfloat[1 resource]{\input{imgs/exp/1.0-1-greedysolcomp.tex}} 
     \subfloat[2 resources]{\input{imgs/exp/1.0-2-greedysolcomp.tex}}
     \subfloat[4 resources]{\input{imgs/exp/1.0-4-greedysolcomp.tex}}
   }
-  $\alpha = 1.0$
+  \end{center}
   \caption{GALP solution quality on uncorrelated instances.}
   \label{fig:greedysolcomp10}
 \end{figure}
