@@ -25,6 +25,17 @@
 %\usepackage{bookman}
 \usepackage{palatino}
 
+\usepackage{framed}    % para adicionar margem ao redor do texto nos quadros
+\usepackage{xcolor}    % para adicionar margem ao redor do texto nos quadros
+
+\newenvironment{cframed}
+  {\def\FrameCommand{\fboxsep=\FrameSep\fcolorbox{white}{white}}%
+    \MakeFramed {\advance\hsize-\width \FrameRestore}}
+  {\endMakeFramed}
+
+\setlength\FrameSep{0.5em}
+\setlength\OuterFrameSep{\partopsep}
+
 \newcommand{\captionfont}{\footnotesize}
 
 %  WCCI pallet
@@ -36,6 +47,7 @@
 \usetikzlibrary{calc}
 \newcommand{\scecore}{SCEcr }
 \newcommand{\fvar}[1]{{\tiny(#1)}}
+\newcommand{\myBoxEnv}[1]{\begin{cframed} #1 \end{cframed}}
 
 \newcommand{\SET}[1]  {\ensuremath{\mathcal{#1}}}
 \newcommand{\MAT}[1]  {\ensuremath{\boldsymbol{#1}}}
@@ -126,7 +138,7 @@
   % Show grid to help with alignment
   grid=false,
   % Column spacing
-  colspacing=1em,
+  colspacing=1.5em,
   % Color style
   bgColorOne=white,
   bgColorTwo=white,
@@ -155,8 +167,7 @@
   % Eye Catcher
   {\includegraphics[height=8em]{imgs/wcci-logo}} 
   % Title
-  {
- \bf\textsc{ \LARGE \fontsize{20pt}{0.5cm}\selectfont A shuffled complex evolution algorithm for
+  {\bf\textsc{\LARGE \fontsize{20pt}{0.5cm}\selectfont A shuffled complex evolution algorithm for
 the multidimensional knapsack problem using core concept}\vspace{0.3em}}
   % Authors
   %{\textsc{\{dluchi,wsantos,arodrigues,fvarejao\}@ninfa.inf.ufes.br}}
@@ -181,14 +192,14 @@ the multidimensional knapsack problem using core concept}\vspace{0.3em}}
     \newcommand{\colouredcircle}{%
       \tikz{\useasboundingbox (-0.2em,-0.32em) rectangle(0.2em,0.32em); \draw[draw=black,fill=lightblue,line width=0.03em] (0,0) circle(0.18em);}}
 
-\headerbox{The Problem (MKP)}{name=mkp,column=0,row=0}{\input{texs/mkp.tex} }
-\headerbox{The Meta-heuristic (SCE)}{name=sce,column=0,below=mkp}{\input{texs/sce.tex} }
-\headerbox{Results}{name=results,column=2,span=2,row=0}{\input{texs/results.tex} }
-\headerbox{The Core Concept for MKP}{name=scemkp,column=1,span=1,row=0}{\lipsum[1-2] }
-\headerbox{The SCE for MKP}{name=scemkp,column=1,span=1,row=0,above=bottom}{\input{texs/sce-mkp.tex} }
-\headerbox{Experimental Setup}{name=setup,column=2,row=0,below=results}{\input{texs/setup.tex} }
-\headerbox{Conclusions}{name=conclusions,column=3,below=results}{\input{texs/conclusions.tex} }
-\headerbox{Future Remarks}{name=future,column=3,below=conclusions}{\input{texs/future.tex} }
+    \headerbox{The Problem (MKP)}{name=mkp,column=0,row=0}{\myBoxEnv{\input{texs/mkp.tex}}}
+\headerbox{The Meta-heuristic (SCE)}{name=sce,column=0,below=mkp}{\myBoxEnv{\input{texs/sce.tex} }}
+\headerbox{Results}{name=results,column=2,span=2,row=0}{\myBoxEnv{\input{texs/results.tex} }}
+\headerbox{The Core Concept for MKP}{name=scemkp,column=1,span=1,row=0}{\myBoxEnv{\lipsum[1-2] }}
+\headerbox{The SCE for MKP}{name=scemkp,column=1,span=2,row=0,above=bottom}{\myBoxEnv{\input{texs/sce-mkp.tex} }}
+\headerbox{Experimental Setup}{name=setup,column=2,row=0,below=results}{\myBoxEnv{\input{texs/setup.tex} }}
+\headerbox{Conclusions}{name=conclusions,column=3,below=results}{\myBoxEnv{\input{texs/conclusions.tex} }}
+\headerbox{Future Remarks}{name=future,column=3,below=conclusions}{\myBoxEnv{\input{texs/future.tex} }}
 \headerbox{References}{name=references,column=3,below=future}{\bibliographystyle{plain} \bibliography{../../../refs} }
 \headerbox{Acknowledgement}{name=acknowledgement,column=3,above=bottom}{
 Research supported by Funda\c c\~ao de Amparo \`a Pesquisa do Esp\'irito Santo.
