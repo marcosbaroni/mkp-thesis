@@ -1,4 +1,4 @@
-\documentclass[portrait,final,a0paper,fontscale=0.277]{baposter}
+\documentclass[landscape,final,a0paper,fontscale=0.38]{baposter}
 
 \usepackage{calc}
 \usepackage{graphicx}
@@ -18,6 +18,8 @@
 \usepackage{setspace}
 \usepackage[super]{nth}
 
+\usepackage{lipsum}
+
 %\usepackage{times}
 %\usepackage{helvet}
 %\usepackage{bookman}
@@ -25,8 +27,15 @@
 
 \newcommand{\captionfont}{\footnotesize}
 
+%  WCCI pallet
+% fd6c62   (red)
+% fca43b   (orange)
+% aed975   (green)
+
 %\graphicspath{{images/}{../images/}}
 \usetikzlibrary{calc}
+\newcommand{\scecore}{SCEcr }
+\newcommand{\fvar}[1]{{\tiny(#1)}}
 
 \newcommand{\SET}[1]  {\ensuremath{\mathcal{#1}}}
 \newcommand{\MAT}[1]  {\ensuremath{\boldsymbol{#1}}}
@@ -144,14 +153,14 @@
   linewidth=2pt
   }
   % Eye Catcher
-  {\includegraphics[height=8em]{imgs/ninfa_logo.png}} 
+  {\includegraphics[height=8em]{imgs/wcci-logo}} 
   % Title
   {
-\bf\textsc{\huge A Shuffled Complex Evolution Algorithm for
-The Multidimensional Knapsack Problem}\vspace{0.5em}}
+ \bf\textsc{ \LARGE \fontsize{20pt}{0.5cm}\selectfont A shuffled complex evolution algorithm for
+the multidimensional knapsack problem using core concept}\vspace{0.3em}}
   % Authors
   %{\textsc{\{dluchi,wsantos,arodrigues,fvarejao\}@ninfa.inf.ufes.br}}
-{\textsc{Marcos Baroni \& Flávio Varejão}}
+{\textsc{Marcos Baroni \& Flávio Varejão \\ \vspace{0.1em} {\large Universidade Federal do Es\'irito Santo, Vit\'oria, ES, Brazil} }}
   % University logo
   {% The makebox allows the title to flow into the logo, this is a hack because of the L shaped logo.
     \includegraphics[height=8.0em]{../../brasao-ufes}
@@ -172,40 +181,16 @@ The Multidimensional Knapsack Problem}\vspace{0.5em}}
     \newcommand{\colouredcircle}{%
       \tikz{\useasboundingbox (-0.2em,-0.32em) rectangle(0.2em,0.32em); \draw[draw=black,fill=lightblue,line width=0.03em] (0,0) circle(0.18em);}}
 
-\headerbox{The Problem (MKP)}{name=mkp,column=0,row=0}{
-	\input{texs/mkp.tex}
- }
-
-\headerbox{The Meta-heuristic (SCE)}{name=sce,column=0,below=mkp}{
-	\input{texs/sce.tex}
-}
-
-\headerbox{Results}{name=results,column=1,span=2,row=0}{
-	\input{texs/results.tex}
-}
-
-\headerbox{The SCE for MKP}{name=scemkp,column=1,span=1,row=0, below=results}{
-	\input{texs/sce-mkp.tex}
-}
-
-\headerbox{References}{name=references,column=1,above=bottom}{
-  \bibliographystyle{plain} % Plain referencing style
-  \bibliography{../../../refs} % Use the example bibliography file sample.bib
-}
-
-\headerbox{Experimental Setup}{name=setup,column=2,below=results}{
-	\input{texs/setup.tex}
-}
-
-\headerbox{Conclusions}{name=conclusions,column=2,below=setup}{
-	\input{texs/conclusions.tex}
-}
-
-\headerbox{Future Remarks}{name=future,column=2,below=conclusions}{
-	\input{texs/future.tex}
-}
-
-\headerbox{Acknowledgement}{name=acknowledgement,column=2,above=bottom}{
+\headerbox{The Problem (MKP)}{name=mkp,column=0,row=0}{\input{texs/mkp.tex} }
+\headerbox{The Meta-heuristic (SCE)}{name=sce,column=0,below=mkp}{\input{texs/sce.tex} }
+\headerbox{Results}{name=results,column=2,span=2,row=0}{\input{texs/results.tex} }
+\headerbox{The Core Concept for MKP}{name=scemkp,column=1,span=1,row=0}{\lipsum[1-2] }
+\headerbox{The SCE for MKP}{name=scemkp,column=1,span=1,row=0,above=bottom}{\input{texs/sce-mkp.tex} }
+\headerbox{Experimental Setup}{name=setup,column=2,row=0,below=results}{\input{texs/setup.tex} }
+\headerbox{Conclusions}{name=conclusions,column=3,below=results}{\input{texs/conclusions.tex} }
+\headerbox{Future Remarks}{name=future,column=3,below=conclusions}{\input{texs/future.tex} }
+\headerbox{References}{name=references,column=3,below=future}{\bibliographystyle{plain} \bibliography{../../../refs} }
+\headerbox{Acknowledgement}{name=acknowledgement,column=3,above=bottom}{
 Research supported by Funda\c c\~ao de Amparo \`a Pesquisa do Esp\'irito Santo.
 }
 
