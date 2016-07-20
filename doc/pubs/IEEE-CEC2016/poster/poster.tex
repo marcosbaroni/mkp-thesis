@@ -25,29 +25,43 @@
 %\usepackage{bookman}
 \usepackage{palatino}
 
-\usepackage{framed}    % para adicionar margem ao redor do texto nos quadros
-\usepackage{xcolor}    % para adicionar margem ao redor do texto nos quadros
+\usepackage{mdframed}    % para adicionar margem ao redor do texto nos quadros
+\usepackage{xcolor}
+\usepackage{color}    % para definir novas cores
 
-\newenvironment{cframed}
-  {\def\FrameCommand{\fboxsep=\FrameSep\fcolorbox{white}{white}}%
-    \MakeFramed {\advance\hsize-\width \FrameRestore}}
-  {\endMakeFramed}
-
-\setlength\FrameSep{0.5em}
-\setlength\OuterFrameSep{\partopsep}
+%\setlength\FrameSep{0.5em}
+%\setlength\OuterFrameSep{\partopsep}
 
 \newcommand{\captionfont}{\footnotesize}
+\newcommand{\mymathstyle}{\textstyle}
 
 %  WCCI pallet
-% fd6c62   (red)
-% fca43b   (orange)
-% aed975   (green)
+\definecolor{wcci1}{HTML}{FD6C62} % red
+\definecolor{wcci2}{HTML}{FCA43B} % orange
+\definecolor{wcci3}{HTML}{AED975} % green
+\definecolor{wcci4}{HTML}{AAC1DA} %
+%\colorlet{wcci4}{black!30} % gray
+
+
+\colorlet{wcci1b}{wcci1!60}
+\colorlet{wcci2b}{wcci2!60}
+\colorlet{wcci3b}{wcci3!60}
+\colorlet{wcci4b}{wcci4!60}
+
+\colorlet{wcci1bg}{white}
+\colorlet{wcci2bg}{white}
+\colorlet{wcci3bg}{white}
+\colorlet{wcci4bg}{white}
+
+\newenvironment{cframed}[1][white]
+  {\begin{mdframed}[linewidth=0,backgroundcolor=#1] }
+  {\end{mdframed}}
 
 %\graphicspath{{images/}{../images/}}
 \usetikzlibrary{calc}
 \newcommand{\scecore}{SCEcr }
 \newcommand{\fvar}[1]{{\tiny(#1)}}
-\newcommand{\myBoxEnv}[1]{\begin{cframed} #1 \end{cframed}}
+\newcommand{\myBoxEnv}[2]{\begin{cframed}[#1] #2 \end{cframed}}
 
 \newcommand{\SET}[1]  {\ensuremath{\mathcal{#1}}}
 \newcommand{\MAT}[1]  {\ensuremath{\boldsymbol{#1}}}
@@ -145,7 +159,7 @@
   borderColor=black,
   headerColorOne={rgb:red,30;green,146;blue,154},
   headerColorTwo={rgb:red,30;green,146;blue,154},
-  headerFontColor=white,
+  headerFontColor=black,
   boxColorOne=white,
   boxColorTwo={rgb:red,30;green,146;blue,154},
   % Format of textbox
@@ -192,18 +206,45 @@ the multidimensional knapsack problem using core concept}\vspace{0.3em}}
     \newcommand{\colouredcircle}{%
       \tikz{\useasboundingbox (-0.2em,-0.32em) rectangle(0.2em,0.32em); \draw[draw=black,fill=lightblue,line width=0.03em] (0,0) circle(0.18em);}}
 
-    \headerbox{The Problem (MKP)}{name=mkp,column=0,row=0}{\myBoxEnv{\input{texs/mkp.tex}}}
-\headerbox{The Meta-heuristic (SCE)}{name=sce,column=0,below=mkp}{\myBoxEnv{\input{texs/sce.tex} }}
-\headerbox{Results}{name=results,column=2,span=2,row=0}{\myBoxEnv{\input{texs/results.tex} }}
-\headerbox{The Core Concept for MKP}{name=scemkp,column=1,span=1,row=0}{\myBoxEnv{\lipsum[1-2] }}
-\headerbox{The SCE for MKP}{name=scemkp,column=1,span=2,row=0,above=bottom}{\myBoxEnv{\input{texs/sce-mkp.tex} }}
-\headerbox{Experimental Setup}{name=setup,column=2,row=0,below=results}{\myBoxEnv{\input{texs/setup.tex} }}
-\headerbox{Conclusions}{name=conclusions,column=3,below=results}{\myBoxEnv{\input{texs/conclusions.tex} }}
-\headerbox{Future Remarks}{name=future,column=3,below=conclusions}{\myBoxEnv{\input{texs/future.tex} }}
-\headerbox{References}{name=references,column=3,below=future}{\bibliographystyle{plain} \bibliography{../../../refs} }
-\headerbox{Acknowledgement}{name=acknowledgement,column=3,above=bottom}{
-Research supported by Funda\c c\~ao de Amparo \`a Pesquisa do Esp\'irito Santo.
-}
+\headerbox{The Problem (MKP)}
+  {headerColorOne=wcci1,headerColorTwo=wcci1b,boxColorOne=wcci1bg,name=mkp,column=0,row=0}
+  {\myBoxEnv{wcci1bg}{\input{texs/mkp.tex}}}
+
+\headerbox{The Meta-heuristic (SCE)}
+  {headerColorOne=wcci2,headerColorTwo=wcci2b,boxColorOne=wcci2bg,name=sce,column=0,below=mkp}
+  {\myBoxEnv{wcci2bg}{\input{texs/sce.tex} }}
+
+\headerbox{Results}
+  {headerColorOne=wcci3,headerColorTwo=wcci3b,boxColorOne=wcci3bg,name=results,column=2,span=2,row=0}
+  {\myBoxEnv{wcci3bg}{\input{texs/results.tex} }}
+
+\headerbox{The Core Concept for MKP}
+  {headerColorOne=wcci2,headerColorTwo=wcci2b,boxColorOne=wcci2bg,name=scemkp,column=1,span=1,row=0}
+  {\myBoxEnv{wcci2bg}{\input{texs/core.tex}}}
+
+\headerbox{The SCE for MKP}
+  {headerColorOne=wcci2,headerColorTwo=wcci2b,boxColorOne=wcci2bg,name=scemkp,column=1,span=2,row=0,above=bottom}
+  {\myBoxEnv{wcci2bg}{\input{texs/sce-mkp.tex} }}
+
+\headerbox{Experimental Setup}
+  {headerColorOne=wcci3,headerColorTwo=wcci3b,boxColorOne=wcci3bg,name=setup,column=2,row=0,below=results}
+  {\myBoxEnv{wcci3bg}{\input{texs/setup.tex} }}
+
+\headerbox{Conclusions}
+  {headerColorOne=wcci4,headerColorTwo=wcci4b,boxColorOne=wcci4bg,name=conclusions,column=3,below=results}
+  {\myBoxEnv{wcci4bg}{\input{texs/conclusions.tex} }}
+
+\headerbox{Future Remarks}
+  {headerColorOne=wcci4,headerColorTwo=wcci4b,boxColorOne=wcci4bg,name=future,column=3,below=conclusions}
+  {\myBoxEnv{wcci4bg}{\input{texs/future.tex} }}
+
+\headerbox{References}
+  {headerColorOne=wcci4,headerColorTwo=wcci4b,boxColorOne=wcci4bg,name=references,column=3,below=future}
+  {\bibliographystyle{plain} \bibliography{../../../refs} }
+
+\headerbox{Acknowledgement}
+  {headerColorOne=wcci4,headerColorTwo=wcci4b,name=acknowledgement,column=3,above=bottom}
+  { Research supported by Funda\c c\~ao de Amparo \`a Pesquisa do Esp\'irito Santo.  }
 
 \end{poster}
 

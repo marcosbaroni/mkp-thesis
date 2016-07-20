@@ -1,0 +1,46 @@
+
+The core concept was first presented for the one-dimensional 0-1 knapsack problem (KP),
+leading to very successful KP algorithms.
+The main idea is to reduce the original problem by only considering a set of
+items for which it is hard to decide if they will occur or not in an optimal solution.
+This set of items is named core.
+The variables for all items outside the core are fixed to certain values.
+
+\begin{equation}
+  e_j = \frac{p_j}{w_j},
+\end{equation}
+
+The knapsack problem considers items $j = 1, \ldots, n$, associated profits $p_j$ and
+associated weights $w_j$.
+A subset of these items has to be selected and packed into a knapsack having capacity $c$.
+The total profit of the items in the knapsack has to be maximized, while the
+total weight is not allowed to exceed $c$.
+The KP Core problem (KPC) is defined as
+\begin{align}
+  \text{maximize} & \sum_{j \in C} p_j x_j  + \tilde{p}\\
+  \text{subject to} & \sum_{j \in C} w_{j} x_j \leqslant c - \tilde{w}\\
+  & x_j \in \{0, 1\}, \quad j \in C.
+\end{align}
+
+The first row represents the efficiency value of each item and the second row
+represents the value of each variable on the LP-relaxation optimal solution.
+The items are sorted in descending order of efficiency value.
+The last row illustrates the variable fixing after the defined core.
+Asterisks indicate free variables associated to the items in the
+approximate core.
+
+The previous definition of the core for KP can be extended to MKP without major
+difficulties, once an efficiency measure is defined for the MKP,
+as addressed in, even though,
+a proper efficiency measure for MKP is not obvious due the
+multidimensional weight of the items.
+A well accepted efficiency measure is discussed in Section~\ref{subsec:dual}.
+
+Now let $x^*$ be an optimal solution for a MKP and assume that the items are
+sorted in descending order after some given efficiency measure. Then let
+\begin{align}
+  a = \min \{ j | x_j^* = 0 \}, \quad b = \max \{ j | x_j^* = 1 \}.
+\end{align}
+
+In contrast to KP, the solution of the LP-relaxation of MKP in general does not
+consists of a single fractional split item.

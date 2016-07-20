@@ -1,10 +1,12 @@
 The multidimensional knapsack problem (MKP) is a strongly NP-hard combinatorial
 optimization problem which can be viewed as a resource allocation problem and
 defined as follows:
+\vspace{-15pt}
 \begin{align*}
-  \text{maximize} & \sum_{j=1}^n p_j x_j \\
-  \text{subject to} & \sum_{j=1}^n w_{ij} x_j \leqslant c_i \quad i \in \{1, \ldots, m\}\\
+    \text{max} ~ & {\mymathstyle \sum_{j=1}^n p_j x_j} \\[3pt]
+    \text{s. to} ~ & {\mymathstyle \sum_{j=1}^n w_{ij} x_j \leqslant c_i \quad i \in \{1, \ldots, m\}}\\
    & x_j \in \{0, 1\}, \quad j \in \{1, \ldots, n\}.
 \end{align*}
+\vspace{30pt}
 The work address the application of a metaheuristic called
 shuffled complex evolution (SCE) to the MKP.
