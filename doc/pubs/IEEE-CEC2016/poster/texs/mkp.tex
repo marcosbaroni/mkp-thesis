@@ -1,14 +1,14 @@
-The multidimensional knapsack problem (MKP) is a strongly NP-hard combinatorial
-optimization problem which can be viewed as a resource allocation problem and
-defined as follows:
-\vspace{-15pt}
+The {\bf multidimensional knapsack problem} (MKP) is a strongly NP-hard combinatorial
+optimization problem which can be viewed as a allocation problem with multiple resources:
+\vspace{-17pt}
 \begin{align*}
     \text{max} ~ & {\mymathstyle \sum_{j=1}^n p_j x_j} \\[3pt]
     \text{s. to} ~ & {\mymathstyle \sum_{j=1}^n w_{ij} x_j \leqslant c_i \quad i \in \{1, \ldots, m\}}\\
    & x_j \in \{0, 1\}, \quad j \in \{1, \ldots, n\}.
 \end{align*}
-The problem is a generalization of the well-known knapsack problem (KP) in which
-$m = 1$.
+The problem can be applied on budget planning,
+cutting stock, loading problems and
+allocation of processors and databases in distributed computer programs.
 
 This work addresses an hybrid heuristic using an
 efficient variable fixing procedure and the SCE metaheuristic as an improvement

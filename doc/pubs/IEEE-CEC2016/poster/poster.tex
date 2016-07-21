@@ -17,8 +17,12 @@
 \usepackage{multicol}
 \usepackage{setspace}
 \usepackage[super]{nth}
+\usepackage{etoolbox} % to avoid printing "Reference" title on bibliografy command
 
-\usepackage{lipsum}
+\usepackage{lipsum}   % dummy text
+
+% to avoid printing "Reference" title on bibliografy command
+\patchcmd{\thebibliography}{\section*{\refname}}{}{}{}
 
 %\usepackage{times}
 %\usepackage{helvet}
@@ -181,7 +185,7 @@
   % Eye Catcher
   {\includegraphics[height=8em]{imgs/wcci-logo}} 
   % Title
-  {\bf\textsc{\LARGE \fontsize{20pt}{0.5cm}\selectfont A shuffled complex evolution algorithm for
+  {\bf\textsc{\LARGE \fontsize{19pt}{0.5cm}\selectfont A shuffled complex evolution algorithm for
 the multidimensional knapsack problem using core concept}\vspace{0.3em}}
   % Authors
   %{\textsc{\{dluchi,wsantos,arodrigues,fvarejao\}@ninfa.inf.ufes.br}}
@@ -191,20 +195,10 @@ the multidimensional knapsack problem using core concept}\vspace{0.3em}}
     \includegraphics[height=8.0em]{../../brasao-ufes}
   }
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Now define the boxes that make up the poster
-%%%---------------------------------------------------------------------------
-%%% Each box has a name and can be placed absolutely or relatively.
-%%% The only inconvenience is that you can only specify a relative position 
-%%% towards an already declared box. So if you have a box attached to the 
-%%% bottom, one to the top and a third one which should be in between, you 
-%%% have to specify the top and bottom boxes before you specify the middle 
-%%% box.
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %
-    % A coloured circle useful as a bullet with an adjustably strong filling
-    \newcommand{\colouredcircle}{%
-      \tikz{\useasboundingbox (-0.2em,-0.32em) rectangle(0.2em,0.32em); \draw[draw=black,fill=lightblue,line width=0.03em] (0,0) circle(0.18em);}}
+%
+% A coloured circle useful as a bullet with an adjustably strong filling
+\newcommand{\colouredcircle}{%
+  \tikz{\useasboundingbox (-0.2em,-0.32em) rectangle(0.2em,0.32em); \draw[draw=black,fill=lightblue,line width=0.03em] (0,0) circle(0.18em);}}
 
 \headerbox{The Problem (MKP)}
   {headerColorOne=wcci1,headerColorTwo=wcci1b,boxColorOne=wcci1bg,name=mkp,column=0,row=0}
@@ -227,8 +221,7 @@ the multidimensional knapsack problem using core concept}\vspace{0.3em}}
   {\myBoxEnv{wcci2bg}{\input{texs/sce-mkp.tex} }}
 
 \headerbox{Experimental Setup}
-  {headerColorOne=wcci3,headerColorTwo=wcci3b,boxColorOne=wcci3bg,name=setup,column=2,row=0,below=results}
-  {\myBoxEnv{wcci3bg}{\input{texs/setup.tex} }}
+  {headerColorOne=wcci3,headerColorTwo=wcci3b,boxColorOne=wcci3bg,name=setup,column=2,row=0,below=results} {\myBoxEnv{wcci3bg}{\input{texs/setup.tex} }}
 
 \headerbox{Conclusions \& Future Remarks}
   {headerColorOne=wcci4,headerColorTwo=wcci4b,boxColorOne=wcci4bg,name=conclusions,column=3,below=results}
@@ -240,11 +233,11 @@ the multidimensional knapsack problem using core concept}\vspace{0.3em}}
 
 \headerbox{References}
   {headerColorOne=wcci4,headerColorTwo=wcci4b,boxColorOne=wcci4bg,name=references,column=3,below=conclusions}
-  {\bibliographystyle{plain} \bibliography{../../../refs} }
+  {\small \bibliographystyle{plain} \bibliography{../../../refs} }
 
 \headerbox{Acknowledgement}
   {headerColorOne=wcci4,headerColorTwo=wcci4b,name=acknowledgement,column=3,above=bottom}
-  { Research supported by Funda\c c\~ao de Amparo \`a Pesquisa do Esp\'irito Santo.  }
+  {\fontsize{8pt}{0.5cm}\selectfont Research supported by Funda\c c\~ao de Amparo \`a Pesquisa do Esp\'irito Santo.  }
 
 \end{poster}
 
