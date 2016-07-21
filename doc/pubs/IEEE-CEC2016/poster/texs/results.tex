@@ -1,25 +1,27 @@
 Two main tests was considered:
-(a) using the well-known set of problems defined by Chu and Beasley~\cite{Chu-Beasley-1998}
-and (b) a large set of randomly generated instances using uniform distribution.
-The number of constraints $m$ varies among $5$, $10$ and $30$, and the number
-of variables $n$ varies among $100$, $250$ and $500$.
-\\[2mm]
+(a) using the set of problems defined by Chu and Beasley~\cite{Chu-Beasley-1998}
+and (b) a set composed by 11 instances provided by Glover and Kochenberger in
+\cite{glover1996critical}.
+
+Columns {\bf n} and {\bf m} indicate the size of each instance,
+{\bf time} column shows the average execution time (lower is better),
+{\bf quality} column shows the average ratio of the solution found and
+the best known solution from literature, variance shown in parentheses.
+\\[2pt]
 \begin{minipage}[c]{0.4\linewidth}
   \begin{center}
+      {\bf Table I}: Performance on Chu-Beasley problems. \\
     \input{texs/tab-chub2min.tex}
-        \\[2mm]
-        \scecore~performance on Chu-Beasley problems.
   \end{center}
+  \vfill
 \end{minipage}
 \begin{minipage}[c]{0.6\linewidth}
   \begin{center}
+      {\bf Table II}: Performance on Glover-Kochenberger problems.  \\
     \input{texs/tab-gk2.tex}
-        \\[2mm]
-        \scecore~performance on Glover-Kochenberger problems.
   \end{center}
 \end{minipage}
-\\[2mm]
-For the set of random instances all best known solution was found by the solver
-SCIP running for at least 10 minutes.
-SCIP is an open-source integer programming solver which
-implements the branch-and-cut algorithm.
+\\
+
+It can be noticed that \scecore achieved high quality solutions, at least $98.22\%$
+of best known solution, spending small amount of processing time.

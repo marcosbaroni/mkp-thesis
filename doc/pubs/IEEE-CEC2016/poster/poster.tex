@@ -59,7 +59,7 @@
 
 %\graphicspath{{images/}{../images/}}
 \usetikzlibrary{calc}
-\newcommand{\scecore}{SCEcr }
+\newcommand{\scecore}{SCEcr}
 \newcommand{\fvar}[1]{{\tiny(#1)}}
 \newcommand{\myBoxEnv}[2]{\begin{cframed}[#1] #2 \end{cframed}}
 
@@ -230,16 +230,16 @@ the multidimensional knapsack problem using core concept}\vspace{0.3em}}
   {headerColorOne=wcci3,headerColorTwo=wcci3b,boxColorOne=wcci3bg,name=setup,column=2,row=0,below=results}
   {\myBoxEnv{wcci3bg}{\input{texs/setup.tex} }}
 
-\headerbox{Conclusions}
+\headerbox{Conclusions \& Future Remarks}
   {headerColorOne=wcci4,headerColorTwo=wcci4b,boxColorOne=wcci4bg,name=conclusions,column=3,below=results}
-  {\myBoxEnv{wcci4bg}{\input{texs/conclusions.tex} }}
+  {\myBoxEnv{wcci4bg}{\input{texs/conclusions.tex} \input{texs/future.tex} }}
 
-\headerbox{Future Remarks}
-  {headerColorOne=wcci4,headerColorTwo=wcci4b,boxColorOne=wcci4bg,name=future,column=3,below=conclusions}
-  {\myBoxEnv{wcci4bg}{\input{texs/future.tex} }}
+%\headerbox{Future Remarks}
+%  {headerColorOne=wcci4,headerColorTwo=wcci4b,boxColorOne=wcci4bg,name=future,column=3,below=conclusions}
+%  {\myBoxEnv{wcci4bg}{\input{texs/future.tex} }}
 
 \headerbox{References}
-  {headerColorOne=wcci4,headerColorTwo=wcci4b,boxColorOne=wcci4bg,name=references,column=3,below=future}
+  {headerColorOne=wcci4,headerColorTwo=wcci4b,boxColorOne=wcci4bg,name=references,column=3,below=conclusions}
   {\bibliographystyle{plain} \bibliography{../../../refs} }
 
 \headerbox{Acknowledgement}
