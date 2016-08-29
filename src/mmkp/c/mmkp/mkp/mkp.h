@@ -13,6 +13,7 @@
 #define MKPNUM_MAX 1.0E307
 #define MKPNUM_MIN -1.0E307
 
+/* chu beasley instance best known objectives */
 mkpnum chubeas_best[3][3][3][10];
 
 void mkpnum_fprintf(FILE *out, mkpnum a);
@@ -24,16 +25,16 @@ void mkpnum_scanf(const char *str, mkpnum *x);
 *   Itens are sorting by decreasing order of profit (for greedy propose).
 */
 typedef struct MKP{
-	int n;            /* Number of itens */
-	int m;            /* Number of dimensions */
-	mkpnum *p;     /* Profit of itens [n] */
-	mkpnum **w;    /* Weight of itens [m x n] */
-	mkpnum *b;     /* Knapsack capacities [m] */
-	int *idxs;        /* item indexs (no order) */
-	double *em;       /* efficienct measure */
-	double *lp_sol;   /* array with result of lp relaxation */
-	double lp_obj;    /* lp-relaxation upperbound */
-	struct MKPSol *lp_trunc;
+	int n;                      /* Number of itens */
+	int m;                      /* Number of dimensions */
+	mkpnum *p;                  /* Profit of itens [n] */
+	mkpnum **w;                 /* Weight of itens [m x n] */
+	mkpnum *b;                  /* Knapsack capacities [m] */
+	int *idxs;                  /* item indexs (no order) */
+	double *em;                 /* efficienct measure */
+	double *lp_sol;             /* array with result of lp relaxation */
+	double lp_obj;              /* lp-relaxation upperbound */
+	struct MKPSol *lp_trunc;    /* lp-truncated solution */
 }MKP;
 
 /*** Memory Management ***/

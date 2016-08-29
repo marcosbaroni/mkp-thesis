@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <string.h>
 #include <time.h>
 #include "mmkp/mkp/mkp.h"
 #include "mmkp/util.h"
@@ -18,11 +19,13 @@ int print_usage(int argc, char **argv){
 }
 
 int execute_nemullman_mkp(int argc, char **argv){
-	MKP *mkp;
-	FILE *input;
+	MKP *mkp;           /* the proglem */
+	FILE *input;        /* input stream */
 	Array *dom_sets;
-	MKPSol *best_sol, *sol;
+	MKPSol *best_sol;
+    MKPSol *sol;
 	int i, n;
+
 	clock_t c0, cf;
 
 	input = stdin;
@@ -30,7 +33,7 @@ int execute_nemullman_mkp(int argc, char **argv){
 	/* checking inputs */
 	if( argc < 2 )
 		return print_usage(argc, argv);
-	if(strcmp(argv[1], "-"))
+	if(strcmp(argv[1], "-")) /* not '-' */
 		input = fopen(argv[1], "r");
 
 	/* reading instance */

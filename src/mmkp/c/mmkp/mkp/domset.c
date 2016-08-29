@@ -62,7 +62,7 @@ int dsnode_dominates(DomSetNode *dsn1, DomSetNode *dsn2){
 }
 
 /*
- * idx: index od the item to be inserted in solution.
+ * idx: index of the item to be inserted in solution.
  * WARINING: returning NULL if new node is not feasible.
  * */
 DomSetNode *dsnode_new(DomSetNode *father, DomSetTree *dstree, int idx){
@@ -107,10 +107,10 @@ DomSetNode *dsnode_new(DomSetNode *father, DomSetTree *dstree, int idx){
 			while( relax_w_free > 0.0 ){
 				dsnode->last_idx++;
 				relax_w_item = dstree->relax_w[dsnode->last_idx];
-				if( relax_w_item >= relax_w_free )
+				if( relax_w_item >= relax_w_free ){
 					dsnode->upper_profit += dstree->p[dsnode->last_idx];
 					relax_w_free -= dstree->relax_w[dsnode->last_idx];
-				else{
+                }else{
 					dsnode->frac = dstree->relax_w[dsnode->last_idx]/relax_w_item;
 					dsnode->upper_profit += dsnode->frac*dstree->p[dsnode->last_idx];
 					relax_w_free = 0.0;
@@ -162,7 +162,6 @@ MKPSol *dsnode_get_mkpsol(DomSetTree *dstree, DomSetNode *dsnode){
 /*****************************************************************************
  *     Dominating Set Tree
  *****************************************************************************/
-
 DomSetTree *dstree_new(MKPSol *mkpsol){
 	return dstree_init(NULL, mkpsol, NULL, NULL, NULL, NULL);
 }
@@ -244,9 +243,8 @@ DomSetTree *dstree_insert(DomSetTree *dstree, DomSetNode *dsnode){
 	if( dstree->root ){
 		dstree->tail->next = dsnode;
 		dsnode->prev = dstree->tail;
-	}else{
+	}else
 		dstree->root = dsnode;
-	}
 	dstree->tail = dsnode;
 
 	dstree->n++;
@@ -536,6 +534,7 @@ void lbucket_fprintf_profile(FILE *out, LinkedBucket *lbucket){
 
 /*****************************************************************************
  *     Fast Enumeration Algorithm
+ *  Nemhauser-Ullman using node representation
  *****************************************************************************/
 	/* TODO: iniciar enumeração das soluções... 
 	 * 	    - iniciar de uma solução vazia (por enquanto);
@@ -559,15 +558,14 @@ MKPSol *mkp_fast_domsets_enum(MKP *mkp){
 	/* ENUMERATING SOLUTIONS */
 	/* for each item... */
 	for( i = 0 ; i < n ; i++ ){
-		/* for each existent dominating set... */
+
+		/* for each existent dominating set (dsnode)... */
 		for( dsnode = dstree->root, dsn_tail = dstree->tail
-			; dsnode
-				?(dsnode->prev /* if has a prev node and... */
-					?dsnode->prev != dsn_tail /* ... its not the old tail. */
-					:1)
-				:0
-			; dsnode = dsnode->next)
-		{
+			; dsnode ? (dsnode->prev /* if has a prev node and... */
+					? dsnode->prev != dsn_tail /* ... its not the old tail. */
+					:1) :0
+			; dsnode = dsnode->next) {
+
 			/* new 'child' solution (adding item 'i') */
 			dsn_new = dsnode_new(dsnode, mkp, i);
 			promissing = dsn_new ? 1 : 0;

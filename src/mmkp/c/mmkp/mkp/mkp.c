@@ -9,6 +9,7 @@
 #include "../des.h"
 #include "../sfl.h"
 #include "../lp.h"
+
 /* chu beasley instance best known objectives */
 mkpnum chubeas_best[3][3][3][10] = {
   { /* n = 100 */
@@ -1931,7 +1932,8 @@ MKPSol *mkpsol_cross10(MKPSol *child, MKPSol *father)
  * Nemhauser-Ullman Algorithm for MKP.
  * */
 Array *mkp_nemull(MKP *mkp){
-	Array *dom_sets, *merged_sets;
+	Array *dom_sets;
+    Array *merged_sets;
 	MKPSol *new_sol, *old_sol, *best_sol;
 	int n, m, i, j, k, n_dom_sets, n_merged_sets, not_dominated_by;
 	mkpnum **w, *p, *b;
@@ -1952,19 +1954,21 @@ Array *mkp_nemull(MKP *mkp){
 	x = (int*)malloc(n*sizeof(int));
 
 	/* initializing sets */
-	dom_sets = array_new();
-	merged_sets = array_new();
+	dom_sets = array_new();         /* "old" set of solutions (nodes) */
+	merged_sets = array_new();      /* "new" set of solutions (being built) */
 
 	best_profit = 0;
+    /* for each item.. */
 	for( i = 0 ; i < n ; i++ ){
-		/* generating new sets from old ones */
+        /* for each existing solution (node) */
 		n_dom_sets = array_get_size(dom_sets);
 		for( j = 0 ; j < n_dom_sets ; j++ ){
-			/* merging sets */
-			old_sol = array_get(dom_sets, j);   /* inserting old solution */
+            /* get the solution */
+			old_sol = array_get(dom_sets, j);
+            /* inserting solution as it is (i.e., without i-th item) */
 			array_insert(merged_sets, old_sol);
-
-			new_sol = mkpsol_copy(old_sol);     /* inserting new solution */
+            /* inserting new solutions (i.e. with i-th item) */
+			new_sol = mkpsol_copy(old_sol);
 			mkpsol_add_item(new_sol, i);
 			array_insert(merged_sets, new_sol);
 		}
