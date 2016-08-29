@@ -11,16 +11,16 @@
  *****************************************************************************/
 typedef struct DomSetNode{
 	/* NODE INFO */
-	int idx;					/* the index of variable which was fixed */
-	int m;						/* dimension of problem */
-	mkpnum profit;				/* profit of set/solution */
-	mkpnum *b_left;				/* weight left */
-	//int nx;					/* cardinality of node solution */
+	int idx;			/* the index of variable which was fixed */
+	int m;				/* dimension of problem */
+	mkpnum profit;			/* profit of set/solution */
+	mkpnum *b_left;			/* weight left */
+	//int nx;			/* cardinality of node solution */
 
 	/* SURR. RELAXATION INFO */
 	mkpnum upper_profit;		/* current upper bound of node */
-	int last_idx;				/* last item added on relaxed solution */
-	double frac;				/* the fraction of last added item */
+	int last_idx;			/* last item added on relaxed solution */
+	double frac;			/* the fraction of last added item */
 	//double relax_card;		/* cardinality of relaxed solution */
 
 	/* TREE INFO */
@@ -35,18 +35,18 @@ typedef struct DomSetNode{
  *****************************************************************************/
 typedef struct DomSetTree{
 	/* PROBLEM INSTANCE INFO */
-	MKP *mkp;					/* the problem instance */
-	MKPSol *mkpsol				/* the initial solution */
-	uchar *x;					/* the initial solution array */
+	MKP *mkp;			/* the problem instance */
+	MKPSol *mkpsol			/* the initial solution */
+	uchar *x;			/* the initial solution array */
 	mkpnum **w;
-	mkpnum *p;					/* profit of itens */
-	mkpnum *relax_w;			/* weight of itens on surrogate relax */
+	mkpnum *p;			/* profit of itens */
+	mkpnum *relax_w;		/* weight of itens on surrogate relax */
 
 	/* STRUCTURE INFO */
-	int n;						/* total number of solution in tree */
-	DomSetNode *root;			/* the iinitial solution node */
-	DomSetNode *best;			/* the current best solution node */
-	DomSetNode *tail;			/* last added node (for append operation) */
+	int n;				/* total number of solution in tree */
+	DomSetNode *root;		/* the iinitial solution node */
+	DomSetNode *best;		/* the current best solution node */
+	DomSetNode *tail;		/* last added node (for append operation) */
 
 	/* EXECUTION INFO */
 	mkpnum upper_profit;		/* current upper bound of problem */
@@ -67,14 +67,14 @@ int _n_comps;	/* total number of comparison between solutions */
 typedef struct LinkedBucket{
 	int n_dsnodes;				/* total number of items (solution) it holds */
 	int _total_hits;			/* performance analysis */
-	int _total_compares;		/* performance analysis */
-	int dim;					/* the dimension it considers */
+	int _total_compares;			/* performance analysis */
+	int dim;				/* the dimension it considers */
 	mkpnum *max_b_left;			/* increasing order (last is LLONG_MAX) */
-	mkpnum minProfit, maxProfit;/* min/max profit of solutions on the bucket */
-	int nsub;					/* number of sub buckets */
+	mkpnum minProfit, maxProfit;		/* min/max profit of solutions on the bucket */
+	int nsub;				/* number of sub buckets */
 	union{
 		struct LinkedBucket **sub_buckets; /* array of buckets */
-		Array **dsnodes;		/* list of array of dsnodes [leaf bucket case] */
+		Array **dsnodes;		  /* list of array of dsnodes [leaf bucket case] */
 	};
 }LinkedBucket;
 
