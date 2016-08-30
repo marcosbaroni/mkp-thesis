@@ -186,7 +186,7 @@ int int_array_is_sorted(int *array, int n){
 
 int *int_array_qsort(int *array, int n){
 	unimplemented();
-	return;
+	return array;
 }
 
 int *int_array_shuffle(int *array, int n){

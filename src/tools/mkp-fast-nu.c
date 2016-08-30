@@ -1,9 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 
-#include "mmkp/mkp/mkp.h"
-#include "mmkp/mkp/domset.h"
+#include "../models/mkp/mkp.h"
+#include "../models/mkp/domset.h"
 
 int print_usage(int argc, char **argv){
 	FILE *out;

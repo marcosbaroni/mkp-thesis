@@ -1,7 +1,7 @@
 #ifndef DOMSET_H 
 #define DOMSET_H 1
 
-#include "../util.h"
+#include "../../utils/util.h"
 #include "mkp.h"
 
 /******************************************************************************
@@ -51,6 +51,8 @@ typedef struct DomSetTree{
 	mkpnum upper_profit;	    /* current upper bound of problem */
 	mkpnum lower_profit;	    /* current lower bound of problem */
 }DomSetTree;
+
+DomSetNode *dsnode_new(DomSetNode *father, DomSetTree *dstree, int idx);
 
 DomSetTree *dstree_new(MKPSol *mkpsol);	/* create a new empty tree */
 

@@ -64,6 +64,9 @@ int dsnode_dominates(DomSetNode *dsn1, DomSetNode *dsn2){
 /*
  * idx: index of the item to be inserted in solution.
  * WARINING: returning NULL if new node is not feasible.
+ *   - father: father of the new node
+ *   - dstree: the holder of all node and problem info
+ *   - idx: the index of the new item being inserted
  * */
 DomSetNode *dsnode_new(DomSetNode *father, DomSetTree *dstree, int idx){
 	DomSetNode *dsnode;
@@ -72,11 +75,12 @@ DomSetNode *dsnode_new(DomSetNode *father, DomSetTree *dstree, int idx){
 	uchar x;
 
 	x = dstree->x[idx];
-	m = mkp->m;
+	m = dstree->mkp->m;
 
 	/* initializing new node */
 	dsnode = (DomSetNode*)malloc(sizeof(DomSetNode));
 	dsnode->b_left = (mkpnum*)malloc(m*sizeof(mkpnum));
+
 	/* updating node info*/
 	dsnode->idx = idx;
 	dsnode->m = m;

@@ -1,10 +1,10 @@
 #ifndef MKP_H
 #define MKP_H 1
 
-#include "../util.h"
-#include "../des.h"
-#include "../sfl.h"
-#include "../lp.h"
+#include "../../utils/util.h"
+#include "../../utils/lp.h"
+#include "../../metahrs/des.h"
+#include "../../metahrs/sfl.h"
 
 #define ZIMPL_LINEAR 1
 #define ZIMPL_CARD 2

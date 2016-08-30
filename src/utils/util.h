@@ -13,8 +13,8 @@
 
 extern int verbose;
 
-inline void SWAP_LONG(long *array, int a, int b);
-inline void SWAP_LONG_LONG(long long *array, int a, int b);
+void SWAP_LONG(long *array, int a, int b);
+void SWAP_LONG_LONG(long long *array, int a, int b);
 
 void findent(FILE *fout, int times, char c);
 

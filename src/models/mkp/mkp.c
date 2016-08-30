@@ -5,10 +5,10 @@
 #include <unistd.h>
 #include "mkp.h"
 
-#include "../util.h"
-#include "../des.h"
-#include "../sfl.h"
-#include "../lp.h"
+#include "../../utils/util.h"
+#include "../../metahrs/des.h"
+#include "../../metahrs/sfl.h"
+#include "../../utils/lp.h"
 
 /* chu beasley instance best known objectives */
 mkpnum chubeas_best[3][3][3][10] = {
@@ -233,7 +233,7 @@ mkpnum *mkpnum_array_copy(mkpnum *dest, mkpnum *src, int n){
 	return dest;
 }
 
-inline void SWAP_MKPNUM(mkpnum *array, int a, int b){
+void SWAP_MKPNUM(mkpnum *array, int a, int b){
 	mkpnum aux;
 	aux = array[a];
 	array[a] = array[b];
