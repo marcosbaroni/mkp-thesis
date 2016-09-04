@@ -190,6 +190,23 @@ mkpnum **mkpnum_matrix_malloc(int n, int m){
 	return mat;
 }
 
+mkpnum **mkpnum_matrix_copy( mkpnum **dest, mkpnum **src, int n, int m){
+    int i, j;
+
+    if(!dest){
+        dest = (mkpnum**)malloc(n*sizeof(mkpnum*));
+        for( i = 0 ; i < n ; i++ )
+            dest[i] = (mkpnum*)malloc(m*sizeof(mkpnum));
+    }
+    
+    /* coping */
+    for( i = 0 ; i < n ; i++ )
+        for( j = 0 ; j < m ; j++ )
+            dest[i][j] = src[i][j];
+
+    return dest;
+}
+
 mkpnum **mkpnum_matrix_read(FILE *fin, mkpnum **mat, int n, int m){
 	int i;
 
