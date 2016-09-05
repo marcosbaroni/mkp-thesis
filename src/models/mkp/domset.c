@@ -35,11 +35,6 @@ int dsnode_cmp(DomSetNode *dsn1, DomSetNode *dsn2){
 }
 
 /*
- * returns:
- *  -1 : dsn2 dominates dsn1
- *   0 : none dominates the other
- *  +1 : dsn1 dominates dsn2
- *
  * obs.:
  *    A dominates B iff:
  *       p(A) >= p(B)    AND    w_i(A) <= w_i(B), for all j in [m]
@@ -57,6 +52,7 @@ int dsnode_dominates(DomSetNode *dsn1, DomSetNode *dsn2){
 				return 0; /* no! */
 		return 1; /* yes! */
 	}
+    return 0;
 }
 
 /*
@@ -326,20 +322,24 @@ MKPSol *mkp_dynprog(MKP *mkp, int *idxs){
         n_nodes = dstree->n;
         father = dstree->root;
         /* for each existing domset (need couting because tail will grow) */
+        printf("Item %d (%d/%d)...", i+1, n_nodes, ipow(2, i));
         for( j = 0 ; j < n_nodes; j++ ){
-
             new = dsnode_new(father, idx);
-            if( dstree_exists_dominance(dstree, new) )
-                dsnode_free(new);
-            else
-                dstree_insert(dstree, new);
-
+            if( new ){
+                if( dstree_exists_dominance(dstree, new) ){
+                    dsnode_free(new);
+                }else{
+                    dstree_insert(dstree, new);
+                }
+            }
             /* next node */
             father = father ->next;
         }
+        printf("done.\n");
     }
 
     mkpsol = dsnode_get_mkpsol(dstree->best);
+    printf("total nodes: %d\n", dstree->n);
     dstree_free(dstree);
 
     return mkpsol;

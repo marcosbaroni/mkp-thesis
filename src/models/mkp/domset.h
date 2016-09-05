@@ -21,9 +21,6 @@ typedef struct DomSetNode{
 	struct DomSetNode *next;	/* next solution (for list navegation) */
 }DomSetNode;
 
- /*  -1 : dsn2 dominates dsn1
- *   0 : none dominates the other
- *  +1 : dsn1 dominates dsn2 */
 int dsnode_dominates(DomSetNode *dsn1, DomSetNode *dsn2);   /* If dsn1 dominates dsn2 */
 DomSetNode *dsnode_new(DomSetNode* father, int idx);
 void dsnode_fprintf(FILE *fout, DomSetNode *dsnode);

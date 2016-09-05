@@ -13,7 +13,7 @@ int print_usage(int argc, char **argv){
 	out = stdout;
 	fprintf(out, " usage: %s [input file]\n", argv[0]);
 	fprintf(out, " Nemhauser-Ullman Algorithm for MKP.\n");
-	fprintf(out, "   input file: a MKP instance. If no file is given, instance is read from stdin.\n");
+	fprintf(out, "   input file: a MKP instance. If '-' is given, instance is read from stdin.\n");
 	fprintf(out, "   Program outputs \"<n. of dom. subsets>;<profit of solution>\"\n");
 
 	return 1;
@@ -33,8 +33,13 @@ int execute_nemullman_mkp(int argc, char **argv){
 	/* checking inputs */
 	if( argc < 2 )
 		return print_usage(argc, argv);
-	if(strcmp(argv[1], "-")) /* not '-' */
+	if(strcmp(argv[1], "-")){ /* not '-' */
 		input = fopen(argv[1], "r");
+        if( !input ){
+            fprintf(stderr, "Error: file %s could not be opened.\n", argv[0]);
+            return 1;
+        }
+    }
 
 	/* reading instance */
 	mkp = mkp_read_from_file(input);
@@ -46,7 +51,8 @@ int execute_nemullman_mkp(int argc, char **argv){
 	cf = clock();
 
 	/* output solution */
-	printf("%lld;%.3lf\n", best_sol->obj, ((cf-c0)*1./CLOCKS_PER_SEC));
+    mkpnum_fprintf(stdout, best_sol->obj);
+	printf(";%.3lf\n", ((cf-c0)*1./CLOCKS_PER_SEC));
 
 	/* frees */
     mkpsol_free(best_sol);
