@@ -2,7 +2,16 @@
 #define BALEV_H 1
 
 #include "mkp.h"
+#include "domset.h"
 #include "soputils.h"
+/*
+ *  TODO: *Testar completar as soluções usando variaveis livres com maior eficiencia
+ */
+
+typedef struct BalevNode{
+    DomSetNode domset;
+    mkpnum opt;
+}BalevNode;
 
 void mkp_balev(MKPSol *mkpsol);
 

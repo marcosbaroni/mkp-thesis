@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 #include "balev.h"
 
 /*
@@ -32,17 +33,35 @@ mkpnum *compute_opposite_uppers(MKPSol *mkpsol){
     return uppers;
 }
 
+/*
+ * number of iteration of enumeration algorithm
+ */
+MKPSol *balev_enum(MKPSol *mkpsol, int k){
+    return mkpsol;
+}
+
 void mkp_balev(MKPSol *mkpsol){
     mkpnum *uppers;
-    int i, n;
+    MKPSol *best_from_enum;
+    int i, n, m, k;
+    int *ord;
 
     n = mkpsol->mkp->n;
+    m = mkpsol->mkp->m;
+
+    /* compute upper-bounds */
     uppers = compute_opposite_uppers(mkpsol);
+    ord = double_index_sort(uppers, n);
+    for( i = 0 ; i < n ; i++ )  /* flooring uppers */
+        uppers[i] = floor(uppers[i]);
 
-    for( i = 0 ; i < n ; i++ ){
-        printf("%03d: %.2lf\n", i+1, uppers[i]);
-    }
+    for( i = 0 ; i < n ; i++ )
+        printf("%03d: %.2lf\n", ord[i]+1, uppers[ord[i]]);
 
+    k = 18 - floor(log2(m+2));
+    best_from_enum = balev_enum(mkpsol, k);
+
+    free(ord);
     free(uppers);
 
     return;

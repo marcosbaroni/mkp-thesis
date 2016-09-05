@@ -94,7 +94,6 @@ int execute_balev(int argc, char **argv){
 	    fclose(input);
 
     mkpsol = mkpsol_read_from_file(stdin, mkp);
-    mkpsol_fprint(stdout, mkpsol, 1);
 
 	/* enumerate sets */
 	c0 = clock();
