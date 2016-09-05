@@ -115,20 +115,21 @@ MKPSol *mkpsol_flip_item(MKPSol *mkpsol, int a);  /* remove or add item */
 MKPSol *mkpsol_copy(MKPSol *mkpsol);            /* copies a solution */
 MKPSol *mkpsol_read_from_filename(char *filename, MKP *mkp);
 MKPSol *mkpsol_read_from_file(FILE *fin, MKP *mkp);
-//int mkpsol_dominated_by(MKPSol *mkpsol1, MKPSol *mkpsol2); /* if 1st is dominated by 2nd */
-int mkpsol_dominates(MKPSol *ms1, MKPSol *ms2);
 void mkpsol_fprint(FILE *fout, MKPSol *mkpsol, char ptr_sol); /* prints a solution */
 void mkpsol_free(MKPSol *mkpsol);               /* new empty solution */
+/* COMPARISON */
+int mkpsol_cmp_profit(MKPSol *ms1, MKPSol *ms2); /* cmp of solution profits */
+int mkpsol_cmp_weight(MKPSol *ms1, MKPSol *ms2, int *j);
+/* DOMINATION */
+int mkpsol_dominates(MKPSol *ms1, MKPSol *ms2);
+
+/*** MKP SOLVING FUNCTION ***/
 MKPSol *mkpsol_solve_with_scip(MKP *mkp, double maxtime, double capacity_scale, char linear);
 MKPSol *mkpsol_from_lp(MKP *mkp);               /* truncated from LP */
 MKPSol *mkpsol_local_search(MKPSol *mkpsol, int niter);
 int mkpsol_get_core_size(MKPSol *mkpsol, int *first_0p, int *last_1p);
 MKPSol *mkpsol_from_mkp_core(MKPSol *core_sol, MKP *orig_mkp, int *vars_fix);
-int mkpsol_cmp_profit(MKPSol *ms1, MKPSol *ms2); /* cmp of solution profits */
-int mkpsol_cmp_weight(MKPSol *ms1, MKPSol *ms2, int *j);
 MKPSol *mkpsol_greedy_fill(MKPSol *mkpsol);
-
-/* MKP TABU SEARCH*/
 
 /* MKP NEMHAUSER-ULLMAN */
 Array *mkp_nemull(MKP *mkp);

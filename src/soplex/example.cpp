@@ -1,5 +1,6 @@
 #include <iostream>
-#include "/home/mbaroni/Downloads/soplex-2.2.0/src/soplex.h"
+//#include "/home/mbaroni/Computacao/phd/soplex-2.2.1/src/soplex.h"
+#include <soplex.h>
 
 using namespace soplex;
 using namespace std;
@@ -11,14 +12,15 @@ int main(){
 	DSVector dummycol(0);
 
 	/* variables */
-	mysoplex.addColReal(LPCol(2.0, dummycol, infinity, 15.0));
-	mysoplex.addColReal(LPCol(3.0, dummycol, infinity, 20.0));
+	mysoplex.addColReal(LPCol(2.0, dummycol, 10, 1.0));
+	mysoplex.addColReal(LPCol(3.0, dummycol, 20, 2.0));
 
 	/* constraints */
 	DSVector row1(2);
 	row1.add(0, 1.0);
 	row1.add(1, 5.0);
-	mysoplex.addRowReal(LPRow(100.0, row1, infinity));
+	//mysoplex.addRowReal(LPRow(100.0, row1, infinity));
+	mysoplex.addRowReal(LPRow(-infinity, row1, 100));
 
 	mysoplex.writeFileReal("/tmp/dump.lp", NULL, NULL, NULL);
 

@@ -6,6 +6,7 @@
 
 #include "domset.h"
 #include "mkp.h"
+#include "soputils.h"
 
 /*****************************************************************************
  *     Dominating Set Node
@@ -337,6 +338,8 @@ MKPSol *mkp_dynprog(MKP *mkp, int *idxs){
         }
         printf("done.\n");
     }
+
+    printf("Result of relaxation: %f\n", mkp_get_lp_ub(mkp->p, mkp->w, mkp->b, mkp->n, mkp->m, NULL));
 
     mkpsol = dsnode_get_mkpsol(dstree->best);
     printf("total nodes: %d\n", dstree->n);
