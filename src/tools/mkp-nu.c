@@ -4,6 +4,7 @@
 #include <string.h>
 #include <time.h>
 #include "../models/mkp/mkp.h"
+#include "../models/mkp/balev.h"
 #include "../models/mkp/domset.h"
 #include "../utils/util.h"
 
@@ -11,15 +12,21 @@ int print_usage(int argc, char **argv){
 	FILE *out;
 
 	out = stdout;
-	fprintf(out, " usage: %s [input file]\n", argv[0]);
+	fprintf(out, " usage: %s [alg] [input file]\n", argv[0]);
 	fprintf(out, " Nemhauser-Ullman Algorithm for MKP.\n");
 	fprintf(out, "   input file: a MKP instance. If '-' is given, instance is read from stdin.\n");
+	fprintf(out, "   alg: the algorithm which should be used.\n");
+	fprintf(out, "      1 - Nemhauser-Ullman plain (only cutting unfeaseble)\n");
+	fprintf(out, "      2 - Nemhauser-Ullman with linked buckets\n");
+	fprintf(out, "      3 - Balev plain\n");
+	fprintf(out, "      4 - Balev suing linked buckets\n");
+	fprintf(out, "\n");
 	fprintf(out, "   Program outputs \"<n. of dom. subsets>;<profit of solution>\"\n");
 
 	return 1;
 }
 
-int execute_nemullman_mkp(int argc, char **argv){
+int execute_nemullman(int argc, char **argv){
 	MKP *mkp;           /* the proglem */
 	FILE *input;        /* input stream */
 	Array *dom_sets;
@@ -31,10 +38,8 @@ int execute_nemullman_mkp(int argc, char **argv){
 
 	input = stdin;
 	/* checking inputs */
-	if( argc < 2 )
-		return print_usage(argc, argv);
-	if(strcmp(argv[1], "-")){ /* not '-' */
-		input = fopen(argv[1], "r");
+	if(strcmp(argv[2], "-")){ /* not '-' */
+		input = fopen(argv[2], "r");
         if( !input ){
             fprintf(stderr, "Error: file %s could not be opened.\n", argv[0]);
             return 1;
@@ -61,7 +66,61 @@ int execute_nemullman_mkp(int argc, char **argv){
 	return 0;
 }
 
+int execute_balev(int argc, char **argv){
+	MKP *mkp;           /* the problem */
+	MKP *mkp2;          /* the reduced problem */
+    MKPSol *mkpsol;     /* feasible solution given */
+	FILE *input;        /* input stream */
+	Array *dom_sets;
+	MKPSol *best_sol;
+    MKPSol *sol;
+	int i, n;
+
+	clock_t c0, cf;
+
+	input = stdin;
+	/* checking inputs */
+	if(strcmp(argv[2], "-")){ /* not '-' */
+		input = fopen(argv[2], "r");
+        if( !input ){
+            fprintf(stderr, "Error: file %s could not be opened.\n", argv[0]);
+            return 1;
+        }
+    }
+
+	/* reading instance */
+	mkp = mkp_read_from_file(input);
+    if( input != stdin )
+	    fclose(input);
+
+    mkpsol = mkpsol_read_from_file(stdin, mkp);
+    mkpsol_fprint(stdout, mkpsol, 1);
+
+	/* enumerate sets */
+	c0 = clock();
+    mkp_balev(mkpsol);
+	cf = clock();
+
+	/* frees */
+    mkpsol_free(mkpsol);
+	mkp_free(mkp);
+
+	return 0;
+}
+
 int main(int argc, char **argv){
-	return execute_nemullman_mkp(argc, argv);
+    int alg;
+	if( argc < 3 ){
+		return print_usage(argc, argv);
+    }
+    alg = atol(argv[1]);
+
+    switch( alg ){
+	    case 1: return execute_nemullman(argc, argv); break;
+        case 2: fprintf(stderr, "Not implemented yet.\n"); break;
+	    case 3: return execute_balev(argc, argv); break;
+        case 4: fprintf(stderr, "Not implemented yet.\n"); break;
+    }
+    return 0;
 }
 

@@ -3,7 +3,6 @@
 
 #include "../../utils/util.h"
 #include "mkp.h"
-#include "soputils.h"
 
 /******************************************************************************
  * Each DomSetNode represents a 'solution' for the MKP.

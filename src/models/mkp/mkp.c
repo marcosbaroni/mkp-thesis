@@ -1632,7 +1632,9 @@ MKPSol *mkpsol_add_item(MKPSol *mkpsol, int a){
 	mkp = mkpsol->mkp;
 	m = mkp->m;
 
-	if(mkpsol->x[a]) {
+	if( mkpsol->x[a] ) {
+        printf(" value: %d\n", mkpsol->x[a]);
+        mkpsol_fprint(stdout, mkpsol, 1);
 		fprintf(stderr, "%s error: item %d-th item already in knapsak.\n",
 			__PRETTY_FUNCTION__, a+1);
 		return mkpsol;
@@ -1697,12 +1699,15 @@ MKPSol *mkpsol_read_from_filename(char *filename, MKP *mkp){
 MKPSol *mkpsol_read_from_file(FILE *fin, MKP *mkp){
 	MKPSol *mkpsol;
 	int i, a, n;
+    int ferr;
 
 	n = mkp->n;
 	mkpsol = mkpsol_new(mkp);
-	for( i = 0 ; i < n ; i++ ){
-		fscanf(fin, "%d", &a);
-		mkpsol_add_item(mkpsol, a);
+
+	ferr = fscanf(fin, "%d", &a);
+    while( ferr != EOF ){
+		mkpsol_add_item(mkpsol, a-1);
+	    ferr = fscanf(fin, "%d", &a);
 	}
 
 	return mkpsol;
