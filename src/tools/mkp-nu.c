@@ -3,15 +3,16 @@
 #include <math.h>
 #include <string.h>
 #include <time.h>
-#include "mmkp/mkp/mkp.h"
-#include "mmkp/util.h"
+#include "../models/mkp/mkp.h"
+#include "../models/mkp/domset.h"
+#include "../utils/util.h"
 
 int print_usage(int argc, char **argv){
 	FILE *out;
 
 	out = stdout;
 	fprintf(out, " usage: %s [input file]\n", argv[0]);
-	fprintf(out, " Nemhauser-Ullman Algorithm Adapted for MKP.\n");
+	fprintf(out, " Nemhauser-Ullman Algorithm for MKP.\n");
 	fprintf(out, "   input file: a MKP instance. If no file is given, instance is read from stdin.\n");
 	fprintf(out, "   Program outputs \"<n. of dom. subsets>;<profit of solution>\"\n");
 
@@ -29,7 +30,6 @@ int execute_nemullman_mkp(int argc, char **argv){
 	clock_t c0, cf;
 
 	input = stdin;
-
 	/* checking inputs */
 	if( argc < 2 )
 		return print_usage(argc, argv);
@@ -42,25 +42,14 @@ int execute_nemullman_mkp(int argc, char **argv){
 
 	/* enumerate sets */
 	c0 = clock();
-	dom_sets = mkp_nemull(mkp);
+    best_sol = mkp_dynprog(mkp, NULL);
 	cf = clock();
 
-	n = array_get_size(dom_sets);
-
-	/* find best set */
-	best_sol = array_get(dom_sets, 0);
-	for( i = 1 ; i < n ; i++ ){
-		sol = array_get(dom_sets, i);
-		if( sol->feasible && sol->obj > best_sol->obj)
-			best_sol = sol;
-	}
-
 	/* output solution */
-	printf("%lld;%d;%.3lf\n", best_sol->obj, array_get_size(dom_sets), ((cf-c0)*1./CLOCKS_PER_SEC));
+	printf("%lld;%.3lf\n", best_sol->obj, ((cf-c0)*1./CLOCKS_PER_SEC));
 
 	/* frees */
-	array_apply(dom_sets, (void(*)(void *))mkpsol_free);
-	array_free(dom_sets);
+    mkpsol_free(best_sol);
 	mkp_free(mkp);
 
 	return 0;

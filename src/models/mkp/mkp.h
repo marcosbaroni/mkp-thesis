@@ -19,8 +19,10 @@ mkpnum chubeas_best[3][3][3][10];
 void mkpnum_fprintf(FILE *out, mkpnum a);
 mkpnum *mkpnum_array_copy(mkpnum *dest, mkpnum *src, int n);
 mkpnum *mkpnum_array_init(mkpnum *array, int n, mkpnum x);
+void mkpnum_array_write(FILE *fout, mkpnum *array, int n);
 void mkpnum_scanf(const char *str, mkpnum *x);
 mkpnum **mkpnum_matrix_copy( mkpnum **dest, mkpnum **src, int n, int m);
+void mkpnum_matrix_write(FILE *fout, mkpnum **mat, int n, int m);
 
 /*** MKP PROBLEM INSTANCE ***
 *   Itens are sorting by decreasing order of profit (for greedy propose).
@@ -42,6 +44,7 @@ typedef struct MKP{
 MKP *mkp_alloc(int n, int m);
 MKP *mkp_random(int n, int m, double alpha, double beta, mkpnum max_coefs);
 void mkp_sort_by_profit(MKP *mkp);
+void mkp_sort_by_em(MKP *mkp, int reverse);
 void mkp_free(MKP *mkp);
 
 /*** read/write functions ***/

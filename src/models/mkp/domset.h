@@ -21,9 +21,12 @@ typedef struct DomSetNode{
 	struct DomSetNode *next;	/* next solution (for list navegation) */
 }DomSetNode;
 
-int dsnode_dominates(DomSetNode*, DomSetNode*);   /* If dsn1 dominates dsn2 */
+ /*  -1 : dsn2 dominates dsn1
+ *   0 : none dominates the other
+ *  +1 : dsn1 dominates dsn2 */
+int dsnode_dominates(DomSetNode *dsn1, DomSetNode *dsn2);   /* If dsn1 dominates dsn2 */
 DomSetNode *dsnode_new(DomSetNode* father, int idx);
-
+void dsnode_fprintf(FILE *fout, DomSetNode *dsnode);
 
 /******************************************************************************
  * Tree structure, holding all openned nodes on the enumeration procedure.
@@ -44,7 +47,9 @@ typedef struct DomSetTree{
 DomSetTree *dstree_new(MKP *mkp); /* creates a new empty tree */
 DomSetTree *dstree_insert(DomSetTree *dstree, DomSetNode *dsnode);
 DomSetTree *dstree_remove(DomSetTree *dstree, DomSetNode *dsnode);
+DomSetNode *dstree_exists_dominance(DomSetTree *dstree, DomSetNode *dsnode);
 void dstree_fprint(FILE *out, DomSetTree *dstree);
+MKPSol *mkp_dynprog(MKP *mkp, int *idxs);
 
 #endif
 

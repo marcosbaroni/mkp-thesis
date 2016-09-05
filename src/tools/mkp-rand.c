@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "mmkp/mkp/mkp.h"
-#include "mmkp/util.h"
+#include "../models/mkp/mkp.h"
+#include "../utils/util.h"
 
 void print_usage(int argc, char **argv){
 	printf("%s [OPTIONS]... <n> <m>\n\n", argv[0]);

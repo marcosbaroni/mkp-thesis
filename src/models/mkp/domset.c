@@ -7,8 +7,6 @@
 #include "domset.h"
 #include "mkp.h"
 
-extern int ncomp;
-
 /*****************************************************************************
  *     Dominating Set Node
  *****************************************************************************/
@@ -48,8 +46,8 @@ int dsnode_cmp(DomSetNode *dsn1, DomSetNode *dsn2){
  * */
 int dsnode_dominates(DomSetNode *dsn1, DomSetNode *dsn2){
 	int i, m;
+
 	m = dsn1->tree->mkp->m;  /* FIXME: check performance impact */
-	ncomp++;
 
 	/* dsn1 dominates dsn2 ? */
 	if( dsn1->profit >= dsn2->profit ){
@@ -75,10 +73,8 @@ DomSetNode *dsnode_new(DomSetNode *father, int idx){
     mkpnum b_left;
     MKP *mkp;
 	double relax_w_free, relax_w_item;
-	uchar x;
 
     dstree = father->tree;
-	x = dstree->x[idx];
     mkp = dstree->mkp;
 	m = mkp->m;
 
@@ -94,6 +90,7 @@ DomSetNode *dsnode_new(DomSetNode *father, int idx){
         if( (dsnode->b_left[i] = father->b_left[i] - mkp->w[i][idx]) < 0 )
             feasible = 0;
 	/* initializing tree info */
+    dsnode->tree = father->tree;
 	dsnode->prev = dsnode->next = NULL;
 	dsnode->father = father;
     
@@ -113,13 +110,26 @@ void dsnode_free(DomSetNode *dsnode){
 	return;
 }
 
+void dsnode_fprintf(FILE *fout, DomSetNode *dsnode){
+    int i, m;
+    m = dsnode->tree->mkp->m;
+
+    fprintf(fout, "- dsnode: %x\n", dsnode);
+    fprintf(fout, "  profi: ");
+    mkpnum_fprintf(fout, dsnode->profit);
+    fprintf(fout, "  b_left:");
+   mkpnum_array_write(fout, dsnode->b_left, m);
+
+   return;
+}
+
 /*
  * Extracts the MKP solution from a dominating set node.
 */
-MKPSol *dsnode_get_mkpsol(DomSetTree *dstree, DomSetNode *dsnode){
+MKPSol *dsnode_get_mkpsol(DomSetNode *dsnode){
 	MKPSol *mkpsol;
 
-	mkpsol = mkpsol_new(dstree->mkp);
+	mkpsol = mkpsol_new(dsnode->tree->mkp);
 
 	while( dsnode->idx > -1 ){
 		mkpsol_add_item(mkpsol, dsnode->idx);
@@ -174,8 +184,8 @@ DomSetTree *dstree_init(
 	/* INITIALIZATION */
 	/* problem instance info */
 	dstree->mkp = mkp;
-	dstree->p = mkpnum_array_copy(dstree->p, mkp->p, n);
-    dstree->w = mkpnum_matrix_copy(dstree->w, mkp->w, mkp->m, mkp->n);
+	dstree->p = mkpnum_array_copy(NULL, mkp->p, n);
+    dstree->w = mkpnum_matrix_copy(NULL, mkp->w, mkp->m, mkp->n);
 
 	/* structure info */
 	dstree->n = 1;
@@ -194,8 +204,11 @@ DomSetTree *dstree_insert(DomSetTree *dstree, DomSetNode *dsnode){
 	if( dstree->root ){
 		dstree->tail->next = dsnode;
 		dsnode->prev = dstree->tail;
+        if( dsnode->profit > dstree->best->profit )
+            dstree->best = dsnode;
 	}else{
 		dstree->root = dsnode;
+        dstree->best = dsnode;
     }
 	dstree->tail = dsnode;
 
@@ -270,6 +283,19 @@ void dstree_fprint(FILE *out, DomSetTree *dstree){
 	return;
 }
 
+DomSetNode *dstree_exists_dominance(DomSetTree *dstree, DomSetNode *dsn1){
+    DomSetNode *dsn2;
+
+    dsn2 = dstree->root;
+    while( dsn2 ){
+        if( dsnode_dominates(dsn1, dsn2) < 0 )   /* If dsn2 dominates dsn1 */
+            return dsn2;
+        dsn2 = dsn2->next;
+    }
+
+    return NULL;
+}
+
 /*******************************************************************************
  * Multidimensional Knapsack Problem - Dynamic Programming (Nemhauser-Ullman) *
  * - mkp : the MKP problem instance
@@ -278,16 +304,19 @@ void dstree_fprint(FILE *out, DomSetTree *dstree){
 MKPSol *mkp_dynprog(MKP *mkp, int *idxs){
     MKPSol *mkpsol;
     DomSetTree *dstree;
-    DomSetNode *dsnode;
+    DomSetNode *father;
+    DomSetNode *new;
     DomSetNode *root;
     DomSetNode *tail;
+
     int i, j, n, m;
     int n_nodes;
     int idx;
 
-    n = mkp->n;
-
+    /* initialize dstree */
     dstree = dstree_new(mkp);
+
+    n = mkp->n;
     /* for each item */
     for( i = 0 ; i < n ; i++ ){
         /* next item to insert */
@@ -295,12 +324,23 @@ MKPSol *mkp_dynprog(MKP *mkp, int *idxs){
         else idx = i;
 
         n_nodes = dstree->n;
-        dsnode = dstree->root;
+        father = dstree->root;
+        /* for each existing domset (need couting because tail will grow) */
         for( j = 0 ; j < n_nodes; j++ ){
-            dsnode = dsnode->next;
-        }
 
+            new = dsnode_new(father, idx);
+            if( dstree_exists_dominance(dstree, new) )
+                dsnode_free(new);
+            else
+                dstree_insert(dstree, new);
+
+            /* next node */
+            father = father ->next;
+        }
     }
+
+    mkpsol = dsnode_get_mkpsol(dstree->best);
+    dstree_free(dstree);
 
     return mkpsol;
 }
