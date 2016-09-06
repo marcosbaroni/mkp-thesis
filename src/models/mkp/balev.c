@@ -116,9 +116,6 @@ void mkp_balev(MKPSol *mkpsol){
     for( i = 0 ; i < n ; i++ )  /* flooring uppers */
         uppers[i] = floor(uppers[i]);
 
-    for( i = 0 ; i < n ; i++ )
-        printf("%03d: %.2lf\n", ord[i]+1, uppers[ord[i]]);
-
     k = 18 - floor(log2(m+2));
     best_from_enum = balev_enum(mkpsol, ord, k);
 

@@ -32,8 +32,6 @@ MKPSol *dsnode_get_mkpsol(DomSetNode *dsnode);
 typedef struct DomSetTree{
 	/* PROBLEM INSTANCE INFO */
 	MKP *mkp;			        /* the problem instance */
-	mkpnum **w;                 /* weights of items */
-	mkpnum *p;			        /* profit of items */
 
 	/* STRUCTURE INFO */
 	int n;				        /* total number of solution in tree */

@@ -160,15 +160,6 @@ DomSetTree *dstree_init(
 	/* heap alloc */
 	if( !dstree )
 		dstree = (DomSetTree*)malloc(sizeof(DomSetTree));
-	if( !x )
-		x = (unsigned char*)malloc(n*sizeof(unsigned char));
-	if( !p )
-		p = (mkpnum*)malloc(n*sizeof(mkpnum));
-	if( !w ){
-		w = (mkpnum**)malloc(m*sizeof(mkpnum*));
-		for( i = 0 ; i < m ; i++ )
-		w[i] = (mkpnum*)malloc(n*sizeof(mkpnum));
-	}
 
 	/* first solution (empty node) */
 	root = (DomSetNode*)malloc(sizeof(DomSetNode));
@@ -181,8 +172,6 @@ DomSetTree *dstree_init(
 	/* INITIALIZATION */
 	/* problem instance info */
 	dstree->mkp = mkp;
-	dstree->p = mkpnum_array_copy(NULL, mkp->p, n);
-    dstree->w = mkpnum_matrix_copy(NULL, mkp->w, mkp->m, mkp->n);
 
 	/* structure info */
 	dstree->n = 1;
