@@ -293,6 +293,35 @@ DomSetNode *dstree_exists_dominance(DomSetTree *dstree, DomSetNode *dsn1){
     return NULL;
 }
 
+/*
+ * Apply one iteration of the dynamic programming method on a given DomSetTree.
+ *   dstree: the DomSetTree given
+ *   idx: the index of the item to be inserted
+ */
+DomSetTree *dstree_dynprog(DomSetTree *dstree, int idx){
+    DomSetNode *father;
+    DomSetNode *new;
+    int j, n_nodes;
+
+    n_nodes = dstree->n;
+    father = dstree->root;
+
+    /* for each existing domset (need couting because tail will grow) */
+    for( j = 0 ; j < n_nodes; j++ ){
+        new = dsnode_new(father, idx);
+        if( new ){
+            if( dstree_exists_dominance(dstree, new) ){
+                dsnode_free(new);
+            }else{
+                dstree_insert(dstree, new);
+            }
+        }
+        /* next node */
+        father = father ->next;
+    }
+    return dstree;
+}
+
 /*******************************************************************************
  * Multidimensional Knapsack Problem - Dynamic Programming (Nemhauser-Ullman) *
  * - mkp : the MKP problem instance
@@ -316,27 +345,10 @@ MKPSol *mkp_dynprog(MKP *mkp, int *idxs){
     n = mkp->n;
     /* for each item */
     for( i = 0 ; i < n ; i++ ){
-        /* next item to insert */
         if(idxs) idx = idxs[i];
         else idx = i;
 
-        n_nodes = dstree->n;
-        father = dstree->root;
-        /* for each existing domset (need couting because tail will grow) */
-        printf("Item %d (%d/%d)...", i+1, n_nodes, ipow(2, i));
-        for( j = 0 ; j < n_nodes; j++ ){
-            new = dsnode_new(father, idx);
-            if( new ){
-                if( dstree_exists_dominance(dstree, new) ){
-                    dsnode_free(new);
-                }else{
-                    dstree_insert(dstree, new);
-                }
-            }
-            /* next node */
-            father = father ->next;
-        }
-        printf("done.\n");
+        dstree = dstree_dynprog(dstree, idxs[i]);
     }
 
     mkpsol = dsnode_get_mkpsol(dstree->best);

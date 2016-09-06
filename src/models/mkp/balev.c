@@ -34,10 +34,71 @@ mkpnum *compute_opposite_uppers(MKPSol *mkpsol){
 }
 
 /*
- * number of iteration of enumeration algorithm
+ * k: max number of iteration (items inserted)
  */
-MKPSol *balev_enum(MKPSol *mkpsol, int k){
-    return mkpsol;
+MKPSol *balev_enum(MKPSol *mkpsol, int *idxs, int k){
+    MKP *mkp;
+    DomSetTree *dstree;
+    DomSetNode *dsnode;
+    DomSetNode *best_node;
+    MKPSol *mkpsol_new;
+    mkpnum best_half_profit;
+    mkpnum *b_left_k; /* space remaining without items [k+1, ..., n] */
+    int i, j, n, m, n_nodes;
+    int feasible;
+
+    mkp = mkpsol->mkp;
+    n = mkp->n;
+    m = mkp->m;
+
+    b_left_k = (mkpnum*)malloc(m*sizeof(mkpnum));
+    /* computing b_left needed to fit items "before" the (k+1)-th item */
+    best_half_profit = mkpsol->obj;
+    for( j = 0 ; j < m ; j++ )
+        b_left_k[j] = mkp->b[j];
+    for( i = k ; i < n ; i++ ){
+        if( mkpsol->x[i] ){
+            for( j = 0 ; j < m ; j++ )
+                b_left_k[j] -= mkp->w[j][i];
+            best_half_profit -= mkp->p[i];
+        }
+    }
+
+    /* executing nemhauser-Ullman */
+    dstree = dstree_new(mkpsol->mkp);
+    for( i = 0 ; i < k ; i++ )
+        dstree = dstree_dynprog(dstree, idxs[i]);
+
+    best_node = NULL;
+
+    /* finding best "half-feasible" node */
+    n_nodes = dstree->n;
+    dsnode = dstree->root;
+    for( i = 0 ; i < n_nodes ; i++ ){
+        if( best_half_profit < dsnode->profit ){
+            for( j = 0 ; j < m ; j++ ){
+                if( b_left_k[j] < dsnode->b_left[j] )
+                    { break; }
+                best_half_profit = dsnode->profit;
+                best_node = dsnode;
+            }
+        }
+        dsnode = dsnode->next;
+    }
+
+    /* Extracting solution found (if better) */
+    mkpsol_new = NULL;
+    if( best_node ){
+        mkpsol_new = dsnode_get_mkpsol( best_node );
+        for( i = k ; i < n ; i++ )
+            if( mkpsol->x[idxs[i]] )
+                mkpsol_add_item(mkpsol_new, idxs[i]);
+    }
+
+    free(b_left_k);
+    dstree_free(dstree);
+
+    return mkpsol_new;
 }
 
 void mkp_balev(MKPSol *mkpsol){
@@ -59,8 +120,16 @@ void mkp_balev(MKPSol *mkpsol){
         printf("%03d: %.2lf\n", ord[i]+1, uppers[ord[i]]);
 
     k = 18 - floor(log2(m+2));
-    best_from_enum = balev_enum(mkpsol, k);
+    best_from_enum = balev_enum(mkpsol, ord, k);
 
+    printf("Solution given:\n");
+    mkpsol_fprint(stdout, mkpsol, 0);
+    printf("Solution found:\n");
+    if( best_from_enum ) mkpsol_fprint(stdout, best_from_enum, 0);
+    else printf("<none>\n");
+
+    if(best_from_enum)
+        free(best_from_enum);
     free(ord);
     free(uppers);
 
