@@ -28,10 +28,12 @@ typedef struct LinkedBucket{
 	};
 }LinkedBucket;
 
-void lbucket_insert_dsnode(LinkedBucket *lbucket, DomSetNode *dsnode);
 LinkedBucket *lbucket_new(mkpnum **max_b_lefts, int nsub, int dims);
+mkpnum **lbucket_prepare_max_b_left(MKP *mkp, int ndim, int nsub, char type);
+void lbucket_insert_dsnode(LinkedBucket *lbucket, DomSetNode *dsnode);
 void lbucket_free(LinkedBucket *lbucket);
-MKPSol *mkp_fast_domsets_enum(MKP *mkp);
-MKPSol *mkp_fast_domsets_enum_lbucket(MKP *mkp, int ndim, int nsub, char type);
+//MKPSol *mkp_fast_domsets_enum(MKP *mkp);
+//MKPSol *mkp_fast_domsets_enum_lbucket(MKP *mkp, int ndim, int nsub, char type);
+DomSetTree *lbucket_dstree_dynprog(DomSetTree *dstree, int idx, LinkedBucket *lbucket);
 
 #endif

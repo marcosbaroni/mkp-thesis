@@ -4,6 +4,7 @@
 #include "mkp.h"
 #include "domset.h"
 #include "soputils.h"
+#include "lbucket.h"
 /*
  *  TODO: *Testar completar as soluções usando variaveis livres com maior eficiencia
  */
@@ -13,6 +14,6 @@ typedef struct BalevNode{
     mkpnum opt;
 }BalevNode;
 
-void mkp_balev(MKPSol *mkpsol);
+void mkp_balev(MKPSol *mkpsol, int use_lbucket);
 
 #endif

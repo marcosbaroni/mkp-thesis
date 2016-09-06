@@ -6,8 +6,8 @@ SOPLEX=-lsoplex -lz -lgmp -lm
 
 all: mkp
 mkp: mkp-nu mkp-rand mkp2zpl
-mkp-nu: util.o mkp.o domset.o lp.o soputils.o mkp-nu.o balev.o
-	g++ $(CFLAGS) -o mkp-nu mkp-nu.o util.o lp.o mkp.o balev.o domset.o soputils.o -lm $(SOPLEX)
+mkp-nu: util.o mkp.o domset.o lp.o soputils.o mkp-nu.o balev.o lbucket.o
+	g++ $(CFLAGS) -o mkp-nu mkp-nu.o util.o lp.o mkp.o balev.o domset.o soputils.o lbucket.o -lm $(SOPLEX)
 	mv mkp-nu $(DEST)
 mkp-rand: mkp.o util.o lp.o
 	gcc $(CFLAGS) -o mkp-rand tools/mkp-rand.c mkp.o util.o lp.o -lm
@@ -24,6 +24,8 @@ mkp-fast-nu: util.o mkp.o lp.o domset.o
 	gcc $(CFLAGS) -o mkp-fast-nu tools/mkp-fast-nu.c util.o mkp.o lp.o domset.o -lm
 balev.o:
 	gcc $(CFLAGS) -c models/mkp/balev.c
+lbucket.o:
+	gcc $(CFLAGS) -c models/mkp/lbucket.c
 
 mkp.o:
 	gcc -c models/mkp/mkp.c

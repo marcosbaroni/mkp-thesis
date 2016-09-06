@@ -2,6 +2,9 @@
 #include <stdlib.h>
 #include <math.h>
 #include "balev.h"
+#include "mkp.h"
+#include "domset.h"
+#include "lbucket.h"
 
 /*
  * Finds the upper bound of a variable fixed on opposite size of a solution
@@ -36,7 +39,7 @@ mkpnum *compute_opposite_uppers(MKPSol *mkpsol){
 /*
  * k: max number of iteration (items inserted)
  */
-MKPSol *balev_enum(MKPSol *mkpsol, int *idxs, int k){
+MKPSol *balev_enum(MKPSol *mkpsol, int *idxs, int k, LinkedBucket *lbucket){
     MKP *mkp;
     DomSetTree *dstree;
     DomSetNode *dsnode;
@@ -51,8 +54,8 @@ MKPSol *balev_enum(MKPSol *mkpsol, int *idxs, int k){
     n = mkp->n;
     m = mkp->m;
 
-    b_left_k = (mkpnum*)malloc(m*sizeof(mkpnum));
     /* computing b_left needed to fit items "before" the (k+1)-th item */
+    b_left_k = (mkpnum*)malloc(m*sizeof(mkpnum));
     best_half_profit = mkpsol->obj;
     for( j = 0 ; j < m ; j++ )
         b_left_k[j] = mkp->b[j];
@@ -66,8 +69,10 @@ MKPSol *balev_enum(MKPSol *mkpsol, int *idxs, int k){
 
     /* executing nemhauser-Ullman */
     dstree = dstree_new(mkpsol->mkp);
-    for( i = 0 ; i < k ; i++ )
-        dstree = dstree_dynprog(dstree, idxs[i]);
+    for( i = 0 ; i < k ; i++ ){
+        printf(" iter %d / %d\n", i, k);
+        dstree = lbucket_dstree_dynprog(dstree, idxs[i], lbucket);
+    }
 
     best_node = NULL;
 
@@ -97,18 +102,31 @@ MKPSol *balev_enum(MKPSol *mkpsol, int *idxs, int k){
 
     free(b_left_k);
     dstree_free(dstree);
+    if(lbucket)
+        lbucket_free(lbucket);
 
     return mkpsol_new;
 }
 
-void mkp_balev(MKPSol *mkpsol){
+void mkp_balev(MKPSol *mkpsol, int use_lbucket){
     mkpnum *uppers;
     MKPSol *best_from_enum;
+    LinkedBucket *lbucket;
+	mkpnum **max_b_lefts, sum;
+
     int i, n, m, k;
     int *ord;
 
+    int ndim, nsub; // for linked bucket
+    char type;
+
     n = mkpsol->mkp->n;
     m = mkpsol->mkp->m;
+    /* linked bucket setup*/
+    lbucket = NULL;
+    ndim = 2;
+    nsub = 10;
+    type = 'l';
 
     /* compute upper-bounds */
     uppers = compute_opposite_uppers(mkpsol);
@@ -116,15 +134,27 @@ void mkp_balev(MKPSol *mkpsol){
     for( i = 0 ; i < n ; i++ )  /* flooring uppers */
         uppers[i] = floor(uppers[i]);
 
-    k = 18 - floor(log2(m+2));
-    best_from_enum = balev_enum(mkpsol, ord, k);
+    /* Prepare Linked Buckets */
+	max_b_lefts = lbucket_prepare_max_b_left(mkpsol->mkp, ndim, nsub, type);
+    if( use_lbucket )
+	    lbucket = lbucket_new(max_b_lefts, nsub, ndim);
+	for( i = 0 ; i < ndim ; i++ ) /* freeing max_b_lefts */
+		free(max_b_lefts[i]);
+	free(max_b_lefts);
 
+    /* execute enumeration */
+    k = 18 - floor(log2(m+2));
+    if( k > (int)(n*0.6) ) k = (int)(n*0.76); /* FIXME: k cant be > n */
+    best_from_enum = balev_enum(mkpsol, ord, k, lbucket);
+
+    /* print solution */
     printf("Solution given:\n");
     mkpsol_fprint(stdout, mkpsol, 0);
     printf("Solution found:\n");
     if( best_from_enum ) mkpsol_fprint(stdout, best_from_enum, 0);
     else printf("<none>\n");
 
+    /* free memory */
     if(best_from_enum)
         free(best_from_enum);
     free(ord);

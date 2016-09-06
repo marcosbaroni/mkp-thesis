@@ -1,8 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 #include "domset.h"
 #include "mkp.h"
+#include "lbucket.h"
+
+#define LLONG_MAX 1000000000;
 
 /*
  * Auxiliary function to prepare max_b_left table, for Linked Bucket creating.
@@ -39,7 +43,6 @@ mkpnum **lbucket_prepare_max_b_left(MKP *mkp, int ndim, int nsub, char type){
 	}
 	return max_b_lefts;
 }
-
 
 /*
  * limitss[i]: the points on i-th dimension the space is segmented.
@@ -110,7 +113,7 @@ void lbucket_insert_dsnode(LinkedBucket *lbucket, DomSetNode *dsnode){
 	return;
 }
 
-int lbucket_exists_dominator(LinkedBucket *lbucket, DomSetNode *dsnode){
+DomSetNode *lbucket_exists_dominator(LinkedBucket *lbucket, DomSetNode *dsnode){
 	int i, j, n, nsub, dim;
 	mkpnum b_left, *max_b_left;
 	Array *a;
@@ -148,7 +151,7 @@ int lbucket_exists_dominator(LinkedBucket *lbucket, DomSetNode *dsnode){
 			for( j = 0 ; j < n ; j++ ){
 				_n_comps++;
 				if( dsnode_dominates(array_get(a, j), dsnode) )
-					return 1;
+					return dsnode;
 			}
 		}
 	}
@@ -156,9 +159,12 @@ int lbucket_exists_dominator(LinkedBucket *lbucket, DomSetNode *dsnode){
 		lbucket->_total_hits++;
 		lbucket->_total_compares += _n_comps;
 	}
-	return 0;
+	return NULL;
 }
 
+/*
+ * (does not free DomSetNodes)
+ */
 void lbucket_free(LinkedBucket *lbucket){
 	int i, nsub;
 
@@ -213,146 +219,40 @@ void lbucket_fprintf_profile(FILE *out, LinkedBucket *lbucket){
 	return;
 }
 
+/*
+ * Apply one iteration of the dynamic programming method on a given DomSetTree.
+ *   dstree: the DomSetTree given
+ *   idx: the index of the item to be inserted
+ *   lbucket: Linked Bucket to be used
+ */
+DomSetTree *lbucket_dstree_dynprog(DomSetTree *dstree, int idx, LinkedBucket *lbucket){
+    DomSetNode *father;
+    DomSetNode *new;
+    int j, n_nodes;
+    DomSetNode *dominant;
 
-/*****************************************************************************
- *     Fast Enumeration Algorithm
- *  Nemhauser-Ullman using node representation
- *****************************************************************************/
-	/* TODO: iniciar enumeração das soluções... 
-	 * 	    - iniciar de uma solução vazia (por enquanto);
-	 * 	    - criar novo nó apenas no caso de inserção de item.
-	 * 	    - utilizar LinkedBucket na enumeração
-	 * 	    */
-MKPSol *mkp_fast_domsets_enum(MKP *mkp){
-	DomSetTree *dstree;
-	DomSetNode *dsnode, *dsn_tail, *dsn_new, *dsn_iter;
-	MKPSol *mkpsol;
-	int i, j, n, m, dominance, promissing;
+    n_nodes = dstree->n;
+    father = dstree->root;
 
-	n = mkp->n;
-	m = mkp->m;
-
-	/* initializing domsets tree */
-	mkpsol = mkpsol_new(mkp); /* empty solution */
-	dstree = dstree_new(mkpsol);
-	mkpsol_free(mkpsol);
-
-	/* ENUMERATING SOLUTIONS */
-	/* for each item... */
-	for( i = 0 ; i < n ; i++ ){
-
-		/* for each existent dominating set (dsnode)... */
-		for( dsnode = dstree->root, dsn_tail = dstree->tail
-			; dsnode ? (dsnode->prev /* if has a prev node and... */
-					? dsnode->prev != dsn_tail /* ... its not the old tail. */
-					:1) :0
-			; dsnode = dsnode->next) {
-
-			/* new 'child' solution (adding item 'i') */
-			dsn_new = dsnode_new(dsnode, mkp, i);
-			promissing = dsn_new ? 1 : 0;
-
-			/* checking dominance */
-			/* FIXME: tail is out of comparison. */
-			for( dsn_iter = dstree->root;
-				dsn_iter != dsn_tail && promissing;
-				dsn_iter = dsn_iter->next)
-			{
-				/* check relative dominance */
-				dominance = dsnode_dominates(dsn_new, dsn_iter);
-				//if( dominance == 1 ){ /* dsn_new dominates dsn_iter */
-				//	if( dsn_iter == dsn_tail ) /* update tail, if needed */
-				//		dsn_tail = dsn_tail->prev;
-				//	dstree_remove(dstree, dsn_iter);
-				//	dsnode_free(dsn_iter);
-				//}
-				if( dominance == -1 ) /* current domset dominates new */
-					promissing = 0;
-			}
-			if( promissing ) /* new is not dominated */
-				dstree_insert(dstree, dsn_new);
-			else if( dsn_new )
-				dsnode_free(dsn_new);
-		}
-	}
-
-	/* extracting solution from best node */
-	mkpsol = dsnode_get_mkpsol(dstree, dstree->best);
-
-	/* free */
-	dstree_free(dstree);
-
-	return mkpsol;
+    /* for each existing domset (need couting because tail will grow) */
+    printf("index: %d\n", idx);
+    for( j = 0 ; j < n_nodes; j++ ){
+        new = dsnode_new(father, idx);
+        if( new ){
+            /* check dominant existance */
+            if( lbucket ) dominant = lbucket_exists_dominator(lbucket, new);
+            else dominant = dstree_exists_dominance(dstree, new);
+            if( dominant ){
+                dsnode_free(new);
+            }else{
+                dstree_insert(dstree, new);
+                if( lbucket )
+                    lbucket_insert_dsnode(lbucket, new);
+            }
+        }
+        /* next node */
+        father = father ->next;
+    }
+    return dstree;
 }
 
-MKPSol *mkp_fast_domsets_enum_lbucket(MKP *mkp, int ndim, int nsub, char type){
-	DomSetTree *dstree;
-	DomSetNode *dsnode, *dsn_tail, *dsn_new, *dsn_iter;
-	LinkedBucket *lbucket;
-	MKPSol *mkpsol;
-	int i, j, n, m, promissing;
-	mkpnum **max_b_lefts, sum;
-
-	n = mkp->n;
-	m = mkp->m;
-
-	/* initializing linked buckets */
-	max_b_lefts = lbucket_prepare_max_b_left(mkp, ndim, nsub, type);
-	lbucket = lbucket_new(max_b_lefts, nsub, ndim);
-	for( i = 0 ; i < ndim ; i++ ) /* freeing max_b_lefts */
-		free(max_b_lefts[i]);
-	free(max_b_lefts);
-
-	/* initializing domsets tree */
-	dstree = dstree_new(mkpsol);
-	lbucket_insert_dsnode(lbucket, dstree->root);
-	mkpsol_free(mkpsol);
-
-	/* ENUMERATING SOLUTIONS */
-	/* for each item... */
-	for( i = 0 ; i < n ; i++ ){
-		/* for each existent dominating set... */
-		printf("fixing %d/%d (%d, %f)\n", i+1, n, dstree->n,
-			log((float)dstree->n)/log(2));
-		fflush(stdout);
-		for( dsnode = dstree->root, dsn_tail = dstree->tail
-			; dsnode
-				?(dsnode->prev /* if has a prev node and... */
-					?dsnode->prev != dsn_tail /* ... its not the old tail. */
-					:1)
-				:0
-			; dsnode = dsnode->next)
-		{
-			/* Creating new child solution (adding item 'i') */
-			dsn_new = dsnode_new(dsnode, mkp, i); /* null, if unfeasible */
-			promissing = dsn_new ? 1 : 0;
-
-			/* checking dominance */
-			if(promissing){
-				_hitted = 0;
-				_n_comps = 0;
-				promissing = !lbucket_exists_dominator(lbucket, dsn_new);
-			}
-
-			/* Is it a promissing node? */
-			if( promissing ){
-				dstree_insert(dstree, dsn_new);
-				lbucket_insert_dsnode(lbucket, dsn_new);
-			}else if( dsn_new ){
-				dsnode_free(dsn_new);
-			}
-		}
-	}
-
-	/* extracing solution from best node */
-	mkpsol = dsnode_get_mkpsol(dstree, dstree->best);
-
-	/* printing profile */
-	//lbucket_fprintf_profile(stdout, lbucket);
-
-	/* free */
-	dstree_free(dstree);
-	lbucket_free(lbucket);
-
-	return mkpsol;
-}

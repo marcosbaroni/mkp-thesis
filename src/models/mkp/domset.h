@@ -25,6 +25,7 @@ int dsnode_dominates(DomSetNode *dsn1, DomSetNode *dsn2);   /* If dsn1 dominates
 DomSetNode *dsnode_new(DomSetNode* father, int idx);
 void dsnode_fprintf(FILE *fout, DomSetNode *dsnode);
 MKPSol *dsnode_get_mkpsol(DomSetNode *dsnode);
+void dsnode_free(DomSetNode *dsnode);
 
 /******************************************************************************
  * Tree structure, holding all openned nodes on the enumeration procedure.

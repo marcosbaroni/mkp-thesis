@@ -19,7 +19,7 @@ int print_usage(int argc, char **argv){
 	fprintf(out, "      1 - Nemhauser-Ullman plain (only cutting unfeaseble)\n");
 	fprintf(out, "      2 - Nemhauser-Ullman with linked buckets\n");
 	fprintf(out, "      3 - Balev plain\n");
-	fprintf(out, "      4 - Balev suing linked buckets\n");
+	fprintf(out, "      4 - Balev using linked buckets\n");
 	fprintf(out, "\n");
 	fprintf(out, "   Program outputs \"<n. of dom. subsets>;<profit of solution>\"\n");
 
@@ -66,7 +66,7 @@ int execute_nemullman(int argc, char **argv){
 	return 0;
 }
 
-int execute_balev(int argc, char **argv){
+int execute_balev(int argc, char **argv, int use_lb){
 	MKP *mkp;           /* the problem */
 	MKP *mkp2;          /* the reduced problem */
     MKPSol *mkpsol;     /* feasible solution given */
@@ -97,7 +97,7 @@ int execute_balev(int argc, char **argv){
 
 	/* enumerate sets */
 	c0 = clock();
-    mkp_balev(mkpsol);
+    mkp_balev(mkpsol, use_lb);
 	cf = clock();
 
 	/* frees */
@@ -117,8 +117,8 @@ int main(int argc, char **argv){
     switch( alg ){
 	    case 1: return execute_nemullman(argc, argv); break;
         case 2: fprintf(stderr, "Not implemented yet.\n"); break;
-	    case 3: return execute_balev(argc, argv); break;
-        case 4: fprintf(stderr, "Not implemented yet.\n"); break;
+	    case 3: return execute_balev(argc, argv, 0); break;
+	    case 4: return execute_balev(argc, argv, 1); break;
     }
     return 0;
 }
