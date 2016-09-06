@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 #include <math.h>
+
 #include "balev.h"
 #include "mkp.h"
 #include "domset.h"
@@ -70,7 +72,6 @@ MKPSol *balev_enum(MKPSol *mkpsol, int *idxs, int k, LinkedBucket *lbucket){
     /* executing nemhauser-Ullman */
     dstree = dstree_new(mkpsol->mkp);
     for( i = 0 ; i < k ; i++ ){
-        printf(" iter %d / %d\n", i, k);
         dstree = lbucket_dstree_dynprog(dstree, idxs[i], lbucket);
     }
 
@@ -113,6 +114,7 @@ void mkp_balev(MKPSol *mkpsol, int use_lbucket){
     MKPSol *best_from_enum;
     LinkedBucket *lbucket;
 	mkpnum **max_b_lefts, sum;
+	clock_t c0, cf;
 
     int i, n, m, k;
     int *ord;
@@ -124,7 +126,7 @@ void mkp_balev(MKPSol *mkpsol, int use_lbucket){
     m = mkpsol->mkp->m;
     /* linked bucket setup*/
     lbucket = NULL;
-    ndim = 2;
+    ndim = 3;
     nsub = 10;
     type = 'l';
 
@@ -144,14 +146,21 @@ void mkp_balev(MKPSol *mkpsol, int use_lbucket){
 
     /* execute enumeration */
     k = 18 - floor(log2(m+2));
+    k = k+2;
     if( k > (int)(n*0.6) ) k = (int)(n*0.76); /* FIXME: k cant be > n */
+    printf("%d;%d;%d;", mkpsol->mkp->n, mkpsol->mkp->m, k);
+	c0 = clock();
     best_from_enum = balev_enum(mkpsol, ord, k, lbucket);
+	cf = clock();
+	//printf("Time for enum: %.3lf\n", ((cf-c0)*1./CLOCKS_PER_SEC));
+	printf("%.3lf;", ((cf-c0)*1./CLOCKS_PER_SEC));
 
     /* print solution */
-    printf("Solution given:\n");
-    mkpsol_fprint(stdout, mkpsol, 0);
-    printf("Solution found:\n");
-    if( best_from_enum ) mkpsol_fprint(stdout, best_from_enum, 0);
+    //printf("Solution given:");
+    //mkpnum_fprintf(stdout, mkpsol->obj); printf("\n");
+    mkpnum_fprintf(stdout, mkpsol->obj); printf(";");
+    //printf("Solution found:");
+    if( best_from_enum ){ mkpnum_fprintf(stdout, best_from_enum->obj); printf("\n"); }
     else printf("<none>\n");
 
     /* free memory */

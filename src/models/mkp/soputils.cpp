@@ -16,7 +16,8 @@ double mkp_get_lp_ub(double *p, double **w, double *b, int n, int m, int *fixing
 
     /* maximixation problem */
 	mysoplex.setIntParam(SoPlex::OBJSENSE, SoPlex::OBJSENSE_MAXIMIZE);
-	mysoplex.setIntParam(SoPlex::VERBOSITY, SoPlex::VERBOSITY_DEBUG);
+	//mysoplex.setIntParam(SoPlex::VERBOSITY, SoPlex::VERBOSITY_DEBUG);
+	mysoplex.setIntParam(SoPlex::VERBOSITY, SoPlex::VERBOSITY_ERROR);
 	DSVector dummycol(0);
 
 	/* variables */

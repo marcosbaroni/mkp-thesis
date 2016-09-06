@@ -235,7 +235,6 @@ DomSetTree *lbucket_dstree_dynprog(DomSetTree *dstree, int idx, LinkedBucket *lb
     father = dstree->root;
 
     /* for each existing domset (need couting because tail will grow) */
-    printf("index: %d\n", idx);
     for( j = 0 ; j < n_nodes; j++ ){
         new = dsnode_new(father, idx);
         if( new ){

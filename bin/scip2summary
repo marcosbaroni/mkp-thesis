@@ -15,7 +15,7 @@ do
 	ob=$ob`echo $aux | grep "Primal Bound"|sed 's/\ \+/\ /g'|cut -d ' ' -f 4`
 	gp=$gp`echo $aux | grep "Gap"| sed 's/ //g' | cut -d ':' -f 2| sed 's/%//g'|head -1`
 	tm=$tm`echo $aux | grep "Solving Time (sec)"| sed 's/ //g'|cut -d ':' -f 2`
-	sl=$sl`echo $aux | grep "x#"| sed 's/[\t\ ]\+/ /g'|cut -d ' ' -f 1,2`
+	sl=$sl`echo $aux | grep "x#"| sed 's/[\t\ ]\+/ /g'|cut -d ' ' -f 1`
 done
 sl=`echo $sl|sed 's/x#//'| sed 's/x#/\\\\n/g'`
 # convert from scientific notation
