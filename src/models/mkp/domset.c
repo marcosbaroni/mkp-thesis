@@ -43,6 +43,8 @@ int dsnode_cmp(DomSetNode *dsn1, DomSetNode *dsn2){
 int dsnode_dominates(DomSetNode *dsn1, DomSetNode *dsn2){
 	int i, m;
 
+    dsn1->tree->n_comparison++;
+
 	m = dsn1->tree->mkp->m;  /* FIXME: check performance impact */
 
 	/* dsn1 dominates dsn2 ? */
@@ -178,6 +180,9 @@ DomSetTree *dstree_init(
 	dstree->root = root;
 	dstree->best = root;
 	dstree->tail = root;
+
+    /* performance info */
+    dstree->n_comparison = 0ULL;
 
 	return dstree;
 }

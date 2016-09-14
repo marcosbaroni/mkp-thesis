@@ -45,12 +45,12 @@ mkpnum **lbucket_prepare_max_b_left(MKP *mkp, int ndim, int nsub, char type){
 }
 
 /*
- * limitss[i]: the points on i-th dimension the space is segmented.
+ * max_b_lefts[i]: the points on i-th dimension the space is segmented.
  * dims: number of indexed dimensions
  * nsub: number of subbuckets (or arrays)
  */
 LinkedBucket *lbucket_new(
-	mkpnum **max_b_lefts, int nsub, int dims)
+	mkpnum **max_b_lefts, int nsub, int ndims)
 {
 	/* final container */
 	LinkedBucket *lbucket;
@@ -60,25 +60,23 @@ LinkedBucket *lbucket_new(
 	lbucket->n_dsnodes = 0;
 	lbucket->_total_hits = 0;
 	lbucket->_total_compares = 0;
-	lbucket->dim = dims-1;
+	lbucket->dim = ndims-1;
 	lbucket->minProfit = LLONG_MAX;
 	lbucket->maxProfit = 0;
-	lbucket->max_b_left = mkpnum_array_copy(NULL, max_b_lefts[dims-1], nsub);
+	lbucket->max_b_left = mkpnum_array_copy(NULL, max_b_lefts[ndims-1], nsub);
 	lbucket->nsub = nsub;
 
 	/* final bucket, holding a set of solutions (dsnodes) */
 	if( !lbucket->dim ){
-		/* allocing arrays for holding dsnodes */
 		lbucket->dsnodes = (Array**)malloc(nsub*sizeof(Array*));
-		for( i = 0 ; i < nsub ; i++ ){
+		for( i = 0 ; i < nsub ; i++ )
 			lbucket->dsnodes[i] = array_new();
-		}
 	}else{
 		/* creating sub buckets */
 		lbucket->sub_buckets = (LinkedBucket**)malloc(nsub*sizeof(LinkedBucket*));
 		for( i = 0 ; i < nsub ; i++ )
 			lbucket->sub_buckets[i] = lbucket_new(
-				max_b_lefts, nsub, dims-1);
+				max_b_lefts, nsub, ndims-1);
 	}
 	return lbucket;
 }
@@ -114,9 +112,10 @@ void lbucket_insert_dsnode(LinkedBucket *lbucket, DomSetNode *dsnode){
 }
 
 DomSetNode *lbucket_exists_dominator(LinkedBucket *lbucket, DomSetNode *dsnode){
-	int i, j, n, nsub, dim;
+	int i, j, n, nsub, dim, _hitted;
 	mkpnum b_left, *max_b_left;
 	Array *a;
+    unsigned long long _n_comps;
 
 	dim = lbucket->dim;
 	max_b_left = lbucket->max_b_left;
@@ -138,6 +137,8 @@ DomSetNode *lbucket_exists_dominator(LinkedBucket *lbucket, DomSetNode *dsnode){
 	while( max_b_left[i] < b_left )
 		i++;
 
+    _n_comps = 0;
+    _hitted = 0;
 	if( dim ){
 		/* sub buckets case */
 		for( ; i < nsub ; i++ )
@@ -158,6 +159,7 @@ DomSetNode *lbucket_exists_dominator(LinkedBucket *lbucket, DomSetNode *dsnode){
 	if(_hitted){
 		lbucket->_total_hits++;
 		lbucket->_total_compares += _n_comps;
+        fflush(stdout);
 	}
 	return NULL;
 }
@@ -183,38 +185,64 @@ void lbucket_free(LinkedBucket *lbucket){
 }
 
 /*
- * Prints some information about
+ * Print the configuration and size of the linked bucket
+ */
+void lbucket_fprintf(FILE *out, LinkedBucket *lbucket){
+    int nsub, ndims;
+    int i, j;
+
+    nsub = lbucket->nsub;
+    for( i = 0 ; i < nsub ; i++ ){
+    }
+
+    return;
+}
+
+/*
+ * Prints some performance information about the linekd bucket.
  */
 void lbucket_fprintf_profile(FILE *out, LinkedBucket *lbucket){
-	int count, i, j, tot, dim, nsub;
-	int idxs[100];
+	int i, j, tot, dim, nsub;
+    int idx_zero;
+	int idxs[20];
 	LinkedBucket *buk;
+    unsigned long long g_total_comp;
 
-	/* initialization */
-	dim = lbucket->dim; /* should be "->dim+1", but array has no profile yet */
+	/* variables initialization */
+    g_total_comp = 0;
+	dim = lbucket->dim;
 	nsub = lbucket->nsub;
-	tot = ipow(nsub, dim);
-	for( i = 0 ; i < dim ; i++ )
+	tot = ipow(nsub, dim+1);      // total number of lbuckets
+	for( i = 0 ; i <= dim ; i++ ) // setting the indexs in first position
 		idxs[i] = 0;
 
-	for( count = 0 ; count < tot ; count++ ){
-		/* outputs */
-		buk = lbucket;
-		for( j = 0 ; j < dim ; j++ ){
-			buk = buk->sub_buckets[idxs[j]];
-			fprintf(out, "%d;", idxs[j]);
-		}
-		fprintf(out, "%d;%d\n", buk->_total_hits, buk->_total_compares);
+    fprintf(out, "- PROFILING:\n(index);<max b_left>;<tot hits>;<tot compares>\n");
+    fprintf(out, " - total buckets: %d\n", tot);
+    fprintf(out, " - total dsnodes: %d\n", lbucket->n_dsnodes);
 
-		/* update line */
-		i = dim-1;
-		idxs[i]++;
-		while( idxs[i] == nsub ){
-			idxs[i] = 0;
-			i--;
-			idxs[i]++;
-		}
-	}
+    /* nonrecursive navegation throughout all lbuckets
+     *   index [0,0,...,0] is first
+     */
+    idx_zero = 0;
+    do{
+        /* printing the index */
+        int_array_fprint(out, idxs, dim+1);
+        /* locating the current Array<dsnode> */
+        buk = lbucket;
+        for( i = 0 ; i < dim ; i++ )
+            buk = buk->sub_buckets[idxs[i]];
+        fprintf(out, ":%d\n", array_get_size(buk->dsnodes[idxs[dim]]));
+
+        /* update indexs (set next) */
+        i = dim;
+        idxs[i]++;
+        while( idxs[i] == nsub ){
+            idxs[i] = 0;
+            i--;
+            if( i >= 0 )
+                idxs[i]++;
+        }
+    }while( i >= 0 );
 
 	return;
 }

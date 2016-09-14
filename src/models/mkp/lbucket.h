@@ -8,16 +8,18 @@
 #include "domset.h"
 
 /* PROFILING VARIABLES */
-int _hitted;                    /* total times which a new node had to be compared with existant solution*/
-int _n_comps;                   /* total number of comparison between solutions */
 
-/* TODO: implementar container final para guardar as soluções. Testar:
+/*
+ * Each bucket records its range of profit (minProft - maxProfit) which can be used
+ *    to decide if the dsnode has no dominator (if maxProfit < dsnode->profit).
+ *
+ * TODO: implementar container final para guardar as soluções. Testar:
  *       - Binary Tree
  *       - List */
 typedef struct LinkedBucket{
-	int n_dsnodes;				    /* total number of items (solution) it holds */
-	int _total_hits;			    /* performance analysis */
-	int _total_compares;		    /* performance analysis */
+    int n_dsnodes;				    /* total number of items (solution) it holds */
+    unsigned long long _total_hits;			/* number of times the bucket is "hitted" (performance analysis) */
+	unsigned long long _total_compares;		/* number of total node comparison (performance analysis) */
 	int dim;		    		    /* the dimension it considers */
 	mkpnum *max_b_left;			    /* increasing order (last is LLONG_MAX) */
 	mkpnum minProfit, maxProfit;	/* min/max profit of solutions on the bucket */
@@ -30,6 +32,7 @@ typedef struct LinkedBucket{
 
 LinkedBucket *lbucket_new(mkpnum **max_b_lefts, int nsub, int dims);
 mkpnum **lbucket_prepare_max_b_left(MKP *mkp, int ndim, int nsub, char type);
+void lbucket_fprintf_profile(FILE *out, LinkedBucket *lbucket);
 void lbucket_insert_dsnode(LinkedBucket *lbucket, DomSetNode *dsnode);
 void lbucket_free(LinkedBucket *lbucket);
 //MKPSol *mkp_fast_domsets_enum(MKP *mkp);

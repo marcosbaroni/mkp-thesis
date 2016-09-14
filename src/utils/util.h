@@ -162,8 +162,8 @@ void gzip(FILE *in, FILE *out);
 void gunzip(FILE *in, FILE *out);
 
 /* MISCELANIOUS */
-FILE *debugout;
-void setdebug(char lvl);
+int debug_lvl;
+void setdebug_lvl(char lvl);
 void unimplemented();
 void error(const char* format, ...);
 void assert_faccess(char *filename, int mode);

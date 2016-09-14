@@ -2,12 +2,13 @@
 CC = gcc
 CFLAGS=-O3 -g
 DEST=../bin
+DEBUG_FLAG=-DDEBUG_LVL=1
 SOPLEX=-lsoplex -lz -lgmp -lm
 
 all: mkp
 mkp: mkp-nu mkp-rand mkp2zpl
 mkp-nu: util.o mkp.o domset.o lp.o soputils.o mkp-nu.o balev.o lbucket.o
-	g++ $(CFLAGS) -o mkp-nu mkp-nu.o util.o lp.o mkp.o balev.o domset.o soputils.o lbucket.o -lm $(SOPLEX)
+	g++ $(CFLAGS) -o mkp-nu mkp-nu.o util.o lp.o mkp.o balev.o domset.o soputils.o lbucket.o -lm $(SOPLEX) $(DEBUG_FLAG)
 	mv mkp-nu $(DEST)
 mkp-rand: mkp.o util.o lp.o
 	gcc $(CFLAGS) -o mkp-rand tools/mkp-rand.c mkp.o util.o lp.o -lm

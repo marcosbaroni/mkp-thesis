@@ -12,7 +12,7 @@ int print_usage(int argc, char **argv){
 	FILE *out;
 
 	out = stdout;
-	fprintf(out, " usage: %s [alg] [input file]\n", argv[0]);
+	fprintf(out, " usage: %s [alg] [input file] <solution file>\n", argv[0]);
 	fprintf(out, " Nemhauser-Ullman Algorithm for MKP.\n");
 	fprintf(out, "   input file: a MKP instance. If '-' is given, instance is read from stdin.\n");
 	fprintf(out, "   alg: the algorithm which should be used.\n");
@@ -66,6 +66,9 @@ int execute_nemullman(int argc, char **argv){
 	return 0;
 }
 
+/*
+ * use_lb: Use LinkedBuckets
+ */
 int execute_balev(int argc, char **argv, int use_lb){
 	MKP *mkp;           /* the problem */
 	MKP *mkp2;          /* the reduced problem */
@@ -93,7 +96,11 @@ int execute_balev(int argc, char **argv, int use_lb){
     if( input != stdin )
 	    fclose(input);
 
-    mkpsol = mkpsol_read_from_file(stdin, mkp);
+    /* reading first solution given pro enumeration method */
+    if( argc > 3 )
+        mkpsol = mkpsol_read_from_filename(argv[3], mkp);
+    else
+        mkpsol = mkpsol_read_from_file(stdin, mkp);
 
 	/* enumerate sets */
 	c0 = clock();
@@ -114,11 +121,18 @@ int main(int argc, char **argv){
     }
     alg = atol(argv[1]);
 
+#ifndef DEBUG_LVL
+    setdebug_lvl(0);
+#else
+    setdebug_lvl(DEBUG_LVL);
+#endif
+
     switch( alg ){
 	    case 1: return execute_nemullman(argc, argv); break;
         case 2: fprintf(stderr, "Not implemented yet.\n"); break;
 	    case 3: return execute_balev(argc, argv, 0); break;
 	    case 4: return execute_balev(argc, argv, 1); break;
+        default: print_usage(argc, argv); break;
     }
     return 0;
 }

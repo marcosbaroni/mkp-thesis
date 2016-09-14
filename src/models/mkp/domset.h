@@ -39,6 +39,9 @@ typedef struct DomSetTree{
 	DomSetNode *root;	        /* the iinitial solution node */
 	DomSetNode *best;	        /* the current best solution node */
 	DomSetNode *tail;	        /* last added node (for append operation) */
+    
+    /* PERFORMANCE ANALISYS INFO */
+    unsigned long long n_comparison;
 }DomSetTree;
 
 DomSetTree *dstree_new(MKP *mkp); /* creates a new empty tree */

@@ -1256,9 +1256,8 @@ void gzip(FILE *f_in, FILE *f_out){
 	return;
 }
 
-void setdebug(char lvl){
-	if(lvl) debugout = stdout;
-	else debugout = fopen("/dev/null", "w");
+void setdebug_lvl(char lvl){
+    debug_lvl = lvl;
 }
 
 void unimplemented(){
@@ -1294,8 +1293,10 @@ void myassert(int express){
 }
 
 void debug(char *msg){
-	fprintf(debugout, "%s", msg);
-	fflush(debugout);
+    if( debug_lvl ){
+        fprintf(stdout, "%s", msg);
+        fflush(stdout);
+    }
 	return;
 }
 

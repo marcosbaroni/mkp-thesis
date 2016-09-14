@@ -41,9 +41,8 @@ mkpnum *compute_opposite_uppers(MKPSol *mkpsol){
 /*
  * k: max number of iteration (items inserted)
  */
-MKPSol *balev_enum(MKPSol *mkpsol, int *idxs, int k, LinkedBucket *lbucket){
+MKPSol *balev_enum(MKPSol *mkpsol, int *idxs, int k, LinkedBucket *lbucket, DomSetTree *dstree){
     MKP *mkp;
-    DomSetTree *dstree;
     DomSetNode *dsnode;
     DomSetNode *best_node;
     MKPSol *mkpsol_new;
@@ -70,14 +69,11 @@ MKPSol *balev_enum(MKPSol *mkpsol, int *idxs, int k, LinkedBucket *lbucket){
     }
 
     /* executing nemhauser-Ullman */
-    dstree = dstree_new(mkpsol->mkp);
-    for( i = 0 ; i < k ; i++ ){
+    for( i = 0 ; i < k ; i++ )
         dstree = lbucket_dstree_dynprog(dstree, idxs[i], lbucket);
-    }
-
-    best_node = NULL;
 
     /* finding best "half-feasible" node */
+    best_node = NULL;
     n_nodes = dstree->n;
     dsnode = dstree->root;
     for( i = 0 ; i < n_nodes ; i++ ){
@@ -102,9 +98,6 @@ MKPSol *balev_enum(MKPSol *mkpsol, int *idxs, int k, LinkedBucket *lbucket){
     }
 
     free(b_left_k);
-    dstree_free(dstree);
-    if(lbucket)
-        lbucket_free(lbucket);
 
     return mkpsol_new;
 }
@@ -113,20 +106,21 @@ void mkp_balev(MKPSol *mkpsol, int use_lbucket){
     mkpnum *uppers;
     MKPSol *best_from_enum;
     LinkedBucket *lbucket;
+    DomSetTree *dstree;
 	mkpnum **max_b_lefts, sum;
 	clock_t c0, cf;
 
     int i, n, m, k;
     int *ord;
 
-    int ndim, nsub; // for linked bucket
+    int ndims, nsub; // for linked bucket
     char type;
 
     n = mkpsol->mkp->n;
     m = mkpsol->mkp->m;
     /* linked bucket setup*/
     lbucket = NULL;
-    ndim = 3;
+    ndims = 2; /* minimun is 1 */
     nsub = 10;
     type = 'l';
 
@@ -137,10 +131,10 @@ void mkp_balev(MKPSol *mkpsol, int use_lbucket){
         uppers[i] = floor(uppers[i]);
 
     /* Prepare Linked Buckets */
-	max_b_lefts = lbucket_prepare_max_b_left(mkpsol->mkp, ndim, nsub, type);
+	max_b_lefts = lbucket_prepare_max_b_left(mkpsol->mkp, ndims, nsub, type);
     if( use_lbucket )
-	    lbucket = lbucket_new(max_b_lefts, nsub, ndim);
-	for( i = 0 ; i < ndim ; i++ ) /* freeing max_b_lefts */
+	    lbucket = lbucket_new(max_b_lefts, nsub, ndims);
+	for( i = 0 ; i < ndims ; i++ ) /* freeing max_b_lefts */
 		free(max_b_lefts[i]);
 	free(max_b_lefts);
 
@@ -148,26 +142,28 @@ void mkp_balev(MKPSol *mkpsol, int use_lbucket){
     k = 18 - floor(log2(m+2));
     k = k+2;
     if( k > (int)(n*0.6) ) k = (int)(n*0.76); /* FIXME: k cant be > n */
-    printf("%d;%d;%d;", mkpsol->mkp->n, mkpsol->mkp->m, k);
+    dstree = dstree_new(mkpsol->mkp);
 	c0 = clock();
-    best_from_enum = balev_enum(mkpsol, ord, k, lbucket);
+    best_from_enum = balev_enum(mkpsol, ord, k, lbucket, dstree);
 	cf = clock();
-	//printf("Time for enum: %.3lf\n", ((cf-c0)*1./CLOCKS_PER_SEC));
-	printf("%.3lf;", ((cf-c0)*1./CLOCKS_PER_SEC));
 
-    /* print solution */
-    //printf("Solution given:");
-    //mkpnum_fprintf(stdout, mkpsol->obj); printf("\n");
-    mkpnum_fprintf(stdout, mkpsol->obj); printf(";");
-    //printf("Solution found:");
-    if( best_from_enum ){ mkpnum_fprintf(stdout, best_from_enum->obj); printf("\n"); }
-    else printf("<none>\n");
+    /* printing results */
+    printf("%d;%d;%d;%.3lf\n",
+        mkpsol->mkp->n,
+        mkpsol->mkp->m,
+        k,
+        ((cf-c0)*1./CLOCKS_PER_SEC)
+        );
 
     /* free memory */
     if(best_from_enum)
         free(best_from_enum);
     free(ord);
     free(uppers);
+    //lbucket_fprintf_profile(stdout, lbucket);
+    dstree_free(dstree);
+    if(lbucket)
+        lbucket_free(lbucket);
 
     return;
 }

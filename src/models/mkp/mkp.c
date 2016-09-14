@@ -1032,10 +1032,6 @@ double _do_right_search(MKP *mkp, int *assigned, int *var){
 		x = lp_simplex(lp, NULL);
 		lp_free(lp);
 
-		fprintf(debugout, "scale is %.3f ", scale+tic);
-		double_array_fprint(debugout, x, n);
-		fprintf(debugout, "\n");
-
 		lesser_val = 1.0;
 		n_fracs_found = n_ones_found = n_ones = 0;
 		/* counting n_fracs_found not assigned */
@@ -1104,10 +1100,6 @@ double _do_left_search(MKP *mkp, int *assigned, int *var){
 		x = lp_simplex(lp, NULL);
 		lp_free(lp);
 
-		fprintf(debugout, "scale is %.3f ", scale-tic);
-		double_array_fprint(debugout, x, n);
-		fprintf(debugout, "\n");
-
 		greater_val = 0.0;
 		n_fracs_found = n_zeros_found = n_zeros = 0;
 		/* counting n_fracs_found not assigned */
@@ -1133,8 +1125,6 @@ double _do_left_search(MKP *mkp, int *assigned, int *var){
 	/* while: no frac was found
 	 *   AND some non-zero variable turned zero
 	 *   AND problem is not 'unfeasible' yet */
-	fprintf(debugout, "n_frac_found=%d, n_zeros_found=%d, n_std_zeros=%d, n_zeros=%d\n",
-		n_fracs_found, n_zeros_found, n_std_zeros, n_zeros);
 	/* FIXME: check while expression */
 	}while( !n_fracs_found && (n_zeros < n) );
 
@@ -1163,9 +1153,6 @@ double *mkp_my_core_vals2(MKP *mkp){
 	lp = mkp2lp(mkp, 1.0);
 	x = lp_simplex(lp, NULL);
 	lp_free(lp);
-
-	double_array_fprint(stdout, x, n);
-	fprintf(debugout, "\n");
 
 	/* assigning fracs */
 	do{
@@ -1197,23 +1184,17 @@ double *mkp_my_core_vals2(MKP *mkp){
 	
 	r_scale = l_scale = 1.0;
 	r_scale = _do_right_search(mkp, assigned, &lesser_r_var);
-	fprintf(debugout, "first r_scale: var %d with scale=%.3f\n", lesser_r_var, r_scale);
 	l_scale = _do_left_search(mkp, assigned, &greater_l_var);
-	fprintf(debugout, "first l_scale: var %d with scale=%.3f\n", greater_l_var, l_scale);
 	while( nassigned < n ){
 		/* which side is less scalabled? */
 		if( r_scale-1.0 < 1.0-l_scale ){ /* right is less */
 			assigned[lesser_r_var] = n-nassigned;
 			nassigned++;
-			fprintf(debugout, "\n right is less scalabled with r_scale=%.3f\n", r_scale);
 			r_scale = _do_right_search(mkp, assigned, &lesser_r_var);
-			fprintf(debugout, " r_scale: var %d with scale=%.3f\n", lesser_r_var, r_scale);
 		}else{  /* left is less */
 			assigned[greater_l_var] = n+nassigned;
 			nassigned++;
-			fprintf(debugout, "\n left is less scalabled with l_scale=%.3f\n", l_scale);
 			l_scale = _do_left_search(mkp, assigned, &greater_l_var);
-			fprintf(debugout, " l_scale: var %d with scale=%.3f\n", greater_l_var, l_scale);
 		}
 		printf("-%d\n", nassigned); fflush(stdout);
 	}
