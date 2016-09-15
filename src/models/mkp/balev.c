@@ -148,16 +148,15 @@ void mkp_balev(MKPSol *mkpsol, int use_lbucket){
 	cf = clock();
 
     /* printing results */
-    printf("%d;%d;%d;%.3lf\n",
-        mkpsol->mkp->n,
-        mkpsol->mkp->m,
+    printf("%d;%.3lf;%d\n",
         k,
-        ((cf-c0)*1./CLOCKS_PER_SEC)
+        ((cf-c0)*1./CLOCKS_PER_SEC),
+        dstree->n
         );
 
     /* free memory */
     if(best_from_enum)
-        free(best_from_enum);
+        mkpsol_free(best_from_enum);
     free(ord);
     free(uppers);
     //lbucket_fprintf_profile(stdout, lbucket);
