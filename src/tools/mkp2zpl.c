@@ -13,6 +13,7 @@ void print_usage(int argc, char **argv){
 	fprintf(out, " INPUT: a MKP instance file.\n\tIf \"-\" is given, instance is read from stdin.\n");
 	fprintf(out, " OPTIONS:\n");
 	fprintf(out, " \t-l: convert to LP relaxation.\n");
+	fprintf(out, " \t-d: convert to LP relaxation for dual problem.\n");
 	fprintf(out, " \t-s <ratio>: scale capacities of original problem.\n");
 	fprintf(out, " \t-m <opt>: max objective function allowed.\n");
 
@@ -24,9 +25,11 @@ int main(int argc, char **argv){
 	FILE *input;
 	int i;
 	char linear;
+    char dual;
 	double scale, max_opt;
 
 	linear = 0;
+    dual = 0;
 	scale = 1.0;
 	input = stdin;
 	max_opt = 1.e100;
@@ -39,6 +42,7 @@ int main(int argc, char **argv){
 		if(argv[i][0] == '-'){
 			switch(argv[i][1]){
 				case 'l': linear = 1; break;
+				case 'd': linear = 1; dual = 1; break;
 				case 's': scale = atof(argv[++i]); break;
 				case 'm': max_opt = atof(argv[++i]); break;
 				case '\0': input = stdin; i = argc; break;
@@ -51,7 +55,11 @@ int main(int argc, char **argv){
 	}
 
 	mkp = mkp_read_from_file(input);
-	mkp_to_zimpl(stdout, mkp, max_opt, scale, linear);
+    if(!dual)
+	    mkp_to_zimpl(stdout, mkp, max_opt, scale, linear);
+    else
+        mkp_dual_to_zimpl(stdout, mkp, 1);
+
 	mkp_free(mkp);
 
 	return 0;

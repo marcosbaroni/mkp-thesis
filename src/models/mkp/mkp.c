@@ -9,6 +9,7 @@
 #include "../../metahrs/des.h"
 #include "../../metahrs/sfl.h"
 #include "../../utils/lp.h"
+#include "soputils.h"
 
 /* chu beasley instance best known objectives */
 mkpnum chubeas_best[3][3][3][10] = {
@@ -449,7 +450,8 @@ double *mkp_dual_em(MKP *mkp){
 	vals = (double*)malloc(n*sizeof(double));
 
 	/* solving relaxed dual problem */
-	x = mkp_solve_dual_with_scip(mkp);
+	//x = mkp_solve_dual_with_scip(mkp);
+	x = mkp_get_dual_real(mkp->p, mkp->w, mkp->b, mkp->n, mkp->m); // using soplex
 
 	for( j = 0 ; j < n ; j++ ){
 		sum = 0.0;

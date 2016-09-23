@@ -5,6 +5,7 @@
 #include "domset.h"
 #include "mkp.h"
 #include "lbucket.h"
+#include "../../utils/util.h"
 
 #define LLONG_MAX 1000000000;
 
@@ -192,6 +193,7 @@ void lbucket_fprintf(FILE *out, LinkedBucket *lbucket){
     int i, j;
 
     nsub = lbucket->nsub;
+    ndims = lbucket->dim;
     for( i = 0 ; i < nsub ; i++ ){
     }
 
@@ -201,17 +203,22 @@ void lbucket_fprintf(FILE *out, LinkedBucket *lbucket){
 /*
  * Prints some performance information about the linekd bucket.
  */
-void lbucket_fprintf_profile(FILE *out, LinkedBucket *lbucket){
+void lbucket_fprintf_profile(FILE *out, LinkedBucket *lbucket, MKP *mkp){
 	int i, j, tot, dim, nsub;
+    int n, m;
     int idx_zero;
 	int idxs[20];
 	LinkedBucket *buk;
     unsigned long long g_total_comp;
+    Array *array;
+    DomSetNode *dsnode;
 
 	/* variables initialization */
     g_total_comp = 0;
 	dim = lbucket->dim;
 	nsub = lbucket->nsub;
+    n = mkp->n;
+    m = mkp->m;
 	tot = ipow(nsub, dim+1);      // total number of lbuckets
 	for( i = 0 ; i <= dim ; i++ ) // setting the indexs in first position
 		idxs[i] = 0;
@@ -231,7 +238,21 @@ void lbucket_fprintf_profile(FILE *out, LinkedBucket *lbucket){
         buk = lbucket;
         for( i = 0 ; i < dim ; i++ )
             buk = buk->sub_buckets[idxs[i]];
-        fprintf(out, ":%d\n", array_get_size(buk->dsnodes[idxs[dim]]));
+        fprintf(out, ":%d [", array_get_size(buk->dsnodes[idxs[dim]]));
+        for( i = 0 ; i < dim+1 ; i++ ){
+            mkpnum_fprintf(stdout, lbucket->max_b_left[idxs[i]]);
+            printf(" ");
+        }
+        printf("]\n");
+        array = buk->dsnodes[idxs[dim]];
+        array_bubble_sort(array, (int (*)(void *, void *))dsnode_cmp);
+        for( j = 0 ; j < array_get_size(array) ; j++ ){
+            dsnode = (DomSetNode*)array_get(array, j);
+            printf("  %d: (", j+1);
+            mkpnum_fprintf(stdout, dsnode->profit);
+            printf(") ");
+            mkpnum_array_write(stdout, dsnode->b_left, m);
+        }
 
         /* update indexs (set next) */
         i = dim;

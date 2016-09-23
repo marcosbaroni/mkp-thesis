@@ -129,6 +129,7 @@ int array_get_size(Array *array);
 void *array_get_array(Array *array);
 void *array_get(Array *array, int i);
 void array_apply(Array *array, void(apl_f)(void*));
+void array_bubble_sort(Array *array, int(*compar)(void *, void *));
 void array_sort(Array *array, int(*compar)(void *, void *));
 void array_sort_r(Array *array, int(*compar)(void *obj1, void *obj2, void *cmp_arg), void *arg);
 Array *array_insert(Array *array, void *elem);

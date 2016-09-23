@@ -8,6 +8,54 @@ using namespace std;
 extern "C" {
 #endif
 
+double *mkp_get_dual_real(double *p, double **w, double *b, int n, int m){
+	SoPlex mysoplex;
+    double profit;
+    double obj;
+    double *dual_sol;
+    int i, j;
+
+    dual_sol = (double*)malloc(m*sizeof(double));
+
+    /* maximixation problem */
+	mysoplex.setIntParam(SoPlex::OBJSENSE, SoPlex::OBJSENSE_MAXIMIZE);
+	mysoplex.setIntParam(SoPlex::VERBOSITY, SoPlex::VERBOSITY_ERROR);
+	DSVector dummycol(0);
+
+	/* variables */
+    for( i = 0 ; i < n ; i++ ){
+        profit = p[i];
+        mysoplex.addColReal(LPCol(profit, dummycol, 1, 0));
+    }
+
+	/* constraints */
+    for( j = 0 ; j < m ; j++ ){
+	    DSVector row(n);
+        for( i = 0 ; i < n ; i++ )
+            row.add(i, w[j][i]);
+	    mysoplex.addRowReal(LPRow(-infinity, row, b[j]));
+    }
+
+    /* dump LP file */
+	//mysoplex.writeFileReal("/tmp/dump.lp", NULL, NULL, NULL);
+	SPxSolver::Status stat;
+	stat = mysoplex.solve();
+
+	DVector prim(n);
+	DVector dual(m);
+	if( stat == SPxSolver::OPTIMAL ){
+		mysoplex.getPrimalReal(prim);
+		mysoplex.getDualReal(dual);
+		obj = mysoplex.objValueReal();
+	}
+
+    for( j = 0 ; j < m ; j++ ){
+        dual_sol[j] = dual[j];
+    }
+
+    return dual_sol;
+}
+
 double mkp_get_lp_ub(double *p, double **w, double *b, int n, int m, int *fixing){ /* LP upper bound*/
 	SoPlex mysoplex;
     double profit;
@@ -48,10 +96,10 @@ double mkp_get_lp_ub(double *p, double **w, double *b, int n, int m, int *fixing
 	stat = mysoplex.solve();
 
 	DVector prim(n);
-	//DVector dual(m);
+	DVector dual(m);
 	if( stat == SPxSolver::OPTIMAL ){
 		mysoplex.getPrimalReal(prim);
-		//mysoplex.getDualReal(dual);
+		mysoplex.getDualReal(dual);
 		obj = mysoplex.objValueReal();
 	}
 

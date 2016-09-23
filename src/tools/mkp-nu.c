@@ -16,10 +16,11 @@ int print_usage(int argc, char **argv){
 	fprintf(out, " Nemhauser-Ullman Algorithm for MKP.\n");
 	fprintf(out, "   input file: a MKP instance. If '-' is given, instance is read from stdin.\n");
 	fprintf(out, "   alg: the algorithm which should be used.\n");
+	fprintf(out, "   solution: the initial solution. If none is given, greedy one is used.\n");
 	fprintf(out, "      1 - Nemhauser-Ullman plain (only cutting unfeaseble)\n");
 	fprintf(out, "      2 - Nemhauser-Ullman with linked buckets\n");
-	fprintf(out, "      3 - Balev plain\n");
-	fprintf(out, "      4 - Balev using linked buckets\n");
+	fprintf(out, "      3 - Balev plain (output: \"k;time;tree size;n comparison;init obj;final obj;\")\n");
+	fprintf(out, "      4 - Balev using linked buckets (output: \"k;time;tree size;n comparison;init obj;final obj;\")\n");
 	fprintf(out, "\n");
 	fprintf(out, "   Program outputs \"<n. of dom. subsets>;<profit of solution>\"\n");
 
@@ -99,8 +100,10 @@ int execute_balev(int argc, char **argv, int use_lb){
     /* reading first solution given pro enumeration method */
     if( argc > 3 )
         mkpsol = mkpsol_read_from_filename(argv[3], mkp);
-    else
-        mkpsol = mkpsol_read_from_file(stdin, mkp);
+    else{
+        mkpsol = mkpsol_new(mkp);
+        mkpsol = mkpsol_greedy_fill(mkpsol);
+    }
 
 	/* enumerate sets */
 	c0 = clock();
@@ -130,7 +133,9 @@ int main(int argc, char **argv){
     switch( alg ){
 	    case 1: return execute_nemullman(argc, argv); break;
         case 2: fprintf(stderr, "Not implemented yet.\n"); break;
+        // Balev without licked buckets 
 	    case 3: return execute_balev(argc, argv, 0); break;
+        // Balev with licked buckets 
 	    case 4: return execute_balev(argc, argv, 1); break;
         default: print_usage(argc, argv); break;
     }

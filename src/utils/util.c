@@ -958,6 +958,29 @@ void pointer_swap(void **ps, int a, int b){
 	p = ps[a]; ps[a] = ps[b]; ps[b] = p;
 }
 
+void array_bubble_sort(Array *array, int(*compar)(void *, void *)){
+    int i, j, imin,  n;
+    void **arr;
+    void *aux;
+
+    n = array->n;
+
+    if( array->n < 2 )
+        return;
+
+    arr = array->a;
+    for( i = 0 ; i < n-1 ; i++ ){
+        imin = i;
+        for( j = i+1 ; j < n ; j++ )
+            if( compar(arr[imin], arr[j]) > 0 )
+                imin = j;
+        aux = arr[imin];
+        arr[imin] = arr[i];
+        arr[i] = aux;
+    }
+    return;
+}
+
 void array_sort(
 	Array *array,
 	int(*compar)(void *, void *))

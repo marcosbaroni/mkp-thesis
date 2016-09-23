@@ -13,13 +13,15 @@ mkp-nu: util.o mkp.o domset.o lp.o soputils.o mkp-nu.o balev.o lbucket.o
 mkp-rand: mkp.o util.o lp.o
 	gcc $(CFLAGS) -o mkp-rand tools/mkp-rand.c mkp.o util.o lp.o -lm
 	mv mkp-rand $(DEST)
-mkp2zpl: mkp.o util.o tools/mkp2zpl.c
-	gcc $(CFLAGS) -o mkp2zpl tools/mkp2zpl.c mkp.o util.o lp.o -lm
+mkp2zpl: mkp.o util.o lp.o soputils.o mkp2zpl.o
+	g++ $(CFLAGS) -o mkp2zpl mkp2zpl.o mkp.o util.o lp.o soputils.o -lm $(SOPLEX)
 	mv mkp2zpl $(DEST)
 soputils.o:
 	g++ $(CFLAGS) -c models/mkp/soputils.cpp $(SOPLEX)
 mkp-nu.o:
 	gcc $(CFLAGS) -c tools/mkp-nu.c
+mkp2zpl.o:
+	gcc $(CFLAGS) -c tools/mkp2zpl.c
 
 mkp-fast-nu: util.o mkp.o lp.o domset.o
 	gcc $(CFLAGS) -o mkp-fast-nu tools/mkp-fast-nu.c util.o mkp.o lp.o domset.o -lm

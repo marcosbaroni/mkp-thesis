@@ -22,7 +22,7 @@ typedef struct LinkedBucket{
 	unsigned long long _total_compares;		/* number of total node comparison (performance analysis) */
 	int dim;		    		    /* the dimension it considers */
 	mkpnum *max_b_left;			    /* increasing order (last is LLONG_MAX) */
-	mkpnum minProfit, maxProfit;	/* min/max profit of solutions on the bucket */
+	mkpnum minProfit, maxProfit;	/* min/max profit of solutions on the bucket (for statistics and shortcuts) */
 	int nsub;				        /* number of sub buckets */
 	union{
 		struct LinkedBucket **sub_buckets; /* array of buckets */
@@ -32,7 +32,7 @@ typedef struct LinkedBucket{
 
 LinkedBucket *lbucket_new(mkpnum **max_b_lefts, int nsub, int dims);
 mkpnum **lbucket_prepare_max_b_left(MKP *mkp, int ndim, int nsub, char type);
-void lbucket_fprintf_profile(FILE *out, LinkedBucket *lbucket);
+void lbucket_fprintf_profile(FILE *out, LinkedBucket *lbucket, MKP *mkp);
 void lbucket_insert_dsnode(LinkedBucket *lbucket, DomSetNode *dsnode);
 void lbucket_free(LinkedBucket *lbucket);
 //MKPSol *mkp_fast_domsets_enum(MKP *mkp);

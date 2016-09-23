@@ -26,6 +26,7 @@ DomSetNode *dsnode_new(DomSetNode* father, int idx);
 void dsnode_fprintf(FILE *fout, DomSetNode *dsnode);
 MKPSol *dsnode_get_mkpsol(DomSetNode *dsnode);
 void dsnode_free(DomSetNode *dsnode);
+int dsnode_cmp(DomSetNode *dsn1, DomSetNode *dsn2);
 
 /******************************************************************************
  * Tree structure, holding all openned nodes on the enumeration procedure.
