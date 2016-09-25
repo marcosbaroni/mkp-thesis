@@ -7,6 +7,8 @@
 #include "mkp.h"
 #include "domset.h"
 
+struct DomSetNode;
+
 /* PROFILING VARIABLES */
 
 /*
@@ -30,13 +32,14 @@ typedef struct LinkedBucket{
 	};
 }LinkedBucket;
 
-LinkedBucket *lbucket_new(mkpnum **max_b_lefts, int nsub, int dims);
+LinkedBucket *lbucket_new(MKP *mkp, int nsub, int dims, char type);
+LinkedBucket *_lbucket_new(mkpnum **max_b_lefts, int nsub, int dims);
 mkpnum **lbucket_prepare_max_b_left(MKP *mkp, int ndim, int nsub, char type);
 void lbucket_fprintf_profile(FILE *out, LinkedBucket *lbucket, MKP *mkp);
-void lbucket_insert_dsnode(LinkedBucket *lbucket, DomSetNode *dsnode);
+void lbucket_insert_dsnode(LinkedBucket *lbucket, struct DomSetNode *dsnode);
 void lbucket_free(LinkedBucket *lbucket);
 //MKPSol *mkp_fast_domsets_enum(MKP *mkp);
 //MKPSol *mkp_fast_domsets_enum_lbucket(MKP *mkp, int ndim, int nsub, char type);
-DomSetTree *lbucket_dstree_dynprog(DomSetTree *dstree, int idx, LinkedBucket *lbucket);
+struct DomSetNode *lbucket_exists_dominator(LinkedBucket *lbucket, struct DomSetNode *dsnode);
 
 #endif

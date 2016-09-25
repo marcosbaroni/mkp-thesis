@@ -7,38 +7,55 @@
 #include "../models/mkp/balev.h"
 #include "../models/mkp/domset.h"
 #include "../utils/util.h"
+#include "../utils/ppm.h"
+
+void teste_ppm(){
+    PPM *ppm;
+    ppm = ppm_new(200, 100);
+    ppm_paint_vline(ppm, 50, 10, 90, 5, PPM_BLUE);
+    ppm_paint_dot(ppm, 70, 70, PPM_RED, 10);
+
+    ppm_write(ppm, "/home/mbaroni/Desktop/out.ppm");
+    ppm_free(ppm);
+}
 
 int print_usage(int argc, char **argv){
 	FILE *out;
 
 	out = stdout;
-	fprintf(out, " usage: %s [alg] [input file] <solution file>\n", argv[0]);
+	fprintf(out, " usage: %s [alg] [input file] <k>\n", argv[0]);
 	fprintf(out, " Nemhauser-Ullman Algorithm for MKP.\n");
 	fprintf(out, "   input file: a MKP instance. If '-' is given, instance is read from stdin.\n");
 	fprintf(out, "   alg: the algorithm which should be used.\n");
-	fprintf(out, "   solution: the initial solution. If none is given, greedy one is used.\n");
 	fprintf(out, "      1 - Nemhauser-Ullman plain (only cutting unfeaseble)\n");
-	fprintf(out, "      2 - Nemhauser-Ullman with linked buckets\n");
-	fprintf(out, "      3 - Balev plain (output: \"k;time;tree size;n comparison;init obj;final obj;\")\n");
-	fprintf(out, "      4 - Balev using linked buckets (output: \"k;time;tree size;n comparison;init obj;final obj;\")\n");
+	fprintf(out, "      2 - Nemhauser-Ullman with Linked Buckets\n");
+	fprintf(out, "      3 - Nemhauser-Ullman with KD-Tree \n");
+	fprintf(out, "   k: number of DP iterations. If not given all iterations is executed.\n");
 	fprintf(out, "\n");
-	fprintf(out, "   Program outputs \"<n. of dom. subsets>;<profit of solution>\"\n");
+	fprintf(out, "   Program outputs \"<n. iteration>;<n. of dom. subsets>;<n comparison>;<enumeration time (s)>;<best sol profit>\"\n");
 
 	return 1;
 }
 
 int execute_nemullman(int argc, char **argv){
-	MKP *mkp;           /* the proglem */
+	MKP *mkp;           /* the problem instance */
 	FILE *input;        /* input stream */
-	Array *dom_sets;
 	MKPSol *best_sol;
-    MKPSol *sol;
+    DomSetTree *dstree;
+
+    int alg;
 	int i, n;
+    int k;
+    int *idxs;
 
 	clock_t c0, cf;
 
+    alg = 1;
+    alg = atoi(argv[1]);
+    k = 0;
+
 	input = stdin;
-	/* checking inputs */
+	/* CHECKING INPUTS */
 	if(strcmp(argv[2], "-")){ /* not '-' */
 		input = fopen(argv[2], "r");
         if( !input ){
@@ -47,22 +64,54 @@ int execute_nemullman(int argc, char **argv){
         }
     }
 
-	/* reading instance */
+	/* READING INSTANCE */
 	mkp = mkp_read_from_file(input);
 	fclose(input);
+    n = mkp->n;
 
-	/* enumerate sets */
+    /* SETTING K */
+    if( argc > 3 )
+        k = atoi(argv[3]);
+    else
+        k = n;
+    idxs = (int*)malloc(n*sizeof(int));
+    for( i = 0 ; i < n ; i++ )
+        idxs[i] = i;
+
+    dstree = dstree_new(mkp);
+    switch( alg ){
+        case 1:
+        break;
+
+        case 2:
+        dstree_set_lbucket(dstree, lbucket_new(mkp, 10, 2, 'l'));
+        printf("using lbucket\n");
+        break;
+
+        case 3:
+        dstree_set_kdtree(dstree, dskdtree_new(2));
+        printf("using kdtree\n");
+        break;
+    }
+    
+	/* ENUMERATE SETS */
 	c0 = clock();
-    best_sol = mkp_dynprog(mkp, NULL);
+    for( i = 0 ; i < k ; i++ ){
+        dstree_dp_iter(dstree, idxs[i]);
+    }
 	cf = clock();
+    best_sol = dsnode_get_mkpsol(dstree->best);
 
-	/* output solution */
+	/* OUTPUT SOLUTION */
+	printf("%d;%d;%llu;%.3lf;", k, dstree->n, dstree->n_comparison, ((cf-c0)*1./CLOCKS_PER_SEC));
     mkpnum_fprintf(stdout, best_sol->obj);
-	printf(";%.3lf\n", ((cf-c0)*1./CLOCKS_PER_SEC));
+	printf("\n");
 
-	/* frees */
+	/* FREES */
     mkpsol_free(best_sol);
+    dstree_free(dstree);
 	mkp_free(mkp);
+    free(idxs);
 
 	return 0;
 }
@@ -122,7 +171,6 @@ int main(int argc, char **argv){
 	if( argc < 3 ){
 		return print_usage(argc, argv);
     }
-    alg = atol(argv[1]);
 
 #ifndef DEBUG_LVL
     setdebug_lvl(0);
@@ -130,15 +178,8 @@ int main(int argc, char **argv){
     setdebug_lvl(DEBUG_LVL);
 #endif
 
-    switch( alg ){
-	    case 1: return execute_nemullman(argc, argv); break;
-        case 2: fprintf(stderr, "Not implemented yet.\n"); break;
-        // Balev without licked buckets 
-	    case 3: return execute_balev(argc, argv, 0); break;
-        // Balev with licked buckets 
-	    case 4: return execute_balev(argc, argv, 1); break;
-        default: print_usage(argc, argv); break;
-    }
+    execute_nemullman(argc, argv);
+
     return 0;
 }
 

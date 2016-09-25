@@ -106,6 +106,7 @@ double mkp_get_lp_ub(double *p, double **w, double *b, int n, int m, int *fixing
     return obj;
 }
 
+
 #ifdef __cplusplus
 }
 #endif

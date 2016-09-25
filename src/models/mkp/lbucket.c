@@ -50,7 +50,7 @@ mkpnum **lbucket_prepare_max_b_left(MKP *mkp, int ndim, int nsub, char type){
  * dims: number of indexed dimensions
  * nsub: number of subbuckets (or arrays)
  */
-LinkedBucket *lbucket_new(
+LinkedBucket *_lbucket_new(
 	mkpnum **max_b_lefts, int nsub, int ndims)
 {
 	/* final container */
@@ -76,11 +76,26 @@ LinkedBucket *lbucket_new(
 		/* creating sub buckets */
 		lbucket->sub_buckets = (LinkedBucket**)malloc(nsub*sizeof(LinkedBucket*));
 		for( i = 0 ; i < nsub ; i++ )
-			lbucket->sub_buckets[i] = lbucket_new(
+			lbucket->sub_buckets[i] = _lbucket_new(
 				max_b_lefts, nsub, ndims-1);
 	}
 	return lbucket;
 }
+
+LinkedBucket *lbucket_new(MKP *mkp, int nsub, int ndims, char type){
+    int i;
+    LinkedBucket *lbucket;
+    mkpnum **max_b_lefts;
+
+    max_b_lefts = lbucket_prepare_max_b_left(mkp, ndims, nsub, type);
+    lbucket = _lbucket_new(max_b_lefts, nsub, ndims);
+    for( i = 0 ; i < ndims ; i++ ) /* freeing max_b_lefts */
+        free(max_b_lefts[i]);
+    free(max_b_lefts);
+
+    return lbucket;
+}
+
 
 void lbucket_insert_dsnode(LinkedBucket *lbucket, DomSetNode *dsnode){
 	int i, dim, nsub;
@@ -266,41 +281,5 @@ void lbucket_fprintf_profile(FILE *out, LinkedBucket *lbucket, MKP *mkp){
     }while( i >= 0 );
 
 	return;
-}
-
-/*
- * Apply one iteration of the dynamic programming method on a given DomSetTree.
- *   dstree: the DomSetTree given
- *   idx: the index of the item to be inserted
- *   lbucket: Linked Bucket to be used
- */
-DomSetTree *lbucket_dstree_dynprog(DomSetTree *dstree, int idx, LinkedBucket *lbucket){
-    DomSetNode *father;
-    DomSetNode *new;
-    int j, n_nodes;
-    DomSetNode *dominant;
-
-    n_nodes = dstree->n;
-    father = dstree->root;
-
-    /* for each existing domset (need couting because tail will grow) */
-    for( j = 0 ; j < n_nodes; j++ ){
-        new = dsnode_new(father, idx);
-        if( new ){
-            /* check dominant existance */
-            if( lbucket ) dominant = lbucket_exists_dominator(lbucket, new);
-            else dominant = dstree_exists_dominance(dstree, new);
-            if( dominant ){
-                dsnode_free(new);
-            }else{
-                dstree_insert(dstree, new);
-                if( lbucket )
-                    lbucket_insert_dsnode(lbucket, new);
-            }
-        }
-        /* next node */
-        father = father ->next;
-    }
-    return dstree;
 }
 

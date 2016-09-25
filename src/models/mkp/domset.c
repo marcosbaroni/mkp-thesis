@@ -7,6 +7,8 @@
 #include "domset.h"
 #include "mkp.h"
 #include "soputils.h"
+#include "lbucket.h"
+#include "../../utils/ppm.h"
 
 /*****************************************************************************
  *     Dominating Set Node
@@ -43,7 +45,7 @@ int dsnode_cmp(DomSetNode *dsn1, DomSetNode *dsn2){
 int dsnode_dominates(DomSetNode *dsn1, DomSetNode *dsn2){
 	int i, m;
 
-    dsn1->tree->n_comparison++;
+   dsn1->tree->n_comparison++;
 
 	m = dsn1->tree->mkp->m;  /* FIXME: check performance impact */
 
@@ -64,6 +66,8 @@ int dsnode_dominates(DomSetNode *dsn1, DomSetNode *dsn2){
  *   - father: father of the new node
  *   - dstree: the holder of all node and problem info
  *   - idx: the index of the new item being inserted
+ *
+ *   *Obs.: Does not insert node in tree.
  * */
 DomSetNode *dsnode_new(DomSetNode *father, int idx){
 	DomSetNode *dsnode;
@@ -71,7 +75,6 @@ DomSetNode *dsnode_new(DomSetNode *father, int idx){
 	int i, m, feasible;
     mkpnum b_left;
     MKP *mkp;
-	double relax_w_free, relax_w_item;
 
     dstree = father->tree;
     mkp = dstree->mkp;
@@ -90,8 +93,13 @@ DomSetNode *dsnode_new(DomSetNode *father, int idx){
             feasible = 0;
 	/* initializing tree info */
     dsnode->tree = father->tree;
-	dsnode->prev = dsnode->next = NULL;
 	dsnode->father = father;
+	dsnode->prev = NULL;
+    dsnode->next = NULL;
+    /* KDtree info */
+	dsnode->up = NULL;
+    dsnode->right = NULL;
+    dsnode->left = NULL;
     
     /* dischage node if not feasible */
 	if( !feasible ){
@@ -149,8 +157,7 @@ DomSetTree *dstree_init(
     MKP *mkp,
     unsigned char *x,
     mkpnum *p,
-    mkpnum **w,
-    mkpnum *relax_w)
+    mkpnum **w)
 {
 	DomSetNode *root;
 	mkpnum profit, weight;
@@ -180,15 +187,25 @@ DomSetTree *dstree_init(
 	dstree->root = root;
 	dstree->best = root;
 	dstree->tail = root;
-
     /* performance info */
     dstree->n_comparison = 0ULL;
+
+    dstree->kdtree = NULL;
+    dstree->lbucket = NULL;
 
 	return dstree;
 }
 
 DomSetTree *dstree_new(MKP *mkp){
-	return dstree_init(NULL, mkp, NULL, NULL, NULL, NULL);
+	return dstree_init(NULL, mkp, NULL, NULL, NULL);
+}
+
+void dstree_set_lbucket(DomSetTree *dstree, LinkedBucket *lbucket){
+    dstree->lbucket = lbucket;
+}
+
+void dstree_set_kdtree(DomSetTree *dstree, DomSetKDTree *kdtree){
+    dstree->kdtree = kdtree;
 }
 
 DomSetTree *dstree_insert(DomSetTree *dstree, DomSetNode *dsnode){
@@ -209,6 +226,10 @@ DomSetTree *dstree_insert(DomSetTree *dstree, DomSetNode *dsnode){
 	if( dsnode->profit > dstree->best->profit )
 		dstree->best = dsnode;
 
+    /* INSERTING ON KDTREE */
+    if(dstree->kdtree)
+        dskdtree_insert(dstree->kdtree, dsnode);
+
 	return dstree;
 }
 
@@ -225,6 +246,10 @@ DomSetTree *dstree_remove(DomSetTree *dstree, DomSetNode *dsnode){
 
 	dstree->n--;
 
+    /* REMOVING FROM KD TREE */
+    if(dstree->kdtree)
+        dskdtree_remove(dstree->kdtree, dsnode);
+
 	return dstree;
 }
 
@@ -237,6 +262,10 @@ void dstree_free(DomSetTree *dstree){
 		dsnode_free(dsnode);
 		dsnode = dsn_next;
 	}
+
+    if(dstree->kdtree)
+        free(dstree->kdtree);
+
 	free(dstree);
 
 	return;
@@ -276,6 +305,9 @@ void dstree_fprint(FILE *out, DomSetTree *dstree){
 
 DomSetNode *dstree_exists_dominance(DomSetTree *dstree, DomSetNode *dsn1){
     DomSetNode *dsn2;
+
+    if( dstree->kdtree )
+        return dskdtree_find_dominator(dstree->kdtree, dsn1);
 
     dsn2 = dstree->root;
     while( dsn2 ){
@@ -346,9 +378,186 @@ MKPSol *mkp_dynprog(MKP *mkp, int *idxs){
     }
 
     mkpsol = dsnode_get_mkpsol(dstree->best);
-    printf("total nodes: %d\n", dstree->n);
     dstree_free(dstree);
 
     return mkpsol;
+}
+
+/*******************************************************************************
+ * DomSet KD-Tree
+ ******************************************************************************/
+
+DomSetKDTree *dskdtree_new(int ndim){
+    DomSetKDTree *t;
+
+    t = (DomSetKDTree*)malloc(sizeof(DomSetKDTree));
+
+    t->ndim = ndim;
+    t->root = NULL;
+
+    return t;
+}
+
+/* 
+ * dim = 0: profit
+ * dim < 0: b_left[dim-1]
+ */
+void _dskdtree_insert(DomSetNode *root, DomSetNode *dsnode, int h, int ndim){
+    int insert_right;
+    int dim;
+
+    insert_right = 1;
+    dim = h % ndim;
+    if( (!dim && dsnode->profit < root->profit) || /* pofit check */
+        (dim && dsnode->b_left[dim-1] < root->b_left[dim-1]) ) /* b_left check */
+            insert_right = 0;
+
+    /* inserting */
+    if( insert_right )
+        if( !root->right )
+            { root->right = dsnode; dsnode->up = root; }
+        else
+            _dskdtree_insert(root->right, dsnode, h+1, ndim);
+    else
+        if( !root->left )
+            { root->left = dsnode; dsnode->up = root; }
+        else
+            _dskdtree_insert(root->left, dsnode, h+1, ndim);
+
+    return;
+}
+
+DomSetKDTree *dskdtree_insert(DomSetKDTree *kdtree, DomSetNode *dsnode){
+    if( kdtree->root )
+        _dskdtree_insert(kdtree->root, dsnode, 0, kdtree->ndim);
+    else
+        { kdtree->root = dsnode; dsnode->up = NULL; }
+
+    return kdtree;
+}
+
+DomSetKDTree *dskdtree_remove(DomSetKDTree *kdtree, DomSetNode *dsnode){
+
+    return kdtree;
+}
+
+DomSetNode *_dskdtree_find_dominator(DomSetNode *root, DomSetNode *dsnode, int h, int ndim){
+    int dim;
+    DomSetNode *dominant = NULL;
+
+    if( ! root )
+        return NULL;
+
+    if( dsnode_dominates(root, dsnode) )
+        return root;
+
+    dim = h % ndim;
+
+    /* always check right tree */
+    dominant = _dskdtree_find_dominator(root->right, dsnode, h+1, ndim);
+
+    /* if not found, check if left tree may have dominant */
+    if( !dominant )
+        if( (!dim && dsnode->profit < root->profit) || /* pofit check */
+            (dim && dsnode->b_left[dim-1] < root->b_left[dim-1]) ) /* b_left check */
+            dominant = _dskdtree_find_dominator(root->left, dsnode, h+1, ndim);
+
+    return dominant;
+}
+
+DomSetNode *dskdtree_find_dominator(DomSetKDTree *dskdtree, DomSetNode *dsnode){
+    return _dskdtree_find_dominator(dskdtree->root, dsnode, 0, dskdtree->ndim);
+}
+
+void _dskdtree_draw(DomSetNode *root, PPM *ppm, int h, int ndim){
+    int x, y, dim;
+    int x0, xf, y0, yf;
+    int rad = 10;
+
+    if( !root)
+        return;
+
+    dim = h % ndim;
+
+    if( !dim ){ /* profit: horizontal line */
+        /* defining x0 and xy */
+        if( root->up ){
+            // TODO: find bounds (recursively?)
+        }else{
+            x0 = 0;
+            xf = ppm_get_maxx(ppm);
+        }
+        ppm_paint_dot(ppm, x, y, PPM_RED, rad);
+    }else{ /* b_left[0]: vertical line */
+        if( root->up ){
+        }else{
+            y0 = 0;
+            yf = ppm_get_maxy(ppm);
+        }
+        ppm_paint_dot(ppm, x, y, PPM_BLUE, rad);
+    }
+
+
+    _dskdtree_draw(root->right, ppm, h+1, ndim);
+    _dskdtree_draw(root->left, ppm, h+1, ndim);
+}
+
+void dskdtree_draw(DomSetKDTree *kdtree, char *filename){
+    PPM *ppm;
+    int nx, ny;
+    MKP *mkp;
+    int n, m;
+    int i, j;
+
+    n = mkp->n;
+    m = mkp->m;
+
+    nx = ny = 0;
+    for(i = 0 ; i < n ; i++ ){
+        nx += mkp->p[i];
+        ny += mkp->w[0][i];
+    }
+
+    ppm = ppm_new(nx, ny);
+    _dskdtree_draw(kdtree->root, ppm, 0, kdtree->ndim);
+    ppm_write(ppm, filename);
+    ppm_free(ppm);
+
+    return;
+}
+
+void dstree_dp_iter(DomSetTree *dstree, int idx){
+    DomSetNode *current;
+    DomSetNode *dominant;
+    DomSetNode *new_dsnode;
+    int n_nodes;
+    int i;
+
+    n_nodes = dstree->n;
+    current = dstree->root;
+    for( i = 0 ; i < n_nodes ; i++ ){
+        new_dsnode = dsnode_new(current, idx);
+
+        /* IF NEW NODE IS FEASIBLE */
+        if( new_dsnode ){
+            /* TRY TO FIND A DOMINANT NODE */
+            if( dstree->kdtree ){
+                dominant = dskdtree_find_dominator(dstree->kdtree, new_dsnode);
+            }else if( dstree->lbucket ){
+                dominant = lbucket_exists_dominator(dstree->lbucket, new_dsnode);
+            }else{
+                dominant = dstree_exists_dominance(dstree, new_dsnode);
+            }
+
+            /* INSERT THE NEW NODE, IF HAS NO DOMINANT */
+            if( !dominant )
+                dstree_insert(dstree, new_dsnode);
+            else
+                dsnode_free(new_dsnode);
+        }
+        current = current->next;
+    }
+
+    return;
 }
 
