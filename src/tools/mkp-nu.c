@@ -89,7 +89,7 @@ int execute_nemullman(int argc, char **argv){
         break;
 
         case 3:
-        dstree_set_kdtree(dstree, dskdtree_new(2));
+        dstree_set_kdtree(dstree, dskdtree_new(3));
         printf("using kdtree\n");
         break;
     }
@@ -98,6 +98,8 @@ int execute_nemullman(int argc, char **argv){
 	c0 = clock();
     for( i = 0 ; i < k ; i++ ){
         dstree_dp_iter(dstree, idxs[i]);
+	    cf = clock();
+        fprintf(stderr, "iter: %d/%d (%d, %.3e) %.3lfs\n", i+1, k, dstree->n, (double)dstree->n_comparison, ((cf-c0)*1./CLOCKS_PER_SEC));
     }
 	cf = clock();
     best_sol = dsnode_get_mkpsol(dstree->best);

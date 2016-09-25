@@ -122,7 +122,7 @@ void dsnode_fprintf(FILE *fout, DomSetNode *dsnode){
     m = dsnode->tree->mkp->m;
 
     fprintf(fout, "- dsnode: %x\n", dsnode);
-    fprintf(fout, "  profi: ");
+    fprintf(fout, "  profit: ");
     mkpnum_fprintf(fout, dsnode->profit);
     fprintf(fout, "  b_left:");
    mkpnum_array_write(fout, dsnode->b_left, m);
@@ -550,10 +550,12 @@ void dstree_dp_iter(DomSetTree *dstree, int idx){
             }
 
             /* INSERT THE NEW NODE, IF HAS NO DOMINANT */
-            if( !dominant )
+            if( !dominant ){
                 dstree_insert(dstree, new_dsnode);
-            else
+            }else{
                 dsnode_free(new_dsnode);
+            }
+        }else{
         }
         current = current->next;
     }
