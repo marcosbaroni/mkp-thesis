@@ -24,6 +24,8 @@ typedef int (*mp_cmp_r_f)(void*, int, int, void*);
 typedef int (*mp_cmp_f)(void*, int, int);
 void mp_qsort_r(void *collection, int n, mp_cmp_r_f, mp_swap_f, void *arg, char reverse);
 void mp_qsort(void *collection, int n, mp_cmp_f, mp_swap_f, char reverse);
+void pointer_swap(void **ps, int a, int b);
+void void_sort(void **array, int n, int(*f)(void*, void*));
 
 /* unsigned char */
 typedef unsigned char uchar;

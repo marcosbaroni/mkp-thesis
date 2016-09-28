@@ -66,6 +66,11 @@ DomSetTree *dstree_dynprog(DomSetTree *dstree, int idx);
 MKPSol *mkp_dynprog(MKP *mkp, int *idxs);
 void dstree_free(DomSetTree *dstree);
 void dstree_dp_iter(DomSetTree *dstree, int idx);
+/* comparison functions */
+int dsnode_cmp_by_profit(DomSetNode *dsn1, DomSetNode *dsn2);
+int dsnode_cmp_by_b_left0(DomSetNode *dsn1, DomSetNode *dsn2);
+int dsnode_cmp_by_b_left1(DomSetNode *dsn1, DomSetNode *dsn2);
+int dsnode_cmp_by_b_left2(DomSetNode *dsn1, DomSetNode *dsn2);
 
 /******************************************************************************
  * KDTree structure, holding all openned nodes on the enumeration procedure.
@@ -83,6 +88,8 @@ DomSetKDTree *dskdtree_new(int ndim);
 DomSetKDTree *dskdtree_insert(DomSetKDTree *dskdtree, DomSetNode *dsnode);
 DomSetKDTree *dskdtree_remove(DomSetKDTree *dskdtree, DomSetNode *dsnode);
 DomSetNode *dskdtree_find_dominator(DomSetKDTree *dskdtree, DomSetNode *dsnode);
+DomSetKDTree *dskdtree_balance(DomSetKDTree *dskdtree);
+void dskdtree_fprintf_balance_profile(FILE *fout, DomSetKDTree *kdtree);
 
 #endif
 

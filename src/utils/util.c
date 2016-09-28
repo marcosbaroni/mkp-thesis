@@ -1096,6 +1096,7 @@ void mp_qsort_r(void *collection, int n, mp_cmp_r_f mp_cmp_r, mp_swap_f mp_swap,
 
 int mp_partition(void *collection, int a, int b, mp_cmp_f mp_cmp, mp_swap_f mp_swap, char reverse){
 	int i, j, pivot;
+    printf("partitin...\n"); fflush(stdout);
 
 	pivot = i = a; j = b+1;
 	while( 1 ){
@@ -1124,6 +1125,67 @@ void mp_qsort(void *collection, int n, mp_cmp_f mp_cmp, mp_swap_f mp_swap, char 
 	return;
 }
 
+int _void_partition(void **array, int a, int b, int(*cmp)(void*,void*)){
+	int i, j;
+	void *pivot, *aux;
+	
+	i = a; j = b+1;
+	pivot = array[a];
+
+	while( 1 ){
+		while( cmp(array[++i], pivot) < 0 ) if( i == b ) break;
+		//while( array[++i] < pivot ) if( i == b ) break;
+		while( cmp(pivot, array[--j]) < 0 ) if( j == a ) break;
+		//while( pivot < array[--j] ) if( j == a ) break;
+		if( i >= j ) break;            /* Crossed? */
+        /* swap */
+        aux = array[i];
+        array[i] = array[j];
+        array[j] = aux;
+	}
+    /* swap */
+    aux = array[i];
+    array[i] = array[a];
+    array[a] = aux;
+
+	return j;
+}
+
+void _void_qsort(void **array, int left, int right, int(*f)(void*, void*)){
+    int pivot;
+    if( right <= left ) return;
+    if ( right > left ){
+        pivot = _void_partition(array, left, right, f);
+        _void_qsort(array, left, pivot-1, f);
+        _void_qsort(array, pivot+1, right, f);
+    }
+}
+
+void void_qsort(void **array, int n, int(*f)(void*, void*)){
+    _void_qsort(array, 0, n-1, f);
+}
+
+void void_shell_sort(void **array, int n, int(*cmp)(void*,void*)){
+    int gaps[8] = {701, 203, 132, 57, 23, 10, 4, 1};
+    int gap;
+    int k, i, j;
+    void *aux;
+
+    for( k = 0 ; k < 8 ; k++ ){
+        gap = gaps[k];
+        printf("gap %d\n", gap);
+        for( i = gap ; i < n ; i++ ){
+            aux = array[i];
+            for( j = i ; j >= gap && cmp(array[j-gap], aux) > 0 ; j -= gap )
+                array[j] = array[j-gap];
+            array[j] = aux;
+        }
+    }
+}
+
+void void_sort(void **array, int n, int(*cmp)(void*,void*)){
+    void_shell_sort(array, n, cmp);
+}
 
 /*
  * Prints a double matrix on the ZIMPL MIP modeling language format.

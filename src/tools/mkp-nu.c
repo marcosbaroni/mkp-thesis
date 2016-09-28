@@ -9,16 +9,6 @@
 #include "../utils/util.h"
 #include "../utils/ppm.h"
 
-void teste_ppm(){
-    PPM *ppm;
-    ppm = ppm_new(200, 100);
-    ppm_paint_vline(ppm, 50, 10, 90, 5, PPM_BLUE);
-    ppm_paint_dot(ppm, 70, 70, PPM_RED, 10);
-
-    ppm_write(ppm, "/home/mbaroni/Desktop/out.ppm");
-    ppm_free(ppm);
-}
-
 int print_usage(int argc, char **argv){
 	FILE *out;
 
@@ -35,6 +25,63 @@ int print_usage(int argc, char **argv){
 	fprintf(out, "   Program outputs \"<n. iteration>;<n. of dom. subsets>;<n comparison>;<enumeration time (s)>;<best sol profit>\"\n");
 
 	return 1;
+}
+
+void teste_dstree_profile(DomSetTree *dstree){
+    DomSetNode **ord_profit;
+    DomSetNode **ord_bleft0;
+    DomSetNode **ord_bleft1;
+    DomSetNode *dsnode;
+    int i, n_nodes;
+
+    /* allocing orderes */
+    n_nodes = dstree->n;
+    ord_profit = (DomSetNode**)malloc(n_nodes*sizeof(DomSetNode*));
+    ord_bleft0 = (DomSetNode**)malloc(n_nodes*sizeof(DomSetNode*));
+    ord_bleft1 = (DomSetNode**)malloc(n_nodes*sizeof(DomSetNode*));
+
+    /* collection the nodes */
+    dsnode = dstree->root;
+    i = 0;
+    do{
+        ord_profit[i] =
+            ord_bleft0[i] =
+            ord_bleft1[i] = dsnode;
+        i++;
+    }while( dsnode = dsnode->next );
+
+    /* sorting */
+    void_sort((void**)ord_profit, n_nodes, (int(*)(void*,void*))dsnode_cmp_by_profit);
+    void_sort((void**)ord_bleft0, n_nodes, (int(*)(void*,void*))dsnode_cmp_by_b_left0);
+    void_sort((void**)ord_bleft1, n_nodes, (int(*)(void*,void*))dsnode_cmp_by_b_left1);
+
+    /* print kdtree profile */
+    dskdtree_fprintf_balance_profile(stdout, dstree->kdtree);
+
+    /* building balanced tree */
+
+    /* print kdtree profile */
+    dskdtree_fprintf_balance_profile(stdout, dstree->kdtree);
+    
+    return;
+}
+
+void teste_dstree_dominance_ratio(DomSetTree *dstree){
+    DomSetNode *dsnode;
+    int n_nodes, n_dominated;
+
+    n_nodes = dstree->n;
+    n_dominated = 0;
+
+    dsnode = dstree->root;
+    do{
+        if( dstree_exists_dominance(dstree, dsnode) );
+                n_dominated++;
+    }while( dsnode = dsnode->next );
+
+    printf("total: %d, dominated: %d (ratio: %.3f)\n", n_nodes, n_dominated, (n_dominated/(float)n_nodes));
+
+    return;
 }
 
 int execute_nemullman(int argc, char **argv){
@@ -103,6 +150,9 @@ int execute_nemullman(int argc, char **argv){
     }
 	cf = clock();
     best_sol = dsnode_get_mkpsol(dstree->best);
+
+    //teste_dstree_profile(dstree);
+    teste_dstree_dominance_ratio(dstree);
 
 	/* OUTPUT SOLUTION */
 	printf("%d;%d;%llu;%.3lf;", k, dstree->n, dstree->n_comparison, ((cf-c0)*1./CLOCKS_PER_SEC));

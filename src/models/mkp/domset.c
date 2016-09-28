@@ -37,6 +37,19 @@ int dsnode_cmp(DomSetNode *dsn1, DomSetNode *dsn2){
 	return 0;
 }
 
+int dsnode_cmp_by_profit(DomSetNode *dsn1, DomSetNode *dsn2){
+    return (dsn1->profit - dsn2->profit);
+}
+int dsnode_cmp_by_b_left0(DomSetNode *dsn1, DomSetNode *dsn2){
+    return (dsn1->b_left[0] - dsn2->b_left[0]);
+}
+int dsnode_cmp_by_b_left1(DomSetNode *dsn1, DomSetNode *dsn2){
+    return (dsn1->b_left[1] - dsn2->b_left[1]);
+}
+int dsnode_cmp_by_b_left2(DomSetNode *dsn1, DomSetNode *dsn2){
+    return (dsn1->b_left[2] - dsn2->b_left[2]);
+}
+
 /*
  * obs.:
  *    A dominates B iff:
@@ -526,7 +539,7 @@ void dskdtree_draw(DomSetKDTree *kdtree, char *filename){
     return;
 }
 
-void dstree_dp_iter(DomSetTree *dstree, int idx){
+void _dstree_dp_iter(DomSetTree *dstree, int idx){
     DomSetNode *current;
     DomSetNode *dominant;
     DomSetNode *new_dsnode;
@@ -559,6 +572,109 @@ void dstree_dp_iter(DomSetTree *dstree, int idx){
         }
         current = current->next;
     }
+
+    return;
+}
+
+void dstree_dp_iter(DomSetTree *dstree, int idx){
+    _dstree_dp_iter(dstree, idx);
+}
+
+void _dskdtree_get_profile(DomSetNode *root, int h, int *count, int *nmax){
+    int i;
+    if( root->right )
+        _dskdtree_get_profile( root->right, h+1, count, nmax);
+
+    /* alloing more space */
+    if( h > *nmax-1 ){
+        count = realloc(count, 2*(*nmax)*sizeof(int));
+        for( i = *nmax ; i < 2*(*nmax) ; i++ )
+            count[i] = 0;
+        *nmax = *nmax*2;
+    }
+
+    count[h]++;
+
+    if( root->left)
+        _dskdtree_get_profile( root->left, h+1, count, nmax);
+
+    return;
+}
+
+DomSetKDTree *dskdtree_balance(DomSetKDTree *dskdtree){
+    DomSetNode ***dsn_ord;
+    DomSetNode *dsn;
+    DomSetTree *dstree;
+    int i, j;
+    int n_nodes, ndim;
+
+    dstree = dskdtree->dstree;
+    ndim = dskdtree->ndim;
+    n_nodes = dstree->n;
+
+    dsn_ord = (DomSetNode***)malloc(ndim*sizeof(DomSetNode**));
+    for( i = 0 ; i < ndim ; i++ )
+        dsn_ord[i] = (DomSetNode**)malloc(n_nodes*sizeof(DomSetNode*));
+
+    dsn = dstree->root;
+    switch(ndim){
+        case 2:
+        for( i = 0 ; i < n_nodes ; i++ ){
+            dsn_ord[0][i] =
+                dsn_ord[1][i] =  dsn;
+            dsn = dsn->next;
+        }
+        break;
+
+        case 3:
+        for( i = 0 ; i < n_nodes ; i++ ){
+            dsn_ord[0][i] =
+                dsn_ord[1][i] =
+                dsn_ord[2][i] = dsn;
+            dsn = dsn->next;
+        }
+        break;
+
+        case 4:
+        for( i = 0 ; i < n_nodes ; i++ ){
+            dsn_ord[0][i] =
+                dsn_ord[1][i] =
+                dsn_ord[2][i] =
+                dsn_ord[3][i] = dsn;
+            dsn = dsn->next;
+        }
+        break;
+
+        case 5:
+        for( i = 0 ; i < n_nodes ; i++ ){
+            dsn_ord[0][i] =
+                dsn_ord[1][i] =
+                dsn_ord[2][i] =
+                dsn_ord[3][i] =
+                dsn_ord[4][i] = dsn;
+            dsn = dsn->next;
+        }
+        break;
+    }
+
+    return dskdtree;
+}
+
+void dskdtree_fprintf_balance_profile(FILE *fout, DomSetKDTree *kdtree){
+    int i, nmax;
+    int *count;
+    nmax = 100;
+
+    count = (int*)malloc(nmax*sizeof(int));
+    for( i = 0 ; i < nmax ; i++ )
+        count[i] = 0;
+    _dskdtree_get_profile(kdtree->root, 0, count, &nmax);
+
+    for( i = 0 ; i < nmax ; i++ )
+        if( count[i] )
+            printf("%d: %d\n", i, count[i]);
+
+    free(count);
 
     return;
 }
