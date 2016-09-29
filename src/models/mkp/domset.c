@@ -66,10 +66,14 @@ int dsnode_dominates(DomSetNode *dsn1, DomSetNode *dsn2){
 	if( dsn1->profit >= dsn2->profit ){
 		/* maybe... */
 		for( i = 0 ; i < m ; i++ )
-			if( dsn1->b_left[i] < dsn2->b_left[i] ) /* any bleft1 < bleft2? */
+			if( dsn1->b_left[i] < dsn2->b_left[i] ){ /* any bleft1 < bleft2? */
+                printf (" [%x vs %x = no] ", dsn1, dsn2);
 				return 0; /* no! */
+            }
+        printf (" [%x vs %x = yes] ", dsn1, dsn2);
 		return 1; /* yes! */
 	}
+    printf (" [%x vs %x = no] ", dsn1, dsn2);
     return 0;
 }
 
@@ -134,11 +138,10 @@ void dsnode_fprintf(FILE *fout, DomSetNode *dsnode){
     int i, m;
     m = dsnode->tree->mkp->m;
 
-    fprintf(fout, "- dsnode: %x\n", dsnode);
-    fprintf(fout, "  profit: ");
     mkpnum_fprintf(fout, dsnode->profit);
-    fprintf(fout, "  b_left:");
-   mkpnum_array_write(fout, dsnode->b_left, m);
+    fprintf(fout, "  [");
+    mkpnum_array_write(fout, dsnode->b_left, m);
+    fprintf(fout, "] (%x)", dsnode);
 
    return;
 }
@@ -324,8 +327,10 @@ DomSetNode *dstree_exists_dominance(DomSetTree *dstree, DomSetNode *dsn1){
 
     dsn2 = dstree->root;
     while( dsn2 ){
-        if( dsnode_dominates(dsn1, dsn2) < 0 )   /* If dsn2 dominates dsn1 */
+        printf("   test with: "); dsnode_fprintf(stdout, dsn2); printf("\n");
+        if( dsnode_dominates(dsn2, dsn1) ){   /* If dsn2 dominates dsn1 */
             return dsn2;
+        }
         dsn2 = dsn2->next;
     }
 
@@ -461,6 +466,7 @@ DomSetNode *_dskdtree_find_dominator(DomSetNode *root, DomSetNode *dsnode, int h
     if( ! root )
         return NULL;
 
+    printf("   test with: "); dsnode_fprintf(stdout, root); printf("\n");
     if( dsnode_dominates(root, dsnode) )
         return root;
 
@@ -553,19 +559,25 @@ void _dstree_dp_iter(DomSetTree *dstree, int idx){
 
         /* IF NEW NODE IS FEASIBLE */
         if( new_dsnode ){
+            printf(" testing node: ");
+            dsnode_fprintf(stdout, new_dsnode);
+            printf("\n");
             /* TRY TO FIND A DOMINANT NODE */
-            if( dstree->kdtree ){
+            if( dstree->kdtree )
                 dominant = dskdtree_find_dominator(dstree->kdtree, new_dsnode);
-            }else if( dstree->lbucket ){
+            else if( dstree->lbucket )
                 dominant = lbucket_exists_dominator(dstree->lbucket, new_dsnode);
-            }else{
+            else
                 dominant = dstree_exists_dominance(dstree, new_dsnode);
-            }
+            
 
             /* INSERT THE NEW NODE, IF HAS NO DOMINANT */
             if( !dominant ){
                 dstree_insert(dstree, new_dsnode);
             }else{
+                printf("   has dominant: ");
+                dsnode_fprintf(stdout, dominant);
+                printf("\n");
                 dsnode_free(new_dsnode);
             }
         }else{
@@ -677,5 +689,54 @@ void dskdtree_fprintf_balance_profile(FILE *fout, DomSetKDTree *kdtree){
     free(count);
 
     return;
+}
+
+void _get_median(DomSetNode **dsns, DomSetNode **dsns_ord, int *k, int a, int b, int h, int ndim){
+    int(*cmp)(DomSetNode*,DomSetNode*);
+
+    /* setting compare function to be used */
+    switch( h % ndim ){
+        case 0: cmp = dsnode_cmp_by_profit; break;
+        case 1: cmp = dsnode_cmp_by_b_left0; break;
+        case 2: cmp = dsnode_cmp_by_b_left1; break;
+        case 3: cmp = dsnode_cmp_by_b_left2; break;
+    }
+
+    if( b-a < 2 ){
+        // put ...
+    }
+
+}
+
+DomSetKDTree *dskdtree_build_balanced(DomSetNode **dsns, int n_nodes, int ndim){
+    DomSetKDTree *kdtree;
+    DomSetNode **dsns_ord;
+    int k;
+
+    dsns_ord = (DomSetNode**)malloc(n_nodes*sizeof(DomSetNode*));
+    kdtree = dskdtree_new(3);
+
+    k = 0;
+    _get_median(dsns, dsns_ord, &k, 0, n_nodes-1, 0, ndim);
+
+    return kdtree;
+}
+void dstree_balance_kdtree(DomSetTree *dstree){
+    DomSetKDTree *kdtree2;
+    DomSetNode *dsnode;
+    DomSetNode **dsns;
+    int n_nodes;
+    int i;
+
+    n_nodes = dstree->n;
+    dsns = (DomSetNode**)malloc(n_nodes*sizeof(DomSetNode*));
+
+    i = 0;
+    do dsns[i++] = dsnode;
+    while( dsnode = dsnode->next );
+
+    kdtree2 = dskdtree_build_balanced(dsns, n_nodes, 3);
+
+    free(dsns);
 }
 

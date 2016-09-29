@@ -159,7 +159,7 @@ void mkpnum_array_write(FILE *fout, mkpnum *array, int n){
 		mkpnum_fprintf(fout, array[i]);
 		fprintf(fout, " ");
 	}
-	fprintf(fout, "\n");
+	//fprintf(fout, "\n");
 	return;
 }
 

@@ -27,10 +27,22 @@ int print_usage(int argc, char **argv){
 	return 1;
 }
 
+void _find_median(
+    DomSetNode **ord_profit,
+    DomSetNode **ord_bleft0,
+    DomSetNode **ord_bleft1,
+    DomSetNode **inserting_ord,
+    int a,
+    int b,
+    int h)
+{
+}
+
 void teste_dstree_profile(DomSetTree *dstree){
     DomSetNode **ord_profit;
     DomSetNode **ord_bleft0;
     DomSetNode **ord_bleft1;
+    DomSetNode **inserting_ord;
     DomSetNode *dsnode;
     int i, n_nodes;
 
@@ -39,6 +51,7 @@ void teste_dstree_profile(DomSetTree *dstree){
     ord_profit = (DomSetNode**)malloc(n_nodes*sizeof(DomSetNode*));
     ord_bleft0 = (DomSetNode**)malloc(n_nodes*sizeof(DomSetNode*));
     ord_bleft1 = (DomSetNode**)malloc(n_nodes*sizeof(DomSetNode*));
+    inserting_ord = (DomSetNode**)malloc(n_nodes*sizeof(DomSetNode*));
 
     /* collection the nodes */
     dsnode = dstree->root;
@@ -55,6 +68,9 @@ void teste_dstree_profile(DomSetTree *dstree){
     void_sort((void**)ord_bleft0, n_nodes, (int(*)(void*,void*))dsnode_cmp_by_b_left0);
     void_sort((void**)ord_bleft1, n_nodes, (int(*)(void*,void*))dsnode_cmp_by_b_left1);
 
+    /* finding medians... */
+    _find_median(ord_profit, ord_bleft0, ord_bleft1, inserting_ord, 0, n_nodes-1, 0);
+
     /* print kdtree profile */
     dskdtree_fprintf_balance_profile(stdout, dstree->kdtree);
 
@@ -62,25 +78,12 @@ void teste_dstree_profile(DomSetTree *dstree){
 
     /* print kdtree profile */
     dskdtree_fprintf_balance_profile(stdout, dstree->kdtree);
+
+    free(ord_profit);
+    free(ord_bleft0);
+    free(ord_bleft1);
+    free(inserting_ord);
     
-    return;
-}
-
-void teste_dstree_dominance_ratio(DomSetTree *dstree){
-    DomSetNode *dsnode;
-    int n_nodes, n_dominated;
-
-    n_nodes = dstree->n;
-    n_dominated = 0;
-
-    dsnode = dstree->root;
-    do{
-        if( dstree_exists_dominance(dstree, dsnode) );
-                n_dominated++;
-    }while( dsnode = dsnode->next );
-
-    printf("total: %d, dominated: %d (ratio: %.3f)\n", n_nodes, n_dominated, (n_dominated/(float)n_nodes));
-
     return;
 }
 
@@ -132,12 +135,10 @@ int execute_nemullman(int argc, char **argv){
 
         case 2:
         dstree_set_lbucket(dstree, lbucket_new(mkp, 10, 2, 'l'));
-        printf("using lbucket\n");
         break;
 
         case 3:
         dstree_set_kdtree(dstree, dskdtree_new(3));
-        printf("using kdtree\n");
         break;
     }
     
@@ -152,7 +153,6 @@ int execute_nemullman(int argc, char **argv){
     best_sol = dsnode_get_mkpsol(dstree->best);
 
     //teste_dstree_profile(dstree);
-    teste_dstree_dominance_ratio(dstree);
 
 	/* OUTPUT SOLUTION */
 	printf("%d;%d;%llu;%.3lf;", k, dstree->n, dstree->n_comparison, ((cf-c0)*1./CLOCKS_PER_SEC));

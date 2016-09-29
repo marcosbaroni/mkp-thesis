@@ -10,22 +10,29 @@ SCIP2SUMMARY=$BINDIR/scip2summary
 PATH=$PATH:$BINDIR
 out=$RT/experiments/ciarp2015/`hostname`.csv
 
+if [[ $# -lt 2 ]]
+then
+    echo "usage: $0 <index> <out.csv>"
+    exit 1
+fi
+
+i=$1
+outfile=$2
 
 ns="100 250 500"
 ms="5 10 30"
 as="0.25 0.50 0.75"
-i=$1
-let i=$i+1
 
 maxtime=14400
 
 for n in $ns; do
 	for m in $ms; do
+        (>&2 echo "n: ${n} m: ${m}")
 		for a in $as; do
 			inst=$INSTDIR/OR${m}x${n}-${a}_$i.dat
 			#ans=`mkp2zpl $inst | zpl2lp | runscip - $maxtime | scip2summary`
             ans=${n}";"${m}";"${a}";"${i}";"`$BINDIR/mkp-nu 1 $inst 14`";"`$BINDIR/mkp-nu 3 $inst 14`
-            echo $ans
+            echo $ans >> $outfile
 			#echo $n";"$m";"$a";"$i";"$ans >> $out
 		done
 	done
