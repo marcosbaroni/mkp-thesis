@@ -22,7 +22,7 @@ int print_usage(int argc, char **argv){
 	fprintf(out, "      3 - Nemhauser-Ullman with KD-Tree \n");
 	fprintf(out, "   k: number of DP iterations. If not given all iterations is executed.\n");
 	fprintf(out, "\n");
-	fprintf(out, "   Program outputs \"<n. iteration>;<n. of dom. subsets>;<n comparison>;<enumeration time (s)>;<best sol profit>\"\n");
+	fprintf(out, "   Program outputs \"<n. of dom. subsets>;<n comparison>;<enumeration time (s)>;<best sol profit>\"\n");
 
 	return 1;
 }
@@ -147,7 +147,7 @@ int execute_nemullman(int argc, char **argv){
     for( i = 0 ; i < k ; i++ ){
         dstree_dp_iter(dstree, idxs[i]);
 	    cf = clock();
-        fprintf(stderr, "iter: %d/%d (%d, %.3e) %.3lfs\n", i+1, k, dstree->n, (double)dstree->n_comparison, ((cf-c0)*1./CLOCKS_PER_SEC));
+        //fprintf(stderr, "iter: %d/%d (%d, %.3e) %.3lfs\n", i+1, k, dstree->n, (double)dstree->n_comparison, ((cf-c0)*1./CLOCKS_PER_SEC));
     }
 	cf = clock();
     best_sol = dsnode_get_mkpsol(dstree->best);
@@ -155,7 +155,7 @@ int execute_nemullman(int argc, char **argv){
     //teste_dstree_profile(dstree);
 
 	/* OUTPUT SOLUTION */
-	printf("%d;%d;%llu;%.3lf;", k, dstree->n, dstree->n_comparison, ((cf-c0)*1./CLOCKS_PER_SEC));
+	printf("%d;%llu;%.3lf;", dstree->n, dstree->n_comparison, ((cf-c0)*1./CLOCKS_PER_SEC));
     mkpnum_fprintf(stdout, best_sol->obj);
 	printf("\n");
 

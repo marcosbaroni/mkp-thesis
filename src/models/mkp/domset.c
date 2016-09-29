@@ -66,14 +66,10 @@ int dsnode_dominates(DomSetNode *dsn1, DomSetNode *dsn2){
 	if( dsn1->profit >= dsn2->profit ){
 		/* maybe... */
 		for( i = 0 ; i < m ; i++ )
-			if( dsn1->b_left[i] < dsn2->b_left[i] ){ /* any bleft1 < bleft2? */
-                printf (" [%x vs %x = no] ", dsn1, dsn2);
+			if( dsn1->b_left[i] < dsn2->b_left[i] ) /* any bleft1 < bleft2? */
 				return 0; /* no! */
-            }
-        printf (" [%x vs %x = yes] ", dsn1, dsn2);
 		return 1; /* yes! */
 	}
-    printf (" [%x vs %x = no] ", dsn1, dsn2);
     return 0;
 }
 
@@ -326,13 +322,10 @@ DomSetNode *dstree_exists_dominance(DomSetTree *dstree, DomSetNode *dsn1){
         return dskdtree_find_dominator(dstree->kdtree, dsn1);
 
     dsn2 = dstree->root;
-    while( dsn2 ){
-        printf("   test with: "); dsnode_fprintf(stdout, dsn2); printf("\n");
-        if( dsnode_dominates(dsn2, dsn1) ){   /* If dsn2 dominates dsn1 */
+    do
+        if( dsnode_dominates(dsn2, dsn1) )   /* If dsn2 dominates dsn1 */
             return dsn2;
-        }
-        dsn2 = dsn2->next;
-    }
+    while( dsn2 = dsn2->next );
 
     return NULL;
 }
@@ -466,7 +459,6 @@ DomSetNode *_dskdtree_find_dominator(DomSetNode *root, DomSetNode *dsnode, int h
     if( ! root )
         return NULL;
 
-    printf("   test with: "); dsnode_fprintf(stdout, root); printf("\n");
     if( dsnode_dominates(root, dsnode) )
         return root;
 
@@ -559,9 +551,6 @@ void _dstree_dp_iter(DomSetTree *dstree, int idx){
 
         /* IF NEW NODE IS FEASIBLE */
         if( new_dsnode ){
-            printf(" testing node: ");
-            dsnode_fprintf(stdout, new_dsnode);
-            printf("\n");
             /* TRY TO FIND A DOMINANT NODE */
             if( dstree->kdtree )
                 dominant = dskdtree_find_dominator(dstree->kdtree, new_dsnode);
@@ -575,9 +564,6 @@ void _dstree_dp_iter(DomSetTree *dstree, int idx){
             if( !dominant ){
                 dstree_insert(dstree, new_dsnode);
             }else{
-                printf("   has dominant: ");
-                dsnode_fprintf(stdout, dominant);
-                printf("\n");
                 dsnode_free(new_dsnode);
             }
         }else{

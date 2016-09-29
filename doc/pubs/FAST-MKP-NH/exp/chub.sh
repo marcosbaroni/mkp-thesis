@@ -38,3 +38,6 @@ for n in $ns; do
 	done
 done
 
+# for paralel executing of the benchmark:
+# for i in 1 2 3 4 5 ; do ./chub.sh $i results/out$i.csv; done
+# for i in 6 7 8 9 10; do ./chub.sh $i results/out$i.csv; done
