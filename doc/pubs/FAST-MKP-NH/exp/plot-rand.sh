@@ -52,7 +52,8 @@ function plotdata(){
 
     set key left
     set title "Comparacoes - 14 itens"
-    set ylabel "N. compacaoes"
+    set ylabel "N. comparacoes"
+    set xlabel "Dimensao do problema"
     set output '$2'
     plot '$1' u 2 title 'KD-Tree', '' u 3 title 'Lista', '' u 0:(0):xticlabel(1) w l title ''
 
