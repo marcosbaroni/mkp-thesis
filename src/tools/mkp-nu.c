@@ -72,12 +72,12 @@ void teste_dstree_profile(DomSetTree *dstree){
     _find_median(ord_profit, ord_bleft0, ord_bleft1, inserting_ord, 0, n_nodes-1, 0);
 
     /* print kdtree profile */
-    dskdtree_fprintf_balance_profile(stdout, dstree->kdtree);
+    //dskdtree_fprintf_balance_profile(stdout, dstree->kdtree);
 
     /* building balanced tree */
 
     /* print kdtree profile */
-    dskdtree_fprintf_balance_profile(stdout, dstree->kdtree);
+    //dskdtree_fprintf_balance_profile(stdout, dstree->kdtree);
 
     free(ord_profit);
     free(ord_bleft0);
@@ -92,6 +92,8 @@ int execute_nemullman(int argc, char **argv){
 	FILE *input;        /* input stream */
 	MKPSol *best_sol;
     DomSetTree *dstree;
+    double mean_h;
+    double ideal_h;
 
     int alg;
 	int i, n;
@@ -151,11 +153,18 @@ int execute_nemullman(int argc, char **argv){
     }
 	cf = clock();
     best_sol = dsnode_get_mkpsol(dstree->best);
+    mean_h = dskdtree_mean_h(dstree->kdtree);
+    ideal_h = ceil(log2(dstree->n));
 
     //teste_dstree_profile(dstree);
 
 	/* OUTPUT SOLUTION */
-	printf("%d;%llu;%.3lf;", dstree->n, dstree->n_comparison, ((cf-c0)*1./CLOCKS_PER_SEC));
+	printf("%d;%llu;%.3lf;%.3lf;%.3lf",
+            dstree->n,
+            dstree->n_comparison,
+            ((cf-c0)*1./CLOCKS_PER_SEC),
+            mean_h,
+            ideal_h);
     mkpnum_fprintf(stdout, best_sol->obj);
 	printf("\n");
 

@@ -89,7 +89,7 @@ DomSetKDTree *dskdtree_insert(DomSetKDTree *dskdtree, DomSetNode *dsnode);
 DomSetKDTree *dskdtree_remove(DomSetKDTree *dskdtree, DomSetNode *dsnode);
 DomSetNode *dskdtree_find_dominator(DomSetKDTree *dskdtree, DomSetNode *dsnode);
 DomSetKDTree *dskdtree_balance(DomSetKDTree *dskdtree);
-void dskdtree_fprintf_balance_profile(FILE *fout, DomSetKDTree *kdtree);
+double dskdtree_mean_h(DomSetKDTree *kdtree);
 
 #endif
 

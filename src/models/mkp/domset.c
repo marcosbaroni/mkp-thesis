@@ -218,6 +218,7 @@ void dstree_set_lbucket(DomSetTree *dstree, LinkedBucket *lbucket){
 
 void dstree_set_kdtree(DomSetTree *dstree, DomSetKDTree *kdtree){
     dstree->kdtree = kdtree;
+    kdtree->dstree = dstree;
 }
 
 DomSetTree *dstree_insert(DomSetTree *dstree, DomSetNode *dsnode){
@@ -658,23 +659,25 @@ DomSetKDTree *dskdtree_balance(DomSetKDTree *dskdtree){
     return dskdtree;
 }
 
-void dskdtree_fprintf_balance_profile(FILE *fout, DomSetKDTree *kdtree){
-    int i, nmax;
+double dskdtree_mean_h(DomSetKDTree *kdtree){
+    int i, hmax;
     int *count;
-    nmax = 100;
+    double mean_h;
+    hmax = 100;
 
-    count = (int*)malloc(nmax*sizeof(int));
-    for( i = 0 ; i < nmax ; i++ )
+    count = (int*)malloc(hmax*sizeof(int));
+    for( i = 0 ; i < hmax ; i++ )
         count[i] = 0;
-    _dskdtree_get_profile(kdtree->root, 0, count, &nmax);
+    _dskdtree_get_profile(kdtree->root, 0, count, &hmax);
 
-    for( i = 0 ; i < nmax ; i++ )
+    mean_h = 0;
+    for( i = 0 ; i < hmax ; i++ )
         if( count[i] )
-            printf("%d: %d\n", i, count[i]);
+            mean_h += i*((double)count[i]/((double)kdtree->dstree->n));
 
     free(count);
 
-    return;
+    return mean_h;
 }
 
 void _get_median(DomSetNode **dsns, DomSetNode **dsns_ord, int *k, int a, int b, int h, int ndim){
