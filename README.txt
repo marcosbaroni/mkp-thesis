@@ -1,7 +1,7 @@
 Autor: Marcos Daniel V. Baroni
 Data: Qui Dez 26 14:26:25 BRST 2013
 
-PASTAS e ARQUIVOS
+PASTAS e ARQUIVOS:
 
 src/           # Códigos fontes de programas desenvolvidos;
 mip/           # Definições de modelos matemáticos do problema,
