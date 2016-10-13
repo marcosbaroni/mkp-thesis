@@ -5,7 +5,7 @@ DEST=../bin
 DEBUG_FLAG=-DDEBUG_LVL=1
 SOPLEX=-lsoplex -lz -lgmp -lm
 
-all: mkp
+all: mkp mokp
 mkp: mkp-nu mkp-rand mkp2zpl
 mkp-nu: util.o mkp.o domset.o lp.o mkp-soputils.o mkp-nu.o balev.o lbucket.o ppm.o
 	g++ $(CFLAGS) -o mkp-nu mkp-nu.o util.o lp.o mkp.o balev.o domset.o mkp-soputils.o lbucket.o ppm.o -lm $(SOPLEX) $(DEBUG_FLAG)
@@ -43,6 +43,10 @@ util.o:
 	gcc -c utils/util.c
 
 mkp.o: utils/util.c
-
+mokp: mokp.o util.o
+	gcc $(CFLAGS) -o mokp tools/mokp.c mokp.o util.o -lm
+	mv mokp $(DEST)
+mokp.o:
+	gcc $(CFLAGS) -c models/mokp/mokp.c
 clean:
 	rm *.o
