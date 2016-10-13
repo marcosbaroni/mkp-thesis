@@ -842,6 +842,28 @@ double *double_array_from_scip(double *array, FILE *in){
 	return array;
 }
 
+double *double_array_read(FILE *fin, double *p, int n){
+    int i;
+    int nerr;
+
+    if(!p)
+        p = (double*)malloc(n*sizeof(double));
+
+    for( i = 0 ; i < n ; i++ )
+        nerr = fscanf(fin, "%lf", &(p[i]));
+
+    return p;
+}
+
+void double_array_write(FILE *out, double *p, int n){
+    int i;
+
+    for( i = 0 ; i < n ; i++ )
+        fprintf(out, "%.3lf ", p[i]);
+
+    return;
+}
+
 int dis_cmp(void *arg, int a, int b){
 	double da, db;
 	int ia, ib;
