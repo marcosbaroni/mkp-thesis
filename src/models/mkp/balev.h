@@ -3,7 +3,7 @@
 
 #include "mkp.h"
 #include "domset.h"
-#include "soputils.h"
+#include "mkp-soputils.h"
 #include "lbucket.h"
 /*
  *  TODO: *Testar completar as soluções usando variaveis livres com maior eficiencia

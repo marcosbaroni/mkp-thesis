@@ -6,7 +6,7 @@
 
 #include "domset.h"
 #include "mkp.h"
-#include "soputils.h"
+#include "mkp-soputils.h"
 #include "lbucket.h"
 #include "../../utils/ppm.h"
 

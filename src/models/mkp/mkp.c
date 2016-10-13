@@ -9,7 +9,7 @@
 #include "../../metahrs/des.h"
 #include "../../metahrs/sfl.h"
 #include "../../utils/lp.h"
-#include "soputils.h"
+#include "mkp-soputils.h"
 
 /* chu beasley instance best known objectives */
 mkpnum chubeas_best[3][3][3][10] = {

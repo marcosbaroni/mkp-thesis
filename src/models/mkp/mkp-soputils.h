@@ -1,5 +1,5 @@
-#ifndef SOPUTILS_H
-#define SOPUTILS_H 1
+#ifndef MKP_SOPUTILS_H
+#define MKP_SOPUTILS_H 1
 
 #ifdef __cplusplus
 extern "C" {
