@@ -1423,3 +1423,131 @@ int ipow(int base, int exp){
 
     return result;
 }
+
+/*******************************************************************************
+ ***     KD-TREE
+*******************************************************************************/
+
+KDTree *kdtree_new( int ndim, kdtree_eval_f eval_f){
+    KDTree *kdtree;
+    kdtree = (KDTree*)malloc(sizeof(KDTree));
+
+    kdtree->eval_f = eval_f;
+    kdtree->root = NULL;
+    kdtree->n = 0;
+    kdtree->ndim = ndim;
+
+    return kdtree;
+}
+
+void _kdtree_insert(KDTree *kdtree, KDNode *root, KDNode *kdn, int h){
+    double rval;
+    double eval;
+    int dim;
+
+    dim = h % kdtree->ndim;
+    rval = kdtree->eval_f(root->info, dim);
+    eval = kdtree->eval_f(kdn->info, dim);
+
+    if( eval > rval ) /* insert in right branch */
+        if( root->right )
+            _kdtree_insert(kdtree, root->right, kdn, h+1);
+        else
+            { root->right = kdn; kdn->up = root; }
+    else              /* insert in left branch */
+        if( root->left )
+            _kdtree_insert(kdtree, root->left, kdn, h+1);
+        else
+        { root->left = kdn; kdn->up = root; }
+
+    return;
+}
+
+KDTree *kdtree_insert( KDTree *kdtree, void *element){
+    KDNode *kdn;
+
+    kdn = (KDNode*)malloc(sizeof(KDNode));
+    kdn->info = element;
+    kdn->up = kdn->right = kdn->left = NULL;
+
+    if( !kdtree->root ){
+        kdtree->root = kdn;
+        kdn->val = kdtree->eval_f(element, 0);
+    }else
+        _kdtree_insert(kdtree, kdtree->root, kdn, 0);
+
+    kdtree->n++;
+
+    return kdtree;
+}
+
+/*
+ * Procedure:
+ *   1. check if root is inside range (if true, return root)
+ *   2. check if right hypercube intersects range (if true, call for right)
+ *   3. check if left hypercube intersects range (if true, call for left)
+ *
+ * obs.: Consider infinity bounds
+ */
+void *_kdtree_range_search(KDTree *kdtree, KDNode *root, double *bounds, int h, property_f prop_f){
+    double val, lower, upper;
+    int i, dim, ndim, meets;
+    kdtree_eval_f eval_f;
+    void *ret;
+
+    ndim = kdtree->ndim;
+    eval_f = kdtree->eval_f;
+    ret = NULL;
+
+    /* check if root is inside range */
+    meets = 1;
+    for( i = 0 ; i < ndim && meets ; i++ ){
+        val = eval_f(root, i);
+        lower = bounds[i*2];
+        upper = bounds[i*2+1];
+        meets = (val <= lower) && (val >= upper);
+    }
+    /* if is inside, check if has desired property */
+    if( meets )
+        meets = prop_f(root);
+
+    /* if is inside and meets property, return */
+    if( meets )
+        return root->info;
+
+    /* root does not meet, continuing search throught children... */
+    dim = h % kdtree->ndim; /* the dimention index to be used */
+    val = kdtree->eval_f(root->info, dim); /* value of root for the dim used */
+    lower = bounds[dim*2];
+    upper = bounds[dim*2+1];
+
+    /* search right branch */
+    if( root->right )
+        if( val <= upper )
+            ret = _kdtree_range_search(kdtree, root->right, bounds, h+1, prop_f);
+
+    if( ret )
+        return ret;
+
+    /* search left branch */
+    if( root->left )
+        if( val >= lower )
+            ret = _kdtree_range_search(kdtree, root->left, bounds, h+1, prop_f);
+
+    return ret;
+}
+
+
+/*
+ * kdtree: the KD-Tree
+ * bounds: array representing the bounds for search.
+ *         Ex.: For first hyper-quadrant on 3 dimensions {0.0, INFINITY, 0,0, INFINITY, 0.0, INFINITY}
+ * prop_f: optional function to check if a candidate node, found inside range, has
+ *         the desired property. If not, range search wont return it and will keep searching.
+ */
+int always_has_prop(void *a){ return 1; }
+void *kdtree_range_search(KDTree *kdtree, double *bounds, property_f prop_f){
+    if( !prop_f ) return _kdtree_range_search(kdtree, kdtree->root, bounds, 0, always_has_prop );
+    else return _kdtree_range_search(kdtree, kdtree->root, bounds, 0, prop_f);
+}
+

@@ -27,5 +27,6 @@ bin/mkp-sfl-batch
 bin/mkp-simplex
 bin/mmkp-rand
 bin/ssum-rand
+bin/mokp
 insts/chubeas/*
 mkp-fast-nu

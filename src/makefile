@@ -50,3 +50,4 @@ mokp.o:
 	gcc $(CFLAGS) -c models/mokp/mokp.c
 clean:
 	rm *.o
+

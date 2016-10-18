@@ -177,5 +177,34 @@ void debug(char *msg);
 double sigmoid(double x);             /* logistic sigmoid */
 int ipow(int base, int exp);
 
+/*******************************************************************************
+ ***     KD-TREE
+*******************************************************************************/
+typedef double (*kdtree_eval_f)(void*, int dim); /* used to insert element, to
+                                               decide each side of tree */
+typedef int (*property_f)(void *);
+typedef struct KDNode{
+    void *info;
+    double val;
+
+    struct KDNode *up;
+    struct KDNode *right;
+    struct KDNode *left;
+}KDNode;
+
+typedef struct KDTree{
+    int n;
+    int ndim;
+    KDNode *root;
+    kdtree_eval_f eval_f;
+
+/* use statitical info?
+    - height of nodes in tree
+    - navegation/comparison statistics */
+}KDTree;
+
+KDTree *kdtree_new( int ndim, kdtree_eval_f eval_f);
+void *kdtree_range_search(KDTree *kdtree, double *bounds, property_f);
+
 #endif
 
