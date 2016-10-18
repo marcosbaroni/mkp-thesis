@@ -1547,10 +1547,16 @@ void *_kdtree_range_search(KDTree *kdtree, KDNode *root, double *bounds, int h, 
  */
 int always_has_prop(void *a){ return 1; }
 void *kdtree_range_search(KDTree *kdtree, double *bounds, property_f prop_f){
+    if( !kdtree->root )
+        return NULL;
+
     if( !prop_f ) return _kdtree_range_search(kdtree, kdtree->root, bounds, 0, always_has_prop, NULL);
     else return _kdtree_range_search(kdtree, kdtree->root, bounds, 0, prop_f, NULL);
 }
 void *kdtree_range_search_r(KDTree *kdtree, double *bounds, property_f_r prop_f, void *prop_arg){
+    if( !kdtree->root )
+        return NULL;
+
     return _kdtree_range_search(kdtree, kdtree->root, bounds, 0, always_has_prop, prop_arg);
 }
 

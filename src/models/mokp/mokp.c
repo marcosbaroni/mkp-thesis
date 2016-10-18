@@ -27,13 +27,17 @@ MOKP *mokp_random(int n, int np){
     MOKP *mokp;
     int i, j;
     double maxcoef = 1000.0;
+    double b;
 
     mokp = mokp_alloc(n, np);
+    mokp->b = 0;
     for( i = 0 ; i < n ; i++ ){
         for( j = 0 ; j < np ; j++ )
             mokp->p[j][i] = (double)llrand(1000);
         mokp->w[i] = (double)llrand(1000);
+        mokp->b += mokp->w[i];
     }
+    mokp->b = (mokp->b / 2);
 
     return mokp;
 }
@@ -67,7 +71,7 @@ void mokp_write(FILE *out, MOKP *mokp){
     /* writing weight of items */
     double_array_write(out, mokp->w, n);
     /* writing capacity */
-    fprintf(out, "%lf\n", mokp->b);
+    fprintf(out, "\n%.3lf\n", mokp->b);
 
     return;
 }
