@@ -153,6 +153,17 @@ MOKPNode *mokpnode_new(MOKP *mokp, MOKPNode *father, int idx){
     return node;
 }
 
+void mokpnode_fprintf(FILE *out, MOKPNode *node){
+    int i, np;
+    np = node->mokp->np;
+    fprintf(out, "%x: ", node);
+    for( i = 0 ; i < np ; i++ )
+        fprintf(out, "%.0lf ", node->profit[i]);
+    fprintf(out, "(%.0lf)\n", node->b_left);
+
+    return;
+}
+
 void mokpnode_free(MOKPNode *node){
     free(node->profit);
     free(node);
@@ -197,6 +208,7 @@ void _mokp_dynprog(MOKP *mokp, MOKPNode *root, int idx, KDTree *kdtree, MOKPNode
     if( kdtree )
         ndim = kdtree->ndim;
 
+    mokpnode_fprintf(stdout, root);
     /* iterate for each existant node */
     do{
         /* create new node, using index */
@@ -227,6 +239,17 @@ void _mokp_dynprog(MOKP *mokp, MOKPNode *root, int idx, KDTree *kdtree, MOKPNode
                 if( mokpnode_dominates(current, new) )
                     dominant = current;
             }while( current != init_tail && !dominant );
+        }
+
+        /* inserint if new node is not dominated */
+        if( !dominant ){
+            new->prev = *tail;
+            (*tail)->next = new;
+            *tail = new;
+            if( kdtree )
+                kdtree_insert(kdtree, new);
+        }else{
+            mokpnode_free(new);
         }
 
         /* check if new node is potential */
