@@ -182,7 +182,8 @@ int ipow(int base, int exp);
 *******************************************************************************/
 typedef double (*kdtree_eval_f)(void*, int dim); /* used to insert element, to
                                                decide each side of tree */
-typedef int (*property_f)(void *);
+typedef int (*property_f)(void *element);
+typedef int (*property_f_r)(void *element, void *arg);
 typedef struct KDNode{
     void *info;
     double val;
@@ -204,7 +205,10 @@ typedef struct KDTree{
 }KDTree;
 
 KDTree *kdtree_new( int ndim, kdtree_eval_f eval_f);
+KDTree *kdtree_insert( KDTree *kdtree, void *element);
 void *kdtree_range_search(KDTree *kdtree, double *bounds, property_f);
+void *kdtree_range_search_r(KDTree *kdtree, double *bounds, property_f_r prop_f, void *prop_arg);
+void kdtree_free(KDTree *kdtree);
 
 #endif
 

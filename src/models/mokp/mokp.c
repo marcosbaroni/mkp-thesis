@@ -57,13 +57,17 @@ void mokp_write(FILE *out, MOKP *mokp){
 
     n = mokp->n;
     np = mokp->np;
+    /* size of instance */
     fprintf(out, "%d %d\n", mokp->n, mokp->np);
+    /* writing profits of items */
     for( j = 0 ; j < np ; j++ ){
         double_array_write(out, mokp->p[j], n);
         fprintf(out, "\n");
     }
+    /* writing weight of items */
     double_array_write(out, mokp->w, n);
-    fprintf(out, "\n");
+    /* writing capacity */
+    fprintf(out, "%lf\n", mokp->b);
 
     return;
 }
@@ -80,6 +84,7 @@ MOKP *mokp_read(FILE *fin){
     for( i = 0 ; i < np ; i++ )
         mokp->p[i] = double_array_read(fin, mokp->p[i], n);
     double_array_read(fin, mokp->w, n);
+    nerr = fscanf(fin, "%lf", &(mokp->b));
 
     return mokp;
 }
@@ -113,5 +118,159 @@ MOKP *mokp_open(char *filename){
     fclose(fin);
 
     return mokp;
+}
+
+/* MOKP Node (for Dynamic Programming) */
+MOKPNode *mokpnode_new(MOKP *mokp, MOKPNode *father, int idx){
+    MOKPNode *node;
+    int np, i;
+
+    np = mokp->np;
+
+    node = (MOKPNode*)malloc(sizeof(MOKPNode));
+    node->father = node->next = node->prev = NULL;
+    node->mokp = mokp;
+
+    if( !father ){   /* empty solution (the first one) */
+        node->idx = -1;
+        node->b_left = mokp->b;
+        node->profit = double_array_init(NULL, np, 0.0);
+    }else{
+        node->idx = idx;
+        node->profit = double_array_copy(father->profit, np);
+        node->b_left = father->b_left;
+        node->father = father;
+
+        node->b_left -= mokp->w[idx];
+        for( i = 0 ; i < np ; i++ )
+            node->profit[i] += mokp->p[i][idx];
+    }
+
+    return node;
+}
+
+void mokpnode_free(MOKPNode *node){
+    free(node->profit);
+    free(node);
+
+    return;
+}
+
+double mokpnode_axis_val(MOKPNode *node, int h){
+    if( h <= node->mokp->np )
+        return node->profit[h];
+    return node->b_left;
+}
+
+int mokpnode_dominates(MOKPNode *dominant, MOKPNode *node){
+    int np, dominates;
+    np = dominant->mokp->np;
+    dominates = 1;
+    switch(np){
+        case 6: dominates |= dominant->profit[5] > node->profit[5];
+        case 5: dominates |= dominant->profit[4] > node->profit[4];
+        case 4: dominates |= dominant->profit[3] > node->profit[3];
+        case 3: dominates |= dominant->profit[2] > node->profit[2];
+        case 2: dominates |= dominant->profit[1] > node->profit[1];
+        case 1: dominates |= dominant->profit[0] > node->profit[0];
+    }
+
+    return dominates;
+}
+
+/* Solving */
+void _mokp_dynprog(MOKP *mokp, MOKPNode *root, int idx, KDTree *kdtree, MOKPNode **tail, int *n_nodes){
+    MOKPNode *current;
+    MOKPNode *new;
+    MOKPNode *dominant;
+    MOKPNode *init_tail;
+    double bounds[10];
+    int ndim, np;
+
+    init_tail = *tail;
+    current = root;
+    np = mokp->np;
+    if( kdtree )
+        ndim = kdtree->ndim;
+
+    /* iterate for each existant node */
+    do{
+        /* create new node, using index */
+        new = mokpnode_new(mokp, current, idx);
+        /* check if dominant exists */
+        dominant = NULL;
+        if( kdtree ){
+            /* using kdtree */
+            switch( ndim ){
+                /* configuring bounds */
+                case 5: bounds[8] = new->profit[4]; bounds[9] = INFINITY;
+                case 4: bounds[6] = new->profit[3]; bounds[7] = INFINITY;
+                case 3: bounds[4] = new->profit[2]; bounds[5] = INFINITY;
+                case 2: bounds[2] = new->profit[1]; bounds[3] = INFINITY;
+                case 1: bounds[0] = new->profit[0]; bounds[1] = INFINITY;
+            }
+            /* check dominance */
+            dominant =
+                (MOKPNode*)kdtree_range_search_r(
+                    kdtree,
+                    bounds,
+                    (property_f_r)mokpnode_dominates,
+                    new);
+        }else{
+            /* use plain list */
+            current = root;
+            do{
+                if( mokpnode_dominates(current, new) )
+                    dominant = current;
+            }while( current != init_tail && !dominant );
+        }
+
+        /* check if new node is potential */
+        current = current->next;
+    }while( current != init_tail );
+
+    return;
+}
+
+/*
+ *       mokp: the problem instance
+ * use_kdtree: if want to use kdtree
+ *          k: number of iterations
+ *       idxs: custom ordering of variables
+ * */
+void mokp_dynprog(MOKP *mokp, int use_kdtree, int k, int *idxs){
+    KDTree *kdtree = NULL;
+    MOKPNode *root;
+    MOKPNode *current_node;
+    MOKPNode *next_node;
+    MOKPNode *tail;
+    int i, n_nodes;
+
+    n_nodes = 0;
+    tail = root = mokpnode_new(mokp, NULL, -1);
+
+    /* config kdtree */
+    if( use_kdtree ){
+        kdtree = kdtree_new(3, (kdtree_eval_f)mokpnode_axis_val);
+        kdtree_insert(kdtree, root);
+    }
+
+    /* iterate */
+    for( i = 0 ; i < k ; i++ ){
+        _mokp_dynprog(mokp, root, idxs[i], kdtree, &tail, &n_nodes);
+    }
+
+    /* freeing variables */
+    if( kdtree )
+        kdtree_free(kdtree);
+    /* freeing mokp nodes */
+    next_node = root;
+    while( next_node ){
+        current_node = next_node;
+        next_node = next_node->next;
+        mokpnode_free(current_node);
+    }
+
+    return;
 }
 

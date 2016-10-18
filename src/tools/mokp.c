@@ -32,12 +32,51 @@ int execute_rand(int argc, char **argv){
     return 0;
 }
 
-void print_usage(int argc, char **argv){
-    printf("Multiobjective Knapsack Problem analysis tool\n\n");
-    printf("  usage: %s <option> [args...]\n\n", argv[0]);
+void print_usage_dynprog(int argc, char **argv){
+    printf("usage: %s dynprog <option> [input file]\n", argv[0]);
+    printf("Solve Multiobjective Knapsack Problem using Dynamic Programming.\n\n");
     printf("Please check option list below:\n");
-    printf("  rand\tGenerate a random MOKP instance");
-    printf("\n");
+    printf("  1\tusing plain list\n");
+    printf("  2\tusing KD-tree\n");
+}
+
+int execute_dynprog(int argc, char **argv){
+    FILE *input;
+    int option, use_kdtree;
+	clock_t c0, cf;
+    double exec_time;
+    MOKP *mokp;
+
+    input = stdout;
+
+    if( argc < 3 ){
+        print_usage_dynprog(argc, argv);
+        return 1;
+    }
+
+    option = atoll(argv[2]);
+
+    switch(option){
+        case 1:
+            break;
+        case 2:
+            use_kdtree = 1;
+            break;
+    }
+
+	c0 = clock();
+    //mkp_balev(mkpsol, use_lb);
+    exec_time = (clock()-c0)*1./CLOCKS_PER_SEC;
+
+    return 0;
+}
+
+void print_usage(int argc, char **argv){
+    printf("usage: %s <option> [args...]\n", argv[0]);
+    printf("Multiobjective Knapsack Problem analysis tool.\n\n");
+    printf("Please check option list below:\n");
+    printf("  rand\tGenerate a random MOKP instance\n");
+    printf("  rand\tSolve a MOKP using dynamic programming\n");
 
     return;
 }
@@ -53,6 +92,8 @@ int main(int argc, char **argv){
 
     if(!strcmp(option, "rand"))
         return execute_rand(argc, argv);
+    if(!strcmp(option, "dynprog"))
+        return execute_dynprog(argc, argv);
 
     print_usage(argc, argv);
 

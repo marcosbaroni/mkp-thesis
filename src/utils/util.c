@@ -1427,7 +1427,6 @@ int ipow(int base, int exp){
 /*******************************************************************************
  ***     KD-TREE
 *******************************************************************************/
-
 KDTree *kdtree_new( int ndim, kdtree_eval_f eval_f){
     KDTree *kdtree;
     kdtree = (KDTree*)malloc(sizeof(KDTree));
@@ -1489,7 +1488,7 @@ KDTree *kdtree_insert( KDTree *kdtree, void *element){
  *
  * obs.: Consider infinity bounds
  */
-void *_kdtree_range_search(KDTree *kdtree, KDNode *root, double *bounds, int h, property_f prop_f){
+void *_kdtree_range_search(KDTree *kdtree, KDNode *root, double *bounds, int h, void *prop_f, void *prop_arg){
     double val, lower, upper;
     int i, dim, ndim, meets;
     kdtree_eval_f eval_f;
@@ -1509,7 +1508,8 @@ void *_kdtree_range_search(KDTree *kdtree, KDNode *root, double *bounds, int h, 
     }
     /* if is inside, check if has desired property */
     if( meets )
-        meets = prop_f(root);
+        if( prop_arg ) meets = ((property_f)prop_f)(root);
+        else meets = ((property_f_r)prop_f)(root, prop_arg);
 
     /* if is inside and meets property, return */
     if( meets )
@@ -1524,7 +1524,7 @@ void *_kdtree_range_search(KDTree *kdtree, KDNode *root, double *bounds, int h, 
     /* search right branch */
     if( root->right )
         if( val <= upper )
-            ret = _kdtree_range_search(kdtree, root->right, bounds, h+1, prop_f);
+            ret = _kdtree_range_search(kdtree, root->right, bounds, h+1, prop_f, prop_arg);
 
     if( ret )
         return ret;
@@ -1532,7 +1532,7 @@ void *_kdtree_range_search(KDTree *kdtree, KDNode *root, double *bounds, int h, 
     /* search left branch */
     if( root->left )
         if( val >= lower )
-            ret = _kdtree_range_search(kdtree, root->left, bounds, h+1, prop_f);
+            ret = _kdtree_range_search(kdtree, root->left, bounds, h+1, prop_f, prop_arg);
 
     return ret;
 }
@@ -1547,7 +1547,25 @@ void *_kdtree_range_search(KDTree *kdtree, KDNode *root, double *bounds, int h, 
  */
 int always_has_prop(void *a){ return 1; }
 void *kdtree_range_search(KDTree *kdtree, double *bounds, property_f prop_f){
-    if( !prop_f ) return _kdtree_range_search(kdtree, kdtree->root, bounds, 0, always_has_prop );
-    else return _kdtree_range_search(kdtree, kdtree->root, bounds, 0, prop_f);
+    if( !prop_f ) return _kdtree_range_search(kdtree, kdtree->root, bounds, 0, always_has_prop, NULL);
+    else return _kdtree_range_search(kdtree, kdtree->root, bounds, 0, prop_f, NULL);
+}
+void *kdtree_range_search_r(KDTree *kdtree, double *bounds, property_f_r prop_f, void *prop_arg){
+    return _kdtree_range_search(kdtree, kdtree->root, bounds, 0, always_has_prop, prop_arg);
+}
+
+void _kdnode_free(KDNode *kdn){
+    if(kdn->right) _kdnode_free(kdn->right);
+    if(kdn->left) _kdnode_free(kdn->left);
+    free(kdn);
+
+    return;
+}
+
+void kdtree_free(KDTree *kdtree){
+    _kdnode_free(kdtree->root);
+    free(kdtree);
+
+    return;
 }
 
