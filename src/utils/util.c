@@ -1501,7 +1501,7 @@ void *_kdtree_range_search(KDTree *kdtree, KDNode *root, double *bounds, int h, 
     /* check if root is inside range */
     meets = 1;
     for( i = 0 ; i < ndim && meets ; i++ ){
-        val = eval_f(root, i);
+        val = eval_f(root->info, i);
         lower = bounds[i*2];
         upper = bounds[i*2+1];
         meets = (val <= lower) && (val >= upper);

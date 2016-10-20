@@ -159,7 +159,7 @@ void mokpnode_fprintf(FILE *out, MOKPNode *node){
     fprintf(out, "%x: ", node);
     for( i = 0 ; i < np ; i++ )
         fprintf(out, "%.0lf ", node->profit[i]);
-    fprintf(out, "(%.0lf)\n", node->b_left);
+    fprintf(out, "(%.0lf)", node->b_left);
 
     return;
 }
@@ -180,27 +180,30 @@ double mokpnode_axis_val(MOKPNode *node, int h){
 int mokpnode_dominates(MOKPNode *dominant, MOKPNode *node){
     int np, dominates;
     np = dominant->mokp->np;
+
     dominates = 1;
     switch(np){
-        case 6: dominates |= dominant->profit[5] > node->profit[5];
-        case 5: dominates |= dominant->profit[4] > node->profit[4];
-        case 4: dominates |= dominant->profit[3] > node->profit[3];
-        case 3: dominates |= dominant->profit[2] > node->profit[2];
-        case 2: dominates |= dominant->profit[1] > node->profit[1];
-        case 1: dominates |= dominant->profit[0] > node->profit[0];
+        case 6: dominates &= (dominant->profit[5] > node->profit[5]);
+        case 5: dominates &= (dominant->profit[4] > node->profit[4]);
+        case 4: dominates &= (dominant->profit[3] > node->profit[3]);
+        case 3: dominates &= (dominant->profit[2] > node->profit[2]);
+        case 2: dominates &= (dominant->profit[1] > node->profit[1]);
+        case 1: dominates &= (dominant->profit[0] > node->profit[0]);
     }
+    dominates &= dominant->b_left >= node->b_left;
 
     return dominates;
 }
 
 /* Solving */
 void _mokp_dynprog(MOKP *mokp, MOKPNode *root, int idx, KDTree *kdtree, MOKPNode **tail, int *n_nodes){
-    MOKPNode *current;
+    MOKPNode *current, *current2;
     MOKPNode *new;
     MOKPNode *dominant;
     MOKPNode *init_tail;
     double bounds[10];
     int ndim, np;
+    int last_node, last_node2;
 
     init_tail = *tail;
     current = root;
@@ -208,9 +211,11 @@ void _mokp_dynprog(MOKP *mokp, MOKPNode *root, int idx, KDTree *kdtree, MOKPNode
     if( kdtree )
         ndim = kdtree->ndim;
 
-    mokpnode_fprintf(stdout, root);
     /* iterate for each existant node */
+    last_node = 0;
     do{
+        if( current == init_tail )
+            last_node = 1;
         /* create new node, using index */
         new = mokpnode_new(mokp, current, idx);
         /* check if dominant exists */
@@ -233,28 +238,32 @@ void _mokp_dynprog(MOKP *mokp, MOKPNode *root, int idx, KDTree *kdtree, MOKPNode
                     (property_f_r)mokpnode_dominates,
                     new);
         }else{
-            /* use plain list */
-            current = root;
+            current2 = root; /* using plain list */
+            last_node2 = 0;
             do{
-                if( mokpnode_dominates(current, new) )
+                last_node2 = ( current2 == init_tail );
+                if( mokpnode_dominates(current2, new) )
                     dominant = current;
-            }while( current != init_tail && !dominant );
+                current2 = current2->next;
+            }while( !last_node2 && !dominant );
         }
 
         /* inserint if new node is not dominated */
         if( !dominant ){
+            /* inserting node in list */
             new->prev = *tail;
             (*tail)->next = new;
             *tail = new;
+
+            (*n_nodes)++;
             if( kdtree )
                 kdtree_insert(kdtree, new);
         }else{
             mokpnode_free(new);
         }
 
-        /* check if new node is potential */
         current = current->next;
-    }while( current != init_tail );
+    }while( !last_node );
 
     return;
 }
@@ -265,7 +274,7 @@ void _mokp_dynprog(MOKP *mokp, MOKPNode *root, int idx, KDTree *kdtree, MOKPNode
  *          k: number of iterations
  *       idxs: custom ordering of variables
  * */
-void mokp_dynprog(MOKP *mokp, int use_kdtree, int k, int *idxs){
+int mokp_dynprog(MOKP *mokp, int use_kdtree, int k, int *idxs){
     KDTree *kdtree = NULL;
     MOKPNode *root;
     MOKPNode *current_node;
@@ -273,7 +282,7 @@ void mokp_dynprog(MOKP *mokp, int use_kdtree, int k, int *idxs){
     MOKPNode *tail;
     int i, n_nodes;
 
-    n_nodes = 0;
+    n_nodes = 1;
     tail = root = mokpnode_new(mokp, NULL, -1);
 
     /* config kdtree */
@@ -298,6 +307,6 @@ void mokp_dynprog(MOKP *mokp, int use_kdtree, int k, int *idxs){
         mokpnode_free(current_node);
     }
 
-    return;
+    return n_nodes;
 }
 
