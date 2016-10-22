@@ -205,6 +205,19 @@ void _mokp_dynprog(MOKP *mokp, MOKPNode *root, int idx, KDTree *kdtree, MOKPNode
     int ndim, np;
     int last_node, last_node2;
 
+#ifdef MOKP_DEBUG
+    current = root;
+    int i = 1;
+    printf("fixing item %d\n", idx);
+    printf(" current nodes:\n");
+    do{
+        printf(" - %d ", i);
+        mokpnode_fprintf(stdout, current);
+        printf("\n");
+        i++;
+    }while( current = current->next );
+#endif
+
     init_tail = *tail;
     current = root;
     np = mokp->np;
@@ -218,6 +231,13 @@ void _mokp_dynprog(MOKP *mokp, MOKPNode *root, int idx, KDTree *kdtree, MOKPNode
             last_node = 1;
         /* create new node, using index */
         new = mokpnode_new(mokp, current, idx);
+#ifdef MOKP_DEBUG
+        printf("   - new: ");
+        mokpnode_fprintf(stdout, new);
+        printf("  (father: ");
+        mokpnode_fprintf(stdout, current);
+        printf(")\n");
+#endif
         /* check if dominant exists */
         dominant = NULL;
         if( kdtree ){
@@ -241,7 +261,7 @@ void _mokp_dynprog(MOKP *mokp, MOKPNode *root, int idx, KDTree *kdtree, MOKPNode
             current2 = root; /* using plain list */
             last_node2 = 0;
             do{
-                last_node2 = ( current2 == init_tail );
+                last_node2 = ( current2 == *tail );
                 if( mokpnode_dominates(current2, new) )
                     dominant = current;
                 current2 = current2->next;
@@ -264,6 +284,10 @@ void _mokp_dynprog(MOKP *mokp, MOKPNode *root, int idx, KDTree *kdtree, MOKPNode
 
         current = current->next;
     }while( !last_node );
+
+#ifdef MOKP_DEBUG
+    printf("\n");
+#endif
 
     return;
 }
@@ -301,7 +325,9 @@ int mokp_dynprog(MOKP *mokp, int use_kdtree, int k, int *idxs){
         kdtree_free(kdtree);
     /* freeing mokp nodes */
     next_node = root;
+    printf("PARETO:\n");
     while( next_node ){
+        mokpnode_fprintf(stdout, next_node); printf("\n");
         current_node = next_node;
         next_node = next_node->next;
         mokpnode_free(current_node);

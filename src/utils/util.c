@@ -1498,14 +1498,23 @@ void *_kdtree_range_search(KDTree *kdtree, KDNode *root, double *bounds, int h, 
     eval_f = kdtree->eval_f;
     ret = NULL;
 
+#ifdef MOKP_DEBUG
+    printf("     root is ");
+    mokpnode_fprintf(stdout, root->info);
+    printf("\n");
+#endif
+
     /* check if root is inside range */
     meets = 1;
     for( i = 0 ; i < ndim && meets ; i++ ){
         val = eval_f(root->info, i);
         lower = bounds[i*2];
         upper = bounds[i*2+1];
-        meets = (val <= lower) && (val >= upper);
+        meets = (val >= lower) && (val <= upper);
     }
+#ifdef MOKP_DEBUG
+    printf("     inside bounds: %s\n", meets ? "yes" : "no");
+#endif
     /* if is inside, check if has desired property */
     if( meets )
         if( prop_arg ) meets = ((property_f)prop_f)(root);
@@ -1553,6 +1562,7 @@ void *kdtree_range_search(KDTree *kdtree, double *bounds, property_f prop_f){
     if( !prop_f ) return _kdtree_range_search(kdtree, kdtree->root, bounds, 0, always_has_prop, NULL);
     else return _kdtree_range_search(kdtree, kdtree->root, bounds, 0, prop_f, NULL);
 }
+
 void *kdtree_range_search_r(KDTree *kdtree, double *bounds, property_f_r prop_f, void *prop_arg){
     if( !kdtree->root )
         return NULL;

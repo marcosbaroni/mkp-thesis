@@ -1,6 +1,6 @@
 # -*- Makefile -*-
 CC = gcc
-CFLAGS=-O3 -g
+CFLAGS=-O3 -g -DMOKP_DEBUG=1
 DEST=../bin
 DEBUG_FLAG=-DDEBUG_LVL=1
 SOPLEX=-lsoplex -lz -lgmp -lm
@@ -40,7 +40,7 @@ domset.o:
 lp.o:
 	gcc -c utils/lp.c
 util.o:
-	gcc -c utils/util.c
+	gcc $(CFLAGS) -c utils/util.c
 
 mkp.o: utils/util.c
 mokp: mokp.o util.o
