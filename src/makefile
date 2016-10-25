@@ -1,6 +1,6 @@
 # -*- Makefile -*-
 CC = gcc
-CFLAGS=-O3 -g -DMOKP_DEBUG=1
+CFLAGS=-O3 -g
 DEST=../bin
 DEBUG_FLAG=-DDEBUG_LVL=1
 SOPLEX=-lsoplex -lz -lgmp -lm

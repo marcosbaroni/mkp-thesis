@@ -1517,7 +1517,6 @@ void *_kdtree_range_search(KDTree *kdtree, KDNode *root, double *bounds, int h, 
 #endif
     /* if is inside, check if has desired property */
     if( meets ){
-        printf("testing property\n");
         if( prop_arg ) meets = ((property_f_r)prop_f)(root->info, prop_arg);
         else meets = ((property_f)prop_f)(root->info);
     }

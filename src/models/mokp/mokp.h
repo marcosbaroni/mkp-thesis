@@ -20,10 +20,9 @@ void mokp_save(char *filename, MOKP *mokp);
 MOKP *mokp_open(char *filename);
 void mokp_free(MOKP *mokp);
 
-
 /* MOKP Node (for Dynamic Programming) */
 typedef struct MOKPNode{
-    MOKP *mokp;
+    struct MOKPTree *tree;
 	int idx;	      /* the index of item which was fixed */
     double *profit;   /* [np] */
     double b_left;
@@ -32,11 +31,21 @@ typedef struct MOKPNode{
 	struct MOKPNode *next;	    /* next solution (for list navegation) */
 	struct MOKPNode *prev;	    /* previous solution (for list navegation) */
 }MOKPNode;
-
-MOKPNode *mokpnode_new(MOKP *mokp, MOKPNode *father, int idx);
+MOKPNode *mokpnode_new(MOKPNode *father, int idx);
 void mokpnode_free(MOKPNode *node);
 double mokpnode_axis_val(MOKPNode *node, int h);
 
+/* MOKP Tree (for holding MOKP nodes) */
+typedef struct MOKPTree{
+    MOKP *mokp;
+    int n_nodes;
+
+    MOKPNode *root;
+    MOKPNode *tail;
+
+    KDTree *kdtree;
+}MOKPTree;
+MOKPTree *mokptree_new(MOKP *mokp);
 
 /* Solving */
 int mokp_dynprog(MOKP *mokp, int use_kdtree, int k, int *idxs);
