@@ -1516,9 +1516,11 @@ void *_kdtree_range_search(KDTree *kdtree, KDNode *root, double *bounds, int h, 
     printf("     inside bounds: %s\n", meets ? "yes" : "no");
 #endif
     /* if is inside, check if has desired property */
-    if( meets )
-        if( prop_arg ) meets = ((property_f)prop_f)(root);
-        else meets = ((property_f_r)prop_f)(root, prop_arg);
+    if( meets ){
+        printf("testing property\n");
+        if( prop_arg ) meets = ((property_f_r)prop_f)(root->info, prop_arg);
+        else meets = ((property_f)prop_f)(root->info);
+    }
 
     /* if is inside and meets property, return */
     if( meets )
@@ -1559,7 +1561,9 @@ void *kdtree_range_search(KDTree *kdtree, double *bounds, property_f prop_f){
     if( !kdtree->root )
         return NULL;
 
-    if( !prop_f ) return _kdtree_range_search(kdtree, kdtree->root, bounds, 0, always_has_prop, NULL);
+    if( !prop_f )
+        prop_f = always_has_prop;
+
     else return _kdtree_range_search(kdtree, kdtree->root, bounds, 0, prop_f, NULL);
 }
 
@@ -1567,7 +1571,7 @@ void *kdtree_range_search_r(KDTree *kdtree, double *bounds, property_f_r prop_f,
     if( !kdtree->root )
         return NULL;
 
-    return _kdtree_range_search(kdtree, kdtree->root, bounds, 0, always_has_prop, prop_arg);
+    return _kdtree_range_search(kdtree, kdtree->root, bounds, 0, prop_f, prop_arg);
 }
 
 void _kdnode_free(KDNode *kdn){

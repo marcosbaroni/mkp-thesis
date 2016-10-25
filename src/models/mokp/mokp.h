@@ -37,6 +37,7 @@ MOKPNode *mokpnode_new(MOKP *mokp, MOKPNode *father, int idx);
 void mokpnode_free(MOKPNode *node);
 double mokpnode_axis_val(MOKPNode *node, int h);
 
+
 /* Solving */
 int mokp_dynprog(MOKP *mokp, int use_kdtree, int k, int *idxs);
 

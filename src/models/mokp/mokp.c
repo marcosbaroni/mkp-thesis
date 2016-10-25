@@ -192,6 +192,12 @@ int mokpnode_dominates(MOKPNode *dominant, MOKPNode *node){
     }
     dominates &= dominant->b_left >= node->b_left;
 
+    printf("  ** ");
+    mokpnode_fprintf(stdout, dominant);
+    printf(" dominates ");
+    mokpnode_fprintf(stdout, node);
+    printf(" ? %s\n", dominates ? "YES" : "NO");
+
     return dominates;
 }
 
@@ -270,6 +276,9 @@ void _mokp_dynprog(MOKP *mokp, MOKPNode *root, int idx, KDTree *kdtree, MOKPNode
 
         /* inserint if new node is not dominated */
         if( !dominant ){
+#ifdef MOKP_DEBUG
+            printf("     - no dominant found\n");
+#endif
             /* inserting node in list */
             new->prev = *tail;
             (*tail)->next = new;
@@ -279,6 +288,11 @@ void _mokp_dynprog(MOKP *mokp, MOKPNode *root, int idx, KDTree *kdtree, MOKPNode
             if( kdtree )
                 kdtree_insert(kdtree, new);
         }else{
+#ifdef MOKP_DEBUG
+            printf("     - has dominant: ");
+            mokpnode_fprintf(stdout, dominant );
+            printf("\n");
+#endif
             mokpnode_free(new);
         }
 
