@@ -195,20 +195,21 @@ double mokpnode_axis_val(MOKPNode *node, int h){
 
 int mokpnode_dominates(MOKPNode *dominant, MOKPNode *node){
     int np, dominates;
-    np = dominant->tree->mokp->np;
 
+    np = dominant->tree->mokp->np;
+    dominant->tree->n_comparisons++;
     dominates = 1;
     switch(np){
-        case 10: dominates &= (dominant->profit[9] > node->profit[9]);
-        case 9: dominates &= (dominant->profit[8] > node->profit[8]);
-        case 8: dominates &= (dominant->profit[7] > node->profit[7]);
-        case 7: dominates &= (dominant->profit[6] > node->profit[6]);
-        case 6: dominates &= (dominant->profit[5] > node->profit[5]);
-        case 5: dominates &= (dominant->profit[4] > node->profit[4]);
-        case 4: dominates &= (dominant->profit[3] > node->profit[3]);
-        case 3: dominates &= (dominant->profit[2] > node->profit[2]);
-        case 2: dominates &= (dominant->profit[1] > node->profit[1]);
-        case 1: dominates &= (dominant->profit[0] > node->profit[0]);
+        case 10: dominates &= (dominant->profit[9] >= node->profit[9]);
+        case 9: dominates &= (dominant->profit[8] >= node->profit[8]);
+        case 8: dominates &= (dominant->profit[7] >= node->profit[7]);
+        case 7: dominates &= (dominant->profit[6] >= node->profit[6]);
+        case 6: dominates &= (dominant->profit[5] >= node->profit[5]);
+        case 5: dominates &= (dominant->profit[4] >= node->profit[4]);
+        case 4: dominates &= (dominant->profit[3] >= node->profit[3]);
+        case 3: dominates &= (dominant->profit[2] >= node->profit[2]);
+        case 2: dominates &= (dominant->profit[1] >= node->profit[1]);
+        case 1: dominates &= (dominant->profit[0] >= node->profit[0]);
     }
     dominates &= dominant->b_left >= node->b_left;
 
@@ -249,6 +250,7 @@ MOKPTree *mokptree_new(MOKP *mokp){
     tree->mokp = mokp;
     tree->n_nodes = 1;
     tree->root = tree->tail = mokpnode_new_empty(tree);
+    tree->n_comparisons = 0;
 
     tree->kdtree = NULL;
 
@@ -389,7 +391,7 @@ void _mokp_dynprog_iter(MOKPTree *tree, int idx){
  *          k: number of iterations
  *       idxs: custom ordering of variables
  * */
-int mokp_dynprog(MOKP *mokp, int use_kdtree, int k, int *idxs){
+int mokp_dynprog(MOKP *mokp, int use_kdtree, int k, int *idxs, int *n_comps){
     MOKPNode *current_node;
     MOKPNode *next_node;
     MOKPTree *tree;
@@ -408,13 +410,14 @@ int mokp_dynprog(MOKP *mokp, int use_kdtree, int k, int *idxs){
     for( i = 0 ; i < k ; i++ )
         _mokp_dynprog_iter(tree, idxs[i]);
     n_nodes = tree->n_nodes;
+    if( n_comps )
+       (*n_comps) = tree->n_comparisons;
 
 #ifdef MOKP_DEBUG
     /* output pareto*/
     printf("PARETO:\n");
     mokptree_fprintf(stdout, tree);
 #endif
-
     /* free */
     mokptree_free(tree);
 

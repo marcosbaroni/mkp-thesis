@@ -60,7 +60,7 @@ int execute_dynprog(int argc, char **argv){
     MOKP *mokp;
     int option, use_kdtree, *idxs;
 	clock_t c0, cf;
-    int k, i, n, n_nodes;
+    int k, i, n, n_nodes, n_comps;
     double exec_time;
 
     input = stdout;
@@ -114,11 +114,11 @@ int execute_dynprog(int argc, char **argv){
 
     /* executing algorithm */
 	c0 = clock();
-    n_nodes = mokp_dynprog(mokp, use_kdtree, k, idxs);
+    n_nodes = mokp_dynprog(mokp, use_kdtree, k, idxs, &n_comps);
     exec_time = (clock()-c0)*1./CLOCKS_PER_SEC;
 
     /* output result */
-    printf("%d:%.3f\n", n_nodes, exec_time);
+    printf("%d:%.1e:%.3f\n", n_nodes, (double)n_comps, exec_time);
 
     /* freeing variables */
     free(idxs);

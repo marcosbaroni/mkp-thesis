@@ -39,6 +39,7 @@ double mokpnode_axis_val(MOKPNode *node, int h);
 typedef struct MOKPTree{
     MOKP *mokp;
     int n_nodes;
+    int n_comparisons;
 
     MOKPNode *root;
     MOKPNode *tail;
@@ -48,7 +49,7 @@ typedef struct MOKPTree{
 MOKPTree *mokptree_new(MOKP *mokp);
 
 /* Solving */
-int mokp_dynprog(MOKP *mokp, int use_kdtree, int k, int *idxs);
+int mokp_dynprog(MOKP *mokp, int use_kdtree, int k, int *idxs, int *n_comps);
 
 #endif
 
