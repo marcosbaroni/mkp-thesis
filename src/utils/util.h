@@ -8,6 +8,12 @@
 #define MAX_COEFFICIENT 1000
 #define feq(x, y) (fabs(x-y) < 0.0000001)
 
+#ifndef NO_KDTREE_STATS
+#define KDTREE_STATS 1
+#else
+#define KDTREE_STATS 0
+#endif
+
 #define MAX(x, y) (x > y ? x : y)
 #define MIN(x, y) (x < y ? x : y)
 
@@ -202,6 +208,10 @@ typedef struct KDTree{
 /* use statitical info?
     - height of nodes in tree
     - navegation/comparison statistics */
+#if KDTREE_STATS
+    long long *hcount;
+    int nhcount;
+#endif
 }KDTree;
 
 KDTree *kdtree_new( int ndim, kdtree_eval_f eval_f);
@@ -209,6 +219,7 @@ KDTree *kdtree_insert( KDTree *kdtree, void *element);
 void *kdtree_range_search(KDTree *kdtree, double *bounds, property_f);
 void *kdtree_range_search_r(KDTree *kdtree, double *bounds, property_f_r prop_f, void *prop_arg);
 void kdtree_free(KDTree *kdtree);
+void kdtree_fprint_stats(FILE *out, KDTree *kdtree);
 
 #endif
 

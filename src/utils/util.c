@@ -1429,15 +1429,35 @@ int ipow(int base, int exp){
 *******************************************************************************/
 KDTree *kdtree_new( int ndim, kdtree_eval_f eval_f){
     KDTree *kdtree;
+    int nhcount = 100;
+
     kdtree = (KDTree*)malloc(sizeof(KDTree));
 
     kdtree->eval_f = eval_f;
     kdtree->root = NULL;
     kdtree->n = 0;
     kdtree->ndim = ndim;
+    kdtree->hcount = long_long_array_init(NULL, nhcount, 0);
+    kdtree->nhcount = nhcount;
 
     return kdtree;
 }
+
+#if KDTREE_STATS
+void _kdtree_increment_hcount(KDTree *kdtree, int h){
+    long long *new_hcount;
+
+    if( kdtree->nhcount < h ){
+        new_hcount = (long long*)malloc(2*kdtree->nhcount*sizeof(long long));
+        long_long_array_copy(new_hcount, kdtree->hcount, kdtree->nhcount);
+        kdtree->nhcount *= 2;
+        free(kdtree->hcount);
+        kdtree->hcount = new_hcount;
+    }
+
+    kdtree->hcount[h]++;
+}
+#endif
 
 void _kdtree_insert(KDTree *kdtree, KDNode *root, KDNode *kdn, int h){
     double rval;
@@ -1448,16 +1468,27 @@ void _kdtree_insert(KDTree *kdtree, KDNode *root, KDNode *kdn, int h){
     rval = kdtree->eval_f(root->info, dim);
     eval = kdtree->eval_f(kdn->info, dim);
 
-    if( eval > rval ) /* insert in right branch */
-        if( root->right )
+    if( eval > rval ){ /* insert in right branch */
+        if( root->right ){
             _kdtree_insert(kdtree, root->right, kdn, h+1);
-        else
-            { root->right = kdn; kdn->up = root; }
-    else              /* insert in left branch */
-        if( root->left )
+        }else{
+            root->right = kdn;
+            kdn->up = root;
+#if KDTREE_STATS
+            _kdtree_increment_hcount(kdtree, h+1);
+#endif
+        }
+    }else{              /* insert in left branch */
+        if( root->left ){
             _kdtree_insert(kdtree, root->left, kdn, h+1);
-        else
-        { root->left = kdn; kdn->up = root; }
+        }else{
+            root->left = kdn;
+            kdn->up = root;
+#if KDTREE_STATS
+            _kdtree_increment_hcount(kdtree, h+1);
+#endif
+        }
+    }
 
     return;
 }
@@ -1472,6 +1503,9 @@ KDTree *kdtree_insert( KDTree *kdtree, void *element){
     if( !kdtree->root ){
         kdtree->root = kdn;
         kdn->val = kdtree->eval_f(element, 0);
+#if KDTREE_STATS
+        _kdtree_increment_hcount(kdtree, 0);
+#endif
     }else
         _kdtree_insert(kdtree, kdtree->root, kdn, 0);
 
@@ -1583,7 +1617,59 @@ void _kdnode_free(KDNode *kdn){
 
 void kdtree_free(KDTree *kdtree){
     _kdnode_free(kdtree->root);
+#if KDTREE_STATS
+    free(kdtree->hcount);
+#endif
     free(kdtree);
+
+    return;
+}
+
+double kdtree_avg_height(KDTree *kdtree){
+#if KDTREE_STATS
+    long long total;
+    double mean;
+    int i;
+
+    total = 0;
+    for( i = 0 ; i < kdtree->nhcount ; i++ )
+        total += i*kdtree->hcount[i];
+    mean = total/((double)kdtree->n);
+
+    return mean;
+#else
+    fprintf(stderr, "%s error: kd-tree statistics not enabled.\n", __FUNCTION__);
+#endif
+}
+
+double kdtree_ideal_avg_height(KDTree *kdtree){
+#if KDTREE_STATS
+    long long n_left;
+    double mean;
+    int i;
+
+    n_left = kdtree->n;
+    i = 0;
+    while( n_left > 0 ){
+        mean += i*n_left;
+        n_left -= ipow(2, i);
+        i++;
+    }
+    mean /= n_left;
+    return mean;
+
+#else
+    fprintf(stderr, "%s error: kd-tree statistics not enabled.\n", __FUNCTION__);
+#endif
+}
+
+void kdtree_fprint_stats(FILE *out, KDTree *kdtree){
+    double avg_h, ideal_mean_h;
+    avg_h = kdtree_avg_height(kdtree);
+    ideal_mean_h = kdtree_ideal_avg_height(kdtree);
+
+    //fprintf(out, "avg h: %
+    /* TODO: continue... */
 
     return;
 }

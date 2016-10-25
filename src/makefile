@@ -1,4 +1,6 @@
 # -*- Makefile -*-
+#  Flags:
+#   NO_KDTREE_STATS: Disable kdtree statistics
 CC = gcc
 CFLAGS=-O3 -g
 DEST=../bin

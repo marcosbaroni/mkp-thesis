@@ -60,7 +60,8 @@ int execute_dynprog(int argc, char **argv){
     MOKP *mokp;
     int option, use_kdtree, *idxs;
 	clock_t c0, cf;
-    int k, i, n, n_nodes, n_comps;
+    int k, i, n, n_nodes;
+    long long n_comps;
     double exec_time;
 
     input = stdout;

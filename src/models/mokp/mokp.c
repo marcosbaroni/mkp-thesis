@@ -391,11 +391,12 @@ void _mokp_dynprog_iter(MOKPTree *tree, int idx){
  *          k: number of iterations
  *       idxs: custom ordering of variables
  * */
-int mokp_dynprog(MOKP *mokp, int use_kdtree, int k, int *idxs, int *n_comps){
+int mokp_dynprog(MOKP *mokp, int use_kdtree, int k, int *idxs, long long *n_comps){
     MOKPNode *current_node;
     MOKPNode *next_node;
     MOKPTree *tree;
     int i, n_nodes;
+    double avg_h;
 
     /* new mokp nodes tree */
     tree = mokptree_new(mokp);
@@ -413,6 +414,10 @@ int mokp_dynprog(MOKP *mokp, int use_kdtree, int k, int *idxs, int *n_comps){
     if( n_comps )
        (*n_comps) = tree->n_comparisons;
 
+#if KDTREE_STATS
+    /* output stats */
+    kdtree_fprint_stats(stdout, tree->kdtree);
+#endif
 #ifdef MOKP_DEBUG
     /* output pareto*/
     printf("PARETO:\n");
