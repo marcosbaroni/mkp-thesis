@@ -48,11 +48,13 @@ int execute_rand(int argc, char **argv){
 }
 
 void print_usage_dynprog(int argc, char **argv){
-    printf("usage: %s %s <option> [input file] [n iterations]\n", argv[0], DYNPROG_OPT);
     printf("Solve Multiobjective Knapsack Problem using Dynamic Programming.\n\n");
+    printf("usage: %s %s <option> [input file] [n iterations]\n", argv[0], DYNPROG_OPT);
     printf("Please check option list below:\n");
     printf("  1\tusing plain list\n");
     printf("  2\tusing KD-tree\n");
+    printf("\nOutput:\n");
+    printf("  <n nodes>;<n comparison>;<time (s)>\n");
 }
 
 int execute_dynprog(int argc, char **argv){

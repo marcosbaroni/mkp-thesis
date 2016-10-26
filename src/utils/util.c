@@ -1645,18 +1645,20 @@ double kdtree_avg_height(KDTree *kdtree){
 double kdtree_ideal_avg_height(KDTree *kdtree){
 #if KDTREE_STATS
     long long n_left;
-    double mean;
+    double avg;
     int i;
 
     n_left = kdtree->n;
     i = 0;
+    avg = 0;
     while( n_left > 0 ){
-        mean += i*n_left;
+        if( n_left < ipow(2, i)) avg += n_left*i;
+        else avg += ipow(2, i)*i;
         n_left -= ipow(2, i);
         i++;
     }
-    mean /= n_left;
-    return mean;
+    avg = avg/((double)kdtree->n);
+    return avg;
 
 #else
     fprintf(stderr, "%s error: kd-tree statistics not enabled.\n", __FUNCTION__);
@@ -1664,12 +1666,11 @@ double kdtree_ideal_avg_height(KDTree *kdtree){
 }
 
 void kdtree_fprint_stats(FILE *out, KDTree *kdtree){
-    double avg_h, ideal_mean_h;
+    double avg_h, ideal_avg_h;
     avg_h = kdtree_avg_height(kdtree);
-    ideal_mean_h = kdtree_ideal_avg_height(kdtree);
+    ideal_avg_h = kdtree_ideal_avg_height(kdtree);
 
-    //fprintf(out, "avg h: %
-    /* TODO: continue... */
+    fprintf(out, "avg h: %.1lf, ideal h: %.1lf\n", avg_h, ideal_avg_h);
 
     return;
 }

@@ -416,7 +416,8 @@ int mokp_dynprog(MOKP *mokp, int use_kdtree, int k, int *idxs, long long *n_comp
 
 #if KDTREE_STATS
     /* output stats */
-    kdtree_fprint_stats(stdout, tree->kdtree);
+    if( tree->kdtree )
+        kdtree_fprint_stats(stdout, tree->kdtree);
 #endif
 #ifdef MOKP_DEBUG
     /* output pareto*/
