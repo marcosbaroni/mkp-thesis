@@ -232,26 +232,27 @@ void kdtree_fprint_stats(FILE *out, KDTree *kdtree);
 
 
 /*******************************************************************************
- ***     MIN-HEAP
+ ***     (MIN/MAX) HEAP
 *******************************************************************************/
-typedef double (*minheap_eval_f)(void*);
-typedef double (*minheap_eval_r_f)(void *elem, void *arg);
-typedef struct MinHeap{
+typedef double (*heap_eval_f)(void*);
+typedef double (*heap_eval_r_f)(void *elem, void *arg);
+typedef struct Heap{
     int n;
     int nmax;
     void **arr;
+    char is_min;   /* if it is a min heap (otherwise is a max heap ) */
     /* value functions */
-    minheap_eval_f eval_f;
-    minheap_eval_r_f eval_r_f;
+    heap_eval_f eval_f;
+    heap_eval_r_f eval_r_f;
     void *arg;
-}MinHeap;
+}Heap;
 
-MinHeap *minheap_new(int nmax, minheap_eval_f eval_f);
-MinHeap *minheap_new_r(int nmax, minheap_eval_r_f eval_r_f, void *arg);
-void minheap_insert(MinHeap *heap, void *elem);
-void minheap_fprintf(FILE *out, MinHeap *heap);
-void *minheap_pop_min(MinHeap *heap);
-void minheap_free(MinHeap *heap);
+Heap *heap_new(int nmax, heap_eval_f eval_f, char is_min);
+Heap *heap_new_r(int nmax, heap_eval_r_f eval_r_f, void *arg, char is_min);
+void heap_insert(Heap *heap, void *elem);
+void heap_fprintf(FILE *out, Heap *heap);
+void *heap_pop_peak(Heap *heap);
+void heap_free(Heap *heap);
 
 #endif
 

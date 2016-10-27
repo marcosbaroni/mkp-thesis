@@ -1713,39 +1713,50 @@ void kdtree_fprint_stats(FILE *out, KDTree *kdtree){
 
 
 /*******************************************************************************
- ***     MIN-HEAP
+ ***     (MIN/MAX) HEAP
 *******************************************************************************/
-MinHeap *minheap_new(int nmax, minheap_eval_f eval_f){
-    MinHeap *heap;
+Heap *heap_new(int nmax, heap_eval_f eval_f, char is_min){
+    Heap *heap;
 
-    heap = (MinHeap*)malloc(sizeof(MinHeap));
+    heap = (Heap*)malloc(sizeof(Heap));
     heap->n = 0;
     heap->nmax = nmax;
     heap->arr = (void**)malloc(nmax*sizeof(void*));
     heap->eval_f = eval_f;
     heap->eval_r_f = NULL;
     heap->arg = NULL;
+    heap->is_min = is_min;
 
     return heap;
 }
 
-MinHeap *minheap_new_r(int nmax, minheap_eval_r_f eval_r_f, void *arg){
-    MinHeap *heap;
+Heap *heap_new_r(int nmax, heap_eval_r_f eval_r_f, void *arg, char is_min){
+    Heap *heap;
 
-    heap = minheap_new(nmax, NULL);
+    heap = heap_new(nmax, NULL, is_min);
     heap->eval_r_f = eval_r_f;
     heap->arg = arg;
 
     return heap;
 }
 
-double _minheap_eval(MinHeap *heap, void *elem){
-    if( heap->eval_f )
-        return heap->eval_f(elem);
-    return heap->eval_r_f(elem, heap->arg);
+double _heap_eval(Heap *heap, void *elem){
+    if( heap->is_min ){
+        if( heap->eval_f ){
+            return heap->eval_f(elem);
+        }else{
+            return heap->eval_r_f(elem, heap->arg);
+        }
+    }else{
+        if( heap->eval_f ){
+            return -heap->eval_f(elem);
+        }else{
+            return -heap->eval_r_f(elem, heap->arg);
+        }
+    }
 }
 
-void minheap_insert(MinHeap *heap, void *elem){
+void heap_insert(Heap *heap, void *elem){
     double val, val2;
     void **arr;
     void *aux;
@@ -1756,13 +1767,13 @@ void minheap_insert(MinHeap *heap, void *elem){
         heap->arr = (void**)realloc(heap->arr, heap->nmax*sizeof(void*));
     }
 
-    val = _minheap_eval(heap, elem);
+    val = _heap_eval(heap, elem);
     arr = heap->arr;
 
     arr[heap->n] = elem;
     i = heap->n;
     father_i = (i-1)/2;
-    while( i && (_minheap_eval(heap, arr[father_i]) > val) ){
+    while( i && (_heap_eval(heap, arr[father_i]) > val) ){
         aux = arr[father_i];
         arr[father_i] = arr[i];
         arr[i] = aux;
@@ -1774,24 +1785,24 @@ void minheap_insert(MinHeap *heap, void *elem){
     return;
 }
 
-void minheap_fprintf(FILE *out, MinHeap *heap){
+void heap_fprintf(FILE *out, Heap *heap){
     int i, n;
     void **arr;
 
     n = heap->n;
     arr = heap->arr;
 
-    fprintf(out, "1: %.3lf (root)\n", _minheap_eval(heap, arr[0]));
+    fprintf(out, "1: %.3lf (root)\n", _heap_eval(heap, arr[0]));
     for( i = 1 ; i < n ; i++ )
         fprintf(out, "%d: %.3lf (> %.3lf)\n",
                 i+1,
-                _minheap_eval(heap, arr[i]),
-                _minheap_eval(heap, arr[(i-1)/2]));
+                _heap_eval(heap, arr[i]),
+                _heap_eval(heap, arr[(i-1)/2]));
 
     return;
 }
 
-void *minheap_pop_min(MinHeap *heap){
+void *heap_pop_peak(Heap *heap){
     void **arr;
     void *aux, *min;
     int i, n, imin, need_check;
@@ -1802,7 +1813,7 @@ void *minheap_pop_min(MinHeap *heap){
     min = arr[0];
     n = --heap->n;
     arr[0] = arr[n];
-    val = _minheap_eval(heap, arr[0]);
+    val = _heap_eval(heap, arr[0]);
 
     /* heapfying */
     i = 0;
@@ -1812,11 +1823,11 @@ void *minheap_pop_min(MinHeap *heap){
         /* checking lesser child */
         imin = i*2+1;
         if( imin+1 < n )
-            if( _minheap_eval(heap, arr[imin+1]) < _minheap_eval(heap, arr[imin]) )
+            if( _heap_eval(heap, arr[imin+1]) < _heap_eval(heap, arr[imin]) )
                 imin++;
 
         /* checking if needs change */
-        if( val > _minheap_eval(heap, arr[imin]) ){
+        if( val > _heap_eval(heap, arr[imin]) ){
             aux = arr[i];    /* swaping */
             arr[i] = arr[imin];
             arr[imin] = aux;
@@ -1828,7 +1839,7 @@ void *minheap_pop_min(MinHeap *heap){
     return min;
 }
 
-void minheap_free(MinHeap *heap){
+void heap_free(Heap *heap){
     free(heap->arr);
     free(heap);
 }
