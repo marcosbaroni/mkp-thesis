@@ -1804,7 +1804,8 @@ void *minheap_pop_min(MinHeap *heap){
     arr[0] = arr[n];
     val = _minheap_eval(heap, arr[0]);
 
-    /* heapfing */
+    /* heapfying */
+    i = 0;
     need_check = 1;
     while( i*2+1 < n && need_check ){
         need_check = 0;
