@@ -184,6 +184,14 @@ double sigmoid(double x);             /* logistic sigmoid */
 int ipow(int base, int exp);
 
 /*******************************************************************************
+ ***     VOID SORTING
+*******************************************************************************/
+extern int shell_gaps[8];
+typedef int (*cmp_f)(void*);
+typedef int (*cmp_r_f)(void*, int, void*);
+void varray_shell_iter_r(void **v, int a, int b, int k, cmp_r_f cmp, void *arg);
+
+/*******************************************************************************
  ***     KD-TREE
 *******************************************************************************/
 typedef double (*kdtree_eval_f)(void*, int dim); /* used to insert element, to
@@ -219,7 +227,31 @@ KDTree *kdtree_insert( KDTree *kdtree, void *element);
 void *kdtree_range_search(KDTree *kdtree, double *bounds, property_f);
 void *kdtree_range_search_r(KDTree *kdtree, double *bounds, property_f_r prop_f, void *prop_arg);
 void kdtree_free(KDTree *kdtree);
+KDTree *kdtree_balance(KDTree *kdtree);
 void kdtree_fprint_stats(FILE *out, KDTree *kdtree);
+
+
+/*******************************************************************************
+ ***     MIN-HEAP
+*******************************************************************************/
+typedef double (*minheap_eval_f)(void*);
+typedef double (*minheap_eval_r_f)(void *elem, void *arg);
+typedef struct MinHeap{
+    int n;
+    int nmax;
+    void **arr;
+    /* value functions */
+    minheap_eval_f eval_f;
+    minheap_eval_r_f eval_r_f;
+    void *arg;
+}MinHeap;
+
+MinHeap *minheap_new(int nmax, minheap_eval_f eval_f);
+MinHeap *minheap_new_r(int nmax, minheap_eval_r_f eval_r_f, void *arg);
+void minheap_insert(MinHeap *heap, void *elem);
+void minheap_fprintf(FILE *out, MinHeap *heap);
+void *minheap_pop_min(MinHeap *heap);
+void minheap_free(MinHeap *heap);
 
 #endif
 

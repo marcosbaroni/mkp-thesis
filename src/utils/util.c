@@ -9,6 +9,7 @@
 #define ISNUM(c) ( (c > 47) && (c < 58) )
 
 int verbose = 0;
+int shell_gaps[8] = {1, 4, 10, 23, 57, 132, 301, 701};
 
 void findent(FILE *fout, int times, char c){
 	while( times-- )
@@ -1665,6 +1666,41 @@ double kdtree_ideal_avg_height(KDTree *kdtree){
 #endif
 }
 
+void _kdtree_get_elems(KDNode *root, void **elems, int *k){
+    elems[(*k)++] = root->info;
+    if( root->right ) _kdtree_get_elems(root->right, elems, k);
+    if( root->left ) _kdtree_get_elems(root->right, elems, k);
+}
+
+void varray_shell_iter_r(void **v, int a, int b, int k, cmp_r_f cmp, void *arg){
+    int i, n, igap, gap;
+
+    n = b-a+1;
+    igap = 7;
+    while( n*2 < shell_gaps[igap] )
+        igap--;
+
+    gap = shell_gaps[igap];
+    for( i = 1 ; i < gap ; i++ )
+
+    return;
+}
+
+KDTree *kdtree_balance(KDTree *kdtree){
+    void **elems;
+    int n, k, ndim;
+    
+    ndim = kdtree->ndim;
+    n = kdtree->n;
+    k = 0;
+    elems = (void**)malloc(n*sizeof(void*));
+
+    /* get all elements out */
+    _kdtree_get_elems(kdtree->root, elems, &k);
+
+    ndim = kdtree->ndim;
+}
+
 void kdtree_fprint_stats(FILE *out, KDTree *kdtree){
     double avg_h, ideal_avg_h;
     avg_h = kdtree_avg_height(kdtree);
@@ -1673,5 +1709,126 @@ void kdtree_fprint_stats(FILE *out, KDTree *kdtree){
     fprintf(out, "avg h: %.1lf, ideal h: %.1lf\n", avg_h, ideal_avg_h);
 
     return;
+}
+
+
+/*******************************************************************************
+ ***     MIN-HEAP
+*******************************************************************************/
+MinHeap *minheap_new(int nmax, minheap_eval_f eval_f){
+    MinHeap *heap;
+
+    heap = (MinHeap*)malloc(sizeof(MinHeap));
+    heap->n = 0;
+    heap->nmax = nmax;
+    heap->arr = (void**)malloc(nmax*sizeof(void*));
+    heap->eval_f = eval_f;
+    heap->eval_r_f = NULL;
+    heap->arg = NULL;
+
+    return heap;
+}
+
+MinHeap *minheap_new_r(int nmax, minheap_eval_r_f eval_r_f, void *arg){
+    MinHeap *heap;
+
+    heap = minheap_new(nmax, NULL);
+    heap->eval_r_f = eval_r_f;
+    heap->arg = arg;
+
+    return heap;
+}
+
+double _minheap_eval(MinHeap *heap, void *elem){
+    if( heap->eval_f )
+        return heap->eval_f(elem);
+    return heap->eval_r_f(elem, heap->arg);
+}
+
+void minheap_insert(MinHeap *heap, void *elem){
+    double val, val2;
+    void **arr;
+    void *aux;
+    int n, i, father_i;
+
+    if( heap->n == heap->nmax ){
+        heap->nmax = 2*heap->nmax;
+        heap->arr = (void**)realloc(heap->arr, heap->nmax*sizeof(void*));
+    }
+
+    val = _minheap_eval(heap, elem);
+    arr = heap->arr;
+
+    arr[heap->n] = elem;
+    i = heap->n;
+    father_i = (i-1)/2;
+    while( i && (_minheap_eval(heap, arr[father_i]) > val) ){
+        aux = arr[father_i];
+        arr[father_i] = arr[i];
+        arr[i] = aux;
+        i = father_i;
+        father_i = (i-1)/2;
+    }
+
+    heap->n++;
+    return;
+}
+
+void minheap_fprintf(FILE *out, MinHeap *heap){
+    int i, n;
+    void **arr;
+
+    n = heap->n;
+    arr = heap->arr;
+
+    fprintf(out, "1: %.3lf (root)\n", _minheap_eval(heap, arr[0]));
+    for( i = 1 ; i < n ; i++ )
+        fprintf(out, "%d: %.3lf (> %.3lf)\n",
+                i+1,
+                _minheap_eval(heap, arr[i]),
+                _minheap_eval(heap, arr[(i-1)/2]));
+
+    return;
+}
+
+void *minheap_pop_min(MinHeap *heap){
+    void **arr;
+    void *aux, *min;
+    int i, n, imin, need_check;
+    double val;
+
+    arr = heap->arr;
+
+    min = arr[0];
+    n = --heap->n;
+    arr[0] = arr[n];
+    val = _minheap_eval(heap, arr[0]);
+
+    /* heapfing */
+    need_check = 1;
+    while( i*2+1 < n && need_check ){
+        need_check = 0;
+        /* checking lesser child */
+        imin = i*2+1;
+        if( imin+1 < n )
+            if( _minheap_eval(heap, arr[imin+1]) < _minheap_eval(heap, arr[imin]) )
+                imin++;
+
+        /* checking if needs change */
+        if( val > _minheap_eval(heap, arr[imin]) ){
+            aux = arr[i];    /* swaping */
+            arr[i] = arr[imin];
+            arr[imin] = aux;
+            need_check = 1;   /* flag check */
+            i = imin;
+        }
+    }
+
+    return min;
+}
+
+void minheap_free(MinHeap *heap){
+    free(heap->arr);
+    free(heap);
 }
 

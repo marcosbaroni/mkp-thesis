@@ -44,6 +44,9 @@ lp.o:
 util.o:
 	gcc $(CFLAGS) -c utils/util.c
 
+test: util.o
+	gcc $(CFLAGS) -o test tools/test.c util.o -lm
+
 mkp.o: utils/util.c
 mokp: mokp.o util.o
 	gcc $(CFLAGS) -o mokp tools/mokp.c mokp.o util.o -lm
