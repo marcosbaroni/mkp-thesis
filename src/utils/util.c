@@ -1666,10 +1666,15 @@ double kdtree_ideal_avg_height(KDTree *kdtree){
 #endif
 }
 
-void _kdtree_get_elems(KDNode *root, void **elems, int *k){
+void _sub_kdtree_get_elems(KDNode *root, void **elems, int *k){
     elems[(*k)++] = root->info;
-    if( root->right ) _kdtree_get_elems(root->right, elems, k);
-    if( root->left ) _kdtree_get_elems(root->right, elems, k);
+    if( root->right ) _sub_kdtree_get_elems(root->right, elems, k);
+    if( root->left ) _sub_kdtree_get_elems(root->right, elems, k);
+}
+
+void _kdtree_get_elems(KDNode *root, void **elems){
+    int k = 0;
+    _sub_kdtree_get_elems(root, elems, &k);
 }
 
 void varray_shell_iter_r(void **v, int a, int b, int k, cmp_r_f cmp, void *arg){
@@ -1681,24 +1686,46 @@ void varray_shell_iter_r(void **v, int a, int b, int k, cmp_r_f cmp, void *arg){
         igap--;
 
     gap = shell_gaps[igap];
-    for( i = 1 ; i < gap ; i++ )
+    for( i = 1 ; i < gap ; i++ ){}
+    // TODO: implement parcial shellsort...
+
+    return;
+}
+
+void _kdtree_median_insert(KDTree *kdtree, void **elems, int a, int b, int dim){
+    int n, i, mid;
+    Heap *minh;
+    Heap *maxh;
+    void *median;
+    kdtree_eval_f eval_f;
+
+    n = b - a + 1;
+    mid = n/2;
+
+    /* preparing heaps */
+    //minh = heap_new_r(mid, (heap_eval_r_f)kdtree->eval_f, (void*)dim, 1);
+    //maxh = heap_new_r(mid, (heap_eval_r_f)kdtree->eval_f, (void*)dim, 0);
+
+    for( i = 0 ; i < n ; i++ )
 
     return;
 }
 
 KDTree *kdtree_balance(KDTree *kdtree){
     void **elems;
-    int n, k, ndim;
+    int n, ndim;
+    KDTree *kdtree2;
     
     ndim = kdtree->ndim;
     n = kdtree->n;
-    k = 0;
     elems = (void**)malloc(n*sizeof(void*));
 
     /* get all elements out */
-    _kdtree_get_elems(kdtree->root, elems, &k);
+    _kdtree_get_elems(kdtree->root, elems);
 
-    ndim = kdtree->ndim;
+    /* find median */
+
+    return kdtree;
 }
 
 void kdtree_fprint_stats(FILE *out, KDTree *kdtree){
@@ -1715,43 +1742,43 @@ void kdtree_fprint_stats(FILE *out, KDTree *kdtree){
 /*******************************************************************************
  ***     (MIN/MAX) HEAP
 *******************************************************************************/
-Heap *heap_new(int nmax, heap_eval_f eval_f, char is_min){
+Heap *heap_new(int nmax, cmp_f cmp, char is_min){
     Heap *heap;
 
     heap = (Heap*)malloc(sizeof(Heap));
     heap->n = 0;
     heap->nmax = nmax;
     heap->arr = (void**)malloc(nmax*sizeof(void*));
-    heap->eval_f = eval_f;
-    heap->eval_r_f = NULL;
+    heap->cmp = cmp;
+    heap->cmp_r = NULL;
     heap->arg = NULL;
     heap->is_min = is_min;
 
     return heap;
 }
 
-Heap *heap_new_r(int nmax, heap_eval_r_f eval_r_f, void *arg, char is_min){
+Heap *heap_new_r(int nmax, cmp_r_f cmp_r, void *arg, char is_min){
     Heap *heap;
 
     heap = heap_new(nmax, NULL, is_min);
-    heap->eval_r_f = eval_r_f;
+    heap->cmp_r = cmp_r;
     heap->arg = arg;
 
     return heap;
 }
 
-double _heap_eval(Heap *heap, void *elem){
+int _heap_eval(Heap *heap, void *elem1, void* elem2){
     if( heap->is_min ){
-        if( heap->eval_f ){
-            return heap->eval_f(elem);
+        if( heap->cmp ){
+            return (heap->cmp(elem1, elem2));
         }else{
-            return heap->eval_r_f(elem, heap->arg);
+            return (heap->cmp_r(elem1, elem2, heap->arg));
         }
     }else{
-        if( heap->eval_f ){
-            return -heap->eval_f(elem);
+        if( heap->cmp ){
+            return -heap->cmp(elem1, elem2);
         }else{
-            return -heap->eval_r_f(elem, heap->arg);
+            return -heap->cmp_r(elem1, elem2, heap->arg);
         }
     }
 }
@@ -1767,13 +1794,12 @@ void heap_insert(Heap *heap, void *elem){
         heap->arr = (void**)realloc(heap->arr, heap->nmax*sizeof(void*));
     }
 
-    val = _heap_eval(heap, elem);
     arr = heap->arr;
 
     arr[heap->n] = elem;
     i = heap->n;
     father_i = (i-1)/2;
-    while( i && (_heap_eval(heap, arr[father_i]) > val) ){
+    while( i && (_heap_eval(heap, arr[father_i], elem) < 0) ){
         aux = arr[father_i];
         arr[father_i] = arr[i];
         arr[i] = aux;
@@ -1785,19 +1811,23 @@ void heap_insert(Heap *heap, void *elem){
     return;
 }
 
-void heap_fprintf(FILE *out, Heap *heap){
+void heap_fprintf(FILE *out, Heap *heap, prt_f prt){
     int i, n;
     void **arr;
 
     n = heap->n;
     arr = heap->arr;
 
-    fprintf(out, "1: %.3lf (root)\n", _heap_eval(heap, arr[0]));
-    for( i = 1 ; i < n ; i++ )
-        fprintf(out, "%d: %.3lf (> %.3lf)\n",
-                i+1,
-                _heap_eval(heap, arr[i]),
-                _heap_eval(heap, arr[(i-1)/2]));
+    fprintf(out, "1: ");
+    prt(out, arr[0]);
+    fprintf(out, " (root)\n");
+    for( i = 1 ; i < n ; i++ ){
+        fprintf(out, "%d: ", i+1);
+        prt(out, arr[i]);
+        fprintf(out, " (%s ", heap->is_min ? "<" : ">");
+        prt(out, arr[(i-1)/2]);
+        fprintf(out, ")\n");
+    }
 
     return;
 }
@@ -1813,7 +1843,6 @@ void *heap_pop_peak(Heap *heap){
     min = arr[0];
     n = --heap->n;
     arr[0] = arr[n];
-    val = _heap_eval(heap, arr[0]);
 
     /* heapfying */
     i = 0;
@@ -1823,11 +1852,11 @@ void *heap_pop_peak(Heap *heap){
         /* checking lesser child */
         imin = i*2+1;
         if( imin+1 < n )
-            if( _heap_eval(heap, arr[imin+1]) < _heap_eval(heap, arr[imin]) )
+            if( _heap_eval(heap, arr[imin+1], arr[imin]) < 0 )
                 imin++;
 
         /* checking if needs change */
-        if( val > _heap_eval(heap, arr[imin]) ){
+        if( _heap_eval(heap, arr[0], arr[imin]) < 0 ){
             aux = arr[i];    /* swaping */
             arr[i] = arr[imin];
             arr[imin] = aux;

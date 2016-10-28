@@ -46,6 +46,7 @@ util.o:
 
 test: util.o
 	gcc $(CFLAGS) -o test tools/test.c util.o -lm
+	mv test $(DEST)
 
 mkp.o: utils/util.c
 mokp: mokp.o util.o

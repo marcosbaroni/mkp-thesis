@@ -24,7 +24,19 @@ void SWAP_LONG_LONG(long long *array, int a, int b);
 
 void findent(FILE *fout, int times, char c);
 
-/* MEGA POWER QSORT */
+/*******************************************************************************
+ ***     ABSTRACT FUNCTION POINTER TYPES
+*******************************************************************************/
+typedef int (*cmp_f)(void*, void*);                     /* compare */
+typedef int (*cmp_r_f)(void* a, void *b, void *arg);    /* compare with arg */
+typedef int (*property_f)(void *a);               /* has property */
+typedef int (*property_f_r)(void *a, void *arg);  /* has property w arg */
+typedef void (*prt_f)(FILE *out, void *a);      /* print */
+
+
+/*******************************************************************************
+ ***     MEGA POWER QSORT
+*******************************************************************************/
 typedef void (*mp_swap_f)(void*, int, int);
 typedef int (*mp_cmp_r_f)(void*, int, int, void*);
 typedef int (*mp_cmp_f)(void*, int, int);
@@ -36,7 +48,9 @@ void void_sort(void **array, int n, int(*f)(void*, void*));
 /* unsigned char */
 typedef unsigned char uchar;
 
-/* INT ARRAY */
+/*******************************************************************************
+ ***     INT ARRAY 
+*******************************************************************************/
 typedef void(*array_apply_f)(void*);
 int *int_array_malloc(int n);                    /* mallocs a int array*/
 int *int_array_read(FILE *in, int *array, int n);
@@ -52,7 +66,9 @@ int *int_array_qsort(int *array, int n);
 int *int_array_shuffle(int *array, int n);
 int int_array_sum(int *array, int n);
 
-/* LONG ARRAY */
+/*******************************************************************************
+ ***     LONG ARRAY
+*******************************************************************************/
 long *long_array_malloc(int n);                      /* mallocs a long array*/
 long *long_array_read(FILE *in, long *array, int n);
 void long_array_write(FILE *out, long *array, int n);
@@ -66,7 +82,9 @@ long *long_array_random(int n, long *array, long bound);
 int long_array_is_sorted(long *array, int n);
 long *long_array_qsort(long *array, int n);
 
-/* LONG LONG ARRAY */
+/*******************************************************************************
+ ***     LONG LONG ARRAY
+*******************************************************************************/
 long long *long_long_array_malloc(int n);                      /* mallocs a long array*/
 long long *long_long_array_read(FILE *in, long long *array, int n);
 void long_long_array_write(FILE *out, long long *array, int n);
@@ -86,7 +104,9 @@ long long long_long_array_sum(long long *array, int n);
 /* INT MATRIX */
 int *int_matrix_max_cols(int **mat, int n, int m); /* max elems of EACH COLUMN */
 
-/* LONG MATRIX*/
+/*******************************************************************************
+ ***     LONG MATRIX
+*******************************************************************************/
 long **long_matrix_malloc(int n, int m);
 long **long_matrix_read(FILE *in, long **mat, int n, int m);
 void long_matrix_write(FILE *out, long **mat, int n, int m);
@@ -99,7 +119,9 @@ long long_matrix_max(long **mat, int n, int m);      /* max number on matrix */
 long long_matrix_max_col(long **mat, int n, int m, int col); /* max elem of given column */
 long long_matrix_max_lin(long **mat, int n, int m, int lin); /* max elem of given line */
 
-/* LONG LONG MATRIX */
+/*******************************************************************************
+ ***     LONG LONG MATRIX
+*******************************************************************************/
 long long **long_long_matrix_malloc(int n, int m);
 long long **long_long_matrix_read(FILE *in, long long **mat, int n, int m);
 void long_long_matrix_write(FILE *out, long long **mat, int n, int m);
@@ -112,7 +134,9 @@ long long long_long_matrix_max(long long **mat, int n, int m);      /* max numbe
 long long long_long_matrix_max_col(long long **mat, int n, int m, int col); /* max elem of given column */
 long long long_long_matrix_max_lin(long long **mat, int n, int m, int lin); /* max elem of given line */
 
-/* DOUBLE ARRAY */
+/*******************************************************************************
+ ***     DOUBLE ARRAY
+*******************************************************************************/
 double *double_array_alloc(int n);
 double *double_array_copy(double *array, int n);
 double double_array_sum(double *array, int n);
@@ -127,7 +151,10 @@ int *double_index_sort(double *array, int n); /* returns the ordering (desc) of 
 double **double_matrix_alloc(int n, int m);
 double **double_matrix_init(double **mat, int n, int m, double x);
 
-/* ABSTRACT ARRAY */
+
+/*******************************************************************************
+ ***     ABSTRACT ARRAY
+*******************************************************************************/
 typedef struct Array{
 	void **a;
 	int n;
@@ -183,12 +210,11 @@ void debug(char *msg);
 double sigmoid(double x);             /* logistic sigmoid */
 int ipow(int base, int exp);
 
+
 /*******************************************************************************
  ***     VOID SORTING
 *******************************************************************************/
 extern int shell_gaps[8];
-typedef int (*cmp_f)(void*);
-typedef int (*cmp_r_f)(void*, int, void*);
 void varray_shell_iter_r(void **v, int a, int b, int k, cmp_r_f cmp, void *arg);
 
 /*******************************************************************************
@@ -196,8 +222,6 @@ void varray_shell_iter_r(void **v, int a, int b, int k, cmp_r_f cmp, void *arg);
 *******************************************************************************/
 typedef double (*kdtree_eval_f)(void*, int dim); /* used to insert element, to
                                                decide each side of tree */
-typedef int (*property_f)(void *element);
-typedef int (*property_f_r)(void *element, void *arg);
 typedef struct KDNode{
     void *info;
     double val;
@@ -234,25 +258,29 @@ void kdtree_fprint_stats(FILE *out, KDTree *kdtree);
 /*******************************************************************************
  ***     (MIN/MAX) HEAP
 *******************************************************************************/
-typedef double (*heap_eval_f)(void*);
-typedef double (*heap_eval_r_f)(void *elem, void *arg);
 typedef struct Heap{
     int n;
     int nmax;
     void **arr;
     char is_min;   /* if it is a min heap (otherwise is a max heap ) */
     /* value functions */
-    heap_eval_f eval_f;
-    heap_eval_r_f eval_r_f;
+    cmp_f cmp;
+    cmp_r_f cmp_r;
     void *arg;
 }Heap;
 
-Heap *heap_new(int nmax, heap_eval_f eval_f, char is_min);
-Heap *heap_new_r(int nmax, heap_eval_r_f eval_r_f, void *arg, char is_min);
+Heap *heap_new(int nmax, cmp_f cmp, char is_min);
+Heap *heap_new_r(int nmax, cmp_r_f cmp_r, void *arg, char is_min);
 void heap_insert(Heap *heap, void *elem);
-void heap_fprintf(FILE *out, Heap *heap);
+void heap_fprintf(FILE *out, Heap *heap, prt_f prt);
 void *heap_pop_peak(Heap *heap);
 void heap_free(Heap *heap);
+
+
+/*******************************************************************************
+ ***     PAIRING HEAP
+*******************************************************************************/
+// TODO: Implement...
 
 #endif
 
