@@ -1852,11 +1852,11 @@ void *heap_pop_peak(Heap *heap){
         /* checking lesser child */
         imin = i*2+1;
         if( imin+1 < n )
-            if( _heap_eval(heap, arr[imin+1], arr[imin]) < 0 )
+            if( _heap_eval(heap, arr[imin+1], arr[imin]) > 0 )
                 imin++;
 
         /* checking if needs change */
-        if( _heap_eval(heap, arr[0], arr[imin]) < 0 ){
+        if( _heap_eval(heap, arr[i], arr[imin]) < 0 ){
             aux = arr[i];    /* swaping */
             arr[i] = arr[imin];
             arr[imin] = aux;

@@ -33,9 +33,11 @@ int execute_heap_test(int argc, char **argv){
 
     heap_fprintf(stdout, heap, (prt_f)double_prt);
     n = n/2;
-    printf("poping out %d\n", n);
-    for( i = 0 ; i < n ; i++ )
+    for( i = 0 ; i < n ; i++ ){
+        printf(" poping out %d\n", i+1);
         heap_pop_peak(heap);
+        heap_fprintf(stdout, heap, (prt_f)double_prt);
+    }
 
     heap_fprintf(stdout, heap, (prt_f)double_prt);
 
@@ -57,6 +59,8 @@ int main(int argc, char **argv){
         print_usage(argc, argv);
         return 1;
     }
+
+    srand(time(NULL));
 
     if(!strcmp(argv[1], "heap"))
         return execute_heap_test(argc, argv);
