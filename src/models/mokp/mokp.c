@@ -3,6 +3,7 @@
 #include <string.h>
 #include <math.h>
 #include <unistd.h>
+#include <time.h>
 
 #include "../../utils/util.h"
 #include "mokp.h"
@@ -343,19 +344,14 @@ void _mokp_dynprog_iter(MOKPTree *tree, int idx){
     double bounds[10];
     int ndim, np;
     int last_node, last_node2;
+    int n_discharged, n_added;
+    n_discharged = n_added = 0;
 
     current = tree->root;
     tail = tree->tail;
     init_tail = tail;
     np = tree->mokp->np;
     kdtree = tree->kdtree;
-
-#ifdef MOKP_DEBUG
-    int i = 1;
-    printf("fixing item %d\n", idx);
-    printf(" current pareto :\n");
-    mokptree_fprintf(stdout, tree);
-#endif
 
     /* iterate for each existant node */
     last_node = 0;
@@ -364,13 +360,11 @@ void _mokp_dynprog_iter(MOKPTree *tree, int idx){
             last_node = 1;
         /* create new node, using index */
         new = mokpnode_new(current, idx);
-#ifdef MOKP_DEBUG
-        printf("   - new: "); mokpnode_fprintf(stdout, new);
-        printf("  (father: "); mokpnode_fprintf(stdout, current); printf(")\n");
-#endif
         /* check if dominant exists */
         dominant = mokptree_find_dominantor(tree, new);
 
+        if( !dominant ) n_added++;
+        else n_discharged++;
         /* inserint if new node is not dominated */
         if( !dominant ) mokptree_insert(tree, new);
         else mokpnode_free(new);
@@ -378,9 +372,8 @@ void _mokp_dynprog_iter(MOKPTree *tree, int idx){
         current = current->next;
     }while( !last_node );
 
-#ifdef MOKP_DEBUG
-    printf("\n");
-#endif
+    printf(" %d: discharged %d, added %d (discharge ratio: %.1lf)\n",
+            idx+1, n_discharged, n_added, 100*(n_discharged/(double)(n_discharged+n_added)));
 
     return;
 }
@@ -396,10 +389,12 @@ int mokp_dynprog(MOKP *mokp, int use_kdtree, int k, int *idxs, long long *n_comp
     MOKPNode *next_node;
     MOKPTree *tree;
     int i, n_nodes;
-    double avg_h;
+    double avg_h, bal_time;
+	clock_t c0;
 
     /* new mokp nodes tree */
     tree = mokptree_new(mokp);
+    bal_time = 0;
 
     /* config kdtree */
     if( use_kdtree ){
@@ -408,8 +403,16 @@ int mokp_dynprog(MOKP *mokp, int use_kdtree, int k, int *idxs, long long *n_comp
     }
 
     /* iterate */
-    for( i = 0 ; i < k ; i++ )
+    for( i = 0 ; i < k ; i++ ){
         _mokp_dynprog_iter(tree, idxs[i]);
+        /* balancing */
+        c0 = clock();
+        if( 0 )
+            kdtree_balance(tree->kdtree);
+        bal_time += (clock()-c0)*1./CLOCKS_PER_SEC;
+    }
+
+    /* wrinting number of comparison */
     n_nodes = tree->n_nodes;
     if( n_comps )
        (*n_comps) = tree->n_comparisons;
@@ -424,6 +427,8 @@ int mokp_dynprog(MOKP *mokp, int use_kdtree, int k, int *idxs, long long *n_comp
     printf("PARETO:\n");
     mokptree_fprintf(stdout, tree);
 #endif
+    printf("total time to balance: %.3f\n", bal_time);
+
     /* free */
     mokptree_free(tree);
 

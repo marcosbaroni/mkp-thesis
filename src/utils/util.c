@@ -1438,8 +1438,10 @@ KDTree *kdtree_new( int ndim, kdtree_eval_f eval_f){
     kdtree->root = NULL;
     kdtree->n = 0;
     kdtree->ndim = ndim;
+#if KDTREE_STATS
     kdtree->hcount = long_long_array_init(NULL, nhcount, 0);
     kdtree->nhcount = nhcount;
+#endif
 
     return kdtree;
 }
@@ -1703,8 +1705,8 @@ int _kdtree_cmp_r( void *a, void *b, void *args){
     return 0;
 }
 
-void _kdtree_median_insert(KDTree *kdtree, void **elems, int a, int b, int dim){
-    int n, i, mid;
+void _kdtree_median_insert(KDTree *kdtree, void **elems, int n, int dim){
+    int i, mid;
     Heap *minh;
     Heap *maxh;
     void *median, *elem;
@@ -1712,14 +1714,17 @@ void _kdtree_median_insert(KDTree *kdtree, void **elems, int a, int b, int dim){
     kdtree_eval_f eval_f;
     void **args[2];
 
-    n = b - a + 1;
     mid = n/2;
+    eval_f = kdtree->eval_f;
     args[0] = (void*)(kdtree->eval_f);
     args[1] = (void*)(&dim);
 
+    i = 0;
+
+    /* too short array */
     if( n < 3 ){
-        while( a <= b )
-            kdtree_insert(kdtree, elems[a++]);
+        while( i < n )
+            kdtree_insert(kdtree, elems[i++]);
         return;
     }
 
@@ -1727,10 +1732,10 @@ void _kdtree_median_insert(KDTree *kdtree, void **elems, int a, int b, int dim){
     minh = heap_new_r(mid, _kdtree_cmp_r, args, 1);
     maxh = heap_new_r(mid, _kdtree_cmp_r, args, 0);
 
-    median = elems[a++];
+    median = elems[i++];
     mval = eval_f(median, dim);
-    while( a < b+1 ){
-        elem = elems[a++];
+    while( i < n ){
+        elem = elems[i++];
         val = eval_f(elem, dim);
         /* inserting in right heap */
         if( val < mval ) heap_insert( minh, elem);
@@ -1748,33 +1753,44 @@ void _kdtree_median_insert(KDTree *kdtree, void **elems, int a, int b, int dim){
         }
     }
 
+    /* insert median and recusevly call for splited */
     kdtree_insert(kdtree, median);
     memcpy(elems, minh->arr, minh->n*sizeof(void*));
     memcpy(&(elems[minh->n]), maxh->arr, maxh->n*sizeof(void*));
+    i = minh->n;
     heap_free(minh);
     heap_free(maxh);
 
-    _kdtree_median_insert(kdtree, elems, 0, minh->n-1, (dim+1)%(kdtree->ndim));
-    _kdtree_median_insert(kdtree, elems, minh->n, minh->n + maxh->n - 1, (dim+1)%(kdtree->ndim));
+    _kdtree_median_insert(kdtree, elems, i, (dim+1)%(kdtree->ndim));
+    _kdtree_median_insert(kdtree, &(elems[i]), n-i-1, (dim+1)%(kdtree->ndim));
 
     return;
 }
 
-KDTree *kdtree_balance(KDTree *kdtree){
+void kdtree_balance(KDTree *kdtree){
     void **elems;
     int n, ndim;
-    KDTree *kdtree2;
+    kdtree_eval_f eval_f;
     
+    /* init variables */
     ndim = kdtree->ndim;
+    eval_f = kdtree->eval_f;
     n = kdtree->n;
     elems = (void**)malloc(n*sizeof(void*));
 
     /* get all elements out */
     _kdtree_get_elems(kdtree->root, elems);
 
-    /* find median */
+    /* renewing the kdtree */
+    kdtree->root = NULL;
+    kdtree->n = 0;
+    long_long_array_init(kdtree->hcount, kdtree->nhcount, 0);
 
-    return kdtree;
+    /* find median */
+    _kdtree_median_insert(kdtree, elems, n, 0);
+    free(elems);
+
+    return;
 }
 
 void kdtree_fprint_stats(FILE *out, KDTree *kdtree){
