@@ -1667,9 +1667,9 @@ double kdtree_ideal_avg_height(KDTree *kdtree){
 }
 
 void _sub_kdtree_get_elems(KDNode *root, void **elems, int *k){
+    if( root->left ) _sub_kdtree_get_elems(root->left , elems, k);
     elems[(*k)++] = root->info;
     if( root->right ) _sub_kdtree_get_elems(root->right, elems, k);
-    if( root->left ) _sub_kdtree_get_elems(root->right, elems, k);
 }
 
 void _kdtree_get_elems(KDNode *root, void **elems){
@@ -1677,7 +1677,7 @@ void _kdtree_get_elems(KDNode *root, void **elems){
     _sub_kdtree_get_elems(root, elems, &k);
 }
 
-void varray_shell_iter_r(void **v, int a, int b, int k, cmp_r_f cmp, void *arg){
+void varray_shell_iter_r(void **v, int a, int b, int k, cmp_r_f cmp_r, void *arg){
     int i, n, igap, gap;
 
     n = b-a+1;
@@ -1692,21 +1692,70 @@ void varray_shell_iter_r(void **v, int a, int b, int k, cmp_r_f cmp, void *arg){
     return;
 }
 
+int _kdtree_cmp_r( void *a, void *b, void *args){
+    double aval, bval;
+
+    aval = ((kdtree_eval_f)((void**)args)[0])(a, *(int*)((void**)args)[1] );
+    bval = ((kdtree_eval_f)((void**)args)[0])(b, *(int*)((void**)args)[1] );
+
+    if( aval < bval ) return -1;
+    else if( aval > bval ) return 1;
+    return 0;
+}
+
 void _kdtree_median_insert(KDTree *kdtree, void **elems, int a, int b, int dim){
     int n, i, mid;
     Heap *minh;
     Heap *maxh;
-    void *median;
+    void *median, *elem;
+    double mval, val;
     kdtree_eval_f eval_f;
+    void **args[2];
 
     n = b - a + 1;
     mid = n/2;
+    args[0] = (void*)(kdtree->eval_f);
+    args[1] = (void*)(&dim);
+
+    if( n < 3 ){
+        while( a <= b )
+            kdtree_insert(kdtree, elems[a++]);
+        return;
+    }
 
     /* preparing heaps */
-    //minh = heap_new_r(mid, (heap_eval_r_f)kdtree->eval_f, (void*)dim, 1);
-    //maxh = heap_new_r(mid, (heap_eval_r_f)kdtree->eval_f, (void*)dim, 0);
+    minh = heap_new_r(mid, _kdtree_cmp_r, args, 1);
+    maxh = heap_new_r(mid, _kdtree_cmp_r, args, 0);
 
-    for( i = 0 ; i < n ; i++ )
+    median = elems[a++];
+    mval = eval_f(median, dim);
+    while( a < b+1 ){
+        elem = elems[a++];
+        val = eval_f(elem, dim);
+        /* inserting in right heap */
+        if( val < mval ) heap_insert( minh, elem);
+        else heap_insert( maxh, elem);
+
+        /* balancing */
+        if( maxh->n - minh->n > 1 ){
+            heap_insert(minh, median);
+            median = heap_pop_peak(maxh);
+            mval = eval_f(median, dim);
+        }else if( minh->n - maxh->n > 1 ){
+            heap_insert(maxh, median);
+            median = heap_pop_peak(minh);
+            mval = eval_f(median, dim);
+        }
+    }
+
+    kdtree_insert(kdtree, median);
+    memcpy(elems, minh->arr, minh->n*sizeof(void*));
+    memcpy(&(elems[minh->n]), maxh->arr, maxh->n*sizeof(void*));
+    heap_free(minh);
+    heap_free(maxh);
+
+    _kdtree_median_insert(kdtree, elems, 0, minh->n-1, (dim+1)%(kdtree->ndim));
+    _kdtree_median_insert(kdtree, elems, minh->n, minh->n + maxh->n - 1, (dim+1)%(kdtree->ndim));
 
     return;
 }
