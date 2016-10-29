@@ -33,6 +33,11 @@ typedef int (*property_f)(void *a);               /* has property */
 typedef int (*property_f_r)(void *a, void *arg);  /* has property w arg */
 typedef void (*prt_f)(FILE *out, void *a);      /* print */
 
+/*******************************************************************************
+ ***     ARGUMENT HANDLELING
+*******************************************************************************/
+// TODO:...
+
 
 /*******************************************************************************
  ***     MEGA POWER QSORT

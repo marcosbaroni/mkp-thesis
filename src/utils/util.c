@@ -1768,6 +1768,7 @@ void _kdtree_median_insert(KDTree *kdtree, void **elems, int n, int dim){
 }
 
 void kdtree_balance(KDTree *kdtree){
+    printf("balaingin\n");
     void **elems;
     int n, ndim;
     kdtree_eval_f eval_f;

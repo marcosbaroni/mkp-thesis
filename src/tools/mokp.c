@@ -11,33 +11,40 @@
 #include "../models/mokp/mokp.h"
 
 int execute_rand(int argc, char **argv){
-    int n, np;
+    int n, np, class;
     unsigned int seed;
     MOKP *mokp;
 
     if( argc < 4 ){
-        printf("usage: %s %s <n> <np> [seed] [outfile]\n", argv[1], RAND_OPT);
+        printf("usage: %s %s <n> <np> [class] [seed] [outfile] \n", argv[0], RAND_OPT);
+        printf("\nclass:\n");
+        printf("   0: random ([1,1000])\n");
+        printf("   1: unconflicting ([111,1000], [p-100, p+100])\n");
+        printf("\n");
         return 1;
     }
 
+    class = 0;
     n = atoll(argv[2]);
     np = atoll(argv[3]);
+    if( argc > 4 )
+        class = atoll(argv[4]);
 
     /* setting random seed */
     seed = 0;
-    if( argc > 4 )
-        seed = atoll(argv[4]);
+    if( argc > 5 )
+        seed = atoll(argv[5]);
     if(!seed)
     seed = time(NULL);
     srand(seed);
 
     /* setting output file */
-    mokp = mokp_random(n, np);
-    if( argc > 5 ){
-        if(!strcmp(argv[5], "-"))
+    mokp = mokp_random(n, np, class);
+    if( argc > 6 ){
+        if(!strcmp(argv[6], "-"))
             mokp_write(stdout, mokp);
         else
-            mokp_save(argv[5], mokp);
+            mokp_save(argv[6], mokp);
     }else{
         mokp_write(stdout, mokp);
     }
@@ -49,10 +56,8 @@ int execute_rand(int argc, char **argv){
 
 void print_usage_dynprog(int argc, char **argv){
     printf("Solve Multiobjective Knapsack Problem using Dynamic Programming.\n\n");
-    printf("usage: %s %s <option> [input file] [n iterations]\n", argv[0], DYNPROG_OPT);
-    printf("Please check option list below:\n");
-    printf("  1\tusing plain list\n");
-    printf("  2\tusing KD-tree\n");
+    printf("usage: %s %s <ndim> [input file] [n iterations]\n", argv[0], DYNPROG_OPT);
+    printf("  ndim: number of dimensions indexed by kdtree (0 will not use it)\n");
     printf("\nOutput:\n");
     printf("  <n nodes>;<n comparison>;<time (s)>\n");
 }
@@ -60,7 +65,7 @@ void print_usage_dynprog(int argc, char **argv){
 int execute_dynprog(int argc, char **argv){
     FILE *input;
     MOKP *mokp;
-    int option, use_kdtree, *idxs;
+    int ndim, use_kdtree, *idxs;
 	clock_t c0, cf;
     int k, i, n, n_nodes;
     long long n_comps;
@@ -74,15 +79,7 @@ int execute_dynprog(int argc, char **argv){
     }
 
     /* algorithm */
-    option = atoll(argv[2]);
-    use_kdtree = 0;
-    switch(option){
-        case 1:
-            break;
-        case 2:
-            use_kdtree = 1;
-            break;
-    }
+    ndim = atoll(argv[2]);
 
     /* opening input file */
     input = stdin;
@@ -117,7 +114,7 @@ int execute_dynprog(int argc, char **argv){
 
     /* executing algorithm */
 	c0 = clock();
-    n_nodes = mokp_dynprog(mokp, use_kdtree, k, idxs, &n_comps);
+    n_nodes = mokp_dynprog(mokp, ndim, k, idxs, &n_comps);
     exec_time = (clock()-c0)*1./CLOCKS_PER_SEC;
 
     /* output result */

@@ -24,7 +24,7 @@ MOKP *mokp_alloc(int n, int np){
     return mokp;
 }
 
-MOKP *mokp_random(int n, int np){
+MOKP *_mokp_random(int n, int np){
     MOKP *mokp;
     int i, j;
     double maxcoef = 1000.0;
@@ -39,6 +39,41 @@ MOKP *mokp_random(int n, int np){
         mokp->b += mokp->w[i];
     }
     mokp->b = (mokp->b / 2);
+
+    return mokp;
+}
+
+MOKP *_mokp_unconflict(int n, int np){
+    MOKP *mokp;
+    int i, j;
+    double maxcoef = 1000.0;
+    double b;
+
+    mokp = mokp_alloc(n, np);
+    mokp->b = 0;
+    for( i = 0 ; i < n ; i++ ){
+        mokp->p[0][i] = 111 + (double)llrand(889);
+        for( j = 1 ; j < np ; j++ )
+            mokp->p[j][i] = mokp->p[0][i] - (double)llrand(20) + 10;
+        mokp->w[i] = mokp->p[0][i] - (double)llrand(20) + 10;
+        mokp->b += mokp->w[i];
+    }
+    mokp->b = (mokp->b / 2);
+
+    return mokp;
+}
+
+MOKP *mokp_random(int n, int np, int option){
+    MOKP *mokp;
+    
+    switch( option ){
+        case 0:
+            mokp = _mokp_random(n, np);
+            break;
+        case 1:
+            mokp = _mokp_unconflict(n, np);
+            break;
+    }
 
     return mokp;
 }
@@ -135,15 +170,16 @@ MOKPNode *mokpnode_new(MOKPNode *father, int idx){
     np = mokp->np;
 
     node = (MOKPNode*)malloc(sizeof(MOKPNode));
-    node->father = node->next = node->prev = NULL;
+    /* initing new node */
     node->tree = father->tree;
-
     node->idx = idx;
+    node->tree = father->tree;
     node->profit = double_array_copy(father->profit, np);
     node->b_left = father->b_left;
     node->father = father;
     node->prev = node->next = NULL;
-
+    node->right = node->left = NULL;
+    /* updating weight and profits */
     node->b_left -= mokp->w[idx];
     for( i = 0 ; i < np ; i++ )
         node->profit[i] += mokp->p[i][idx];
@@ -166,6 +202,7 @@ MOKPNode *mokpnode_new_empty(MOKPTree *tree){
     node->idx = -1;
     node->b_left = mokp->b;
     node->father = node->next = node->prev = NULL;
+    node->right = node->left = NULL;
 
     return node;
 }
@@ -244,7 +281,7 @@ double *mokpnode_dominant_bounds(MOKPNode *node, int ndim, double *bounds){
     return bounds;
 }
 
-MOKPTree *mokptree_new(MOKP *mokp){
+MOKPTree *mokptree_new(MOKP *mokp, int ndim){
     MOKPTree *tree;
 
     tree = (MOKPTree*)malloc(sizeof(MOKPTree));
@@ -252,8 +289,9 @@ MOKPTree *mokptree_new(MOKP *mokp){
     tree->n_nodes = 1;
     tree->root = tree->tail = mokpnode_new_empty(tree);
     tree->n_comparisons = 0;
-
-    tree->kdtree = NULL;
+    tree->ndim = ndim;
+    if( ndim )
+        tree->kdtree_root = tree->root;
 
     return tree;
 }
@@ -272,37 +310,62 @@ void mokptree_fprintf(FILE *out, MOKPTree *tree){
     return;
 }
 
+void _mokptree_kdtree_insert(MOKPNode *root, MOKPNode *node, int h, int ndim){
+    int dim = h % ndim;
+
+    if( node->profit[dim] > root->profit[dim] )
+        if( root->right ) _mokptree_kdtree_insert(root->right, node, h+1, ndim);
+        else root->right = node;
+    else
+        if( root->left ) _mokptree_kdtree_insert(root->left, node, h+1, ndim);
+        else root->left = node;
+
+    return;
+}
+
 void mokptree_insert(MOKPTree *tree, MOKPNode *node){
+    /* insering in list */
     tree->tail->next = node;
     node->prev = tree->tail;
     tree->tail = node;
     tree->n_nodes++;
 
-    if( tree->kdtree )
-        kdtree_insert(tree->kdtree, node);
+    /* inserting on kdtree, if used (tree alwaus has a fisrt node (0) */
+    if( tree->ndim > 0 )
+        _mokptree_kdtree_insert(tree->kdtree_root, node, 0, tree->ndim);
 
     return;
 }
-MOKPNode *mokptree_find_dominantor(MOKPTree *tree, MOKPNode *node){
-    MOKPNode *dominant;
+
+MOKPNode *_mokptree_kdtree_find_dominator( MOKPNode *root, MOKPNode *node, int h, int ndim ){
+    MOKPNode *dominant = NULL;
+    int dim;
+
+    dim = h % ndim;
+
+    if( mokpnode_dominates(root, node) )
+        return root;
+
+    if( root->right )
+        dominant = _mokptree_kdtree_find_dominator( root->right, node, h+1, ndim );
+
+    if( !dominant )
+        if( root->profit[dim] > node->profit[dim] )
+            if( root->left )
+                dominant = _mokptree_kdtree_find_dominator( root->left, node, h+1, ndim );
+
+    return dominant;
+}
+
+MOKPNode *mokptree_find_dominator(MOKPTree *tree, MOKPNode *node, double *stime){
+    MOKPNode *dominant = NULL;
     MOKPNode *current;
     MOKPNode *last_node;
     KDTree *kdtree;
-    double bounds[10];
-    int ndim;
 
-    kdtree = tree->kdtree;
-    if( kdtree )
-        ndim = kdtree->ndim;
-    dominant = NULL;
-
-    /* using kdtree */
-    if( kdtree ){
-        mokpnode_dominant_bounds(node, ndim, bounds);
-        /* check dominance */
-        dominant = (MOKPNode*)kdtree_range_search_r(kdtree, bounds,
-            (property_f_r)mokpnode_dominates, node);
-    /* using the plain list */
+    /* using kdtree? */
+    if( tree->ndim ){
+        dominant = _mokptree_kdtree_find_dominator( tree->kdtree_root, node, 0, tree->ndim );
     }else{
         current = tree->root; /* using plain list */
         do if( mokpnode_dominates(current, node) )
@@ -318,9 +381,6 @@ void mokptree_free(MOKPTree *tree){
     MOKPNode *next_node;
     MOKPNode *current_node;
 
-    if( tree->kdtree )
-        kdtree_free( tree->kdtree );
-
     next_node = tree->root;
     while( next_node ){
         node = next_node;
@@ -334,24 +394,23 @@ void mokptree_free(MOKPTree *tree){
 }
 
 /* Solving */
-void _mokp_dynprog_iter(MOKPTree *tree, int idx){
+void _mokp_dynprog_iter(MOKPTree *tree, int idx, double *stime){
     MOKPNode *current, *current2;
     MOKPNode *new;
     MOKPNode *dominant;
     MOKPNode *init_tail;
     MOKPNode *tail;
-    KDTree *kdtree;
-    double bounds[10];
+
     int ndim, np;
     int last_node, last_node2;
     int n_discharged, n_added;
+
     n_discharged = n_added = 0;
 
     current = tree->root;
     tail = tree->tail;
     init_tail = tail;
     np = tree->mokp->np;
-    kdtree = tree->kdtree;
 
     /* iterate for each existant node */
     last_node = 0;
@@ -361,7 +420,7 @@ void _mokp_dynprog_iter(MOKPTree *tree, int idx){
         /* create new node, using index */
         new = mokpnode_new(current, idx);
         /* check if dominant exists */
-        dominant = mokptree_find_dominantor(tree, new);
+        dominant = mokptree_find_dominator(tree, new, stime);
 
         if( !dominant ) n_added++;
         else n_discharged++;
@@ -384,50 +443,35 @@ void _mokp_dynprog_iter(MOKPTree *tree, int idx){
  *          k: number of iterations
  *       idxs: custom ordering of variables
  * */
-int mokp_dynprog(MOKP *mokp, int use_kdtree, int k, int *idxs, long long *n_comps){
+int mokp_dynprog(MOKP *mokp, int ndim, int k, int *idxs, long long *n_comps){
     MOKPNode *current_node;
     MOKPNode *next_node;
     MOKPTree *tree;
     int i, n_nodes;
     double avg_h, bal_time;
 	clock_t c0;
+    double stime = 0;
 
     /* new mokp nodes tree */
-    tree = mokptree_new(mokp);
+    tree = mokptree_new(mokp, ndim);
     bal_time = 0;
 
-    /* config kdtree */
-    if( use_kdtree ){
-        tree->kdtree = kdtree_new(3, (kdtree_eval_f)mokpnode_axis_val);
-        kdtree_insert(tree->kdtree, tree->root);
-    }
-
     /* iterate */
-    for( i = 0 ; i < k ; i++ ){
-        _mokp_dynprog_iter(tree, idxs[i]);
-        /* balancing */
-        c0 = clock();
-        if( 0 )
-            kdtree_balance(tree->kdtree);
-        bal_time += (clock()-c0)*1./CLOCKS_PER_SEC;
-    }
+    for( i = 0 ; i < k ; i++ )
+        _mokp_dynprog_iter(tree, idxs[i], &stime);
 
     /* wrinting number of comparison */
     n_nodes = tree->n_nodes;
     if( n_comps )
        (*n_comps) = tree->n_comparisons;
 
-#if KDTREE_STATS
-    /* output stats */
-    if( tree->kdtree )
-        kdtree_fprint_stats(stdout, tree->kdtree);
-#endif
 #ifdef MOKP_DEBUG
     /* output pareto*/
     printf("PARETO:\n");
     mokptree_fprintf(stdout, tree);
 #endif
-    printf("total time to balance: %.3f\n", bal_time);
+    printf("total time to balance: %.5lf\n", bal_time);
+    printf("total time searching: %.5lf\n", stime);
 
     /* free */
     mokptree_free(tree);

@@ -13,7 +13,7 @@ typedef struct MOKP{
 }MOKP;
 
 MOKP *mokp_alloc(int n, int np);
-MOKP *mokp_random(int n, int np);
+MOKP *mokp_random(int n, int np, int option);
 void mokp_write(FILE *out, MOKP *mokp);
 MOKP *mokp_read(FILE *fin);
 void mokp_save(char *filename, MOKP *mokp);
@@ -27,9 +27,13 @@ typedef struct MOKPNode{
     double *profit;   /* [np] */
     double b_left;
 
+    /* list */
 	struct MOKPNode *father;	/* the father its set/solution */
 	struct MOKPNode *next;	    /* next solution (for list navegation) */
 	struct MOKPNode *prev;	    /* previous solution (for list navegation) */
+    /* kdtree */
+    struct MOKPNode *right;     /* holds those if geater feature */
+    struct MOKPNode *left;      /* holds those if lesser feature */
 }MOKPNode;
 MOKPNode *mokpnode_new(MOKPNode *father, int idx);
 void mokpnode_free(MOKPNode *node);
@@ -40,13 +44,15 @@ typedef struct MOKPTree{
     MOKP *mokp;
     int n_nodes;
     long long n_comparisons;
+    int ndim;
 
     MOKPNode *root;
-    MOKPNode *tail;
-
-    KDTree *kdtree;
+    MOKPNode *kdtree_root;
+    MOKPNode *tail; /* for list appending */
 }MOKPTree;
-MOKPTree *mokptree_new(MOKP *mokp);
+/* mokptree_new: ndim is the number of dimentions indexed
+ *   ndim = 0 to not use kdtree */
+MOKPTree *mokptree_new(MOKP *mokp, int ndim);
 
 /* Solving */
 int mokp_dynprog(MOKP *mokp, int use_kdtree, int k, int *idxs, long long *n_comps);
