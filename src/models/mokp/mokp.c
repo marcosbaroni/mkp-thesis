@@ -54,8 +54,8 @@ MOKP *_mokp_unconflict(int n, int np){
     for( i = 0 ; i < n ; i++ ){
         mokp->p[0][i] = 111 + (double)llrand(889);
         for( j = 1 ; j < np ; j++ )
-            mokp->p[j][i] = mokp->p[0][i] - (double)llrand(20) + 10;
-        mokp->w[i] = mokp->p[0][i] - (double)llrand(20) + 10;
+            mokp->p[j][i] = mokp->p[0][i] - (double)llrand(200) + 100;
+        mokp->w[i] = mokp->p[0][i] - (double)llrand(200) + 100;
         mokp->b += mokp->w[i];
     }
     mokp->b = (mokp->b / 2);
@@ -301,7 +301,6 @@ void mokptree_fprintf(FILE *out, MOKPTree *tree){
     MOKPNode *current_node;
 
     node = tree->root;
-    printf(" root2: %x\n", node);
     do{
         mokpnode_fprintf(out, node);
         printf("\n");
@@ -337,6 +336,13 @@ void mokptree_insert(MOKPTree *tree, MOKPNode *node){
     return;
 }
 
+void _mokptree_kdtree_balance( MOKPNode **elems, MOKPNode *root, int n, int dim, int ndim){
+}
+
+void mokptree_kdtree_balance( MOKPTree *tree ){
+    
+}
+
 MOKPNode *_mokptree_kdtree_find_dominator( MOKPNode *root, MOKPNode *node, int h, int ndim ){
     MOKPNode *dominant = NULL;
     int dim;
@@ -350,7 +356,7 @@ MOKPNode *_mokptree_kdtree_find_dominator( MOKPNode *root, MOKPNode *node, int h
         dominant = _mokptree_kdtree_find_dominator( root->right, node, h+1, ndim );
 
     if( !dominant )
-        if( root->profit[dim] > node->profit[dim] )
+        if( root->profit[dim] >= node->profit[dim] )
             if( root->left )
                 dominant = _mokptree_kdtree_find_dominator( root->left, node, h+1, ndim );
 
@@ -400,6 +406,7 @@ void _mokp_dynprog_iter(MOKPTree *tree, int idx, double *stime){
     MOKPNode *dominant;
     MOKPNode *init_tail;
     MOKPNode *tail;
+    clock_t c0;
 
     int ndim, np;
     int last_node, last_node2;
@@ -420,7 +427,9 @@ void _mokp_dynprog_iter(MOKPTree *tree, int idx, double *stime){
         /* create new node, using index */
         new = mokpnode_new(current, idx);
         /* check if dominant exists */
+        c0 = clock();
         dominant = mokptree_find_dominator(tree, new, stime);
+        *stime += (clock()-c0)*1./CLOCKS_PER_SEC;
 
         if( !dominant ) n_added++;
         else n_discharged++;
