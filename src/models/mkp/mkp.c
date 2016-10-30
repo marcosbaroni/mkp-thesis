@@ -324,7 +324,7 @@ MKP *mkp_alloc(int n, int m){
  *   w[i][j] = U(0, max_coefs);
  *   b[j] = alpha*(w[0][j] + w[1][j] + ... + w[n-1][j]);
  *   p[j] = beta*2*(w[i][0] + w[i][1] + ... + w[i][m-1]) +
- * 	+ (1-beta)*max_coefs*U(0, 1)
+ * 	+ (1-beta)*U(0, max_coefs)
  */
 MKP *mkp_random(int n, int m, double alpha, double beta, mkpnum max_coefs){
 	int i, j;

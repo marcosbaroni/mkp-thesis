@@ -6,6 +6,7 @@
 #include <time.h>
 
 #include "../../utils/util.h"
+#include "../mkp/mkp.h"
 #include "mokp.h"
 
 MOKP *mokp_alloc(int n, int np){
@@ -74,6 +75,29 @@ MOKP *mokp_random(int n, int np, int option){
             mokp = _mokp_unconflict(n, np);
             break;
     }
+
+    return mokp;
+}
+
+MOKP *mokp_from_mkp(MKP *mkp){
+    MOKP *mokp;
+    int i, j, n, m, np;
+
+    n = mkp->n;
+    m = mkp->m;
+
+    mokp = (MOKP*)malloc(sizeof(MOKP));
+    mokp->n = n;
+    mokp->np = m;
+    mokp->p = (double**)malloc(m*sizeof(double*));
+    mokp->p[0] = double_array_copy(mkp->p, n);
+    for( i = 1 ; i < m ; i++ ){
+        mokp->p[i] = (double*)malloc(n*sizeof(double));
+        for( j = 0 ; j < n ; j++ )
+            mokp->p[i][j] = 1000.0 - mkp->w[i-1][j];
+    }
+    mokp->w = double_array_copy(mkp->w[m-1], n);
+    mokp->b = mkp->b[m-1];
 
     return mokp;
 }
@@ -232,11 +256,14 @@ double mokpnode_axis_val(MOKPNode *node, int h){
 }
 
 int mokpnode_dominates(MOKPNode *dominant, MOKPNode *node){
-    int np, dominates;
+    int i, np, dominates;
 
     np = dominant->tree->mokp->np;
     dominant->tree->n_comparisons++;
-    dominates = 1;
+    for( i = 0 ; i < np && dominant ; i++ )
+        if( dominant->profit[i] < node->profit[i] )
+            return 0;
+    /*
     switch(np){
         case 10: dominates &= (dominant->profit[9] >= node->profit[9]);
         case 9: dominates &= (dominant->profit[8] >= node->profit[8]);
@@ -249,17 +276,11 @@ int mokpnode_dominates(MOKPNode *dominant, MOKPNode *node){
         case 2: dominates &= (dominant->profit[1] >= node->profit[1]);
         case 1: dominates &= (dominant->profit[0] >= node->profit[0]);
     }
-    dominates &= dominant->b_left >= node->b_left;
+    */
+    if( dominant->b_left < node->b_left )
+        return 0;
 
-#ifdef MOKP_DEBUG
-    printf("  ** ");
-    mokpnode_fprintf(stdout, dominant);
-    printf(" dominates ");
-    mokpnode_fprintf(stdout, node);
-    printf(" ? %s\n", dominates ? "YES" : "NO");
-#endif
-
-    return dominates;
+    return 1;
 }
 
 double *mokpnode_dominant_bounds(MOKPNode *node, int ndim, double *bounds){
@@ -337,10 +358,26 @@ void mokptree_insert(MOKPTree *tree, MOKPNode *node){
 }
 
 void _mokptree_kdtree_balance( MOKPNode **elems, MOKPNode *root, int n, int dim, int ndim){
+
 }
 
 void mokptree_kdtree_balance( MOKPTree *tree ){
-    
+    int i;
+    MOKPNode **nodes;
+    MOKPNode *current;
+
+    /* not using kdtree */
+    if( !tree->ndim )
+        return;
+
+    i = 0;
+    /* fathering nodes */
+    nodes = (MOKPNode**)malloc(tree->n_nodes*sizeof(MOKPNode*));
+    nodes[i++] = current = tree->root;
+    while( current = current->next )
+        nodes[i++] = current;
+
+    _mokptree_kdtree_balance(nodes, tree->root, tree->n_nodes, 0, tree->ndim);
 }
 
 MOKPNode *_mokptree_kdtree_find_dominator( MOKPNode *root, MOKPNode *node, int h, int ndim ){
@@ -440,8 +477,8 @@ void _mokp_dynprog_iter(MOKPTree *tree, int idx, double *stime){
         current = current->next;
     }while( !last_node );
 
-    printf(" %d: discharged %d, added %d (discharge ratio: %.1lf)\n",
-            idx+1, n_discharged, n_added, 100*(n_discharged/(double)(n_discharged+n_added)));
+    //printf(" %d: discharged %d, added %d (discharge ratio: %.1lf)\n",
+    //        idx+1, n_discharged, n_added, 100*(n_discharged/(double)(n_discharged+n_added)));
 
     return;
 }
@@ -479,8 +516,8 @@ int mokp_dynprog(MOKP *mokp, int ndim, int k, int *idxs, long long *n_comps){
     printf("PARETO:\n");
     mokptree_fprintf(stdout, tree);
 #endif
-    printf("total time to balance: %.5lf\n", bal_time);
-    printf("total time searching: %.5lf\n", stime);
+    //printf("total time to balance: %.5lf\n", bal_time);
+    //printf("total time searching: %.5lf\n", stime);
 
     /* free */
     mokptree_free(tree);

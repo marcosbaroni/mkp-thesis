@@ -4,31 +4,71 @@
 #include <string.h>
 #include <time.h>
 
-#define DYNPROG_OPT "dp"
+#define DYNPROG_OPT "dynprog"
 #define RAND_OPT "rand"
+#define MKP2_OPT "mkp2"
 
 #include "../utils/util.h"
+#include "../models/mkp/mkp.h"
 #include "../models/mokp/mokp.h"
 
+void print_usage_mkp2(int argc, char **argv){
+    printf("Convert an Multidimensional Knaspack Problema Instance to a MOKP\n");
+    printf("usage: %s %s [input file] [output file]\n", argv[0], MKP2_OPT);
+}
+int execute_mkp2(int argc, char **argv){
+    FILE *input, *output;
+    MKP *mkp;
+    MOKP *mokp;
+
+    input = stdin;
+    output = stdout;
+
+    if( argc > 2 ){
+        input = fopen(argv[2], "r");
+        if( !input ){
+            fprintf(stderr, "Could not open file \"%s\".\n", argv[2]);
+            return 1;
+        }
+    }
+
+    if( argc > 3 ){
+        output = fopen(argv[3], "w");
+        if( !output ){
+            fprintf(stderr, "Could not open file %s.\n", argv[3]);
+            return 1;
+        }
+    }
+
+    mkp = mkp_read_from_file(input);
+    mokp = mokp_from_mkp(mkp);
+    mokp_write(output, mokp);
+
+    mkp_free(mkp);
+    mokp_free(mokp);
+
+    return 0;
+}
+
 int execute_rand(int argc, char **argv){
-    int n, np, class;
+    int n, np, classe;
     unsigned int seed;
     MOKP *mokp;
 
     if( argc < 4 ){
-        printf("usage: %s %s <n> <np> [class] [seed] [outfile] \n", argv[0], RAND_OPT);
-        printf("\nclass:\n");
+        printf("usage: %s %s <n> <np> [classe] [seed] [outfile] \n", argv[0], RAND_OPT);
+        printf("\nclasse:\n");
         printf("   0: random ([1,1000])\n");
         printf("   1: unconflicting ([111,1000], [p-100, p+100])\n");
         printf("\n");
         return 1;
     }
 
-    class = 0;
+    classe = 0;
     n = atoll(argv[2]);
     np = atoll(argv[3]);
     if( argc > 4 )
-        class = atoll(argv[4]);
+        classe = atoll(argv[4]);
 
     /* setting random seed */
     seed = 0;
@@ -39,7 +79,7 @@ int execute_rand(int argc, char **argv){
     srand(seed);
 
     /* setting output file */
-    mokp = mokp_random(n, np, class);
+    mokp = mokp_random(n, np, classe);
     if( argc > 6 ){
         if(!strcmp(argv[6], "-"))
             mokp_write(stdout, mokp);
@@ -133,6 +173,7 @@ void print_usage(int argc, char **argv){
     printf("Please check option list below:\n");
     printf("  %s\tGenerate a random MOKP instance\n", RAND_OPT);
     printf("  %s\tSolve a MOKP using dynamic programming\n", DYNPROG_OPT);
+    printf("  %s\tConvert a MKP instnace in MOKP instance\n", MKP2_OPT);
 
     return;
 }
@@ -150,6 +191,8 @@ int main(int argc, char **argv){
         return execute_rand(argc, argv);
     if(!strcmp(option, DYNPROG_OPT))
         return execute_dynprog(argc, argv);
+    if(!strcmp(option, MKP2_OPT))
+        return execute_mkp2(argc, argv);
 
     print_usage(argc, argv);
 

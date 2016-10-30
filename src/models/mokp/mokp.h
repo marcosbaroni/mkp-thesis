@@ -14,6 +14,7 @@ typedef struct MOKP{
 
 MOKP *mokp_alloc(int n, int np);
 MOKP *mokp_random(int n, int np, int option);
+MOKP *mokp_from_mkp(MKP *mkp);
 void mokp_write(FILE *out, MOKP *mokp);
 MOKP *mokp_read(FILE *fin);
 void mokp_save(char *filename, MOKP *mokp);

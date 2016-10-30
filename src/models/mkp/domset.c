@@ -58,9 +58,8 @@ int dsnode_cmp_by_b_left2(DomSetNode *dsn1, DomSetNode *dsn2){
 int dsnode_dominates(DomSetNode *dsn1, DomSetNode *dsn2){
 	int i, m;
 
-   dsn1->tree->n_comparison++;
-
-	m = dsn1->tree->mkp->m;  /* FIXME: check performance impact */
+	m = dsn1->tree->mkp->m;
+    dsn1->tree->n_comparison++;
 
 	/* dsn1 dominates dsn2 ? */
 	if( dsn1->profit >= dsn2->profit ){

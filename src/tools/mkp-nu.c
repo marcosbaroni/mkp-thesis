@@ -122,10 +122,9 @@ int execute_nemullman(int argc, char **argv){
     n = mkp->n;
 
     /* SETTING K */
-    if( argc > 3 )
-        k = atoi(argv[3]);
-    else
-        k = n;
+    if( argc > 3 ) k = atoi(argv[3]);
+    else k = n;
+
     idxs = (int*)malloc(n*sizeof(int));
     for( i = 0 ; i < n ; i++ )
         idxs[i] = i;
@@ -153,8 +152,11 @@ int execute_nemullman(int argc, char **argv){
     }
 	cf = clock();
     best_sol = dsnode_get_mkpsol(dstree->best);
-    mean_h = dskdtree_mean_h(dstree->kdtree);
-    ideal_h = ceil(log2(dstree->n));
+    mean_h = ideal_h = 0.0;
+    if( dstree->kdtree ){
+        mean_h = dskdtree_mean_h(dstree->kdtree);
+        ideal_h = ceil(log2(dstree->n));
+    }
 
     //teste_dstree_profile(dstree);
 
