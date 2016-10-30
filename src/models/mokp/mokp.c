@@ -94,7 +94,7 @@ MOKP *mokp_from_mkp(MKP *mkp){
     for( i = 1 ; i < m ; i++ ){
         mokp->p[i] = (double*)malloc(n*sizeof(double));
         for( j = 0 ; j < n ; j++ )
-            mokp->p[i][j] = 1000.0 - mkp->w[i-1][j];
+            mokp->p[i][j] = -mkp->w[i-1][j];
     }
     mokp->w = double_array_copy(mkp->w[m-1], n);
     mokp->b = mkp->b[m-1];
@@ -443,11 +443,14 @@ void _mokp_dynprog_iter(MOKPTree *tree, int idx, double *stime){
     MOKPNode *dominant;
     MOKPNode *init_tail;
     MOKPNode *tail;
-    clock_t c0;
 
     int ndim, np;
     int last_node, last_node2;
     int n_discharged, n_added;
+    int i;
+
+    clock_t c0;
+    c0 = clock();
 
     n_discharged = n_added = 0;
 
@@ -458,15 +461,25 @@ void _mokp_dynprog_iter(MOKPTree *tree, int idx, double *stime){
 
     /* iterate for each existant node */
     last_node = 0;
+    i = 0;
     do{
+        i++;
         if( current == init_tail )
             last_node = 1;
         /* create new node, using index */
         new = mokpnode_new(current, idx);
         /* check if dominant exists */
-        c0 = clock();
         dominant = mokptree_find_dominator(tree, new, stime);
-        *stime += (clock()-c0)*1./CLOCKS_PER_SEC;
+
+        /*
+        printf("  %d:%s", i, dominant ? "*DISCHAGED " : " ADDED ");
+        mokpnode_fprintf(stdout, new);
+        if( dominant ){
+            printf("  dom: ");
+            mokpnode_fprintf(stdout, dominant);
+        }
+        printf("\n");
+        */
 
         if( !dominant ) n_added++;
         else n_discharged++;
@@ -477,8 +490,10 @@ void _mokp_dynprog_iter(MOKPTree *tree, int idx, double *stime){
         current = current->next;
     }while( !last_node );
 
-    //printf(" %d: discharged %d, added %d (discharge ratio: %.1lf)\n",
-    //        idx+1, n_discharged, n_added, 100*(n_discharged/(double)(n_discharged+n_added)));
+    printf(" %d: %d %lld %.3lfs (disc: %d, added: %d, ratio: %.1lf)\n",
+            idx, tree->n_nodes, tree->n_comparisons,
+            (clock()-c0)*1./CLOCKS_PER_SEC,
+            n_discharged, n_added, 100*(n_discharged/(double)(n_discharged+n_added)));
 
     return;
 }
@@ -502,9 +517,11 @@ int mokp_dynprog(MOKP *mokp, int ndim, int k, int *idxs, long long *n_comps){
     tree = mokptree_new(mokp, ndim);
     bal_time = 0;
 
+    c0 = clock();
     /* iterate */
-    for( i = 0 ; i < k ; i++ )
+    for( i = 0 ; i < k ; i++ ){
         _mokp_dynprog_iter(tree, idxs[i], &stime);
+    }
 
     /* wrinting number of comparison */
     n_nodes = tree->n_nodes;

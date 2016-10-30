@@ -129,6 +129,21 @@ void dsnode_free(DomSetNode *dsnode){
 	return;
 }
 
+void dsnode_fprintf_mo(FILE *fout, DomSetNode *dsnode){
+    int i, m;
+    double *b;
+    m = dsnode->tree->mkp->m;
+    b = dsnode->tree->mkp->b;
+
+    mkpnum_fprintf(fout, dsnode->profit);
+    fprintf(fout, "%x: %.0lf ", dsnode, dsnode->profit);
+    for( i = 0 ; i < m-1 ; i++ )
+        fprintf(fout, "%.0lf ", b[i]-dsnode->b_left[i]);
+    fprintf(fout, "(%.0lf)", dsnode->b_left[m-1]);
+
+   return;
+}
+
 void dsnode_fprintf(FILE *fout, DomSetNode *dsnode){
     int i, m;
     m = dsnode->tree->mkp->m;
@@ -546,6 +561,7 @@ void _dstree_dp_iter(DomSetTree *dstree, int idx){
 
     n_nodes = dstree->n;
     current = dstree->root;
+    printf(" %d: fixing\n", idx+1);
     for( i = 0 ; i < n_nodes ; i++ ){
         new_dsnode = dsnode_new(current, idx);
 
@@ -558,15 +574,18 @@ void _dstree_dp_iter(DomSetTree *dstree, int idx){
                 dominant = lbucket_exists_dominator(dstree->lbucket, new_dsnode);
             else
                 dominant = dstree_exists_dominance(dstree, new_dsnode);
-            
+
+            printf("  %d:%s", i+1, dominant ? "*DISCHAGED " : " ADDED ");
+            dsnode_fprintf_mo(stdout, new_dsnode);
+            if( dominant ){
+                printf("  dom: ");
+                dsnode_fprintf_mo(stdout, dominant);
+            }
+            printf("\n");
 
             /* INSERT THE NEW NODE, IF HAS NO DOMINANT */
-            if( !dominant ){
-                dstree_insert(dstree, new_dsnode);
-            }else{
-                dsnode_free(new_dsnode);
-            }
-        }else{
+            if( !dominant ) dstree_insert(dstree, new_dsnode);
+            else dsnode_free(new_dsnode);
         }
         current = current->next;
     }

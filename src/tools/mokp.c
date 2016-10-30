@@ -158,7 +158,7 @@ int execute_dynprog(int argc, char **argv){
     exec_time = (clock()-c0)*1./CLOCKS_PER_SEC;
 
     /* output result */
-    printf("%d:%.1e:%.3f\n", n_nodes, (double)n_comps, exec_time);
+    printf("%d:%lld:%.3f\n", n_nodes, n_comps, exec_time);
 
     /* freeing variables */
     free(idxs);
