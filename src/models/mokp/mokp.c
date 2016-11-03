@@ -498,6 +498,43 @@ void _mokp_dynprog_iter(MOKPTree *tree, int idx, double *stime){
     return;
 }
 
+void _mokpnode_get_childs(MOKPNode *node, MOKPNode **arr, int *n){
+    if( node->left )
+        _mokpnode_get_childs(node->left, arr, n);
+    node->left = NULL;
+    arr[*n++] = node;
+    if( node->right )
+        _mokpnode_get_childs(node->right, arr, n);
+    node->right = NULL;
+    return;
+}
+
+MOKPNode *_mokp_kdtree_median(MOKPNode **arr, int n, int dim){
+    int i;
+
+    if( n < 3 ){
+        // TODO:
+    }
+
+    // TODO: encontrar mediana usando 2 heaps inplace
+    // TODO: implementar balanceamento parcial usando iterações do shell-sort
+    
+}
+
+void mokptree_balande_kdtree(MOKPTree *tree){
+    int n, k;
+    MOKPNode **nodes;
+    if( !tree->ndim )
+        return;
+
+    n = tree->n_nodes;
+    nodes = (MOKPNode**)malloc(n*sizeof(MOKPNode*));
+    k = 0;
+    _mokpnode_get_childs(tree->kdtree_root, nodes, &k);
+    
+    tree->kdtree_root = _mokp_kdtree_median(nodes, n, 0);
+}
+
 /*
  *       mokp: the problem instance
  * use_kdtree: if want to use kdtree

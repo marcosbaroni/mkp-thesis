@@ -33,8 +33,8 @@ typedef struct MOKPNode{
 	struct MOKPNode *next;	    /* next solution (for list navegation) */
 	struct MOKPNode *prev;	    /* previous solution (for list navegation) */
     /* kdtree */
-    struct MOKPNode *right;     /* holds those if geater feature */
-    struct MOKPNode *left;      /* holds those if lesser feature */
+    struct MOKPNode *right;     /* holds those with geater feature */
+    struct MOKPNode *left;      /* holds those with lesser feature */
 }MOKPNode;
 MOKPNode *mokpnode_new(MOKPNode *father, int idx);
 void mokpnode_free(MOKPNode *node);
