@@ -4,10 +4,10 @@
 MOKP=/home/mbaroni/Computacao/phd/dmkp/bin/mokp
 
 # PARAMETERS
-cls="1 2 3 4"
+cls="2 3 4"
 ndims="0 1 2 3"
-nits=(28 37 25 18)
-k=25
+nits=(25 34 22 15)
+k=50
 
 # TEMPORARY FILE
 temp=`mktemp`
