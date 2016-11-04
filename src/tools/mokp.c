@@ -58,19 +58,25 @@ int execute_rand(int argc, char **argv){
     if( argc < 4 ){
         printf("usage: %s %s <n> <np> [classe] [seed] [outfile] \n", argv[0], RAND_OPT);
         printf("\nclasse:\n");
-        printf("   0: random ([1,1000])\n");
-        printf("   1: unconflicting ([111,1000], [p-100, p+100])\n");
-        printf("   2: profits negatively-correlated, weight uniform\n");
-        printf("   3: profits negatively-correlated, weight positively-correlated with profits\n");
+        printf("   1: uniform [1,1000]   (default)\n");
+        printf("   2: unconflicting [111,1000], [p-100, p+100]\n");
+        printf("   3: profits negatively-correlated, weight uniform\n");
+        printf("   4: profits negatively-correlated, weight positively-correlated with profits\n");
         printf("\n");
         return 1;
     }
 
-    classe = 0;
+    classe = 1;
     n = atoll(argv[2]);
     np = atoll(argv[3]);
     if( argc > 4 )
         classe = atoll(argv[4]);
+
+    /* checking classe consistency */
+    if( !classe || classe > 4 ){
+        fprintf(stderr, "Invalid classe %d. classe 1 will be used.\n", classe);
+        classe = 1;
+    }
 
     /* setting random seed */
     seed = 0;
@@ -166,7 +172,7 @@ int execute_dynprog(int argc, char **argv){
     exec_time = (clock()-c0)*1./CLOCKS_PER_SEC;
 
     /* output result */
-    printf("%d:%lld:%.3f\n", n_nodes, n_comps, exec_time);
+    printf("%d;%lld;%.3f\n", n_nodes, n_comps, exec_time);
 
     /* freeing variables */
     free(idxs);

@@ -134,10 +134,10 @@ MOKP *mokp_random(int n, int np, int option){
     MOKP *mokp;
     
     switch( option ){
-        case 0: mokp = _mokp_random_uniform(n, np); break;
-        case 1: mokp = _mokp_random_unconflict(n, np); break;
-        case 2: mokp = _mokp_random_conflict(n, np); break;
-        case 3: mokp = _mokp_random_conflict_correl(n, np); break;
+        case 1: mokp = _mokp_random_uniform(n, np); break;
+        case 2: mokp = _mokp_random_unconflict(n, np); break;
+        case 3: mokp = _mokp_random_conflict(n, np); break;
+        case 4: mokp = _mokp_random_conflict_correl(n, np); break;
     }
 
     return mokp;
@@ -565,10 +565,10 @@ void _mokp_dynprog_iter(MOKPTree *tree, int idx, double *stime){
         current = current->next;
     }while( !last_node );
 
-    printf(" %d: %d %lld %.3lfs (disc: %d, added: %d, ratio: %.1lf)\n",
-            idx, tree->n_nodes, tree->n_comparisons,
-            (clock()-c0)*1./CLOCKS_PER_SEC,
-            n_discharged, n_added, 100*(n_discharged/(double)(n_discharged+n_added)));
+    //printf(" %d: %d %lld %.3lfs (disc: %d, added: %d, ratio: %.1lf)\n",
+    //        idx, tree->n_nodes, tree->n_comparisons,
+    //        (clock()-c0)*1./CLOCKS_PER_SEC,
+    //        n_discharged, n_added, 100*(n_discharged/(double)(n_discharged+n_added)));
 
     return;
 }
