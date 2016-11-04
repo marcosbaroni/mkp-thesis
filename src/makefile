@@ -2,7 +2,7 @@
 #  Flags:
 #   NO_KDTREE_STATS: Disable kdtree statistics
 CC = gcc
-CFLAGS=-O3 -g
+CFLAGS=-g
 DEST=../bin
 DEBUG_FLAG=-DDEBUG_LVL=1
 SOPLEX=-lsoplex -lz -lgmp -lm

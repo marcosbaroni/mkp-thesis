@@ -9,6 +9,7 @@
 #include "../mkp/mkp.h"
 #include "mokp.h"
 
+
 MOKP *mokp_alloc(int n, int np){
     MOKP *mokp;
     int i;
@@ -25,18 +26,23 @@ MOKP *mokp_alloc(int n, int np){
     return mokp;
 }
 
-MOKP *_mokp_random(int n, int np){
+double _mokp_drand(double max){ return drand()*max+1; }
+double min(double a, double b){ return a < b ? a : b; }
+double max(double a, double b){ return a > b ? a : b; }
+
+MOKP *_mokp_random_uniform(int n, int np){
     MOKP *mokp;
     int i, j;
     double maxcoef = 1000.0;
     double b;
 
     mokp = mokp_alloc(n, np);
+
     mokp->b = 0;
     for( i = 0 ; i < n ; i++ ){
         for( j = 0 ; j < np ; j++ )
-            mokp->p[j][i] = (double)llrand(1000);
-        mokp->w[i] = (double)llrand(1000);
+            mokp->p[j][i] = _mokp_drand(1000.);
+        mokp->w[i] = _mokp_drand(1000.);
         mokp->b += mokp->w[i];
     }
     mokp->b = (mokp->b / 2);
@@ -44,22 +50,82 @@ MOKP *_mokp_random(int n, int np){
     return mokp;
 }
 
-MOKP *_mokp_unconflict(int n, int np){
+MOKP *_mokp_random_unconflict(int n, int np){
     MOKP *mokp;
     int i, j;
     double maxcoef = 1000.0;
     double b;
 
     mokp = mokp_alloc(n, np);
+
     mokp->b = 0;
     for( i = 0 ; i < n ; i++ ){
-        mokp->p[0][i] = 111 + (double)llrand(889);
+        mokp->p[0][i] = 111 + _mokp_drand(889.);
         for( j = 1 ; j < np ; j++ )
-            mokp->p[j][i] = mokp->p[0][i] - (double)llrand(200) + 100;
-        mokp->w[i] = mokp->p[0][i] - (double)llrand(200) + 100;
+            mokp->p[j][i] = mokp->p[0][i] - _mokp_drand(200.) + 100;
+        mokp->w[i] = _mokp_drand(1000.);
         mokp->b += mokp->w[i];
     }
     mokp->b = (mokp->b / 2);
+
+    return mokp;
+}
+
+MOKP *_mokp_random_conflict(int n, int np){
+    MOKP *mokp;
+    int i, j;
+    double lower, upper;
+
+    mokp = mokp_alloc(n, np);
+
+    mokp->b = 0;
+    for( i = 0 ; i < n ; i++ ){
+        /* first profit */
+        mokp->p[0][i] = _mokp_drand(1000.);
+        /* second profit */
+        if( np > 1 ){
+            lower = max(900 - mokp->p[0][i], 1);
+            upper = min(1100 - mokp->p[0][i], 100);
+            mokp->p[1][i] = lower + _mokp_drand((upper - lower));
+        }
+        /* further profits... */
+        for( j = 2 ; j < np ; j++ )
+            mokp->p[j][i] = _mokp_drand(1000.);
+
+        /* wieght */
+        mokp->w[i] = _mokp_drand(1000.);
+        mokp->b += mokp->w[i];
+    }
+    mokp->b = mokp->b / 2;
+
+    return mokp;
+}
+
+MOKP *_mokp_random_conflict_correl(int n, int np){
+    MOKP *mokp;
+    int i, j;
+    double upper, lower;
+
+    mokp = mokp_alloc(n, np);
+
+    mokp-> b = 0;
+    for( i = 0 ; i < n ; i++ ){
+            mokp->p[0][i] = _mokp_drand(1000.);
+            /* second profit */
+            if( np > 1 ){
+                lower = max( 900 - mokp->p[0][i], 1);
+                upper = min(1100 - mokp->p[0][i], 1000);
+                mokp->p[1][i] = lower + _mokp_drand(upper - lower);
+            }
+            /* further profits... */
+            for( j = 2 ; j < np ; j++ )
+                mokp->p[j][i] = _mokp_drand(1000.);
+
+        /* wieght */
+        mokp->w[i] = mokp->p[0][i] + mokp->p[1][i] - 200 + _mokp_drand(400);
+        mokp->b += mokp->w[i];
+    }
+    mokp->b = mokp->b / 2;
 
     return mokp;
 }
@@ -68,12 +134,10 @@ MOKP *mokp_random(int n, int np, int option){
     MOKP *mokp;
     
     switch( option ){
-        case 0:
-            mokp = _mokp_random(n, np);
-            break;
-        case 1:
-            mokp = _mokp_unconflict(n, np);
-            break;
+        case 0: mokp = _mokp_random_uniform(n, np); break;
+        case 1: mokp = _mokp_random_unconflict(n, np); break;
+        case 2: mokp = _mokp_random_conflict(n, np); break;
+        case 3: mokp = _mokp_random_conflict_correl(n, np); break;
     }
 
     return mokp;
@@ -332,8 +396,17 @@ void mokptree_fprintf(FILE *out, MOKPTree *tree){
 
 void _mokptree_kdtree_insert(MOKPNode *root, MOKPNode *node, int h, int ndim){
     int dim = h % ndim;
+    double root_val, node_val;
 
-    if( node->profit[dim] > root->profit[dim] )
+    if( !dim ){   /* dim = 0 => index b_left */
+        root_val = root->b_left;
+        node_val = node->b_left;
+    }else{        /* dim > 0 => index profit[dim-1] */
+        root_val = root->profit[dim-1];
+        node_val = node->profit[dim-1];
+    }
+
+    if( node_val > root_val )
         if( root->right ) _mokptree_kdtree_insert(root->right, node, h+1, ndim);
         else root->right = node;
     else
@@ -383,6 +456,7 @@ void mokptree_kdtree_balance( MOKPTree *tree ){
 MOKPNode *_mokptree_kdtree_find_dominator( MOKPNode *root, MOKPNode *node, int h, int ndim ){
     MOKPNode *dominant = NULL;
     int dim;
+    double root_val, node_val;
 
     dim = h % ndim;
 
@@ -392,10 +466,21 @@ MOKPNode *_mokptree_kdtree_find_dominator( MOKPNode *root, MOKPNode *node, int h
     if( root->right )
         dominant = _mokptree_kdtree_find_dominator( root->right, node, h+1, ndim );
 
-    if( !dominant )
-        if( root->profit[dim] >= node->profit[dim] )
-            if( root->left )
-                dominant = _mokptree_kdtree_find_dominator( root->left, node, h+1, ndim );
+    if( dominant )
+        return dominant;
+
+    /* getting indexed values */
+    if( !dim ){
+        root_val = root->b_left;
+        node_val = node->b_left;
+    }else{
+        root_val = root->profit[dim-1];
+        node_val = node->profit[dim-1];
+    }
+
+    if( root_val >= node_val )
+        if( root->left )
+            dominant = _mokptree_kdtree_find_dominator( root->left, node, h+1, ndim );
 
     return dominant;
 }
@@ -471,16 +556,6 @@ void _mokp_dynprog_iter(MOKPTree *tree, int idx, double *stime){
         /* check if dominant exists */
         dominant = mokptree_find_dominator(tree, new, stime);
 
-        /*
-        printf("  %d:%s", i, dominant ? "*DISCHAGED " : " ADDED ");
-        mokpnode_fprintf(stdout, new);
-        if( dominant ){
-            printf("  dom: ");
-            mokpnode_fprintf(stdout, dominant);
-        }
-        printf("\n");
-        */
-
         if( !dominant ) n_added++;
         else n_discharged++;
         /* inserint if new node is not dominated */
@@ -510,7 +585,8 @@ void _mokpnode_get_childs(MOKPNode *node, MOKPNode **arr, int *n){
 }
 
 MOKPNode *_mokp_kdtree_median(MOKPNode **arr, int n, int dim){
-    int i;
+    int i, ln, rn;
+    MOKPNode *median;
 
     if( n < 3 ){
         // TODO:

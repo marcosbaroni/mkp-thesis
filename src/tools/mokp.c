@@ -60,6 +60,8 @@ int execute_rand(int argc, char **argv){
         printf("\nclasse:\n");
         printf("   0: random ([1,1000])\n");
         printf("   1: unconflicting ([111,1000], [p-100, p+100])\n");
+        printf("   2: profits negatively-correlated, weight uniform\n");
+        printf("   3: profits negatively-correlated, weight positively-correlated with profits\n");
         printf("\n");
         return 1;
     }
@@ -136,6 +138,12 @@ int execute_dynprog(int argc, char **argv){
     mokp = mokp_read(input);
     fclose(input);
     n = mokp->n;
+
+    /* checking indexed dimensions consistency */
+    if( ndim > mokp->np + 1 ){
+        fprintf(stderr, "Number od indexing dimensions exceeds problems dimensions. ndim = %d will be used.\n", mokp->np+1);
+        ndim = mokp->np + 1;
+    }
 
     /* getting k (n. of iterations) */
     k = n;
