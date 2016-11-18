@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# Thu Nov 17 22:57:42 BRST 2016
+# Script batch para executar teste computacional para avaliação
+#  de desempenho do uso da KD-tree no algoritmo de Nemhauser-Ullman
+#  para o problema da mochila multidimensional bi objetivo
+
 # EXECUTABLE
 MOKP=/home/mbaroni/Computacao/phd/dmkp/bin/mokp
 
@@ -9,24 +14,24 @@ ndims="0 1 2 3"
 nits=(25 34 22 15)
 k=50
 
-# TEMPORARY FILE
+# temporary file
 temp=`mktemp`
 t=1`date +%N | cut -c 1,8,6,2`
 
-# EACH CLASSE
+# each classe
 for c in $cls
 do
     # nitem range
     let ci=$c-1
     maxn=${nits[$ci]}
     let minn=$maxn-10
-    # EACH NITEM
+    # each nitem
     for n in `seq $minn $maxn`
     do
-        # SEED
+        # seed
         for i in `seq $k`
         do
-            # EACH INDEXING DIMENSION
+            # each indexing dimension
             for d in $ndims
             do
                 let s=$i+$t
