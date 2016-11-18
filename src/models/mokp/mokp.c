@@ -75,21 +75,31 @@ MOKP *_mokp_random_conflict(int n, int np){
     MOKP *mokp;
     int i, j;
     double lower, upper;
+    double **p;
 
     mokp = mokp_alloc(n, np);
+    p = mokp->p;
 
     mokp->b = 0;
     for( i = 0 ; i < n ; i++ ){
         /* first profit */
-        mokp->p[0][i] = _mokp_drand(1000.);
-        /* second profit */
-        if( np > 1 ){
-            lower = max(900 - mokp->p[0][i], 1);
-            upper = min(1100 - mokp->p[0][i], 100);
-            mokp->p[1][i] = lower + _mokp_drand((upper - lower));
+        p[0][i] = _mokp_drand(1000.);
+
+        /* case m = 2 */
+        if( np == 2 ){
+            lower = max( 900 - p[0][i],   1);
+            upper = min(1100 - p[0][i], 100);
+            p[1][i] = lower + _mokp_drand((upper - lower));
+        }
+        /* case m = 3,4,5,... */
+        if( np > 2 ){
+            p[1][i] = _mokp_drand(1001. - p[0][i]);
+            lower = max( 900 - p[0][i] - p[1][i], 1);
+            upper = min(1100 - p[0][i] - p[1][i], 1001. - p[0][i]);
+            p[2][i] = lower + _mokp_drand((upper - lower));
         }
         /* further profits... */
-        for( j = 2 ; j < np ; j++ )
+        for( j = 3 ; j < np ; j++ )
             mokp->p[j][i] = _mokp_drand(1000.);
 
         /* wieght */
