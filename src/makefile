@@ -49,11 +49,13 @@ test: util.o
 	mv test $(DEST)
 
 mkp.o: utils/util.c
-mokp: mokp.o tmokp.o util.o mkp.o lp.o mkp-soputils.o 
-	g++ $(CFLAGS) -o mokp tmokp.o mokp.o mkp.o util.o lp.o mkp-soputils.o -lm $(SOPLEX)
+mokp: mokp.o tmokp.o util.o mkp.o lp.o mkp-soputils.o order.o
+	g++ $(CFLAGS) -o mokp tmokp.o mokp.o mkp.o util.o lp.o mkp-soputils.o order.o -lm $(SOPLEX)
 	mv mokp $(DEST)
 mokp.o:
 	gcc $(CFLAGS) -c models/mokp/mokp.c
+order.o:
+	gcc $(CFLAGS) -c models/mokp/order.c
 tmokp.o:
 	gcc $(CFLAGS) -c tools/mokp.c -o tmokp.o
 clean:

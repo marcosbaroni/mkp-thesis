@@ -108,6 +108,8 @@ long long long_long_array_sum(long long *array, int n);
 
 /* INT MATRIX */
 int *int_matrix_max_cols(int **mat, int n, int m); /* max elems of EACH COLUMN */
+int int_matrix_max(int **mat, int n, int m);     /* max elem from matrix */
+void int_matrix_fprintf(FILE *out, int **mat, int n, int m);
 
 /*******************************************************************************
  ***     LONG MATRIX
@@ -150,10 +152,13 @@ void double_array_fprint(FILE *out, double *a, int n);
 double *double_array_from_scip(double *array, FILE *in);    /*reads a double array from scip solution output format */
 double *double_array_read(FILE *fin, double *p, int n);
 void double_array_write(FILE *out, double *p, int n);
+double double_array_max(double *mat, int n);
 int *double_index_sort(double *array, int n); /* returns the ordering (desc) of the given array */
 
 /* DOUBLE MATRIX */
 double **double_matrix_alloc(int n, int m);
+double double_matrix_max(double **mat, int n, int m);
+void double_matrix_fprintf(FILE *stdout, double **max, int n, int m);
 double **double_matrix_init(double **mat, int n, int m, double x);
 
 

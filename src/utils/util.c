@@ -562,6 +562,34 @@ int *int_matrix_max_cols(int **mat, int n, int m){
 	return maxs;
 }
 
+int int_matrix_max(int **mat, int n, int m){
+    int i, j, max;
+    max = mat[0][0];
+
+    for( i = 0 ; i < n ; i++ )
+        for( j = 0 ; j < n ; j++ )
+            if( max < mat[i][j] )
+                max = mat[i][j];
+
+    return max;
+}
+
+void int_matrix_fprintf(FILE *out, int **mat, int n, int m){
+    int i, j, ndigits;
+    char format[20];
+
+    ndigits = (int)(ceil(log10(int_matrix_max(mat, n, m))));
+    sprintf(format, "%% %dd", ndigits);
+
+    for( i = 0 ; i < n ; i++ ){
+        for( j = 0 ; j < m ; j++ )
+            fprintf(out, format, mat[i][j]);
+        fprintf(out, "\n");
+    }
+
+    return;
+}
+
 /*******************************************************************************
  *                                LONG MATRIX                                  *
 *******************************************************************************/
@@ -882,6 +910,19 @@ void dis_swap(void *arg, int a, int b){
 	(((int**)arg)[1])[b] = iaux;
 	return;
 }
+
+double double_array_max(double *mat, int n){
+    double max;
+    int i;
+
+    max = mat[0];
+    for( i = 1 ; i < n ; i++ )
+        if( max < mat[i] )
+            max = mat[i];
+
+    return max;
+}
+
 int *double_index_sort(double *array, int n){
 	void **mp_arg[2];
 	int *idxs, i;
@@ -910,6 +951,38 @@ double **double_matrix_alloc(int n, int m){
 		mat[i] = (double*)malloc(m*sizeof(double));
 
 	return mat;
+}
+
+double double_matrix_max(double **mat, int n, int m){
+    double max, r;
+    int i;
+
+    max = double_array_max(mat[0], m);
+    for( i = 1 ; i < n ; i++ ){
+        r = double_array_max(mat[i], m);
+        if( r > max )
+            max = r;
+    }
+
+    return max;
+}
+
+void double_matrix_fprintf(FILE *fout, double **mat, int n, int m){
+    int i, j;
+    double max;
+    int ndigits;
+    char format[20];
+
+    ndigits = (int)(ceil(log10(double_matrix_max(mat, n, m))));
+    sprintf(format, "%%%d.3f ", ndigits);
+    for( i = 0 ; i < n ; i++ ){
+        for( j = 0 ; j < m ; j++ ){
+            fprintf(fout, format, mat[i][j]);
+        }
+        fprintf(fout, "\n");
+    }
+
+    return;
 }
 
 double **double_matrix_init(double **mat, int n, int m, double x){
@@ -1119,7 +1192,6 @@ void mp_qsort_r(void *collection, int n, mp_cmp_r_f mp_cmp_r, mp_swap_f mp_swap,
 
 int mp_partition(void *collection, int a, int b, mp_cmp_f mp_cmp, mp_swap_f mp_swap, char reverse){
 	int i, j, pivot;
-    printf("partitin...\n"); fflush(stdout);
 
 	pivot = i = a; j = b+1;
 	while( 1 ){

@@ -2,6 +2,7 @@
 #define MOKP_H 1
 
 #include "../../utils/util.h"
+#include "../mkp/mkp.h"
 
 /*  Multi-objective Knaspack Problem Instance */
 typedef struct MOKP{

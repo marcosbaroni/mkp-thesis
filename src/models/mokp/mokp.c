@@ -8,7 +8,7 @@
 #include "../../utils/util.h"
 #include "../mkp/mkp.h"
 #include "mokp.h"
-
+#include "order.h"
 
 MOKP *mokp_alloc(int n, int np){
     MOKP *mokp;
@@ -30,6 +30,9 @@ double _mokp_drand(double max){ return drand()*max+1; }
 double min(double a, double b){ return a < b ? a : b; }
 double max(double a, double b){ return a > b ? a : b; }
 
+/*
+ *   Type A
+ * */
 MOKP *_mokp_random_uniform(int n, int np){
     MOKP *mokp;
     int i, j;
@@ -50,6 +53,9 @@ MOKP *_mokp_random_uniform(int n, int np){
     return mokp;
 }
 
+/*
+ *   Type B
+ * */
 MOKP *_mokp_random_unconflict(int n, int np){
     MOKP *mokp;
     int i, j;
@@ -71,6 +77,9 @@ MOKP *_mokp_random_unconflict(int n, int np){
     return mokp;
 }
 
+/*
+ *   Type C
+ * */
 MOKP *_mokp_random_conflict(int n, int np){
     MOKP *mokp;
     int i, j;
@@ -111,6 +120,9 @@ MOKP *_mokp_random_conflict(int n, int np){
     return mokp;
 }
 
+/*
+ *   Type D
+ * */
 MOKP *_mokp_random_conflict_correl(int n, int np){
     MOKP *mokp;
     int i, j;
@@ -140,6 +152,7 @@ MOKP *_mokp_random_conflict_correl(int n, int np){
     return mokp;
 }
 
+/*  Sintethic MOKP instance */
 MOKP *mokp_random(int n, int np, int option){
     MOKP *mokp;
     
@@ -153,6 +166,7 @@ MOKP *mokp_random(int n, int np, int option){
     return mokp;
 }
 
+/*  Converts a MKP instace into a MOKP instance */
 MOKP *mokp_from_mkp(MKP *mkp){
     MOKP *mokp;
     int i, j, n, m, np;
@@ -210,6 +224,7 @@ void mokp_write(FILE *out, MOKP *mokp){
     return;
 }
 
+/*  Reads a MOKP instance from a given file */
 MOKP *mokp_read(FILE *fin){
     int n, np;
     int i, j;
@@ -227,6 +242,7 @@ MOKP *mokp_read(FILE *fin){
     return mokp;
 }
 
+/*  Writes a MOKP instance into a file */
 void mokp_save(char *filename, MOKP *mokp){
     FILE *fout;
 
@@ -242,6 +258,7 @@ void mokp_save(char *filename, MOKP *mokp){
     return;
 }
 
+/*  Reads a MOKP instance from a file (given its name) */
 MOKP *mokp_open(char *filename){
     FILE *fin;
     MOKP *mokp;
@@ -258,7 +275,8 @@ MOKP *mokp_open(char *filename){
     return mokp;
 }
 
-/* MOKP Node (for Dynamic Programming) */
+/*  returns a new MOKP Node (for Dynamic Programming), given its father and the
+ *  item to be inserted. */
 MOKPNode *mokpnode_new(MOKPNode *father, int idx){
     MOKPNode *node;
     MOKP *mokp;
@@ -285,6 +303,7 @@ MOKPNode *mokpnode_new(MOKPNode *father, int idx){
     return node;
 }
 
+/*  Returns an empty solution for the MOKP, given its tree */
 MOKPNode *mokpnode_new_empty(MOKPTree *tree){
     MOKPNode *node;
     MOKP *mokp;
@@ -441,7 +460,6 @@ void mokptree_insert(MOKPTree *tree, MOKPNode *node){
 }
 
 void _mokptree_kdtree_balance( MOKPNode **elems, MOKPNode *root, int n, int dim, int ndim){
-
 }
 
 void mokptree_kdtree_balance( MOKPTree *tree ){
@@ -463,6 +481,7 @@ void mokptree_kdtree_balance( MOKPTree *tree ){
     _mokptree_kdtree_balance(nodes, tree->root, tree->n_nodes, 0, tree->ndim);
 }
 
+/* (subprocedure) Finds a dominator checking the kdtree. */
 MOKPNode *_mokptree_kdtree_find_dominator( MOKPNode *root, MOKPNode *node, int h, int ndim ){
     MOKPNode *dominant = NULL;
     int dim;
@@ -495,6 +514,7 @@ MOKPNode *_mokptree_kdtree_find_dominator( MOKPNode *root, MOKPNode *node, int h
     return dominant;
 }
 
+/*  Finds a dominator (if exists) for a given node */
 MOKPNode *mokptree_find_dominator(MOKPTree *tree, MOKPNode *node, double *stime){
     MOKPNode *dominant = NULL;
     MOKPNode *current;
@@ -514,6 +534,7 @@ MOKPNode *mokptree_find_dominator(MOKPTree *tree, MOKPNode *node, double *stime)
     return dominant;
 }
 
+/* Frees a MOKP instance */
 void mokptree_free(MOKPTree *tree){
     MOKPNode *node;
     MOKPNode *next_node;
@@ -531,7 +552,13 @@ void mokptree_free(MOKPTree *tree){
     return;
 }
 
-/* Solving */
+/*******************************************************************************
+ *    Iteração do método de Prog. Dyn. para o MOKP.
+ *
+ *    tree:  arvore com soluções
+ *    idx:   indice do item a ser adicionado
+ *    stime: time searching for dominant (for ktree performance study)
+*******************************************************************************/
 void _mokp_dynprog_iter(MOKPTree *tree, int idx, double *stime){
     MOKPNode *current, *current2;
     MOKPNode *new;
@@ -583,6 +610,7 @@ void _mokp_dynprog_iter(MOKPTree *tree, int idx, double *stime){
     return;
 }
 
+/* Recursively gets all the MOKPnodes (for tree balacing) */
 void _mokpnode_get_childs(MOKPNode *node, MOKPNode **arr, int *n){
     if( node->left )
         _mokpnode_get_childs(node->left, arr, n);
@@ -594,6 +622,7 @@ void _mokpnode_get_childs(MOKPNode *node, MOKPNode **arr, int *n){
     return;
 }
 
+/* Recursively gets all the MOKPnodes (for tree balacing) */
 MOKPNode *_mokp_kdtree_median(MOKPNode **arr, int n, int dim){
     int i, ln, rn;
     MOKPNode *median;
@@ -607,6 +636,9 @@ MOKPNode *_mokp_kdtree_median(MOKPNode **arr, int n, int dim){
     
 }
 
+/*******************************************************************************
+ *    Ordena uma MOKP kdtree
+*******************************************************************************/
 void mokptree_balande_kdtree(MOKPTree *tree){
     int n, k;
     MOKPNode **nodes;
@@ -621,12 +653,15 @@ void mokptree_balande_kdtree(MOKPTree *tree){
     tree->kdtree_root = _mokp_kdtree_median(nodes, n, 0);
 }
 
-/*
- *       mokp: the problem instance
- * use_kdtree: if want to use kdtree
- *          k: number of iterations
- *       idxs: custom ordering of variables
- * */
+/*******************************************************************************
+ *    Algoritmo de programação dinamica para o problema MOKP.
+ *
+ *    mokp:        the problem instance
+ *    ndim:        dimension of kdtree to be used (0 to use list)
+ *    k:           number of iterations
+ *    idxs:        custom ordering of variables
+ *    *n_comp:     returnes (writes) total number of comparison
+*******************************************************************************/
 int mokp_dynprog(MOKP *mokp, int ndim, int k, int *idxs, long long *n_comps){
     MOKPNode *current_node;
     MOKPNode *next_node;
