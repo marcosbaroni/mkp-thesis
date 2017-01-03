@@ -202,6 +202,19 @@ int *int_array_shuffle(int *array, int n){
 	return array;
 }
 
+int *int_array_reverse(int *array, int n){
+    int aux, i, mid;
+
+    mid = n/2;
+    for( i = 0 ; i < mid ; i++ ){
+        aux = array[i];
+        array[i] = array[n-i-1];
+        array[n-i-1] = aux;
+    }
+
+    return array;
+}
+
 int int_array_sum(int *array, int n){
 	int i, sum;
 	sum = 0;

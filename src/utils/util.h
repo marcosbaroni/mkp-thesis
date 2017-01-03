@@ -69,6 +69,7 @@ int *int_array_random(int n, int *array, int bound);
 int int_array_is_sorted(int *array, int n);
 int *int_array_qsort(int *array, int n);
 int *int_array_shuffle(int *array, int n);
+int *int_array_reverse(int *array, int n);
 int int_array_sum(int *array, int n);
 
 /*******************************************************************************

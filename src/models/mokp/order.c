@@ -29,23 +29,15 @@ int *mokp_get_order(MOKP *mokp, char opt){
     sums = (double*)malloc(n*sizeof(double));
     metric = (double*)malloc(n*sizeof(double));
 
-    printf("ORDER OPT:%c\n", opt);
-
     /* computing p/w ratios */
     for( i = 0 ; i < np ; i++ )
         for( j = 0 ; j < n ; j++ )
             ratios[i][j] = p[i][j] / w[j];
 
-    printf("ratios:\n");
-    double_matrix_fprintf(stdout, ratios, np, n);
-
     /* ordering of items, given its rank */
     ordering = (int**)malloc(np*sizeof(int*));
     for( i = 0 ; i < np ; i++ )
         ordering[i] = double_index_sort(ratios[i], n);
-
-    printf("ordering:\n");
-    int_matrix_fprintf(stdout, ordering, np, n);
 
     /* ranking items on each dim */
     rank = (int**)malloc(np*sizeof(int*));
@@ -57,9 +49,6 @@ int *mokp_get_order(MOKP *mokp, char opt){
             rank[i][ordering[i][j]] = j+1;
         }
     }
-
-    printf("rank:\n");
-    int_matrix_fprintf(stdout, rank, np, n);
 
     /* sum the ranks */
     for( j = 0 ; j < n ; j++ ){
@@ -99,16 +88,6 @@ int *mokp_get_order(MOKP *mokp, char opt){
 
     /* computing order */
     idxs = double_index_sort(metric, n);
-
-    /* DEBUGGING */
-    printf("Rank:\n");
-    int_matrix_fprintf(stdout, rank, np, n);
-    printf("metric:\n");
-    double_array_fprint(stdout, metric, n);
-    printf("\n");
-    printf("idxs:\n");
-    int_array_fprint(stdout, idxs, n);
-    printf("\n");
 
     /* freeing variables */
     for( i = 0 ; i < np ; i++ ){
