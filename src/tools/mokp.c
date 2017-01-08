@@ -207,11 +207,6 @@ int execute_dynprog(int argc, char **argv){
     /**********************************************************
     *    PRE-PROCESSING
     **********************************************************/
-    /* Build indexs array */
-    // idxs = (int*)malloc(n*sizeof(int));
-    // for( i = 0 ; i < n ; i++ )
-    //     idxs[i] = i;
-
     // TODO: ordenar indices de inserção segundo proposta do Bazgan
     idxs = mokp_get_order(mokp, order_opt);
 

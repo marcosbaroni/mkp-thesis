@@ -9,9 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define IS_RIGHT_LEAF(a) if(
-
-#define max(a, b) a > b ? a : b;
+#define max(a, b) a > b ? a : b
 
 /*          AVL BALANCING FACTORS
  *
@@ -48,6 +46,7 @@ typedef struct{
 AVLTree*	new_avltree( avl_cmp_f cmp);
 void		free_avltree(AVLTree *avlt); /* Free the AVL Tree structure */
 int			avl_size(AVLTree *avlt);
+void        avl_free(AVLTree *avlt);
 /* operations */
 AVLTree*	avl_insert(AVLTree *avlt, void *a);
 AVLTree*	avl_delete(AVLTree *avlt, void *a);
@@ -56,6 +55,7 @@ void*		avl_has(AVLTree *avlt, void *a);
 void**		avl_to_array(AVLTree *avlt); /* Returns an array with members */
 void 		avl_apply_to_all(AVLTree *avlt, void(*func)(void*) );
 void		avl_fprint_dot(FILE *f, AVLTree *avlt, avl_prt_f prt);
+void        avl_check_sanity(AVLTree *avl);
 /****************************************************************/
 #endif
 

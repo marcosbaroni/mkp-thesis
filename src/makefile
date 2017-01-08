@@ -41,11 +41,13 @@ domset.o:
 
 lp.o:
 	gcc -c utils/lp.c
+avl.o:
+	gcc $(CFLAGS) -c utils/avl.c
 util.o:
 	gcc $(CFLAGS) -c utils/util.c
 
-test: util.o
-	gcc $(CFLAGS) -o test tools/test.c util.o -lm
+test: util.o avl.o
+	gcc $(CFLAGS) -o test tools/test.c avl.o util.o -lm
 	mv test $(DEST)
 
 mkp.o: utils/util.c

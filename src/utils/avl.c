@@ -49,6 +49,20 @@ int avl_size(AVLTree *avlt){
 	return avlt->n;
 }
 
+void sub_avl_free(AVLNode *node){
+    if(node->left)
+        sub_avl_free(node->left);
+    if(node->right)
+        sub_avl_free(node->right);
+    free(node);
+}
+
+void avl_free(AVLTree *avlt){
+    if( avlt->root )
+        sub_avl_free( avlt->root );
+    free(avlt);
+}
+
 /***   ROTATIONS   *****************************************************/
 /* 
  *        Rotate Right
@@ -64,8 +78,6 @@ int avl_size(AVLTree *avlt){
  */
 AVLNode *rotate_right(AVLTree *avlt, AVLNode *p){
 	AVLNode *a, *f, *x, *y;
-	fprintf(stderr, "    rotate right... ");
-	fflush(stderr);
 
 	f = p->parent;
 	a = p->left;
@@ -87,8 +99,6 @@ AVLNode *rotate_right(AVLTree *avlt, AVLNode *p){
 	a->right = p;
 	p->parent = a;
 
-	fprintf(stderr, "done.\n");
-	fflush(stderr);
 	//p->balance = a->balance = 0;
 	return a;
 }
@@ -104,11 +114,10 @@ AVLNode *rotate_right(AVLTree *avlt, AVLNode *p){
  *      / \             / \
  *     x   y           z   x
  *
+ * obs.: does not update balacing factors.
  */
 AVLNode *rotate_left(AVLTree *avlt, AVLNode *p){
 	AVLNode *a, *f;
-	fprintf(stderr, "    rotate left... ");
-	fflush(stderr);
 
 	f = p->parent;
 	a = p->right;
@@ -130,8 +139,6 @@ AVLNode *rotate_left(AVLTree *avlt, AVLNode *p){
 	a->left = p;
 	p->parent = a;
 
-	fprintf(stderr, "done.\n");
-	fflush(stderr);
 	//p->balance = a->balance = 0;
 	return a;
 }
@@ -193,13 +200,10 @@ AVLNode *rotate_left_right(AVLTree *avlt, AVLNode *p){
  * */
 void height_increased(AVLTree *avlt, AVLNode *a){
 	AVLNode *f, *p, *b;
-	fprintf(stderr, "    height increased\n");
-	fflush(stderr);
 
 	p = a->parent;
 
 	if(!p){ /* If 'p' is root... */
-		fprintf(stderr, "       root reached!\n");
 		return; /* ...nothing to do (tree is all balanced) */
 	}
 
@@ -229,7 +233,6 @@ void height_increased(AVLTree *avlt, AVLNode *a){
 			}
 		}
 	}else{    /*  a is right subtree... */
-		fprintf(stderr, "      right subtree\n");
 		p->balance++;
 
 		/* checking 'f' balance factor. Possibilities:
@@ -260,8 +263,6 @@ void height_increased(AVLTree *avlt, AVLNode *a){
 
 AVLTree *sub_avl_insert(AVLTree *avlt, AVLNode *p, AVLNode *newp){
 	int res;
-	fprintf(stderr, "  sub_insert\n");
-	fflush(stderr);
 
 	res = avlt->cmp(p->info, newp->info);
 
@@ -299,8 +300,6 @@ AVLTree *sub_avl_insert(AVLTree *avlt, AVLNode *p, AVLNode *newp){
 AVLTree *avl_insert(AVLTree *avlt, void *a){
 	AVLNode *node;
 	node = new_avl_node(a);
-	fprintf(stderr, "insert %d\n", *(int*)a);
-	fflush(stderr);
 
 	/* If fisrt element */
 	if(!avlt->root)
@@ -338,6 +337,7 @@ void *avl_has(AVLTree *avlt, void *a){
 	return NULL;
 }
 
+/* Report that the height of "node" has decreased. */
 AVLTree *height_decreased(AVLTree *avlt, AVLNode *node){
 	if(!node->parent)
 		return avlt;
@@ -347,19 +347,7 @@ AVLTree *height_decreased(AVLTree *avlt, AVLNode *node){
 	return avlt;
 }
 
-AVLNode *avl_find_predecessor(AVLTree *avlt, AVLNode *node){
-	AVLNode *pred;
-
-	pred = node->left;
-	if(!pred)
-		return NULL;
-	else
-		while(pred->right)
-			pred = pred->right;
-
-	return pred;
-}
-
+/* Remove the given leaf from the tree. */
 void avl_make_me_orphan(AVLTree *avlt, AVLNode *node){
 	AVLNode *parent;
 
@@ -367,7 +355,7 @@ void avl_make_me_orphan(AVLTree *avlt, AVLNode *node){
 	if(!parent)
 		avlt->root = NULL;
 	else{
-		if(parent->right == targe){
+		if(parent->right == parent){
 			parent->right = NULL;
 			parent->balance--;
 		}else{
@@ -381,8 +369,8 @@ void avl_make_me_orphan(AVLTree *avlt, AVLNode *node){
 			switch(parent->right->balance){
 				case -1:
 				/* right knee case */
-				rotate_right(parent->right);
-				rotate_left(parent);
+				rotate_right(avlt, parent->right);
+				rotate_left(avlt, parent);
 				/* update balance */
 				parent->balance = 0;
 				parent->parent->right->balance = 0;
@@ -396,22 +384,22 @@ void avl_make_me_orphan(AVLTree *avlt, AVLNode *node){
 					break;
 				}
 				parent->parent->balance = 0;
-				height_decreased(parent->parent);
+				height_decreased(avlt, parent->parent);
 				break;
 
 				case  0:
 				/* right leg case */
-				rotate_left(parent);
+				rotate_left(avlt, parent);
 				parent->balance = 1;
 				parent->parent->balance = -1;
 				break;
 
 				case +1:
 				/* right leg case */
-				rotate_left(parent);
+				rotate_left(avlt, parent);
 				parent->balance = 0;
 				parent->parent->balance = 0;
-				height_decreased(parent->parent);
+				height_decreased(avlt, parent->parent);
 				break;
 			}
 			break;
@@ -433,8 +421,8 @@ void avl_make_me_orphan(AVLTree *avlt, AVLNode *node){
 			switch(parent->left->balance){
 				case +1:
 				/* left knee case */
-				rotate_left(parent->left);
-				rotate_right(parent);
+				rotate_left(avlt, parent->left);
+				rotate_right(avlt, parent);
 				/* update balance */
 				parent->balance = 0;
 				parent->parent->left->balance = 0;
@@ -448,22 +436,22 @@ void avl_make_me_orphan(AVLTree *avlt, AVLNode *node){
 					break;
 				}
 				parent->parent->balance = 0;
-				height_decreased(parent->parent);
+				height_decreased(avlt, parent->parent);
 				break;
 
 				case  0:
 				/* left leg case */
-				rotate_right(parent);
+				rotate_right(avlt, parent);
 				parent->balance = -1;
 				parent->parent->balance = +1;
 				break;
 
 				case -1:
 				/* left leg case */
-				rotate_right(parent);
+				rotate_right(avlt, parent);
 				parent->balance = 0;
 				parent->parent->balance = 0;
-				height_decreased(parent->parent);
+				height_decreased(avlt, parent->parent);
 				break;
 			}
 			break;
@@ -473,47 +461,171 @@ void avl_make_me_orphan(AVLTree *avlt, AVLNode *node){
 	return;
 }
 
+AVLNode *_avl_leaffy_node(AVLTree *avl, AVLNode *node){
+    void *info;
+    AVLNode *pred;
+
+    pred = NULL;
+    if( node->right ){
+        /* find the left-most leaf from right tree */
+        pred = node->right;
+        while( pred->left )
+            pred = pred->left;
+    }else if( node->left ){
+        /* find the right-most leaf from left tree */
+        pred = node->left;
+        while( pred->right )
+            pred = pred->right;
+    }else{
+        /* node is already a leaf */
+        return node;
+    }
+
+    /* switch the node with the defined predecessor */
+    if( pred ){
+        info = pred->info;
+        pred->info = node->info;
+        node->info = info;
+    }
+
+    return pred;
+}
+
+/* obs.: assumes the tree has more than 1 node... */
 AVLTree *sub_avl_delete(AVLTree *avlt, AVLNode *node){
 	int nkids;
+    void *info;
+    AVLNode *parent;
+    AVLNode *brother;
 
-	/* counting children */
-	nkids = 0;
-	if(target->right)
-		nkids++;
-	if(target->left)
-		nkids++;
+    node = _avl_leaffy_node(avlt, node);
+    parent = node->parent;
 
-	/* treating cases */
-	siwtch(nkids){
-		case 0:
-		avl_make_me_orphan(avlt, node);
-		free(target);
-		break;
+    /* node is right leaf */
+    if( parent->right == node ){
+        parent->right = NULL;
+        if( parent->balance == 0){
+            parent->balance--;
+        }else if(parent->balance == 1 ){
+            parent->balance--;
+            height_decreased(avlt, parent);
+        }else{
+            brother = parent->left;
+            if( brother->balance == +1 ){
+                rotate_left_right(avlt, parent);
+                parent->balance = 0;
+                brother->balance = 0;
+                height_decreased(avlt, parent->parent);
+            }else if( brother->balance == -1 ){
+                rotate_right(avlt, parent);
+                parent->balance = 0;
+                brother->balance = 0;
+                height_decreased(avlt, parent->parent);
+            }else{ /* bother->balance == 0 */
+                rotate_right(avlt, parent);
+                brother->balance = +1;
+            }
+        }
+    }else{/* node is left leaf */
+        parent->left = NULL;
+    }
 
-		case 1:
-		break;
-
-		case 2:
-		pred = avl_find_predecessor(avlt, target);
-		target->info = pred->info;
-		sub_avl_delete(avlt, pred);
-		break;
-	}
+    /* TODO: delete node / check father / report tree height decrease (if needed) */
 
 	return avlt;
 }
 
+/*** DEBUG **********************************************************/
+int _node_get_height(AVLNode *node){
+    int rh, lh;
+
+    rh = lh = 0;
+    if( !node->right && !node->left )
+        return 0;
+
+    if( node->right )
+        rh = _node_get_height(node->right);
+    if( node->left)
+        lh = _node_get_height(node->left);
+
+    return (max(lh, rh) + 1);
+}
+
+int _node_assert_balance(AVLNode *node){
+    int lh, rh, ans;
+
+    ans = 1;
+    if( node->left)
+        ans *= _node_assert_balance(node->left);
+    if( node->right )
+        ans *= _node_assert_balance(node->right);
+
+    if( !node->left || !node->right )
+        return ans;
+
+    lh = _node_get_height(node->left);
+    rh = _node_get_height(node->right);
+
+    if( abs(lh-rh) > 1 ){
+        fprintf(stderr, "error: Node %x has %d balance (%d - %d)\n", node, (lh-rh), lh, rh); 
+        ans = 0;
+    }
+
+    return ans;
+}
+
+int _node_assert_sorted(AVLNode *node, avl_cmp_f cmp){
+    int ans;
+
+    ans = 1;
+    if( node->left ){
+        if( cmp(node->info, node->left->info) < 0 )
+            ans = 0;
+        ans *= _node_assert_sorted(node->left, cmp);
+    }
+    if( node->right ){
+        if( cmp(node->info, node->right->info) > 0 )
+            ans = 0;
+        ans *= _node_assert_sorted(node->right, cmp);
+    }
+
+    return ans;
+}
+
+/* evaluate node heights, checking if balance factor of all nodes is between (-1, 1) */
+void avl_check_sanity(AVLTree *avl){
+    int balanced, sorted;
+
+    balanced = _node_assert_balance(avl->root);
+    sorted = _node_assert_sorted(avl->root, avl->cmp);
+
+    if( !balanced )
+        fprintf(stderr, "Tree is not balanced.\n");
+    if( !sorted )
+        fprintf(stderr, "Tree is not sorted.\n");
+
+    if( balanced && sorted )
+        fprintf(stderr, "Tree is sanitized.\n");
+
+    return;
+}
+
+/********************************************************************/
+
 
 /*** OTHERS *********************************************************/
 void sub_avl_apply_to_all(AVLNode *node, void(*func)(void*) ){
-	if(!node) func(node->info);
-	if(node->left) sub_avl_apply_to_all(node->left, func);
-	if(node->right) sub_avl_apply_to_all(node->right, func);
+	if( node->left )
+        sub_avl_apply_to_all( node->left, func );
+    func( node->info );
+	if( node->right )
+        sub_avl_apply_to_all( node->right, func );
 }
 
 /* Applies a function to all members. */
 void avl_apply_to_all(AVLTree *avlt, void(*func)(void*) ){
-	if(avlt->root) sub_avl_apply_to_all(avlt->root, func);
+	if(avlt->root)
+        sub_avl_apply_to_all(avlt->root, func);
 }
 
 int sub_avl_to_array(AVLNode *node, void **v, int k){
@@ -567,6 +679,7 @@ void _print_edges_dot(FILE *fout, AVLNode *node){
 	return;
 }
 
+/*  print AVL tree in dot format */
 void avl_fprint_dot(FILE *fout, AVLTree *avlt, avl_prt_f prt){
 	fprintf(fout, "graph G {\n");
 	fprintf(fout, "\tnode [style=filled, shape=circle,fillcolor=lightgray]\n");

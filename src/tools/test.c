@@ -4,6 +4,43 @@
 #include <time.h>
 
 #include "../utils/util.h"
+#include "../utils/avl.h"
+
+/***   AVL   ***************************************************************/
+int _int_ptr_cmp(int *a, int *b){
+    return (*a-*b);
+}
+
+void _int_ptr_prt( int *a){
+    printf("%d\n", *a);
+    return;
+}
+
+int execute_avl_test(int argc, char **argv){
+    int n, i;
+    int *array;
+    AVLTree *avl;
+
+    n = atoll(argv[2]);
+    array = (int*)malloc(n*sizeof(int));
+
+    for( i = 0 ; i < n ; i++ )
+        array[i] = i+1;
+
+    array = int_array_shuffle(array, n);
+
+    avl = new_avltree((avl_cmp_f)_int_ptr_cmp);
+    for( i = 0 ; i < n ; i++ )
+        avl_insert(avl, &(array[i]));
+
+    avl_check_sanity(avl);
+    avl_apply_to_all(avl, (void(*)(void*))_int_ptr_prt);
+    avl_free(avl);
+    free(array);
+
+    return 0;
+}
+/***************************************************************************/
 
 /* min heap test */
 int double_cmp(double *a, double *b){
@@ -51,19 +88,24 @@ void print_usage(int argc, char **argv){
     fprintf(stderr, "usage:%s <option>\n", argv[0]);
     fprintf(stderr, "\noptions:\n");
     fprintf(stderr, "  heap <n>: test min/max heap\n");
+    fprintf(stderr, "  avl <n>: test avl heap\n");
     return;
 }
 
 int main(int argc, char **argv){
+    struct timespec ts;
     if( argc < 2 ){
         print_usage(argc, argv);
         return 1;
     }
 
-    srand(time(NULL));
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    srand(ts.tv_nsec);
 
     if(!strcmp(argv[1], "heap"))
         return execute_heap_test(argc, argv);
+    if(!strcmp(argv[1], "avl"))
+        return execute_avl_test(argc, argv);
 
     fprintf(stderr, "unknown option\n");
     return 0;

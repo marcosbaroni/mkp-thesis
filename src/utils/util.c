@@ -147,7 +147,7 @@ void int_array_fprint(FILE *out, int *array, int n){
 	for( i = 0 ; i < n-1 ; i++ )
 		fprintf(out, "%d, ", array[i]);
 	if(n) fprintf(out, "%d", array[n-1]);
-	fprintf(out, "]");
+	fprintf(out, "]\n");
 
 	return;
 }
@@ -193,7 +193,7 @@ int *int_array_qsort(int *array, int n){
 int *int_array_shuffle(int *array, int n){
 	int i, idx, aux;
 	for( i = 0 ; i < n ; i++ ){
-		idx = lrand(n-i-1);
+		idx = i+lrand(n-i-1);
 		aux = array[idx];
 		array[idx] = array[i];
 		array[i] = aux;
