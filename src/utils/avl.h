@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define max(a, b) a > b ? a : b
+#define max(a, b) (a > b ? a : b)
 
 /*          AVL BALANCING FACTORS
  *
@@ -54,8 +54,9 @@ void*		avl_has(AVLTree *avlt, void *a);
 /* others */
 void**		avl_to_array(AVLTree *avlt); /* Returns an array with members */
 void 		avl_apply_to_all(AVLTree *avlt, void(*func)(void*) );
+void		avl_fprint_pretty(FILE *f, AVLTree *avlt, avl_prt_f prt);
 void		avl_fprint_dot(FILE *f, AVLTree *avlt, avl_prt_f prt);
-void        avl_check_sanity(AVLTree *avl);
+int         avl_check_sanity(AVLTree *avl);
 /****************************************************************/
 #endif
 

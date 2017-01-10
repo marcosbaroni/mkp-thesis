@@ -11,8 +11,13 @@ int _int_ptr_cmp(int *a, int *b){
     return (*a-*b);
 }
 
-void _int_ptr_prt( int *a){
+void _int_ptr_prt_ln( int *a){
     printf("%d\n", *a);
+    return;
+}
+
+void _int_fptr_prt( FILE *fout, int *a ){
+    fprintf(fout, "%d", *a);
     return;
 }
 
@@ -26,15 +31,14 @@ int execute_avl_test(int argc, char **argv){
 
     for( i = 0 ; i < n ; i++ )
         array[i] = i+1;
-
     array = int_array_shuffle(array, n);
 
     avl = new_avltree((avl_cmp_f)_int_ptr_cmp);
+
     for( i = 0 ; i < n ; i++ )
         avl_insert(avl, &(array[i]));
 
     avl_check_sanity(avl);
-    avl_apply_to_all(avl, (void(*)(void*))_int_ptr_prt);
     avl_free(avl);
     free(array);
 

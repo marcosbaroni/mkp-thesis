@@ -4,7 +4,20 @@
 *******************************************************************************/
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "avl.h"
+
+int node_is_right(AVLNode *node){
+    if( node->parent )
+        return node->parent->right == node ;
+    return 0;
+}
+
+int node_is_left(AVLNode *node){
+    if( node->parent )
+        return node->parent->left == node ;
+    return 0;
+}
 
 AVLNode *new_avl_node(void *a){
 	AVLNode *node;
@@ -203,14 +216,15 @@ void height_increased(AVLTree *avlt, AVLNode *a){
 
 	p = a->parent;
 
-	if(!p){ /* If 'p' is root... */
-		return; /* ...nothing to do (tree is all balanced) */
-	}
+    /* if node is root, no problem... */
+	if(!p)
+		return;
 
 	if( p->left == a ){ /* If a is a left subtree */
-		p->balance--; /* update balance factor. */
+		p->balance--; /* update parent balance factor. */
 
-		/* checking 'p' balance factor. Possibilities:
+		/* checking parent's balance factor...
+         * Possibilities:
 		*   +1 : impossible
 		*    0 : tree still balanced, no height increase
 		*   -1 : tree is balanced, but height increased
@@ -277,8 +291,7 @@ AVLTree *sub_avl_insert(AVLTree *avlt, AVLNode *p, AVLNode *newp){
 			p->balance++;
 
 			if( p->balance != 0 )
-				height_increased(avlt, p); /* report height increase
-					(self still balanced) */
+				height_increased(avlt, p); /* report H increase (self still balanced) */
 		}
 	}else{ /* Inserting left! */
 		if( p->left ) /* no left subtree */
@@ -290,8 +303,7 @@ AVLTree *sub_avl_insert(AVLTree *avlt, AVLNode *p, AVLNode *newp){
 			p->balance--;
 
 			if( p->balance != 0 )
-				height_increased(avlt, p); /* report height inscrease
-					(self still balanced) */
+				height_increased(avlt, p); /* report height inscrease (self still balanced) */
 		}
 	}
 	return avlt;
@@ -545,7 +557,7 @@ int _node_get_height(AVLNode *node){
 
     if( node->right )
         rh = _node_get_height(node->right);
-    if( node->left)
+    if( node->left )
         lh = _node_get_height(node->left);
 
     return (max(lh, rh) + 1);
@@ -593,21 +605,26 @@ int _node_assert_sorted(AVLNode *node, avl_cmp_f cmp){
 }
 
 /* evaluate node heights, checking if balance factor of all nodes is between (-1, 1) */
-void avl_check_sanity(AVLTree *avl){
+int avl_check_sanity(AVLTree *avl){
     int balanced, sorted;
+    int ans;
 
+    ans = 0;
     balanced = _node_assert_balance(avl->root);
     sorted = _node_assert_sorted(avl->root, avl->cmp);
 
-    if( !balanced )
-        fprintf(stderr, "Tree is not balanced.\n");
-    if( !sorted )
-        fprintf(stderr, "Tree is not sorted.\n");
+    if( !balanced ){
+        ans = 1;
+        fprintf(stdout, "Tree is not balanced.\n");
+    }if( !sorted ){
+        ans += 2;
+        fprintf(stdout, "Tree is not sorted.\n");
+    }
 
     if( balanced && sorted )
-        fprintf(stderr, "Tree is sanitized.\n");
+        fprintf(stdout, "Tree is sanitized.\n");
 
-    return;
+    return ans;
 }
 
 /********************************************************************/
@@ -677,6 +694,51 @@ void _print_edges_dot(FILE *fout, AVLNode *node){
 	if(node->right)
 		_print_edges_dot(fout, node->right);
 	return;
+}
+
+void _avl_fprint_pretty(FILE *fout, AVLNode *node, avl_prt_f prt, char *prefix){
+    int sn;
+    fprintf(fout, prefix);
+    if( node_is_right(node) ){
+        fprintf(fout, "+ < ");
+        strcat(prefix, "|  ");
+    }else{
+        fprintf(fout, "+ > ");
+        strcat(prefix, "   ");
+    }
+    prt(fout, node->info);
+    fprintf(fout, " [%x] (%d)\n", node, _node_get_height(node));
+
+    /* print children */
+    if( node->right )
+        _avl_fprint_pretty(fout, node->right, prt, prefix);
+    if( node->left)
+        _avl_fprint_pretty(fout, node->left, prt, prefix);
+
+    /* clear prefix */
+    sn = strlen(prefix);
+    prefix[sn-3] = '\0';
+
+    return;
+}
+
+void avl_fprint_pretty(FILE *fout, AVLTree *avlt, avl_prt_f prt){
+    AVLNode *root;
+    char prefix[1000];
+    prefix[0] = '\0';
+
+    root = avlt->root;
+    if( root ){
+        prt(fout, root->info);
+        fprintf(fout, " [%x] (%d)\n", root, _node_get_height(root));
+    }
+    if( root->right )
+        _avl_fprint_pretty(fout, root->right, prt, prefix);
+
+    if( root->left )
+        _avl_fprint_pretty(fout, root->left, prt, prefix);
+
+    return;
 }
 
 /*  print AVL tree in dot format */
