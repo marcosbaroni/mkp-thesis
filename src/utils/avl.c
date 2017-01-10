@@ -351,10 +351,45 @@ void *avl_has(AVLTree *avlt, void *a){
 
 /* Report that the height of "node" has decreased. */
 AVLTree *height_decreased(AVLTree *avlt, AVLNode *node){
-	if(!node->parent)
+    AVLNode *parent;
+    AVLNode *brother;
+
+    parent = node->parent;
+
+	if( !parent )
 		return avlt;
 	
-	/* TODO: not implemented yet... */
+    if( parent->right == node ){
+        if( parent->balance == 0 ){
+            parent->balance--;
+        }else if( parent->balance == +1 ){
+            parent->balance--;
+            height_decreased(avlt, parent);
+        }else{
+            brother = parent->left;
+            if( brother->balance == 0 ){
+                rotate_right(avlt, parent);
+                brother->balance = +1;
+            }else if( brother->balance == -1 ){
+                rotate_right(avlt, brother);
+                parent->balance = 0;
+                brother->balance = 0;
+                height_decreased(avlt, brother);
+            }else{
+                /* TODO: caso de... */
+            }
+        }
+    }else{
+        if( parent->balance == 0 ){
+            parent->balance++;
+        }else if( parent->balance == -1 ){
+            parent->balance++;
+            height_decreased(avlt, parent);
+        }else{
+            brother = parent->right;
+            /* TODO: balance parent */
+        }
+    }
 
 	return avlt;
 }
@@ -518,7 +553,7 @@ AVLTree *sub_avl_delete(AVLTree *avlt, AVLNode *node){
         parent->right = NULL;
         if( parent->balance == 0){
             parent->balance--;
-        }else if(parent->balance == 1 ){
+        }else if(parent->balance == +1 ){
             parent->balance--;
             height_decreased(avlt, parent);
         }else{
@@ -540,6 +575,28 @@ AVLTree *sub_avl_delete(AVLTree *avlt, AVLNode *node){
         }
     }else{/* node is left leaf */
         parent->left = NULL;
+        if( parent->balance == 0){
+            parent->balance--;
+        }else if(parent->balance == -1 ){
+            parent->balance--;
+            height_decreased(avlt, parent);
+        }else{
+            brother = parent->right;
+            if( brother->balance == -1 ){
+                rotate_right_left(avlt, parent);
+                parent->balance = 0;
+                brother->balance = 0;
+                height_decreased(avlt, parent->parent);
+            }else if( brother->balance == +1 ){
+                rotate_left(avlt, parent);
+                parent->balance = 0;
+                brother->balance = 0;
+                height_decreased(avlt, parent->parent);
+            }else{ /* bother->balance == 0 */
+                rotate_left(avlt, parent);
+                brother->balance = -1;
+            }
+        }
     }
 
     /* TODO: delete node / check father / report tree height decrease (if needed) */
