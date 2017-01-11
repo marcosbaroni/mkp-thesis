@@ -37,6 +37,17 @@ int execute_avl_test(int argc, char **argv){
 
     for( i = 0 ; i < n ; i++ )
         avl_insert(avl, &(array[i]));
+    avl_fprint_pretty(stdout, avl, (avl_prt_f)_int_fptr_prt);
+    avl_check_sanity(avl);
+
+    array = int_array_shuffle(array, n);
+    for( i = 0 ; i < (n/2) ; i++ ){
+        printf("removing %d [%x]\n", array[i], &(array[i]));
+        avl_remove(avl, &(array[i]));
+        avl_fprint_pretty(stdout, avl, (avl_prt_f)_int_fptr_prt);
+        avl_check_sanity(avl);
+    }
+    avl_fprint_pretty(stdout, avl, (avl_prt_f)_int_fptr_prt);
 
     avl_check_sanity(avl);
     avl_free(avl);

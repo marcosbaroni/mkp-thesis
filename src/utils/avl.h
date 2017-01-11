@@ -49,7 +49,7 @@ int			avl_size(AVLTree *avlt);
 void        avl_free(AVLTree *avlt);
 /* operations */
 AVLTree*	avl_insert(AVLTree *avlt, void *a);
-AVLTree*	avl_delete(AVLTree *avlt, void *a);
+AVLTree*	avl_remove(AVLTree *avlt, void *a);
 void*		avl_has(AVLTree *avlt, void *a);
 /* others */
 void**		avl_to_array(AVLTree *avlt); /* Returns an array with members */

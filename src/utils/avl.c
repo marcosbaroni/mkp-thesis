@@ -194,12 +194,6 @@ AVLNode *rotate_right_left(AVLTree *avlt, AVLNode *p){
  *      / \         / \
  *     x   y       w   x
  *
- *    * BALANCING FACTOR * 
- *    * AFTER   ROTATION * 
- *   |  b ||  p'|  a'|  b'|
- *   | +1 ||  0 | -1 |  0 |
- *   |  0 ||  0 |  0 |  0 |
- *   | -1 || +1 |  0 |  0 |
  */
 AVLNode *rotate_left_right(AVLTree *avlt, AVLNode *p){
 	rotate_left(avlt, p->left);
@@ -353,6 +347,8 @@ void *avl_has(AVLTree *avlt, void *a){
 AVLTree *height_decreased(AVLTree *avlt, AVLNode *node){
     AVLNode *parent;
     AVLNode *brother;
+    AVLNode *nephew;
+    int old_b;
 
     parent = node->parent;
 
@@ -365,7 +361,7 @@ AVLTree *height_decreased(AVLTree *avlt, AVLNode *node){
         }else if( parent->balance == +1 ){
             parent->balance--;
             height_decreased(avlt, parent);
-        }else{
+        }else{ /* parent->balance == -1 */
             brother = parent->left;
             if( brother->balance == 0 ){
                 rotate_right(avlt, parent);
@@ -375,8 +371,15 @@ AVLTree *height_decreased(AVLTree *avlt, AVLNode *node){
                 parent->balance = 0;
                 brother->balance = 0;
                 height_decreased(avlt, brother);
-            }else{
-                /* TODO: caso de... */
+            }else{ /* brother->balance == +1 */
+                nephew = brother->right;
+                old_b = nephew->balance;
+                rotate_left_right(avlt, parent);
+                nephew->balance = parent->balance = brother->balance = 0;
+                if( old_b == 1)
+                    parent->balance = brother->balance = -1;
+                else if( old_b == -1)
+                    nephew->balance = -1;
             }
         }
     }else{
@@ -385,9 +388,26 @@ AVLTree *height_decreased(AVLTree *avlt, AVLNode *node){
         }else if( parent->balance == -1 ){
             parent->balance++;
             height_decreased(avlt, parent);
-        }else{
+        }else{ /* parent->balance == +1 */
             brother = parent->right;
-            /* TODO: balance parent */
+            if( brother->balance == 0 ){
+                rotate_left(avlt, parent);
+                brother->balance = -1;
+            }else if( brother->balance == +1 ){
+                rotate_left(avlt, brother);
+                parent->balance = 0;
+                brother->balance = 0;
+                height_decreased(avlt, brother);
+            }else{ /* brother->balance == -1 */
+                nephew = brother->left;
+                old_b = nephew->balance;
+                rotate_right_left(avlt, parent);
+                nephew->balance = parent->balance = brother->balance = 0;
+                if( old_b == -1)
+                    parent->balance = brother->balance = +1;
+                else if( old_b == 1)
+                    nephew->balance = 1;
+            }
         }
     }
 
@@ -539,7 +559,7 @@ AVLNode *_avl_leaffy_node(AVLTree *avl, AVLNode *node){
 }
 
 /* obs.: assumes the tree has more than 1 node... */
-AVLTree *sub_avl_delete(AVLTree *avlt, AVLNode *node){
+AVLTree *sub_avl_remove(AVLTree *avlt, AVLNode *node){
 	int nkids;
     void *info;
     AVLNode *parent;
@@ -599,9 +619,39 @@ AVLTree *sub_avl_delete(AVLTree *avlt, AVLNode *node){
         }
     }
 
-    /* TODO: delete node / check father / report tree height decrease (if needed) */
-
 	return avlt;
+}
+
+AVLNode *_avl_find(AVLNode *node, void *info, avl_cmp_f cmp){
+    AVLNode *found;
+    int res;
+
+    if( node->info == info )
+        return node;
+
+    res = cmp(node->info, info);
+    if( res <= 0 )
+        found = _avl_find(node->right, info, cmp);
+    if( !found && res >= 0 && node->left )
+        found = _avl_find(node->left, info, cmp);
+
+    return found;
+}
+
+AVLTree *avl_remove(AVLTree *avl, void *info){
+    AVLNode *node;
+
+    if( avl->root )
+        node = _avl_find(avl->root, info, avl->cmp);
+
+    if( !node ){
+        fprintf(stderr, "cound not remove element %x: didn't find it.\n");
+        return avl;
+    }
+
+    printf("found element %x to remove\n", node->info);
+    sub_avl_remove(avl, node);
+    return avl;
 }
 
 /*** DEBUG **********************************************************/
