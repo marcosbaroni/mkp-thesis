@@ -146,7 +146,6 @@ AVLNode *rotate_left(AVLTree *avlt, AVLNode *p){
 	a->left = p;
 	p->parent = a;
 
-	//p->balance = a->balance = 0;
 	return a;
 }
 
@@ -284,6 +283,7 @@ void height_decreased(AVLTree *avlt, AVLNode *node){
                 parent->balance = +1;
             else if( parent->parent->balance == +1 )
                 parent->parent->left->balance = -1;
+            parent->parent->balance = 0;
             height_decreased(avlt, parent->parent);
         }
     }else if( parent->balance == +2 ){
@@ -297,13 +297,14 @@ void height_decreased(AVLTree *avlt, AVLNode *node){
             parent->balance = 0;
             parent->parent->balance = 0;
             height_decreased(avlt, parent->parent);
-        }else{
+        }else{ /* brother->balance == -1 */
             rotate_right_left(avlt, parent);
-            parent->balance = parent->parent->left->balance = 0;
+            parent->balance = parent->parent->right->balance = 0;
             if( parent->parent->balance == +1 )
                 parent->balance = -1;
             else if( parent->parent->balance == -1 )
                 parent->parent->right->balance = +1;
+            parent->parent->balance = 0;
             height_decreased(avlt, parent->parent);
         }
     }
@@ -547,7 +548,6 @@ AVLTree *sub_avl_remove(AVLTree *avlt, AVLNode *node){
      *  1. remove node;
      *  2. adjust parent balance;
      *  3. report height decrease (if nedded) */
-    printf("  node to br removed is now %x\n", node);
 
     parent = node->parent;
     child = node->right ? node->right : node->left;
@@ -590,7 +590,6 @@ AVLTree *sub_avl_remove(AVLTree *avlt, AVLNode *node){
                     parent->balance = parent->parent->balance = 0;
                     height_decreased(avlt, parent->parent);
                 }else{
-                    printf(" %x balance == -2 and %x balance == 0\n", parent, parent->left);
                     rotate_right(avlt, parent);
                     parent->balance = -1;
                     parent->parent->balance = +1;
@@ -673,8 +672,13 @@ int _node_assert_balance(AVLNode *node){
     lh = _node_get_height(node->left);
     rh = _node_get_height(node->right);
 
-    if( abs(lh-rh) > 1 ){
-        fprintf(stderr, "error: Node %x has %d balance (%d - %d)\n", node, (lh-rh), lh, rh); 
+    if( abs(rh-lh) > 1 ){
+        fprintf(stderr, "error: Node %x has %d balance (%d - %d)\n", node, (rh-lh), rh, lh); 
+        ans = 0;
+    }
+    if( (rh-lh) != node->balance ){
+        fprintf(stderr, "error: Balance of %x claims to be %d but is (%d - %d = %d)\n",
+            node, node->balance, rh, lh, (rh-lh));
         ans = 0;
     }
 
@@ -716,8 +720,8 @@ int avl_check_sanity(AVLTree *avl){
         fprintf(stdout, "Tree is not sorted.\n");
     }
 
-    if( balanced && sorted )
-        fprintf(stdout, "Tree is sanitized.\n");
+    //if( balanced && sorted )
+    //    fprintf(stdout, "Tree is sanitized.\n");
 
     return ans;
 }
