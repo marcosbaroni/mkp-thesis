@@ -37,6 +37,7 @@ typedef void(*avl_prt_f)(FILE *out, void*);
 typedef struct{
 	int n;
 	avl_cmp_f cmp;
+    avl_prt_f prt;
 	AVLNode *root;
 	AVLNode *first;
 	AVLNode *last;
@@ -47,6 +48,7 @@ AVLTree*	new_avltree( avl_cmp_f cmp);
 void		free_avltree(AVLTree *avlt); /* Free the AVL Tree structure */
 int			avl_size(AVLTree *avlt);
 void        avl_free(AVLTree *avlt);
+void        avl_set_prt(AVLTree *avl, avl_prt_f prt);
 /* operations */
 AVLTree*	avl_insert(AVLTree *avlt, void *a);
 AVLTree*	avl_remove(AVLTree *avlt, void *a);
@@ -54,7 +56,7 @@ void*		avl_has(AVLTree *avlt, void *a);
 /* others */
 void**		avl_to_array(AVLTree *avlt); /* Returns an array with members */
 void 		avl_apply_to_all(AVLTree *avlt, void(*func)(void*) );
-void		avl_fprint_pretty(FILE *f, AVLTree *avlt, avl_prt_f prt);
+void		avl_fprint_pretty(FILE *f, AVLTree *avlt);
 void		avl_fprint_dot(FILE *f, AVLTree *avlt, avl_prt_f prt);
 int         avl_check_sanity(AVLTree *avl);
 /****************************************************************/

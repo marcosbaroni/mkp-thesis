@@ -19,6 +19,10 @@ int node_is_left(AVLNode *node){
     return 0;
 }
 
+int node_is_leaf(AVLNode *node){
+    return (!node->right && !node->left);
+}
+
 AVLNode *new_avl_node(void *a){
 	AVLNode *node;
 	node = (AVLNode*)malloc(sizeof(AVLNode));
@@ -38,24 +42,14 @@ AVLTree *new_avltree( avl_cmp_f cmp ){
 	AVLTree *avlt;
 	avlt = (AVLTree*)malloc(sizeof(AVLTree));
 	avlt->cmp = cmp;
+    avlt->prt = NULL;
 	avlt-> n = 0;
 	avlt-> root = NULL;
 	return avlt;
 }
 
-void sub_free_avltree(AVLNode *node){
-	if(!node)
-		return;
-	sub_free_avltree(node->left);
-	sub_free_avltree(node->right);
-	free(node);
-	return;
-}
-
-void free_avltree(AVLTree *avlt){
-	sub_free_avltree(avlt->root);
-	free(avlt);
-	return;
+void avl_set_prt(AVLTree *avl, avl_prt_f prt){
+    avl->prt = prt;
 }
 
 int avl_size(AVLTree *avlt){
@@ -168,13 +162,6 @@ AVLNode *rotate_left(AVLTree *avlt, AVLNode *p){
  *     b   z           x   a           w   x   y   z
  *    / \                 / \
  *   x  y                y   z
- *
- *    * BALANCING FACTOR * 
- *    * AFTER   ROTATION * 
- *   |  b ||  p'|  a'|  b'|
- *   | +1 || -1 |  0 |  0 |
- *   |  0 ||  0 |  0 |  0 |
- *   | -1 ||  0 | +1 |  0 |
  */
 AVLNode *rotate_right_left(AVLTree *avlt, AVLNode *p){
 	rotate_right(avlt, p->right);
@@ -202,72 +189,128 @@ AVLNode *rotate_left_right(AVLTree *avlt, AVLNode *p){
 
 /***   BALANCING OPERATIONS   *******************************************/
 
-/* * This function is called to report node 'p' has its height
- * increased (although still balanced).
- * */
-void height_increased(AVLTree *avlt, AVLNode *a){
-	AVLNode *f, *p, *b;
+void height_increased(AVLTree *avlt, AVLNode *node){
+    AVLNode *parent;
 
-	p = a->parent;
+    parent = node->parent;
 
-    /* if node is root, no problem... */
-	if(!p)
+    if( !parent )
+        return;
+
+    /* adjust parent node */
+    if( node_is_left(node) )
+        parent->balance--;
+    else /* node is right */
+        parent->balance++;
+
+    /* check parent new balance */
+    if( abs(parent->balance) == 1 ){
+        height_increased(avlt, parent);
+    }else if( parent->balance == +2 ){
+        if( node->balance == +1 ){
+            rotate_left(avlt, parent);
+            parent->balance = node->balance = 0;
+        }else if( node->balance == 0 ){
+            rotate_left(avlt, parent);
+            parent->balance = +1;
+            node->balance = -1;
+            height_increased(avlt, node);
+        }else{
+            rotate_right_left(avlt, parent);
+            node->balance = parent->balance = 0;
+            if( node->parent->balance == -1 )
+                node->balance = +1;
+            if( node->parent->balance == +1 )
+                parent->balance = -1;
+            node->parent->balance = 0;
+        }
+    }else if( parent->balance == -2 ){
+        if( node->balance == -1 ){
+            rotate_right(avlt, parent);
+            parent->balance = node->balance = 0;
+        }else if( node->balance == 0 ){
+            rotate_left(avlt, parent);
+            parent->balance = -1;
+            node->balance = +1;
+            height_increased(avlt, node);
+        }else{
+            rotate_left_right(avlt, parent);
+            node->balance = parent->balance = 0;
+            if( node->parent->balance == +1 )
+                node->balance = -1;
+            if( node->parent->balance == -1 )
+                parent->balance = +1;
+            node->parent->balance = 0;
+        }
+    }
+
+    return;
+}
+
+/* Report that the height of "node" has decreased. */
+void height_decreased(AVLTree *avlt, AVLNode *node){
+    AVLNode *parent;
+    AVLNode *brother;
+
+    parent = node->parent;
+
+	if( !parent )
 		return;
 
-	if( p->left == a ){ /* If a is a left subtree */
-		p->balance--; /* update parent balance factor. */
+    /* adjust parent node */
+    if( node_is_left(node) )
+        parent->balance++;
+    else /* node is right */
+        parent->balance--;
 
-		/* checking parent's balance factor...
-         * Possibilities:
-		*   +1 : impossible
-		*    0 : tree still balanced, no height increase
-		*   -1 : tree is balanced, but height increased
-		*   -2 : rotation needed, no further height increase */
-		if( p->balance == -1 )
-			height_increased(avlt, p);
-		else if( p->balance == -2 ){
-			if( a->balance == -1 ){ /* left 'leg' case: (right rotation) */
-				rotate_right(avlt, p);
-				p->balance = a->balance = 0;
-			}else{                  /* left 'knee' case: (left-right rotation) */
-				b = a->right;
-				/* left-right rotation */
-				rotate_left(avlt, a);
-				rotate_right(avlt, p);
-				/* uptading balance factors */
-				p->balance = b->balance == -1 ? +1 : 0;
-				a->balance = b->balance == +1 ? -1 : 0;
-				b->balance = 0;
-			}
-		}
-	}else{    /*  a is right subtree... */
-		p->balance++;
+    /* check parent new balance */
+    if( parent->balance == 0 ){
+        height_decreased(avlt, parent);
+    }else if( parent->balance == -2 ){
+        brother = parent->left;
+        if( brother->balance == 0 ){
+            rotate_right(avlt, parent);
+            parent->balance = -1;
+            parent->parent->balance = +1;
+        }else if( brother->balance == -1 ){
+            rotate_right(avlt, parent);
+            parent->balance = 0;
+            parent->parent->balance = 0;
+            height_decreased(avlt, parent->parent);
+        }else{
+            rotate_left_right(avlt, parent);
+            parent->balance = parent->parent->left->balance = 0;
+            if( parent->parent->balance == -1 )
+                parent->balance = +1;
+            else if( parent->parent->balance == +1 )
+                parent->parent->left->balance = -1;
+            height_decreased(avlt, parent->parent);
+        }
+    }else if( parent->balance == +2 ){
+        brother = parent->right;
+        if( brother->balance == 0 ){
+            rotate_left(avlt, parent);
+            parent->balance = +1;
+            parent->parent->balance = -1;
+        }else if( brother->balance == +1 ){
+            rotate_left(avlt, parent);
+            parent->balance = 0;
+            parent->parent->balance = 0;
+            height_decreased(avlt, parent->parent);
+        }else{
+            rotate_right_left(avlt, parent);
+            parent->balance = parent->parent->left->balance = 0;
+            if( parent->parent->balance == +1 )
+                parent->balance = -1;
+            else if( parent->parent->balance == -1 )
+                parent->parent->right->balance = +1;
+            height_decreased(avlt, parent->parent);
+        }
+    }
 
-		/* checking 'f' balance factor. Possibilities:
-		*   +2 : rotation needed, no further height increase.
-		*   +1 : tree is balanced, but height increased
-		*    0 : tree is balanced, no height increased
-		*   -1 : impossible */
-		if( p->balance == 1 )
-			height_increased(avlt, p);
-		else if( p->balance == +2 ){
-			if( a->balance == 1 ){         /* right 'leg' case */
-				rotate_left(avlt, p);
-				p->balance = a->balance = 0;
-			}else{ /* p->balance == -1 */   /* right 'knee' case */
-				b = a->left;
-				/* right-left rotation */
-				rotate_right(avlt, a);
-				rotate_left(avlt, p);
-				/* uptading balance factors */
-				p->balance = b->balance == +1 ? -1 : 0;
-				a->balance = b->balance == -1 ? +1 : 0;
-				b->balance = 0;
-			}
-		}
-	}
-	return;
+    return;
 }
+
 
 AVLTree *sub_avl_insert(AVLTree *avlt, AVLNode *p, AVLNode *newp){
 	int res;
@@ -341,77 +384,6 @@ void *avl_has(AVLTree *avlt, void *a){
 	if( node )
 		return node->info;
 	return NULL;
-}
-
-/* Report that the height of "node" has decreased. */
-AVLTree *height_decreased(AVLTree *avlt, AVLNode *node){
-    AVLNode *parent;
-    AVLNode *brother;
-    AVLNode *nephew;
-    int old_b;
-
-    parent = node->parent;
-
-	if( !parent )
-		return avlt;
-	
-    if( parent->right == node ){
-        if( parent->balance == 0 ){
-            parent->balance--;
-        }else if( parent->balance == +1 ){
-            parent->balance--;
-            height_decreased(avlt, parent);
-        }else{ /* parent->balance == -1 */
-            brother = parent->left;
-            if( brother->balance == 0 ){
-                rotate_right(avlt, parent);
-                brother->balance = +1;
-            }else if( brother->balance == -1 ){
-                rotate_right(avlt, brother);
-                parent->balance = 0;
-                brother->balance = 0;
-                height_decreased(avlt, brother);
-            }else{ /* brother->balance == +1 */
-                nephew = brother->right;
-                old_b = nephew->balance;
-                rotate_left_right(avlt, parent);
-                nephew->balance = parent->balance = brother->balance = 0;
-                if( old_b == 1)
-                    parent->balance = brother->balance = -1;
-                else if( old_b == -1)
-                    nephew->balance = -1;
-            }
-        }
-    }else{
-        if( parent->balance == 0 ){
-            parent->balance++;
-        }else if( parent->balance == -1 ){
-            parent->balance++;
-            height_decreased(avlt, parent);
-        }else{ /* parent->balance == +1 */
-            brother = parent->right;
-            if( brother->balance == 0 ){
-                rotate_left(avlt, parent);
-                brother->balance = -1;
-            }else if( brother->balance == +1 ){
-                rotate_left(avlt, brother);
-                parent->balance = 0;
-                brother->balance = 0;
-                height_decreased(avlt, brother);
-            }else{ /* brother->balance == -1 */
-                nephew = brother->left;
-                old_b = nephew->balance;
-                rotate_right_left(avlt, parent);
-                nephew->balance = parent->balance = brother->balance = 0;
-                if( old_b == -1)
-                    parent->balance = brother->balance = +1;
-                else if( old_b == 1)
-                    nephew->balance = 1;
-            }
-        }
-    }
-
-	return avlt;
 }
 
 /* Remove the given leaf from the tree. */
@@ -528,7 +500,7 @@ void avl_make_me_orphan(AVLTree *avlt, AVLNode *node){
 	return;
 }
 
-AVLNode *_avl_leaffy_node(AVLTree *avl, AVLNode *node){
+AVLNode *_node_swap_with_pred(AVLTree *avl, AVLNode *node){
     void *info;
     AVLNode *pred;
 
@@ -544,7 +516,7 @@ AVLNode *_avl_leaffy_node(AVLTree *avl, AVLNode *node){
         while( pred->right )
             pred = pred->right;
     }else{
-        /* node is already a leaf */
+        /* node has no predecessor (is a leaf) */
         return node;
     }
 
@@ -553,9 +525,10 @@ AVLNode *_avl_leaffy_node(AVLTree *avl, AVLNode *node){
         info = pred->info;
         pred->info = node->info;
         node->info = info;
+        node = pred;
     }
 
-    return pred;
+    return node;
 }
 
 /* obs.: assumes the tree has more than 1 node... */
@@ -564,60 +537,72 @@ AVLTree *sub_avl_remove(AVLTree *avlt, AVLNode *node){
     void *info;
     AVLNode *parent;
     AVLNode *brother;
+    AVLNode *child;
+    AVLNode *pred;
 
-    node = _avl_leaffy_node(avlt, node);
+    node = _node_swap_with_pred(avlt, node);
+    /* (node now (a) is a leaf or (b) has ONE child) */
+
+    /* If node is a leaf:
+     *  1. remove node;
+     *  2. adjust parent balance;
+     *  3. report height decrease (if nedded) */
+    printf("  node to br removed is now %x\n", node);
+
     parent = node->parent;
+    child = node->right ? node->right : node->left;
+    if( child )
+        child->parent = parent;
 
-    /* node is right leaf */
-    if( parent->right == node ){
-        parent->right = NULL;
-        if( parent->balance == 0){
+    if( parent ){
+        if( node_is_left(node) ){
+            parent->left = child;
+            parent->balance++;
+            if( !parent->balance ){
+                height_decreased(avlt, parent);
+            }else if( parent->balance == +2 ){
+                if( parent->right->balance == +1 ){
+                    rotate_left(avlt, parent);
+                    parent->balance = parent->parent->balance = 0;
+                    height_decreased(avlt, parent->parent);
+                }else if( parent->right->balance == -1 ){
+                    rotate_right_left(avlt, parent);
+                    parent->balance = parent->parent->balance = 0;
+                    height_decreased(avlt, parent->parent);
+                }else{
+                    rotate_left(avlt, parent);
+                    parent->balance = +1;
+                    parent->parent->balance = -1;
+                }
+            }
+        }else{ /* node is right */
+            parent->right = child;
             parent->balance--;
-        }else if(parent->balance == +1 ){
-            parent->balance--;
-            height_decreased(avlt, parent);
-        }else{
-            brother = parent->left;
-            if( brother->balance == +1 ){
-                rotate_left_right(avlt, parent);
-                parent->balance = 0;
-                brother->balance = 0;
-                height_decreased(avlt, parent->parent);
-            }else if( brother->balance == -1 ){
-                rotate_right(avlt, parent);
-                parent->balance = 0;
-                brother->balance = 0;
-                height_decreased(avlt, parent->parent);
-            }else{ /* bother->balance == 0 */
-                rotate_right(avlt, parent);
-                brother->balance = +1;
+            if( !parent->balance ){
+                height_decreased(avlt, parent);
+            }else if( parent->balance == -2 ){
+                if( parent->left->balance == -1 ){
+                    rotate_right(avlt, parent);
+                    parent->balance = parent->parent->balance = 0;
+                    height_decreased(avlt, parent->parent);
+                }else if( parent->left->balance == +1 ){
+                    rotate_left_right(avlt, parent);
+                    parent->balance = parent->parent->balance = 0;
+                    height_decreased(avlt, parent->parent);
+                }else{
+                    printf(" %x balance == -2 and %x balance == 0\n", parent, parent->left);
+                    rotate_right(avlt, parent);
+                    parent->balance = -1;
+                    parent->parent->balance = +1;
+                }
             }
         }
-    }else{/* node is left leaf */
-        parent->left = NULL;
-        if( parent->balance == 0){
-            parent->balance--;
-        }else if(parent->balance == -1 ){
-            parent->balance--;
-            height_decreased(avlt, parent);
-        }else{
-            brother = parent->right;
-            if( brother->balance == -1 ){
-                rotate_right_left(avlt, parent);
-                parent->balance = 0;
-                brother->balance = 0;
-                height_decreased(avlt, parent->parent);
-            }else if( brother->balance == +1 ){
-                rotate_left(avlt, parent);
-                parent->balance = 0;
-                brother->balance = 0;
-                height_decreased(avlt, parent->parent);
-            }else{ /* bother->balance == 0 */
-                rotate_left(avlt, parent);
-                brother->balance = -1;
-            }
-        }
+    }else{
+        /* if the node has no parent, it was the root. */
+        avlt->root = NULL;
     }
+    avlt->n--;
+    free(node);
 
 	return avlt;
 }
@@ -626,6 +611,10 @@ AVLNode *_avl_find(AVLNode *node, void *info, avl_cmp_f cmp){
     AVLNode *found;
     int res;
 
+    if( !node )
+        return NULL;
+
+    found = NULL;
     if( node->info == info )
         return node;
 
@@ -645,11 +634,10 @@ AVLTree *avl_remove(AVLTree *avl, void *info){
         node = _avl_find(avl->root, info, avl->cmp);
 
     if( !node ){
-        fprintf(stderr, "cound not remove element %x: didn't find it.\n");
+        fprintf(stderr, "cound not remove element %x: didn't find it.\n", info);
         return avl;
     }
 
-    printf("found element %x to remove\n", node->info);
     sub_avl_remove(avl, node);
     return avl;
 }
@@ -807,14 +795,22 @@ void _avl_fprint_pretty(FILE *fout, AVLNode *node, avl_prt_f prt, char *prefix){
     int sn;
     fprintf(fout, prefix);
     if( node_is_right(node) ){
-        fprintf(fout, "+ < ");
-        strcat(prefix, "|  ");
+        if( node->parent->left )
+            fprintf(fout, "\u251C < ");
+        else
+            fprintf(fout, "\u2514 < ");
+
+        if( node->parent->left )
+            strcat(prefix, "\u2502   ");
+        else
+            strcat(prefix, "\u2576   ");
     }else{
-        fprintf(fout, "+ > ");
-        strcat(prefix, "   ");
+        fprintf(fout, "\u2514 > ");
+        strcat(prefix, "\u2002   ");
     }
     prt(fout, node->info);
-    fprintf(fout, " [%x] (%d)\n", node, _node_get_height(node));
+    fprintf(fout, " [%x] (%d/%d)  [p: %x, l: %x, r: %x]\n", node,
+        _node_get_height(node), node->balance, node->parent, node->left, node->right);
 
     /* print children */
     if( node->right )
@@ -824,26 +820,31 @@ void _avl_fprint_pretty(FILE *fout, AVLNode *node, avl_prt_f prt, char *prefix){
 
     /* clear prefix */
     sn = strlen(prefix);
-    prefix[sn-3] = '\0';
+    prefix[sn-6] = '\0';
 
     return;
 }
 
-void avl_fprint_pretty(FILE *fout, AVLTree *avlt, avl_prt_f prt){
+void avl_fprint_pretty(FILE *fout, AVLTree *avlt){
     AVLNode *root;
     char prefix[1000];
     prefix[0] = '\0';
 
     root = avlt->root;
     if( root ){
-        prt(fout, root->info);
-        fprintf(fout, " [%x] (%d)\n", root, _node_get_height(root));
+        avlt->prt(fout, root->info);
+        fprintf(fout, " [%x] (%d/%d)  [p: %x, l: %x, r: %x]\n", root,
+            _node_get_height(root), root->balance, root->parent, root->left, root->right);
     }
     if( root->right )
-        _avl_fprint_pretty(fout, root->right, prt, prefix);
+        _avl_fprint_pretty(fout, root->right, avlt->prt, prefix);
 
-    if( root->left )
-        _avl_fprint_pretty(fout, root->left, prt, prefix);
+    if( root->left ){
+        _avl_fprint_pretty(fout, root->left, avlt->prt, prefix);
+    }else{
+        fprintf(fout, "coundsnt find left tree of %x...\n", root);
+    }
+    fflush(stdout);
 
     return;
 }
