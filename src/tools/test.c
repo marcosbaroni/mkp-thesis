@@ -75,10 +75,12 @@ int _sub_test_avl(int n, int seed){
 int execute_avl_test(int argc, char **argv){
     int n, k, maxk, ans;
 
-    maxk = 100000;
+    maxk = 1000;
     n = (int)atoll(argv[2]);
+    if( argc > 3 )
+        maxk = (int)atoll(argv[3]);
     for( k = 0 ; k < maxk ; k++ ){
-        printf("  %d/%d (%.2f%%)\r", k, maxk, (k/(float)maxk));
+        printf("  %d/%d (%.2f%%)\r", k, maxk, (k*100/(float)maxk));
         fflush(stdout);
         ans = _sub_test_avl(n, k);
         if(ans)
@@ -190,7 +192,7 @@ void print_usage(int argc, char **argv){
     fprintf(stderr, "usage:%s <option>\n", argv[0]);
     fprintf(stderr, "\noptions:\n");
     fprintf(stderr, "  heap <n>: test min/max heap\n");
-    fprintf(stderr, "  avl <n>: test avl heap\n");
+    fprintf(stderr, "  avl <n> [k=1000]: test avl tree\n");
     return;
 }
 
