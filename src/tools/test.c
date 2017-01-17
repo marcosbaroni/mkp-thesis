@@ -91,61 +91,6 @@ int execute_avl_test(int argc, char **argv){
     return 0;
 }
 
-int execute_avl_test2(int argc, char **argv){
-    int n, i, j;
-    int *array;
-    AVLTree *avl;
-
-    if(argc > 3)
-        srand(atoll(argv[3]));
-
-    n = atoll(argv[2]);
-    array = (int*)malloc(n*sizeof(int));
-
-    for( i = 0 ; i < n ; i++ )
-        array[i] = i+1;
-    array = int_array_shuffle(array, n);
-
-    avl = new_avltree((avl_cmp_f)_int_ptr_cmp);
-    avl_set_prt(avl, (avl_prt_f)_int_fptr_prt);
-
-    for( i = 0 ; i < n ; i++ ){
-        printf("\ninserting %d\n", array[i]);
-        avl_insert(avl, &(array[i]));
-        if(avl_check_sanity(avl)){
-            avl_fprint_pretty(stdout, avl);
-            return 0;
-        }
-        fflush(stdout);
-    }
-    printf("\ndone insertions\n\n");
-    avl_fprint_pretty(stdout, avl);
-    avl_check_sanity(avl);
-
-    for( i = 0 ; i < (n/2-5) ; i++ ){
-        j = i*2;
-        printf("removing %d [%x] j = %d\n", array[j], &(array[j]), j);
-        if( j == 156 ){
-            avl_fprint_pretty(stdout, avl);
-            fflush(stdout);
-        }
-        avl_remove(avl, &(array[j]));
-        if(avl_check_sanity(avl)){
-            avl_fprint_pretty(stdout, avl);
-            return 0;
-        }
-    }
-    printf("removing done.\n");
-    avl_fprint_pretty(stdout, avl);
-
-    avl_check_sanity(avl);
-    avl_free(avl);
-    free(array);
-
-    return 0;
-}
-/***************************************************************************/
-
 /* min heap test */
 int double_cmp(double *a, double *b){
     if( *a < *b ) return -1;

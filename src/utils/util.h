@@ -228,65 +228,6 @@ int ipow(int base, int exp);
 extern int shell_gaps[8];
 void varray_shell_iter_r(void **v, int a, int b, int k, cmp_r_f cmp, void *arg);
 
-/*******************************************************************************
- ***     KD-TREE
-*******************************************************************************/
-typedef double (*kdtree_eval_f)(void*, int dim); /* used to insert element, to
-                                               decide each side of tree */
-typedef struct KDNode{
-    void *info;
-    double val;
-
-    struct KDNode *up;
-    struct KDNode *right;
-    struct KDNode *left;
-}KDNode;
-
-typedef struct KDTree{
-    int n;
-    int ndim;
-    KDNode *root;
-    kdtree_eval_f eval_f;
-
-/* use statitical info?
-    - height of nodes in tree
-    - navegation/comparison statistics */
-#if KDTREE_STATS
-    long long *hcount;
-    int nhcount;
-#endif
-}KDTree;
-
-KDTree *kdtree_new( int ndim, kdtree_eval_f eval_f);
-KDTree *kdtree_insert( KDTree *kdtree, void *element);
-void *kdtree_range_search(KDTree *kdtree, double *bounds, property_f);
-void *kdtree_range_search_r(KDTree *kdtree, double *bounds, property_f_r prop_f, void *prop_arg);
-void kdtree_free(KDTree *kdtree);
-void kdtree_balance(KDTree *kdtree);
-void kdtree_fprint_stats(FILE *out, KDTree *kdtree);
-
-
-/*******************************************************************************
- ***     (MIN/MAX) HEAP
-*******************************************************************************/
-typedef struct Heap{
-    int n;
-    int nmax;
-    void **arr;
-    char is_min;   /* if it is a min heap (otherwise is a max heap ) */
-    /* value functions */
-    cmp_f cmp;
-    cmp_r_f cmp_r;
-    void *arg;
-}Heap;
-
-Heap *heap_new(int nmax, cmp_f cmp, char is_min);
-Heap *heap_new_r(int nmax, cmp_r_f cmp_r, void *arg, char is_min);
-void heap_insert(Heap *heap, void *elem);
-void heap_fprintf(FILE *out, Heap *heap, prt_f prt);
-void *heap_pop_peak(Heap *heap);
-void heap_free(Heap *heap);
-
 
 /*******************************************************************************
  ***     PAIRING HEAP
