@@ -567,7 +567,12 @@ AVLTree *sub_avl_remove(AVLTree *avlt, AVLNode *node){
                     height_decreased(avlt, parent->parent);
                 }else if( parent->right->balance == -1 ){
                     rotate_right_left(avlt, parent);
-                    parent->balance = parent->parent->balance = 0;
+                    parent->balance = parent->parent->right->balance = 0;
+                    if( parent->parent->balance == +1 )
+                        parent->balance = -1;
+                    else if( parent->parent->balance == -1 )
+                        parent->parent->right->balance = +1;
+                    parent->parent->balance = 0;
                     height_decreased(avlt, parent->parent);
                 }else{
                     rotate_left(avlt, parent);
@@ -587,7 +592,12 @@ AVLTree *sub_avl_remove(AVLTree *avlt, AVLNode *node){
                     height_decreased(avlt, parent->parent);
                 }else if( parent->left->balance == +1 ){
                     rotate_left_right(avlt, parent);
-                    parent->balance = parent->parent->balance = 0;
+                    parent->balance = parent->parent->left->balance = 0;
+                    if( parent->parent->balance == -1 )
+                        parent->balance = +1;
+                    else if( parent->parent->balance == +1 )
+                        parent->parent->left->balance = -1;
+                    parent->parent->balance = 0;
                     height_decreased(avlt, parent->parent);
                 }else{
                     rotate_right(avlt, parent);
@@ -676,8 +686,9 @@ int _node_assert_balance(AVLNode *node){
         fprintf(stderr, "error: Node %x has %d balance (%d - %d)\n", node, (rh-lh), rh, lh); 
         ans = 0;
     }
+
     if( (rh-lh) != node->balance ){
-        fprintf(stderr, "error: Balance of %x claims to be %d but is (%d - %d = %d)\n",
+        fprintf(stdout, "error: Balance of %x claims to be %d but is (%d - %d = %d)\n",
             node, node->balance, rh, lh, (rh-lh));
         ans = 0;
     }

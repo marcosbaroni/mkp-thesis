@@ -50,13 +50,18 @@ int _sub_test_avl(int n, int seed){
 
     /* removing */
     for( i = 0 ; i < (n/2-5) ; i++ ){
-        if(seed == 487)
+        if(seed == -369){
             avl_fprint_pretty(stdout, avl);
+            fflush(stdout);
+        }
         j = i*2;
         avl_remove(avl, &(array[j]));
         if(avl_check_sanity(avl)){
             printf("\nerror when removing %d [%x] j=%d (seed=%d)\n", array[j], &(array[j]), j, seed);
+            fflush(stdout);
+            printf("how is after removing:\n");
             avl_fprint_pretty(stdout, avl);
+            fflush(stdout);
             return 1;
         }
     }
@@ -71,9 +76,10 @@ int execute_avl_test(int argc, char **argv){
     int n, k, maxk, ans;
 
     maxk = 100000;
-    n = atoll(argv[2]);
+    n = (int)atoll(argv[2]);
     for( k = 0 ; k < maxk ; k++ ){
-        printf("%d/%d\r", k, maxk);
+        printf("  %d/%d (%.2f%%)\r", k, maxk, (k/(float)maxk));
+        fflush(stdout);
         ans = _sub_test_avl(n, k);
         if(ans)
             return 1;
