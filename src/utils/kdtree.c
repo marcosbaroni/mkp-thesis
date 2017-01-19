@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "heap.h"
 #include "kdtree.h"
@@ -279,7 +280,6 @@ void kdtree_balance(KDTree *kdtree){
     /* renewing the kdtree */
     kdtree->root = NULL;
     kdtree->n = 0;
-    long_long_array_init(kdtree->hcount, kdtree->nhcount, 0);
 
     /* find median */
     _kdtree_median_insert(kdtree, elems, n, 0);

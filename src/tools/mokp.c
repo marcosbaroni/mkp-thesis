@@ -7,11 +7,31 @@
 #define DYNPROG_OPT "dynprog"
 #define RAND_OPT "rand"
 #define MKP2_OPT "mkp2"
+#define BAZGAN_OPT "bazgan"
 
 #include "../utils/util.h"
 #include "../models/mkp/mkp.h"
 #include "../models/mokp/mokp.h"
 #include "../models/mokp/order.h"
+
+int print_usage_bazgan(int argc, char **argv){
+    printf("Solve Multiobjective Knapsack Problem using Bazgan 2009 Algorithm.\n\n");
+    printf("  usage: %s %s <ndim> [input file] [n iterations] [order option]\n", argv[0], DYNPROG_OPT);
+    printf("  ...\n");
+    printf("\n  Output:\n");
+    printf("    <n nodes>;<n comparison>;<time (s)>\n\n");
+
+    return 1;
+}
+
+int execute_bazgan(int argc, char **argv){
+    if( argc < 3 )
+        return print_usage_bazgan(argc, argv);
+
+    printf("Execute bazgan...\n");
+
+    return 0;
+}
 
 void print_usage_mkp2(int argc, char **argv){
     printf("Convert an Multidimensional Knaspack Problema Instance to a MOKP\n");
@@ -236,7 +256,8 @@ void print_usage(int argc, char **argv){
     printf("Multiobjective Knapsack Problem analysis tool.\n\n");
     printf("Please check option list below:\n");
     printf("  %s\tGenerate a random MOKP instance\n", RAND_OPT);
-    printf("  %s\tSolve a MOKP using dynamic programming\n", DYNPROG_OPT);
+    printf("  %s\tSolve a MOKP using simple dynamic programming\n", DYNPROG_OPT);
+    printf("  %s\tSolve a MOKP using Bazgan2009 algorithm\n", BAZGAN_OPT);
     printf("  %s\tConvert a MKP instance in MOKP instance\n", MKP2_OPT);
 
     return;
@@ -258,17 +279,21 @@ int main(int argc, char **argv){
     /***************************************************************
     *        EXECUÇÃO DOS ALGORITMOS
     ***************************************************************/
-    /*** Geração de instâncias */
+    /*** Geração de instâncias   ***/
     if(!strcmp(option, RAND_OPT))
         return execute_rand(argc, argv);
 
-    /***   Algoritmo de Prog. Dinamica */
+    /***   Algoritmo de Prog. Dinamica   ***/
     if(!strcmp(option, DYNPROG_OPT))
         return execute_dynprog(argc, argv);
 
-    /***   Conversão de instâncias MKP para MOKP */
+    /***   Conversão de instâncias MKP para MOKP   ***/
     if(!strcmp(option, MKP2_OPT))
         return execute_mkp2(argc, argv);
+
+    /***   Execução do algoritmo de Bazgan   ***/
+    if(!strcmp(option, BAZGAN_OPT))
+        return execute_bazgan(argc, argv);
 
     /***************************************************************
     *    IMPRESSÃO DA FORMA DE USO

@@ -11,6 +11,9 @@ typedef struct MOKP{
     double **p;         /* the profits [np x n] */
     double *w;          /* the weight [n] */
     double b;
+
+    /* Algorithm Auxiliar structure */
+    int sol_size;
 }MOKP;
 
 MOKP *mokp_alloc(int n, int np);
@@ -28,18 +31,14 @@ typedef struct MOKPNode{
 	int idx;	      /* the index of item which was fixed */
     double *profit;   /* [np] */
     double b_left;
-
-    /* list */
-	struct MOKPNode *father;	/* the father its set/solution */
-	struct MOKPNode *next;	    /* next solution (for list navegation) */
-	struct MOKPNode *prev;	    /* previous solution (for list navegation) */
-    /* kdtree */
-    struct MOKPNode *right;     /* holds those with geater feature */
-    struct MOKPNode *left;      /* holds those with lesser feature */
+    /* Algorithm Auxiliar structure */
+    unsigned long long *sol; /* Solution bits representation. */
 }MOKPNode;
+
 MOKPNode *mokpnode_new(MOKPNode *father, int idx);
 void mokpnode_free(MOKPNode *node);
 double mokpnode_axis_val(MOKPNode *node, int h);
+int mokpnode_lex_cmp(MOKPNode *node1, MOKPNode *node2);
 
 /* MOKP Tree (for holding MOKP nodes) */
 typedef struct MOKPTree{

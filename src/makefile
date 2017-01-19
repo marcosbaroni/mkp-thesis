@@ -45,13 +45,17 @@ avl.o:
 	gcc $(CFLAGS) -c utils/avl.c
 util.o:
 	gcc $(CFLAGS) -c utils/util.c
+kdtree.o:
+	gcc $(CFLAGS) -c utils/kdtree.c
+heap.o:
+	gcc $(CFLAGS) -c utils/heap.c
 
 test: util.o avl.o
 	gcc $(CFLAGS) -o test tools/test.c avl.o util.o -lm
 	mv test $(DEST)
 
 mkp.o: utils/util.c
-mokp: mokp.o tmokp.o util.o mkp.o lp.o mkp-soputils.o order.o
+mokp: mokp.o tmokp.o util.o mkp.o lp.o mkp-soputils.o order.o kdtree.o avl.o heap.o
 	g++ $(CFLAGS) -o mokp tmokp.o mokp.o mkp.o util.o lp.o mkp-soputils.o order.o -lm $(SOPLEX)
 	mv mokp $(DEST)
 mokp.o:

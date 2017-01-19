@@ -6,6 +6,8 @@
 #include <time.h>
 
 #include "../../utils/util.h"
+#include "../../utils/kdtree.h"
+
 #include "../mkp/mkp.h"
 #include "mokp.h"
 #include "order.h"
@@ -346,6 +348,10 @@ double mokpnode_axis_val(MOKPNode *node, int h){
     if( h <= node->tree->mokp->np )
         return node->profit[h];
     return node->b_left;
+}
+
+int mokpnode_lex_cmp(MOKPNode *node1, MOKPNode *node2){
+    /* TODO: ... */
 }
 
 int mokpnode_dominates(MOKPNode *dominant, MOKPNode *node){
