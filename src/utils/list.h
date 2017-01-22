@@ -15,6 +15,7 @@ typedef struct List{
 
 List *new_list();
 List *list_insert(List *list, void *info);
+void free_list(List* list);
 
 #endif
 

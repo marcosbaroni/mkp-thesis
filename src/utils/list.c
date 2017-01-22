@@ -35,6 +35,9 @@ void free_list(List* list){
 
     aux = list->first;
     while( aux ){
+        aux = aux->next;
+        free(aux->prev);
     }
+    free(list);
 }
 
