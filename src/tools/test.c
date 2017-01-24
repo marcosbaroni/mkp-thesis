@@ -6,6 +6,7 @@
 
 #include "../utils/util.h"
 #include "../utils/avl.h"
+#include "../utils/heap.h"
 
 /***   AVL   ***************************************************************/
 int _int_ptr_cmp(int *a, int *b){
@@ -46,6 +47,13 @@ int _sub_test_avl(int n, int seed){
             avl_fprint_pretty(stdout, avl);
             return 1;
         }
+    }
+
+    AVLNode *node;
+    node = avl_get_first(avl);
+    while(node){
+        printf("%d, ", *((int*)node->info));
+        node = avlnode_get_next(node);
     }
 
     /* removing */

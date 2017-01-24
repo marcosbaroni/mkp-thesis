@@ -50,8 +50,8 @@ kdtree.o:
 heap.o:
 	gcc $(CFLAGS) -c utils/heap.c
 
-test: util.o avl.o
-	gcc $(CFLAGS) -o test tools/test.c avl.o util.o -lm
+test: util.o avl.o heap.o
+	gcc $(CFLAGS) -o test tools/test.c avl.o util.o heap.o -lm
 	mv test $(DEST)
 
 mkp.o: utils/util.c

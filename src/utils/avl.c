@@ -32,6 +32,19 @@ AVLNode *new_avl_node(void *a){
 	return node;
 }
 
+AVLNode* avlnode_get_next(AVLNode *node){
+    if( node->right ){
+        node = node->right;
+        while( node->left )
+            node = node->left;
+        return node;
+    }
+
+    while(node_is_right(node))
+        node = node->parent;
+    return node->parent;
+}
+
 /*********************************************************************
          AVL Tree                                                     
 *********************************************************************/
@@ -361,6 +374,16 @@ AVLTree *avl_insert(AVLTree *avlt, void *a){
 	avlt->n++;
 
 	return avlt;
+}
+
+AVLNode *avl_get_first(AVLTree *avl){
+    AVLNode *node;
+
+    node = avl->root;
+    while( node->left )
+        node = node->left;
+
+    return node;
 }
 
 AVLNode *sub_avl_has(AVLNode *node, void *a, avl_cmp_f cmp){

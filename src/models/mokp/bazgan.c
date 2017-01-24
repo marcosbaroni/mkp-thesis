@@ -98,6 +98,9 @@ int bnode_lex_cmp(BazganNode *n1, BazganNode *n2){
     return 0;
 }
 
+double bnode_axis_val(BazganNode *n1, int axis){
+}
+
 int *get_mokp_new_ordering(MOKP *mokp, char ordering_type){
     int *idxs;
     int i, n, np;
