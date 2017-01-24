@@ -4,15 +4,16 @@
 #include <string.h>
 #include <time.h>
 
-#define DYNPROG_OPT "dynprog"
-#define RAND_OPT "rand"
-#define MKP2_OPT "mkp2"
-#define BAZGAN_OPT "bazgan"
-
 #include "../utils/util.h"
 #include "../models/mkp/mkp.h"
 #include "../models/mokp/mokp.h"
 #include "../models/mokp/order.h"
+#include "../models/mokp/bazgan.h"
+
+#define DYNPROG_OPT "dynprog"
+#define RAND_OPT "rand"
+#define MKP2_OPT "mkp2"
+#define BAZGAN_OPT "bazgan"
 
 int print_usage_bazgan(int argc, char **argv){
     printf("Solve Multiobjective Knapsack Problem using Bazgan 2009 Algorithm.\n\n");
@@ -25,10 +26,38 @@ int print_usage_bazgan(int argc, char **argv){
 }
 
 int execute_bazgan(int argc, char **argv){
+    int ndim, kmax;
+    FILE *finput;
+    char order_opt;
+    MOKP *mokp;
+
+    finput = stdin;
+    order_opt = 's';
     if( argc < 3 )
         return print_usage_bazgan(argc, argv);
 
-    printf("Execute bazgan...\n");
+    ndim = atoll(argv[2]);
+    if( argc > 3 )
+        finput = fopen(argv[3], "r");
+
+    if( argc > 5 )
+        order_opt = argv[5][0];
+
+    mokp = mokp_read(finput);
+    kmax = mokp->n;
+    if( argc > 4 )
+        kmax = atoll(argv[4]);
+
+    if( kmax < 0 || kmax > mokp->n ){
+        kmax = mokp->n;
+        fprintf(stderr, "Error: inconsistent kmax value. kmax=%d will be considered.\n", mokp->n);
+    }
+
+    /* Execute Bazgan */
+    bazgan_exec(mokp, order_opt, kmax);
+
+    /* free */
+    mokp_free(mokp);
 
     return 0;
 }

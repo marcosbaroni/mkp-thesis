@@ -11,9 +11,6 @@ typedef struct MOKP{
     double **p;         /* the profits [np x n] */
     double *w;          /* the weight [n] */
     double b;
-
-    /* Algorithm Auxiliar structure */
-    int sol_size;
 }MOKP;
 
 MOKP *mokp_alloc(int n, int np);
@@ -23,6 +20,7 @@ void mokp_write(FILE *out, MOKP *mokp);
 MOKP *mokp_read(FILE *fin);
 void mokp_save(char *filename, MOKP *mokp);
 MOKP *mokp_open(char *filename);
+MOKP *mokp_reorder(MOKP *mokp, int *new_idx_order);
 void mokp_free(MOKP *mokp);
 
 /* MOKP Node (for Dynamic Programming) */
@@ -31,6 +29,8 @@ typedef struct MOKPNode{
 	int idx;	      /* the index of item which was fixed */
     double *profit;   /* [np] */
     double b_left;
+    struct MOKPNode *father;
+    struct MOKPNode *next, *prev;
     /* Algorithm Auxiliar structure */
     unsigned long long *sol; /* Solution bits representation. */
 }MOKPNode;
@@ -38,7 +38,6 @@ typedef struct MOKPNode{
 MOKPNode *mokpnode_new(MOKPNode *father, int idx);
 void mokpnode_free(MOKPNode *node);
 double mokpnode_axis_val(MOKPNode *node, int h);
-int mokpnode_lex_cmp(MOKPNode *node1, MOKPNode *node2);
 
 /* MOKP Tree (for holding MOKP nodes) */
 typedef struct MOKPTree{
@@ -48,7 +47,6 @@ typedef struct MOKPTree{
     int ndim;
 
     MOKPNode *root;
-    MOKPNode *kdtree_root;
     MOKPNode *tail; /* for list appending */
 }MOKPTree;
 /* mokptree_new: ndim is the number of dimentions indexed

@@ -55,13 +55,15 @@ test: util.o avl.o
 	mv test $(DEST)
 
 mkp.o: utils/util.c
-mokp: mokp.o tmokp.o util.o mkp.o lp.o mkp-soputils.o order.o kdtree.o avl.o heap.o
-	g++ $(CFLAGS) -o mokp tmokp.o mokp.o mkp.o util.o lp.o mkp-soputils.o order.o -lm $(SOPLEX)
+mokp: mokp.o tmokp.o util.o mkp.o lp.o mkp-soputils.o order.o kdtree.o avl.o heap.o bazgan.o
+	g++ $(CFLAGS) -o mokp tmokp.o mokp.o mkp.o util.o lp.o mkp-soputils.o order.o bazgan.o -lm $(SOPLEX)
 	mv mokp $(DEST)
 mokp.o:
 	gcc $(CFLAGS) -c models/mokp/mokp.c
 order.o:
 	gcc $(CFLAGS) -c models/mokp/order.c
+bazgan.o:
+	gcc $(CFLAGS) -c models/mokp/bazgan.c
 tmokp.o:
 	gcc $(CFLAGS) -c tools/mokp.c -o tmokp.o
 clean:
