@@ -13,9 +13,11 @@ typedef struct List{
      ListNode *last;
 }List;
 
-List *new_list();
+List *list_new();
 List *list_insert(List *list, void *info);
-void free_list(List* list);
+void list_apply(List *list, void(void *));
+void list_apply_r(List *list, void(void*, void*), void *arg);
+void list_free(List* list);
 
 #endif
 

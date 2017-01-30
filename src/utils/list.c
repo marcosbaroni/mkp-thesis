@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include "list.h"
 
-List *new_list(){
+List *list_new(){
     List *list;
     list = (List*)malloc(sizeof(List));
     list->n = 0;
@@ -30,7 +30,27 @@ List *list_insert(List *list, void *info){
     return list;
 }
 
-void free_list(List* list){
+void list_apply(List *list, void(*f)(void *)){
+    ListNode *node;
+    node = list->first;
+    while( node ){
+        f(node->info);
+        node = node->next;
+    }
+    return;
+}
+
+void list_apply_r(List *list, void(*f)(void*, void*), void *arg){
+    ListNode *node;
+    node = list->first;
+    while( node ){
+        f(node->info, arg);
+        node = node->next;
+    }
+    return;
+}
+
+void list_free(List* list){
     ListNode *aux;
 
     aux = list->first;

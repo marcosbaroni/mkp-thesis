@@ -49,13 +49,6 @@ int _sub_test_avl(int n, int seed){
         }
     }
 
-    AVLNode *node;
-    node = avl_get_first(avl);
-    while(node){
-        printf("%d, ", *((int*)node->info));
-        node = avlnode_get_next(node);
-    }
-
     /* removing */
     for( i = 0 ; i < (n/2-5) ; i++ ){
         if(seed == -369){

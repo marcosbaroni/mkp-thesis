@@ -5,13 +5,21 @@
 #include "heap.h"
 #include "kdtree.h"
 
-KDTree *kdtree_new( int ndim, kdtree_eval_f eval_f){
+KDNode *kdnode_new(void *element){
+    KDNode *kdn;
+    kdn->info = element;
+    kdn->up = kdn->right = kdn->left;
+
+    return kdn;
+}
+
+KDTree *kdtree_new( int ndim, kdtree_cmp_f cmp_f){
     KDTree *kdtree;
     int nhcount = 100;
 
     kdtree = (KDTree*)malloc(sizeof(KDTree));
 
-    kdtree->eval_f = eval_f;
+    kdtree->cmp_f = cmp_f;
     kdtree->root = NULL;
     kdtree->n = 0;
     kdtree->ndim = ndim;
@@ -19,28 +27,26 @@ KDTree *kdtree_new( int ndim, kdtree_eval_f eval_f){
     return kdtree;
 }
 
-void _kdtree_insert(KDTree *kdtree, KDNode *root, KDNode *kdn, int h){
-    double rval;
-    double eval;
+void _kdtree_sub_insert(KDTree *kdtree, KDNode *father, void *element, int h){
     int dim;
+    int res;
 
     dim = h % kdtree->ndim;
-    rval = kdtree->eval_f(root->info, dim);
-    eval = kdtree->eval_f(kdn->info, dim);
+    res = kdtree->cmp_f(father->info, element, h);
 
-    if( eval > rval ){ /* insert in right branch */
-        if( root->right ){
-            _kdtree_insert(kdtree, root->right, kdn, h+1);
+    if( res > 0 ){ /* insert in right branch */
+        if(father->right ){
+            _kdtree_sub_insert(kdtree, father->right, element, h+1);
         }else{
-            root->right = kdn;
-            kdn->up = root;
+            father->right = kdnode_new(element);
+            father->right->up = father;
         }
     }else{              /* insert in left branch */
-        if( root->left ){
-            _kdtree_insert(kdtree, root->left, kdn, h+1);
+        if( father->left ){
+            _kdtree_sub_insert(kdtree, father->left, element, h+1);
         }else{
-            root->left = kdn;
-            kdn->up = root;
+            father->left = kdnode_new(element);
+            father->left->up = father;
         }
     }
 
@@ -48,17 +54,12 @@ void _kdtree_insert(KDTree *kdtree, KDNode *root, KDNode *kdn, int h){
 }
 
 KDTree *kdtree_insert( KDTree *kdtree, void *element){
-    KDNode *kdn;
-
-    kdn = (KDNode*)malloc(sizeof(KDNode));
-    kdn->info = element;
-    kdn->up = kdn->right = kdn->left = NULL;
-
     if( !kdtree->root ){
-        kdtree->root = kdn;
-        kdn->val = kdtree->eval_f(element, 0);
+        kdtree->root = (KDNode*)malloc(sizeof(KDNode));
+        kdtree->root->info = element;
+        kdtree->root->up = kdtree->root->right = kdtree->root->left = NULL;
     }else
-        _kdtree_insert(kdtree, kdtree->root, kdn, 0);
+        _kdtree_sub_insert(kdtree, kdtree->root, element, 0);
 
     kdtree->n++;
 

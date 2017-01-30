@@ -2,6 +2,7 @@
 #define BAZGAN_H 1
 
 #include "../../utils/avl.h"
+#include "../../utils/list.h"
 
 #include "mokp.h"
 
@@ -19,7 +20,11 @@ BazganNode *bnode_new_empty(struct Bazgan *baz);
 BazganNode *bnode_new_children(BazganNode *bnode, int idx);
 void bnode_free(BazganNode *bnode);
 int bnode_lex_cmp(BazganNode *n1, BazganNode *n2);
+int bnode_dominates(BazganNode *b1, BazganNode *b2);
+int bnode_is_dominated_by(BazganNode *b1, BazganNode *b2);
 double bnode_axis_val(BazganNode *n1, int axis);
+void bnode_fprintf(FILE *fout, BazganNode *node);
+double *bnode_dominant_bounds(BazganNode *bnode);
 
 typedef struct Bazgan{
     MOKP *mokp;
@@ -31,6 +36,7 @@ typedef struct Bazgan{
 Bazgan *bazgan_new(MOKP *mokp);
 void bazgan_free(Bazgan *bazgan);
 
+List *bazgan_exec_simple(MOKP *mokp);
 void bazgan_exec(MOKP *mokp, char ordering_type, int kmax);
 
 #endif

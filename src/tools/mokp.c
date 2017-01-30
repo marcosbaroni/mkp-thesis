@@ -30,6 +30,7 @@ int execute_bazgan(int argc, char **argv){
     FILE *finput;
     char order_opt;
     MOKP *mokp;
+    List *list;
 
     finput = stdin;
     order_opt = 's';
@@ -54,7 +55,8 @@ int execute_bazgan(int argc, char **argv){
     }
 
     /* Execute Bazgan */
-    bazgan_exec(mokp, order_opt, kmax);
+    //bazgan_exec(mokp, order_opt, kmax);
+    bazgan_exec_simple(mokp);
 
     /* free */
     mokp_free(mokp);
