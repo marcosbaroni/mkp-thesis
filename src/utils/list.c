@@ -50,13 +50,30 @@ void list_apply_r(List *list, void(*f)(void*, void*), void *arg){
     return;
 }
 
+void list_dump(FILE *fout, List *list){
+    int i;
+    ListNode *node;
+    node = list->first;
+
+    fprintf(fout, "List [%x] n=%d\n", list, list->n);
+
+    i = 0;
+    while(node){
+        fprintf(fout, "%d [node: %x] [next: %x] (info: %x)\n", i, node, node->next, node->info);
+        node = node->next;
+        i++;
+    }
+    return;
+}
+
 void list_free(List* list){
-    ListNode *aux;
+    ListNode *aux, *aux2;
 
     aux = list->first;
     while( aux ){
+        aux2 = aux;
         aux = aux->next;
-        free(aux->prev);
+        free(aux2);
     }
     free(list);
 }

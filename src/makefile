@@ -49,14 +49,16 @@ kdtree.o:
 	gcc $(CFLAGS) -c utils/kdtree.c
 heap.o:
 	gcc $(CFLAGS) -c utils/heap.c
+list.o:
+	gcc $(CFLAGS) -c utils/list.c
 
 test: util.o avl.o heap.o
 	gcc $(CFLAGS) -o test tools/test.c avl.o util.o heap.o -lm
 	mv test $(DEST)
 
 mkp.o: utils/util.c
-mokp: mokp.o tmokp.o util.o mkp.o lp.o mkp-soputils.o order.o kdtree.o avl.o heap.o bazgan.o
-	g++ $(CFLAGS) -o mokp tmokp.o mokp.o mkp.o util.o lp.o mkp-soputils.o order.o bazgan.o -lm $(SOPLEX)
+mokp: mokp.o tmokp.o util.o mkp.o lp.o mkp-soputils.o order.o kdtree.o avl.o heap.o bazgan.o list.o
+	g++ $(CFLAGS) -o mokp tmokp.o mokp.o mkp.o util.o lp.o mkp-soputils.o order.o bazgan.o kdtree.o avl.o heap.o list.o -lm $(SOPLEX)
 	mv mokp $(DEST)
 mokp.o:
 	gcc $(CFLAGS) -c models/mokp/mokp.c

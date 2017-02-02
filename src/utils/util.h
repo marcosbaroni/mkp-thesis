@@ -230,9 +230,13 @@ void varray_shell_iter_r(void **v, int a, int b, int k, cmp_r_f cmp, void *arg);
 
 
 /*******************************************************************************
- ***     PAIRING HEAP
+ ***     ABSTRACT TREE PRINTING
 *******************************************************************************/
-// TODO: Implement...
+void tree_pretty_printer(
+    FILE *fout,
+    void *root,
+    void*(*)(void*, char), 
+    void(*)(FILE*, void*));
 
 #endif
 

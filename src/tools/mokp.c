@@ -17,7 +17,7 @@
 
 int print_usage_bazgan(int argc, char **argv){
     printf("Solve Multiobjective Knapsack Problem using Bazgan 2009 Algorithm.\n\n");
-    printf("  usage: %s %s <ndim> [input file] [n iterations] [order option]\n", argv[0], DYNPROG_OPT);
+    printf("  usage: %s %s <ndim> [input file] [n iterations] [order option]\n", argv[0], BAZGAN_OPT);
     printf("  ...\n");
     printf("\n  Output:\n");
     printf("    <n nodes>;<n comparison>;<time (s)>\n\n");
@@ -56,10 +56,11 @@ int execute_bazgan(int argc, char **argv){
 
     /* Execute Bazgan */
     //bazgan_exec(mokp, order_opt, kmax);
-    bazgan_exec_simple(mokp);
+    bazgan_exec_simple(mokp, kmax);
 
     /* free */
     mokp_free(mokp);
+    fclose(finput);
 
     return 0;
 }

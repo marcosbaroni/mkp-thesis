@@ -36,7 +36,7 @@ typedef struct Bazgan{
 Bazgan *bazgan_new(MOKP *mokp);
 void bazgan_free(Bazgan *bazgan);
 
-List *bazgan_exec_simple(MOKP *mokp);
+List *bazgan_exec_simple(MOKP *mokp, int k);
 void bazgan_exec(MOKP *mokp, char ordering_type, int kmax);
 
 #endif

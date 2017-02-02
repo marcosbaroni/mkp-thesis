@@ -7,7 +7,7 @@ typedef double (*kdtree_eval_f)(void*, int dim); /* used to insert element, to
                                                decide each side of tree */
 typedef struct KDNode{
     void *info;
-    double val;
+    //double val;
 
     struct KDNode *up;
     struct KDNode *right;
@@ -25,6 +25,7 @@ KDTree *kdtree_new( int ndim, kdtree_eval_f eval_f);
 KDTree *kdtree_insert( KDTree *kdtree, void *element);
 void *kdtree_range_search(KDTree *kdtree, double *bounds, property_f);
 void *kdtree_range_search_r(KDTree *kdtree, double *bounds, property_f_r prop_f, void *prop_arg); /* prop_arg will be second argument of prop_f */
+void kdtree_fprint_pretty(FILE *fout, KDTree *kdtree);
 void kdtree_free(KDTree *kdtree);
 void kdtree_balance(KDTree *kdtree);
 

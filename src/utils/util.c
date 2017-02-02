@@ -1510,3 +1510,83 @@ int ipow(int base, int exp){
     return result;
 }
 
+/*******************************************************************************
+ ***     ABSTRACT TREE PRINTING
+*******************************************************************************/
+void _sub_tree_pretty_printer(
+    FILE *fout,
+    void *father,
+    void*(*branch_getter)(void*, char), 
+    void(*node_printer)(FILE*, void*),
+    char *prefix,
+    char side)
+{
+    int sn;
+    void *children;
+
+    children = branch_getter(father, side);
+    if( !children )
+        return;
+
+    /* print prefix & node */
+    fprintf(fout, prefix);
+
+    /* print/config prefix */
+    if( side == 'r' ){
+        if( branch_getter(father, 'l') )
+            fprintf(fout, "\u251C < ");
+        else
+            fprintf(fout, "\u2514 < ");
+
+        if( branch_getter(father, 'r') )
+            strcat(prefix, "\u2502   ");
+        else
+            strcat(prefix, "\u2576   ");
+    }else{
+        fprintf(fout, "\u2514 > ");
+        strcat(prefix, "\u2002   ");
+    }
+
+    /* print node */
+    node_printer(fout, children);
+    fprintf(fout, " [%x] [l: %x, r: %x]",
+        children,
+        branch_getter(children, 'l'),
+        branch_getter(children, 'l'));
+    fprintf(fout, "\n");
+
+    /* print children */
+    _sub_tree_pretty_printer(fout, children, branch_getter, node_printer, prefix, 'r');
+    _sub_tree_pretty_printer(fout, children, branch_getter, node_printer, prefix, 'l');
+
+    /* clear prefix */
+    sn = strlen(prefix);
+    prefix[sn-6] = '\0';
+
+    return;
+}
+
+void tree_pretty_printer(
+    FILE *fout,
+    void *root,
+    void*(*branch_getter)(void*, char), 
+    void(*node_printer)(FILE*, void*))
+{
+    void *left, *right;
+    char prefix[1000];
+    prefix[0] = '\0';
+
+    if( root ){
+        node_printer(fout, root);
+        fprintf(fout, " [%x] [l: %x, r: %x]", root,
+            branch_getter(root, 'l'),
+            branch_getter(root, 'r'));
+        fprintf(fout, "\n");
+
+        _sub_tree_pretty_printer(fout, root, branch_getter, node_printer, prefix, 'r');
+        _sub_tree_pretty_printer(fout, root, branch_getter, node_printer, prefix, 'l');
+    }
+
+    return;
+}
+

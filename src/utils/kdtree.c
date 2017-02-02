@@ -7,19 +7,20 @@
 
 KDNode *kdnode_new(void *element){
     KDNode *kdn;
+    kdn = (KDNode*)malloc(sizeof(KDNode));
     kdn->info = element;
-    kdn->up = kdn->right = kdn->left;
+    kdn->up = kdn->right = kdn->left = NULL;
 
     return kdn;
 }
 
-KDTree *kdtree_new( int ndim, kdtree_cmp_f cmp_f){
+KDTree *kdtree_new( int ndim, kdtree_eval_f eval_f){
     KDTree *kdtree;
     int nhcount = 100;
 
     kdtree = (KDTree*)malloc(sizeof(KDTree));
 
-    kdtree->cmp_f = cmp_f;
+    kdtree->eval_f = eval_f;
     kdtree->root = NULL;
     kdtree->n = 0;
     kdtree->ndim = ndim;
@@ -29,12 +30,13 @@ KDTree *kdtree_new( int ndim, kdtree_cmp_f cmp_f){
 
 void _kdtree_sub_insert(KDTree *kdtree, KDNode *father, void *element, int h){
     int dim;
-    int res;
+    int rval, eval;
 
     dim = h % kdtree->ndim;
-    res = kdtree->cmp_f(father->info, element, h);
+    rval = kdtree->eval_f(father->info, dim);
+    eval = kdtree->eval_f(element, dim);
 
-    if( res > 0 ){ /* insert in right branch */
+    if( eval > rval ){ /* insert in right branch */
         if(father->right ){
             _kdtree_sub_insert(kdtree, father->right, element, h+1);
         }else{
@@ -55,9 +57,7 @@ void _kdtree_sub_insert(KDTree *kdtree, KDNode *father, void *element, int h){
 
 KDTree *kdtree_insert( KDTree *kdtree, void *element){
     if( !kdtree->root ){
-        kdtree->root = (KDNode*)malloc(sizeof(KDNode));
-        kdtree->root->info = element;
-        kdtree->root->up = kdtree->root->right = kdtree->root->left = NULL;
+        kdtree->root = kdnode_new(element);
     }else
         _kdtree_sub_insert(kdtree, kdtree->root, element, 0);
 
@@ -74,7 +74,14 @@ KDTree *kdtree_insert( KDTree *kdtree, void *element){
  *
  * obs.: Consider infinity bounds
  */
-void *_kdtree_range_search(KDTree *kdtree, KDNode *root, double *bounds, int h, void *prop_f, void *prop_arg){
+void *_kdtree_range_search(
+    KDTree *kdtree,
+    KDNode *root,
+    double *bounds,
+    int h,
+    void *prop_f,
+    void *prop_arg)
+{
     double val, lower, upper;
     int i, dim, ndim, meets;
     kdtree_eval_f eval_f;
@@ -148,6 +155,28 @@ void *kdtree_range_search_r(KDTree *kdtree, double *bounds, property_f_r prop_f,
         return NULL;
 
     return _kdtree_range_search(kdtree, kdtree->root, bounds, 0, prop_f, prop_arg);
+}
+
+void _kdtree_node_print(FILE *fout, KDNode *node){
+    fprintf(fout, "info: %x ", node->info);
+    return;
+}
+
+void *_kdtree_branch_getter(KDNode *node, char side){
+    if( side == 'r' )
+        return node->right;
+    if( side == 'l' )
+        return node->left;
+    return NULL;
+}
+
+void kdtree_fprint_pretty(FILE *fout, KDTree *kdtree){
+    if( kdtree->root )
+        tree_pretty_printer(
+            fout,
+            kdtree->root,
+            (void*(*)(void*, char))_kdtree_branch_getter,
+            (void(*)(FILE*,void*))_kdtree_node_print);
 }
 
 void _kdnode_free(KDNode *kdn){
