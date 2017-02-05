@@ -7,6 +7,7 @@
 #include "mokp.h"
 
 typedef unsigned long long ulonglong;
+typedef AVLNode* BNodeIter;
 
 typedef struct BazganNode{
     struct Bazgan *bazgan;

@@ -10,7 +10,6 @@
 #include "mokp.h"
 #include "bazgan.h"
 
-
 void ulonglongs_bits_fprintf(FILE *fout, ulonglong *sol, int nbits){
     int i, j, ullsize, n, pos;
     ulonglong ull;
@@ -264,9 +263,7 @@ List *bazgan_exec_simple(MOKP *mokp, int k){
         kdtree_free(old_kdtree);
         list_free(old_list);
     }
-    printf("Nodes are:\n", i);
-    list_apply_r(list, (void(*)(void*,void*))bnode_fprintf2, stdout);
-    printf("nodes = %d\n", list->n);
+    printf("Total nodes = %d\n", list->n);
 
     kdtree_free(kdtree);
     list_free(list);
@@ -277,23 +274,88 @@ List *bazgan_exec_simple(MOKP *mokp, int k){
     return NULL;
 }
 
+BNodeIter bnodeiter_get_next(BNodeIter iter){
+    return avlnode_get_next(iter);
+}
+
+BazganNode *bnodeiter_get_bnode(BNodeIter iter){
+    if( iter )
+        return (BazganNode*)iter->info;
+    return NULL;
+}
+
+BNodeIter _bazgan_get_first(Bazgan *bazgan){
+    return avl_get_first(bazgan->avl_lex);
+}
+
+/*
+ * Bazgan2009, p. 14.
+ */
+Bazgan *_bazgan_iter(Bazgan *bazgan, int idx){
+    BazganNode *j_node, *i_node, *father, *child;
+    BNodeIter j_iter, i_iter;
+    MOKP *mokp;
+    int n, i;
+    double min_b_left_needed, min_b_left_feasible;
+
+    mokp = bazgan->mokp;
+    n = mokp->n;
+
+    /* Computing minimum b_left needed (based on remaining weights) */
+    min_b_left_feasible = mokp->b - mokp->w[idx];
+    min_b_left_needed = min_b_left_feasible;
+    for( i = idx+1 ; i < n ; i++ )
+        min_b_left_needed -= mokp->w[i];
+
+    /* Finding the first with min b_left (i.e., not D-r-Dominated) */
+    j_iter = _bazgan_get_first(bazgan);
+    j_node = bnodeiter_get_bnode(j_iter);
+    while( j_node->b_left <= min_b_left_needed ){
+        j_iter = bnodeiter_get_next(j_iter);
+        j_node = bnodeiter_get_bnode(j_iter);
+    }
+
+    i_iter = _bazgan_get_first(bazgan);
+    i_node = bnodeiter_get_bnode(i_iter);
+    while( i_node->b_left <= min_b_left_feasible ){
+        child = bnode_new_children(i_node, idx);
+        if( j_node ){
+            while( bnode_lex_cmp(j_node, child) >= 0 ){
+                /* TODO: mantainNonDominated(j_node) ... */
+                j_iter = bnodeiter_get_next(j_iter);
+                j_node = bnodeiter_get_bnode(j_iter);
+            }
+            /* TODO: mantainNonDominated(i_node) ... */
+        }
+        i_iter = bnodeiter_get_next(i_iter);
+        i_node = bnodeiter_get_bnode(i_iter);
+        if( !i_node ) break;
+    }
+
+    return bazgan;
+}
+
 void bazgan_exec(MOKP *mokp, char ordering_type, int kmax){
     Bazgan *bazgan;
     MOKP *reord_mokp;
+    int i;
     int *idxs;
 
-    BazganNode *n1, *n2, *n3;
-
-    /* reordering indexes */
+    /* Reordering MOKP indexes */
     idxs = get_mokp_new_ordering(mokp, ordering_type);
     reord_mokp = mokp_reorder(mokp, idxs);
     free(idxs);
     mokp_write(stdout, reord_mokp);
 
-    /* creating bazgan execution instance */
+    /* Creating bazgan execution instance */
     bazgan = bazgan_new(reord_mokp);
 
-    /* freeing structures */
+    /* Method iterations... */
+    for( i = 0 ; i < kmax ; i++ ){
+        _bazgan_iter(bazgan, i);
+    }
+
+    /* Freeing structures */
     bazgan_free(bazgan);
     mokp_free(reord_mokp);
 
