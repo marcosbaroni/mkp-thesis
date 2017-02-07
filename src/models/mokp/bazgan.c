@@ -71,6 +71,7 @@ BazganNode *bnode_new_children(BazganNode *bnode, int idx){
     mokp = bnode->bazgan->mokp;
     np = mokp->np;
     b_left = bnode->b_left - mokp->w[idx];
+    /* discharging if not feasible */
     if( b_left < 0 )
         return NULL;
 
@@ -231,17 +232,18 @@ BazganNode *bnode_list_insert_if_no_dom(BazganNode *bnode, List *list, List *new
         bnode2 = lnode->info;
         if( bnode_is_dominated_by(bnode, bnode2) )
             dominant = bnode2;
+        lnode = lnode->next;
     }
 
-    if( dominant ) list_insert(new_list, bnode);
-    else bnode_free( bnode );
+    if( !dominant )
+        list_insert(new_list, bnode);
 
     return dominant;
 }
 
 /* Simple brute-force execution. To validate method. */
 List *bazgan_exec_simple(MOKP *mokp, int k){
-    List *list, *old_list;
+    List *list, *old_list, *all;
     ListNode *lnode, *lnode2;
     Bazgan *bazgan;
     BazganNode *bnode, *new_bnode, *dominant;
@@ -253,29 +255,38 @@ List *bazgan_exec_simple(MOKP *mokp, int k){
 
     bazgan = bazgan_new(mokp);
     list = list_new();
+    all = list_new();
 
     bnode = bnode_new_empty(bazgan);
-    list = list_insert(list, bnode);
+    list_insert(list, bnode);
+    list_insert(all, bnode);
 
     /* Iterations */
     for( i = 0 ; i < k ; i++ ){
+        printf("iter %d\n", i);
         lnode = list->first;
         old_list = list;
         list = list_new();
         while( lnode ){
             bnode = lnode->info;
-            bnode_list_insert_if_no_dom(bnode, old_list, list);
             new_bnode = bnode_new_children(bnode, i);
-            bnode_list_insert_if_no_dom(new_bnode, old_list, list);
+            bnode_list_insert_if_no_dom(bnode, old_list, list);
+            if( new_bnode ){
+                dominant = bnode_list_insert_if_no_dom(new_bnode, old_list, list);
+                if( dominant ) bnode_free(new_bnode);
+                else list_insert(all, new_bnode);
+            }
+
             lnode = lnode->next;
         }
     }
     //printf("Nodes are:\n");
     //list_apply_r(list, (void(*)(void*,void*))bnode_fprintf2, stdout);
-    //printf("Total nodes = %d\n", list->n);
+    printf("Total nodes = %d\n", list->n);
     //printf("(all = %d)\n", all->n);
 
-    list_apply(list, (void(*)(void*))bnode_free);
+    list_apply(all, (void(*)(void*))bnode_free);
+    list_free(all);
     list_free(list);
 
     return NULL;
