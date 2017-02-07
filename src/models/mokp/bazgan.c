@@ -64,17 +64,21 @@ BazganNode *bnode_new_empty(Bazgan *baz){
 
 BazganNode *bnode_new_children(BazganNode *bnode, int idx){
     BazganNode *new_bnode;
+    double b_left;
     MOKP *mokp;
     int i, np, pos;
 
     mokp = bnode->bazgan->mokp;
     np = mokp->np;
+    b_left = bnode->b_left - mokp->w[idx];
+    if( b_left < 0 )
+        return NULL;
 
     new_bnode = bnode_alloc(bnode->bazgan);
     new_bnode->idx = idx;
     for( i = 0 ; i < np ; i++ )
         new_bnode->profit[i] = bnode->profit[i] + mokp->p[i][idx];
-    new_bnode->b_left = bnode->b_left - mokp->w[idx];
+    new_bnode->b_left = b_left;
     memcpy(new_bnode->sol, bnode->sol, bnode->bazgan->solsize*sizeof(ulonglong));
     i = idx / (8*sizeof(ulonglong));
     pos = (idx - i*(8*sizeof(ulonglong)));
@@ -123,7 +127,7 @@ double bnode_axis_val(BazganNode *n1, int axis){
 void bnode_fprintf(FILE *fout, BazganNode *node){
     double_array_fprint(fout, node->profit, node->bazgan->mokp->np);
     fprintf(fout, " (%lf) ", node->b_left);
-    ulonglongs_bits_fprintf(fout, node->sol, node->bazgan->mokp->n);
+    //ulonglongs_bits_fprintf(fout, node->sol, node->bazgan->mokp->n);
     fprintf(fout, " [%x] ", node);
     fprintf(fout, "\n");
 
@@ -169,7 +173,7 @@ int *get_mokp_new_ordering(MOKP *mokp, char ordering_type){
  *      BAZGAN INSTANCE
 *******************************************************************************/
 Bazgan *bazgan_new(MOKP *mokp){
-    int n, np;
+    int i, n, np;
     Bazgan *baz;
 
     n = mokp->n;
@@ -214,11 +218,31 @@ void _bazgan_insert_if_nondominated(
     }
 }
 
+BazganNode *bnode_list_insert_if_no_dom(BazganNode *bnode, List *list, List *new_list){
+    BazganNode *bnode2, *dominant;
+    ListNode *lnode;
+
+    if( !bnode )
+        return NULL;
+
+    dominant = NULL;
+    lnode = list->first;
+    while( lnode && !dominant ){
+        bnode2 = lnode->info;
+        if( bnode_is_dominated_by(bnode, bnode2) )
+            dominant = bnode2;
+    }
+
+    if( dominant ) list_insert(new_list, bnode);
+    else bnode_free( bnode );
+
+    return dominant;
+}
+
 /* Simple brute-force execution. To validate method. */
 List *bazgan_exec_simple(MOKP *mokp, int k){
-    KDTree *kdtree, *old_kdtree;
-    List *list, *old_list, *all;
-    ListNode *lnode;
+    List *list, *old_list;
+    ListNode *lnode, *lnode2;
     Bazgan *bazgan;
     BazganNode *bnode, *new_bnode, *dominant;
     int i, n, ndim;
@@ -229,47 +253,30 @@ List *bazgan_exec_simple(MOKP *mokp, int k){
 
     bazgan = bazgan_new(mokp);
     list = list_new();
-    all = list_new();
-    kdtree = kdtree_new(ndim, (kdtree_eval_f)bnode_axis_val);
 
     bnode = bnode_new_empty(bazgan);
     list = list_insert(list, bnode);
-    all = list_insert(all, bnode);
-    kdtree = kdtree_insert(kdtree, bnode);
 
+    /* Iterations */
     for( i = 0 ; i < k ; i++ ){
+        lnode = list->first;
         old_list = list;
-        old_kdtree = kdtree;
-        lnode = old_list->first;
-
         list = list_new();
-        kdtree = kdtree_new(ndim, (kdtree_eval_f)bnode_axis_val);
-        printf("\nINSERT IDX %d\n", i);
-        printf("Nodes are:\n");
-        list_apply_r(old_list, (void(*)(void*,void*))bnode_fprintf2, stdout);
-        printf("OLD KDTREE\n");
-        kdtree_fprint_pretty(stdout, old_kdtree);
-
-        do{
+        while( lnode ){
             bnode = lnode->info;
+            bnode_list_insert_if_no_dom(bnode, old_list, list);
             new_bnode = bnode_new_children(bnode, i);
-            all = list_insert(all, new_bnode);
-            printf("new node is: ");
-            bnode_fprintf(stdout, new_bnode);
-            _bazgan_insert_if_nondominated(bnode, kdtree, list, old_kdtree, old_list);
-            _bazgan_insert_if_nondominated(new_bnode, kdtree, list, old_kdtree, old_list);
-        }while( lnode = lnode->next );
-
-        kdtree_free(old_kdtree);
-        list_free(old_list);
+            bnode_list_insert_if_no_dom(new_bnode, old_list, list);
+            lnode = lnode->next;
+        }
     }
-    printf("Total nodes = %d\n", list->n);
+    //printf("Nodes are:\n");
+    //list_apply_r(list, (void(*)(void*,void*))bnode_fprintf2, stdout);
+    //printf("Total nodes = %d\n", list->n);
+    //printf("(all = %d)\n", all->n);
 
-    kdtree_free(kdtree);
+    list_apply(list, (void(*)(void*))bnode_free);
     list_free(list);
-    list_apply(all, (void(*)(void*))bnode_free);
-    list_free(all);
-    bazgan_free(bazgan);
 
     return NULL;
 }

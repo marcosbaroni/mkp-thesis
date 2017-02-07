@@ -8,9 +8,9 @@ typedef struct ListNode{
 }ListNode;
 
 typedef struct List{
-     int n;
-     ListNode *first;
-     ListNode *last;
+    int n;
+    ListNode *first;
+    ListNode *last;
 }List;
 
 List *list_new();

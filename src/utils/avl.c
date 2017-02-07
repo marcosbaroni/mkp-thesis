@@ -386,6 +386,7 @@ AVLNode *avl_get_first(AVLTree *avl){
     return node;
 }
 
+/* Find an equal element */
 AVLNode *sub_avl_has(AVLNode *node, void *a, avl_cmp_f cmp){
 	int res;
 	if(!node)   /* element not found in tree */
