@@ -306,49 +306,99 @@ BNodeIter _bazgan_get_first(Bazgan *bazgan){
     return avl_get_first(bazgan->avl_lex);
 }
 
+void _mantain_non_dom_avl(
+    BazganNode *bnode,
+    AVLTree *c_avl_lex,
+    AVLTree *m_avl_lex)
+{
+}
+
 /*
  * Bazgan2009, p. 14.
  */
 Bazgan *_bazgan_iter(Bazgan *bazgan, int idx){
-    BazganNode *j_node, *i_node, *father, *child;
-    BNodeIter j_iter, i_iter;
-    MOKP *mokp;
-    int n, i;
     double min_b_left_needed, min_b_left_feasible;
+    int n, i;
+    BazganNode *j_node, *i_node, *child;
+    AVLIter *j_iter, *i_iter;
+    MOKP *mokp;
+    AVLTree *new_avl_lex, *old_avl_lex;
+    List *to_be_freeded;
 
     mokp = bazgan->mokp;
     n = mokp->n;
 
-    /* Computing minimum b_left needed (based on remaining weights) */
+    /*********************************************************************
+    * PRE-PROCESSING
+    * Computing minimum b_left needed (based on remaining weights)
+    *********************************************************************/
     min_b_left_feasible = mokp->b - mokp->w[idx];
     min_b_left_needed = min_b_left_feasible;
     for( i = idx+1 ; i < n ; i++ )
         min_b_left_needed -= mokp->w[i];
 
-    /* Finding the first with min b_left (i.e., not D-r-Dominated) */
-    j_iter = _bazgan_get_first(bazgan);
-    j_node = bnodeiter_get_bnode(j_iter);
-    while( j_node->b_left <= min_b_left_needed ){
-        j_iter = bnodeiter_get_next(j_iter);
-        j_node = bnodeiter_get_bnode(j_iter);
+    /*********************************************************************
+    * INITILALIZING
+    * Computing minimum b_left needed (based on remaining weights)
+    *********************************************************************/
+    i_iter = avliter_new(bazgan->avl_lex);
+    j_iter = avliter_new(bazgan->avl_lex);
+    new_avl_lex = new_avltree((avl_cmp_f)bnode_lex_cmp);
+    to_be_freeded = list_new();
+
+    /**********************************************************************
+    * DOM 1
+    * Finding the first with "min_b_left_needed" (i.e., not D-r-Dominated) 
+    **********************************************************************/
+    j_node = avliter_pop(j_iter);
+    while( j_node ){
+        if( j_node->b_left < min_b_left_needed )
+            break;
+        j_node = avliter_pop(j_iter);
     }
 
-    i_iter = _bazgan_get_first(bazgan);
-    i_node = bnodeiter_get_bnode(i_iter);
-    while( i_node->b_left <= min_b_left_feasible ){
+    /**********************************************************************
+    * DOM 2
+    * Generating children, following lexographic order
+    **********************************************************************/
+    i_node = avliter_pop(i_iter);
+    while( i_node ){
+        /* Stops when children become unfeasible */
+        if( i_node->b_left < min_b_left_feasible )
+            break;
+
+        /* Children generation */
         child = bnode_new_children(i_node, idx);
+
+        /* Testing "old nodes" (j_node) */
         if( j_node ){
-            while( bnode_lex_cmp(j_node, child) >= 0 ){
-                /* TODO: mantainNonDominated(j_node) ... */
-                j_iter = bnodeiter_get_next(j_iter);
-                j_node = bnodeiter_get_bnode(j_iter);
-            }
-            /* TODO: mantainNonDominated(i_node) ... */
+            /* Stops if actual j_node is lexLess than children */
+            if( bnode_lex_cmp(j_node, child) < 0 )
+                break;
+            /* TODO: mantainNonDominated(j_node) ... */
+            j_node = avliter_pop(j_iter);
         }
-        i_iter = bnodeiter_get_next(i_iter);
-        i_node = bnodeiter_get_bnode(i_iter);
-        if( !i_node ) break;
+        /* TODO: mantainNonDominated(child) ... */
+        i_node = avliter_pop(i_iter);
     }
+    /* Inserting remaining i_nodes */
+    while( j_node ){
+        j_node = avliter_pop(j_iter);
+    }
+    /**********************************************************************
+    * BAZGAN UPDATE
+    **********************************************************************/
+    old_avl_lex = bazgan->avl_lex;
+    bazgan->avl_lex = new_avl_lex;
+
+    /**********************************************************************
+    * FREEING
+    **********************************************************************/
+    list_apply(to_be_freeded, (void(*)(void*))bnode_free);
+    list_free(to_be_freeded);
+    avl_free(old_avl_lex);
+    avliter_free(i_iter);
+    avliter_free(j_iter);
 
     return bazgan;
 }

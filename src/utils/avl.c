@@ -45,6 +45,19 @@ AVLNode* avlnode_get_next(AVLNode *node){
     return node->parent;
 }
 
+AVLNode* avlnode_get_prev(AVLNode *node){
+    if( node->left ){
+        node = node->left;
+        while( node->right)
+            node = node->right;
+        return node;
+    }
+
+    while(node_is_left(node))
+        node = node->parent;
+    return node->parent;
+}
+
 /*********************************************************************
          AVL Tree                                                     
 *********************************************************************/
@@ -382,6 +395,68 @@ AVLNode *avl_get_first(AVLTree *avl){
     node = avl->root;
     while( node->left )
         node = node->left;
+
+    return node;
+}
+
+AVLNode* avl_get_higher_lower_than(AVLTree *avl, void *a){
+    AVLNode *node, *scout;
+    avl_cmp_f cmp;
+
+    cmp = avl->cmp;
+    node = avl->root;
+
+    if( !node )
+        return NULL;
+
+    /* Finding a "less than" candidate */
+    while( cmp(node->info, a) >= 0 ){
+        node = node->left;
+        if( !node )
+            return NULL;
+    }
+
+    /* Search for a highers */
+    scout = node->right;
+    while( scout ){
+        if( cmp(scout->info, a) < 0 ){
+            scout = scout->right;
+            node = scout;
+        }else{
+            scout = scout->left;
+        }
+    }
+
+    return node;
+}
+
+AVLNode* avl_get_lower_higher_than(AVLTree *avl, void *a){
+    AVLNode *node, *scout;
+    avl_cmp_f cmp;
+
+    cmp = avl->cmp;
+    node = avl->root;
+
+    if( !node )
+        return NULL;
+
+    /* Finding a "higher than" candidate */
+    while( cmp(node->info, a) >= 0 ){
+        node = node->right;
+        if( !node )
+            return NULL;
+    }
+
+    /* Search for a lowers */
+    scout = node->left;
+    while( scout ){
+        if( cmp(scout->info, a) > 0 ){
+            scout = scout->left;
+            node = scout;
+        }else{
+            scout = scout->right;
+        }
+    }
 
     return node;
 }
@@ -901,4 +976,26 @@ void avl_fprint_dot(FILE *fout, AVLTree *avlt, avl_prt_f prt){
 	return;
 }
 /******************************************************************************/
+
+AVLIter* avliter_new(AVLTree *avl){
+    AVLIter *avl_iter;
+    avl_iter = (AVLIter*)malloc(sizeof(AVLIter));
+    avl_iter->node = avl_get_first(avl);
+
+    return avl_iter;
+}
+
+void* avliter_pop(AVLIter *avliter){
+    void *info;
+    if( avliter->node ){
+        info = avliter->node->info;
+        avliter->node = avlnode_get_next(avliter->node);
+        return info;
+    }
+    return NULL;
+}
+
+void avliter_free(AVLIter *avliter){
+    free(avliter);
+}
 
