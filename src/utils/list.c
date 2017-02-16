@@ -30,6 +30,56 @@ List *list_insert(List *list, void *info){
     return list;
 }
 
+List *list_insert_here(List *list, void *info, ListIter *iter){
+    ListNode *node;
+    ListNode *place;
+
+    if( !iter->node )
+        return(list_insert(list, info));
+
+    node = (ListNode*)malloc(sizeof(ListNode));
+    node->info = info;
+    node->prev = node->next = NULL;
+
+    place = iter->node;
+
+    if( place->prev ){
+        place->prev->next = node;
+        node->prev = place->prev;
+    }else{
+        list->first = node;
+    }
+    place->prev = node;
+    node->next = place;
+
+    list->n++;
+
+    return list;
+}
+
+List *list_remove(List *list, ListIter *iter){
+    ListNode *node;
+
+    node = iter->node;
+    iter->node = node->next;
+
+    if( node->prev )
+        node->prev->next = node->next;
+    else
+        list->first = node->next;
+
+    if( node->next )
+        node->next->prev = node->prev;
+    else
+        list->last = node->prev;
+
+    free(node);
+
+    list->n--;
+
+    return list;
+}
+
 void list_apply(List *list, void(*f)(void *)){
     ListNode *node;
     node = list->first;
@@ -77,4 +127,61 @@ void list_free(List* list){
     }
     free(list);
 }
+
+int list_is_empty(List *list){
+    return (list->n == 0);
+}
+
+ListIter *list_get_first(List *list){
+    ListIter *iter;
+
+    iter = (ListIter*)malloc(sizeof(ListIter));
+    iter->node = list->first;
+
+    return iter;
+}
+
+ListIter *list_get_last(List *list){
+    ListIter *iter;
+
+    iter = (ListIter*)malloc(sizeof(ListIter));
+    iter->node = list->last;
+
+    return iter;
+}
+
+void *listiter_get(ListIter *liter){
+    if(liter->node)
+        return liter->node->info;
+    return NULL;
+}
+
+void *listiter_forward(ListIter *liter){
+    void *info;
+
+    info = NULL;
+    if( liter->node ){
+        info = liter->node->info;
+        liter->node = liter->node->next;
+    }
+
+    return info;
+}
+
+void *listiter_backward(ListIter *liter){
+    void *info;
+
+    info = NULL;
+    if( liter->node ){
+        info = liter->node->info;
+        liter->node = liter->node->prev;
+    }
+
+    return info;
+}
+
+void listiter_free(ListIter *liter){
+    free(liter);
+}
+
 

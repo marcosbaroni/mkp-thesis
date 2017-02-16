@@ -3,8 +3,9 @@
 
 #include "util.h"
 
-typedef double (*kdtree_eval_f)(void*, int dim); /* used to insert element, to
-                                               decide each side of tree */
+/* used to insert element, to decide each side of tree */
+typedef double (*kdtree_eval_f)(void*, int dim); 
+
 typedef struct KDNode{
     void *info;
     //double val;

@@ -28,8 +28,6 @@ typedef struct AVLNode{
 }AVLNode;
 
 AVLNode* new_avl_node(void *info);
-AVLNode* avlnode_get_next(AVLNode *node);
-AVLNode* avlnode_get_prev(AVLNode *node);
 /* function types */
 typedef int(*avl_cmp_f)(void*, void*);
 typedef void(*avl_prt_f)(FILE *out, void*);
@@ -54,9 +52,6 @@ void        avl_set_prt(AVLTree *avl, avl_prt_f prt);
 AVLTree*	avl_insert(AVLTree *avlt, void *a);
 AVLTree*	avl_remove(AVLTree *avlt, void *a);
 void*		avl_has(AVLTree *avlt, void *a);
-AVLNode*    avl_get_first(AVLTree *avl);
-AVLNode*    avl_get_higher_lower_than(AVLTree *avl, void *a);
-AVLNode*    avl_get_lower_higher_than(AVLTree *avl, void *a);
 /* others */
 void**		avl_to_array(AVLTree *avlt); /* Returns an array with members */
 void 		avl_apply_to_all(AVLTree *avlt, void(*func)(void*) );
@@ -69,8 +64,13 @@ typedef struct AVLIter{
     AVLNode *node;
 }AVLIter;
 
-AVLIter*    avliter_new(AVLTree *avl);
-void*       avliter_pop(AVLIter *avliter);
+AVLIter*    avl_get_first(AVLTree *avl);
+AVLIter*    avl_get_last(AVLTree *avl);
+void*       avliter_backward(AVLIter *avliter);
+void*       avliter_forward(AVLIter *avliter);
+void*       avliter_get(AVLIter *avliter);
+AVLIter*    avl_get_higher_lower_than(AVLTree *avl, void *a);
+AVLIter*    avl_get_lower_higher_than(AVLTree *avl, void *a);
 void        avliter_free(AVLIter *avliter);
 
 #endif

@@ -389,78 +389,6 @@ AVLTree *avl_insert(AVLTree *avlt, void *a){
 	return avlt;
 }
 
-AVLNode *avl_get_first(AVLTree *avl){
-    AVLNode *node;
-
-    node = avl->root;
-    while( node->left )
-        node = node->left;
-
-    return node;
-}
-
-AVLNode* avl_get_higher_lower_than(AVLTree *avl, void *a){
-    AVLNode *node, *scout;
-    avl_cmp_f cmp;
-
-    cmp = avl->cmp;
-    node = avl->root;
-
-    if( !node )
-        return NULL;
-
-    /* Finding a "less than" candidate */
-    while( cmp(node->info, a) >= 0 ){
-        node = node->left;
-        if( !node )
-            return NULL;
-    }
-
-    /* Search for a highers */
-    scout = node->right;
-    while( scout ){
-        if( cmp(scout->info, a) < 0 ){
-            scout = scout->right;
-            node = scout;
-        }else{
-            scout = scout->left;
-        }
-    }
-
-    return node;
-}
-
-AVLNode* avl_get_lower_higher_than(AVLTree *avl, void *a){
-    AVLNode *node, *scout;
-    avl_cmp_f cmp;
-
-    cmp = avl->cmp;
-    node = avl->root;
-
-    if( !node )
-        return NULL;
-
-    /* Finding a "higher than" candidate */
-    while( cmp(node->info, a) >= 0 ){
-        node = node->right;
-        if( !node )
-            return NULL;
-    }
-
-    /* Search for a lowers */
-    scout = node->left;
-    while( scout ){
-        if( cmp(scout->info, a) > 0 ){
-            scout = scout->left;
-            node = scout;
-        }else{
-            scout = scout->right;
-        }
-    }
-
-    return node;
-}
-
 /* Find an equal element */
 AVLNode *sub_avl_has(AVLNode *node, void *a, avl_cmp_f cmp){
 	int res;
@@ -977,23 +905,142 @@ void avl_fprint_dot(FILE *fout, AVLTree *avlt, avl_prt_f prt){
 }
 /******************************************************************************/
 
-AVLIter* avliter_new(AVLTree *avl){
+AVLIter* avliter_new(AVLNode *node){
     AVLIter *avl_iter;
     avl_iter = (AVLIter*)malloc(sizeof(AVLIter));
-    avl_iter->node = avl_get_first(avl);
+    avl_iter->node = node;
 
     return avl_iter;
 }
 
-void* avliter_pop(AVLIter *avliter){
+AVLIter* avl_get_first(AVLTree *avl){
+    AVLIter *avl_iter;
+    AVLNode *node;
+
+    avl_iter = (AVLIter*)malloc(sizeof(AVLIter));
+
+    node = avl->root;
+    avl_iter->node = node;
+    if( !node )
+        return avl_iter;
+
+    while( node->left )
+        node = node->left;
+    avl_iter->node = node;
+
+    return avl_iter;
+}
+
+AVLIter* avl_get_last(AVLTree *avl){
+    AVLIter *avl_iter;
+    AVLNode *node;
+
+    avl_iter = (AVLIter*)malloc(sizeof(AVLIter));
+
+    node = avl->root;
+    avl_iter->node = node;
+    if( !node )
+        return avl_iter;
+
+    while( node->right )
+        node = node->right;
+    avl_iter->node = node;
+
+    return avl_iter;
+}
+
+void *avliter_backward(AVLIter *avliter){
     void *info;
+
+    info = NULL;
+    if( avliter->node ){
+        info = avliter->node->info;
+        avliter->node = avlnode_get_prev(avliter->node);
+    }
+
+    return info;
+}
+
+void *avliter_forward(AVLIter *avliter){
+    void *info;
+
+    info = NULL;
     if( avliter->node ){
         info = avliter->node->info;
         avliter->node = avlnode_get_next(avliter->node);
-        return info;
     }
-    return NULL;
+
+    return info;
 }
+
+void *avliter_get(AVLIter *avliter){
+    if( !avliter->node )
+        return NULL;
+    return avliter->node->info;
+}
+
+AVLIter* avl_get_higher_lower_than(AVLTree *avl, void *a){
+    AVLNode *node, *scout;
+    avl_cmp_f cmp;
+
+    cmp = avl->cmp;
+    node = avl->root;
+
+    if( !node )
+        return NULL;
+
+    /* Finding a "less than" candidate */
+    while( cmp(node->info, a) >= 0 ){
+        node = node->left;
+        if( !node )
+            return NULL;
+    }
+
+    /* Search for a highers */
+    scout = node->right;
+    while( scout ){
+        if( cmp(scout->info, a) < 0 ){
+            scout = scout->right;
+            node = scout;
+        }else{
+            scout = scout->left;
+        }
+    }
+
+    return avliter_new(node);
+}
+
+AVLIter* avl_get_lower_higher_than(AVLTree *avl, void *a){
+    AVLNode *node, *scout;
+    avl_cmp_f cmp;
+
+    cmp = avl->cmp;
+    node = avl->root;
+
+    if( !node )
+        return NULL;
+
+    /* Finding a "higher than" candidate */
+    while( cmp(node->info, a) >= 0 ){
+        node = node->right;
+        if( !node )
+            return NULL;
+    }
+
+    /* Search for a lowers */
+    scout = node->left;
+    while( scout ){
+        if( cmp(scout->info, a) > 0 ){
+            scout = scout->left;
+            node = scout;
+        }else{
+            scout = scout->right;
+        }
+    }
+
+    return avliter_new(node);
+}
+
 
 void avliter_free(AVLIter *avliter){
     free(avliter);

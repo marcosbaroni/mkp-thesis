@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+#include <time.h>
 
 #include "../../utils/avl.h"
 #include "../../utils/kdtree.h"
@@ -72,8 +73,9 @@ BazganNode *bnode_new_children(BazganNode *bnode, int idx){
     np = mokp->np;
     b_left = bnode->b_left - mokp->w[idx];
     /* discharging if not feasible */
-    if( b_left < 0 )
+    if( b_left < 0 ){
         return NULL;
+    }
 
     new_bnode = bnode_alloc(bnode->bazgan);
     new_bnode->idx = idx;
@@ -88,20 +90,32 @@ BazganNode *bnode_new_children(BazganNode *bnode, int idx){
     return new_bnode;
 }
 
+/* (property) */
+int bnode_lex_dom(BazganNode *n1, BazganNode *n2){
+    int np, i;
+
+    np = n1->bazgan->mokp->np;
+
+    for( i = 0 ; i < np ; i++ )
+        if( n1->profit[i] != n2->profit[i] )
+            return( n1->profit[i] > n2->profit[i] );
+
+    return 1;
+}
+
 int bnode_lex_cmp(BazganNode *n1, BazganNode *n2){
-    int res, solsize, i;
+    int res, np, i;
 
     res = n1->b_left - n2->b_left;
 
     if( res )
         return res;
 
-    solsize = n1->bazgan->solsize;
-    for( i = 0 ; i < solsize ; i++ )
-        if( res = (n1->sol[i] > n2->sol[i]) )
-            return res;
+    return bnode_lex_dom(n1, n2);
+}
 
-    return 0;
+int bnode_lex_cmp_inv(BazganNode *n1, BazganNode *n2){
+    return bnode_lex_cmp(n2, n1);
 }
 
 int bnode_dominates(BazganNode *b1, BazganNode *b2){
@@ -128,7 +142,7 @@ double bnode_axis_val(BazganNode *n1, int axis){
 void bnode_fprintf(FILE *fout, BazganNode *node){
     double_array_fprint(fout, node->profit, node->bazgan->mokp->np);
     fprintf(fout, " (%lf) ", node->b_left);
-    //ulonglongs_bits_fprintf(fout, node->sol, node->bazgan->mokp->n);
+    ulonglongs_bits_fprintf(fout, node->sol, node->bazgan->mokp->n);
     fprintf(fout, " [%x] ", node);
     fprintf(fout, "\n");
 
@@ -146,11 +160,28 @@ double *bnode_get_dominant_bounds(BazganNode *bnode, int ndim){
     bounds = (double*)malloc(ndim*2*sizeof(double));
 
     np = bnode->bazgan->mokp->np;
-    bounds[0] = -1;
-    bounds[1] = bnode->b_left;
+    bounds[0] = bnode->b_left;
+    bounds[1] = INFINITY;
     for( i = 1 ; i < ndim ; i++ ){
         bounds[i*2] = bnode->profit[i-1];
         bounds[i*2+1] = INFINITY;
+    }
+
+    return bounds;
+}
+
+double *bnode_get_dominated_bounds(BazganNode *bnode, int ndim){
+    int np, i;
+    double *bounds;
+
+    bounds = (double*)malloc(ndim*2*sizeof(double));
+
+    np = bnode->bazgan->mokp->np;
+    bounds[0] = 0;
+    bounds[1] = bnode->b_left;
+    for( i = 1 ; i < ndim ; i++ ){
+        bounds[i*2] = 0;
+        bounds[i*2+1] = bnode->profit[i-1];
     }
 
     return bounds;
@@ -173,6 +204,10 @@ int *get_mokp_new_ordering(MOKP *mokp, char ordering_type){
 /*******************************************************************************
  *      BAZGAN INSTANCE
 *******************************************************************************/
+int _mokp_get_solize(MOKP *mokp){
+    return ((mokp->n-1)/8) + 1;
+}
+
 Bazgan *bazgan_new(MOKP *mokp){
     int i, n, np;
     Bazgan *baz;
@@ -181,45 +216,24 @@ Bazgan *bazgan_new(MOKP *mokp){
     baz = (Bazgan*)malloc(sizeof(Bazgan));
 
     baz->mokp = mokp;
-    baz->solsize = ((n-1)/8)+1;
-    baz->avl_lex = new_avltree((avl_cmp_f)bnode_lex_cmp);
+    baz->solsize = _mokp_get_solize(mokp);
+    baz->avl_lex = new_avltree((avl_cmp_f)bnode_lex_cmp_inv);
 
     return baz;
 }
 
 void bazgan_free(Bazgan *bazgan){
+    avl_apply_to_all(bazgan->avl_lex, (void(*)(void*))bnode_free);
     if(bazgan->avl_lex)
         avl_free(bazgan->avl_lex);
     free(bazgan);
 }
 
-void _bazgan_insert_if_nondominated(
-    BazganNode *node,
-    KDTree *kdtree,
+BazganNode *bnode_list_insert_if_no_dom(
+    BazganNode *bnode,
     List *list,
-    KDTree *old_kdtree,
-    List *old_list)
+    List *new_list)
 {
-    double *bounds;
-    int ndim;
-    BazganNode *dominant;
-    ListNode *lnode;
-
-    ndim = kdtree->ndim;
-
-    lnode = old_list->first;
-    dominant = NULL;
-    bounds = bnode_get_dominant_bounds(node, kdtree->ndim);
-    dominant = kdtree_range_search_r(old_kdtree, bounds, (property_f_r)bnode_is_dominated_by, node);
-    free(bounds);
-
-    if( !dominant && node->b_left >= 0 ){
-        list_insert(list, node);
-        kdtree_insert(kdtree, node);
-    }
-}
-
-BazganNode *bnode_list_insert_if_no_dom(BazganNode *bnode, List *list, List *new_list){
     BazganNode *bnode2, *dominant;
     ListNode *lnode;
 
@@ -241,89 +255,107 @@ BazganNode *bnode_list_insert_if_no_dom(BazganNode *bnode, List *list, List *new
     return dominant;
 }
 
-/* Simple brute-force execution. To validate method. */
-List *bazgan_exec_simple(MOKP *mokp, int k){
-    List *list, *old_list, *all;
-    ListNode *lnode, *lnode2;
-    Bazgan *bazgan;
-    BazganNode *bnode, *new_bnode, *dominant;
-    int i, n, ndim;
-    double *bounds;
+void _mantain_non_dom_list(
+    BazganNode *bnode,
+    AVLTree *c_avl,
+    List *m_list,
+    List *to_be_freeded
+){
+    int dominated;
+    ListIter *m_iter;
+    BazganNode *m_bnode;
+    
+    /* Search dominant. */
+    dominated = 0;
+    m_iter = list_get_first(m_list);
+    m_bnode = listiter_get(m_iter);
+    if( !list_is_empty(m_list) ){
+        while( bnode_lex_dom(m_bnode, bnode) && !dominated ){
+            if( bnode_dominates(m_bnode, bnode) )
+                dominated = 1;
+            else 
+                m_bnode = listiter_forward(m_iter);
 
-    n = mokp->n;
-    ndim = 3;
-
-    bazgan = bazgan_new(mokp);
-    list = list_new();
-    all = list_new();
-
-    bnode = bnode_new_empty(bazgan);
-    list_insert(list, bnode);
-    list_insert(all, bnode);
-
-    /* Iterations */
-    for( i = 0 ; i < k ; i++ ){
-        printf("iter %d\n", i);
-        lnode = list->first;
-        old_list = list;
-        list = list_new();
-        while( lnode ){
-            bnode = lnode->info;
-            new_bnode = bnode_new_children(bnode, i);
-            bnode_list_insert_if_no_dom(bnode, old_list, list);
-            if( new_bnode ){
-                dominant = bnode_list_insert_if_no_dom(new_bnode, old_list, list);
-                if( dominant ) bnode_free(new_bnode);
-                else list_insert(all, new_bnode);
-            }
-
-            lnode = lnode->next;
+            if( !m_bnode )
+                break;
         }
     }
-    //printf("Nodes are:\n");
-    //list_apply_r(list, (void(*)(void*,void*))bnode_fprintf2, stdout);
-    printf("Total nodes = %d\n", list->n);
-    //printf("(all = %d)\n", all->n);
 
-    list_apply(all, (void(*)(void*))bnode_free);
-    list_free(all);
-    list_free(list);
+    if( !dominated ){
+        avl_insert(c_avl, bnode);
+        list_insert_here(m_list, bnode, m_iter);
 
-    return NULL;
+        listiter_forward(m_iter);
+        m_bnode = listiter_get(m_iter);
+        while( m_bnode ){
+            if( bnode_dominates(bnode, m_bnode) ){
+                list_remove(m_list, m_iter);
+                m_bnode = listiter_get(m_iter);
+            }else{
+                m_bnode = listiter_forward(m_iter);
+            }
+        }
+    }else{
+        list_insert(to_be_freeded, bnode);
+    }
+
+    return;
 }
 
-BNodeIter bnodeiter_get_next(BNodeIter iter){
-    return avlnode_get_next(iter);
-}
-
-BazganNode *bnodeiter_get_bnode(BNodeIter iter){
-    if( iter )
-        return (BazganNode*)iter->info;
-    return NULL;
-}
-
-BNodeIter _bazgan_get_first(Bazgan *bazgan){
-    return avl_get_first(bazgan->avl_lex);
-}
-
-void _mantain_non_dom_avl(
+void _mantain_non_dom_kdtree(
     BazganNode *bnode,
-    AVLTree *c_avl_lex,
-    AVLTree *m_avl_lex)
-{
+    AVLTree *c_avl,
+    KDTree *m_kdtree,
+    List *to_be_freeded
+){
+    BazganNode *dominant;
+    double *bounds;
+    int ndim;
+
+    ndim = m_kdtree->ndim;
+    bounds = bnode_get_dominant_bounds(bnode, ndim);
+
+    /* Search dominant. */
+    dominant = kdtree_range_search_r(
+        m_kdtree,
+        bounds, 
+        (property_f_r)bnode_dominates,
+        bnode);
+
+    if( !dominant ){
+        avl_insert(c_avl, bnode);
+        kdtree_insert(m_kdtree, bnode);
+    }
+
+    free(bounds);
+}
+
+void _mantain_non_dom(
+    BazganNode *bnode,
+    AVLTree *c_avl,
+    List *m_list,
+    KDTree *m_kdtree,
+    List *to_be_freeded
+){
+    if( m_list )
+        _mantain_non_dom_list(bnode, c_avl, m_list, to_be_freeded);
+    else
+        _mantain_non_dom_kdtree(bnode, c_avl, m_kdtree, to_be_freeded);
 }
 
 /*
  * Bazgan2009, p. 14.
  */
-Bazgan *_bazgan_iter(Bazgan *bazgan, int idx){
-    double min_b_left_needed, min_b_left_feasible;
+Bazgan *_bazgan_iter(Bazgan *bazgan, int idx, int ndim){
+    double max_b_left_needed, min_b_left_feasible;
     int n, i;
     BazganNode *j_node, *i_node, *child;
     AVLIter *j_iter, *i_iter;
     MOKP *mokp;
     AVLTree *new_avl_lex, *old_avl_lex;
     List *to_be_freeded;
+    List *m_list;
+    KDTree *m_kdtree;
 
     mokp = bazgan->mokp;
     n = mokp->n;
@@ -332,38 +364,44 @@ Bazgan *_bazgan_iter(Bazgan *bazgan, int idx){
     * PRE-PROCESSING
     * Computing minimum b_left needed (based on remaining weights)
     *********************************************************************/
-    min_b_left_feasible = mokp->b - mokp->w[idx];
-    min_b_left_needed = min_b_left_feasible;
-    for( i = idx+1 ; i < n ; i++ )
-        min_b_left_needed -= mokp->w[i];
+    min_b_left_feasible = mokp->w[idx];
+    max_b_left_needed = 0;
+    for( i = idx ; i < n ; i++ )
+        max_b_left_needed += mokp->w[i];
 
     /*********************************************************************
     * INITILALIZING
     * Computing minimum b_left needed (based on remaining weights)
     *********************************************************************/
-    i_iter = avliter_new(bazgan->avl_lex);
-    j_iter = avliter_new(bazgan->avl_lex);
-    new_avl_lex = new_avltree((avl_cmp_f)bnode_lex_cmp);
+    i_iter = avl_get_first(bazgan->avl_lex);
+    j_iter = avl_get_first(bazgan->avl_lex);
+    new_avl_lex = new_avltree((avl_cmp_f)bnode_lex_cmp_inv);
     to_be_freeded = list_new();
+
+    /* allocing desired structure */
+    m_list = NULL;
+    m_kdtree = NULL;
+    if( ndim ) m_kdtree = kdtree_new(ndim, (kdtree_eval_f)bnode_axis_val);
+    else m_list = list_new();
 
     /**********************************************************************
     * DOM 1
     * Finding the first with "min_b_left_needed" (i.e., not D-r-Dominated) 
     **********************************************************************/
-    j_node = avliter_pop(j_iter);
+    j_node = avliter_forward(j_iter);
     while( j_node ){
-        if( j_node->b_left < min_b_left_needed )
+        if( j_node->b_left <= max_b_left_needed )
             break;
-        j_node = avliter_pop(j_iter);
+        j_node = avliter_forward(j_iter);
     }
 
     /**********************************************************************
     * DOM 2
     * Generating children, following lexographic order
     **********************************************************************/
-    i_node = avliter_pop(i_iter);
+    i_node = avliter_forward(i_iter);
     while( i_node ){
-        /* Stops when children become unfeasible */
+        /* Stops when fathers start to generate unfeasible nodes */
         if( i_node->b_left < min_b_left_feasible )
             break;
 
@@ -371,19 +409,23 @@ Bazgan *_bazgan_iter(Bazgan *bazgan, int idx){
         child = bnode_new_children(i_node, idx);
 
         /* Testing "old nodes" (j_node) */
-        if( j_node ){
+        while( j_node ){
             /* Stops if actual j_node is lexLess than children */
-            if( bnode_lex_cmp(j_node, child) < 0 )
+            if( bnode_lex_cmp(j_node, child) < 0 ){
                 break;
-            /* TODO: mantainNonDominated(j_node) ... */
-            j_node = avliter_pop(j_iter);
+            }
+
+            _mantain_non_dom(j_node, new_avl_lex, m_list, m_kdtree, to_be_freeded);
+            j_node = avliter_forward(j_iter);
         }
-        /* TODO: mantainNonDominated(child) ... */
-        i_node = avliter_pop(i_iter);
+        _mantain_non_dom(child, new_avl_lex, m_list, m_kdtree, to_be_freeded);
+        i_node = avliter_forward(i_iter);
     }
-    /* Inserting remaining i_nodes */
+
+    /* Inserting remaining j_nodes */
     while( j_node ){
-        j_node = avliter_pop(j_iter);
+        _mantain_non_dom(j_node, new_avl_lex, m_list, m_kdtree, to_be_freeded);
+        j_node = avliter_forward(j_iter);
     }
     /**********************************************************************
     * BAZGAN UPDATE
@@ -399,11 +441,43 @@ Bazgan *_bazgan_iter(Bazgan *bazgan, int idx){
     avl_free(old_avl_lex);
     avliter_free(i_iter);
     avliter_free(j_iter);
+    if( m_kdtree ) kdtree_free(m_kdtree);
+    if( m_list ) list_free(m_list);
 
     return bazgan;
 }
 
-void bazgan_exec(MOKP *mokp, char ordering_type, int kmax){
+void bazgan_ping(Bazgan *bazgan){
+    bazgan->ping = clock();
+}
+
+void bazgan_pong(Bazgan *bazgan){
+    bazgan->pong = clock();
+}
+
+double bazgan_get_seconds(Bazgan *bazgan){
+    return (bazgan->pong - bazgan->ping)/(double)CLOCKS_PER_SEC;
+}
+
+void bazgan_fprint_nodes(FILE *out, Bazgan *bazgan){
+    AVLIter *avliter;
+    BazganNode *bnode;
+    int i;
+
+    fprintf(out, "  Nodes: %d\n", bazgan->avl_lex->n);
+    avliter = avl_get_first(bazgan->avl_lex);
+    i = 0;
+    while( bnode = avliter_forward(avliter) ){
+        fprintf(out, "    %d: ", ++i);
+        bnode_fprintf(out, bnode);
+    }
+    fprintf(out, "\n");
+    avliter_free(avliter);
+
+    return;
+}
+
+Bazgan *bazgan_exec(MOKP *mokp, char ordering_type, int kmax, int ndim){
     Bazgan *bazgan;
     MOKP *reord_mokp;
     int i;
@@ -413,20 +487,26 @@ void bazgan_exec(MOKP *mokp, char ordering_type, int kmax){
     idxs = get_mokp_new_ordering(mokp, ordering_type);
     reord_mokp = mokp_reorder(mokp, idxs);
     free(idxs);
-    mokp_write(stdout, reord_mokp);
+    //mokp_write(stdout, reord_mokp);
 
     /* Creating bazgan execution instance */
     bazgan = bazgan_new(reord_mokp);
+    avl_insert(bazgan->avl_lex, bnode_new_empty(bazgan));
 
     /* Method iterations... */
+    bazgan_ping(bazgan);
     for( i = 0 ; i < kmax ; i++ ){
-        _bazgan_iter(bazgan, i);
+        printf("iter %d/%d\n", i+1, kmax);
+        //bazgan_fprint_nodes(stdout, bazgan);
+        _bazgan_iter(bazgan, i, ndim);
     }
+    bazgan_pong(bazgan);
+    //bazgan_fprint_nodes(stdout, bazgan);
 
     /* Freeing structures */
-    bazgan_free(bazgan);
     mokp_free(reord_mokp);
+    //bazgan_free(bazgan);
 
-    return;
+    return bazgan;
 }
 

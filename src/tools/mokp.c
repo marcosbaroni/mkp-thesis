@@ -26,11 +26,12 @@ int print_usage_bazgan(int argc, char **argv){
 }
 
 int execute_bazgan(int argc, char **argv){
-    int ndim, kmax;
+    int ndim, kmax, use_kdtree;
     FILE *finput;
     char order_opt;
     MOKP *mokp;
     List *list;
+    Bazgan *bazgan;
 
     finput = stdin;
     order_opt = 's';
@@ -54,11 +55,17 @@ int execute_bazgan(int argc, char **argv){
         fprintf(stderr, "Error: inconsistent kmax value. kmax=%d will be considered.\n", mokp->n);
     }
 
-    /* Execute Bazgan */
-    //bazgan_exec(mokp, order_opt, kmax);
-    bazgan_exec_simple(mokp, kmax);
+    use_kdtree = 0;
 
-    /* free */
+    /* Execute Bazgan */
+    bazgan = bazgan_exec(mokp, order_opt, kmax, ndim);
+    //bazgan_exec_simple(mokp, kmax);
+
+    /* Outputing */
+    printf("%d; ;%.3lf\n", bazgan->avl_lex->n, bazgan_get_seconds(bazgan));
+
+    /* Free */
+    bazgan_free(bazgan);
     mokp_free(mokp);
     fclose(finput);
 
