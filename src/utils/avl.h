@@ -9,7 +9,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define max(a, b) (a > b ? a : b)
+#define _max(a, b) (a > b ? a : b)
+#define _min(a, b) (a < b ? a : b)
 
 /*          AVL BALANCING FACTORS
  *

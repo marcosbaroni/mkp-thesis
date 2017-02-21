@@ -33,15 +33,15 @@ BazganNode *bnode_alloc(Bazgan *baz){
 
     bnode = (BazganNode*)mymalloc(sizeof(BazganNode), "bnode");
     bnode->bazgan = baz;
-    bnode->profit = (double*)malloc(baz->mokp->np*sizeof(double));
-    bnode->sol = (ulonglong*)malloc(baz->solsize*sizeof(ulonglong));
+    bnode->profit = (double*)mymalloc(baz->mokp->np*sizeof(double), "bn_prof");
+    bnode->sol = (ulonglong*)mymalloc(baz->solsize*sizeof(ulonglong), "bn_sol");
 
     return bnode;
 }
 
 void bnode_free(BazganNode *bnode){
-    free(bnode->profit);
-    free(bnode->sol);
+    myfree(bnode->profit);
+    myfree(bnode->sol);
     myfree(bnode);
     
     return;
@@ -177,7 +177,7 @@ double *bnode_get_dominant_bounds(BazganNode *bnode, int ndim){
     int np, i;
     double *bounds;
 
-    bounds = (double*)malloc(ndim*2*sizeof(double));
+    bounds = (double*)mymalloc(ndim*2*sizeof(double), "bnode_bounds1");
 
     np = bnode->bazgan->mokp->np;
     bounds[0] = bnode->b_left;
@@ -194,7 +194,7 @@ double *bnode_get_dominated_bounds(BazganNode *bnode, int ndim){
     int np, i;
     double *bounds;
 
-    bounds = (double*)malloc(ndim*2*sizeof(double));
+    bounds = (double*)mymalloc(ndim*2*sizeof(double), "bnode_bounds2");
 
     np = bnode->bazgan->mokp->np;
     bounds[0] = 0;
@@ -214,7 +214,7 @@ int *get_mokp_new_ordering(MOKP *mokp, char ordering_type){
     n = mokp->n;
     np = mokp->np;
 
-    idxs = (int*)malloc(n*sizeof(int));
+    idxs = (int*)mymalloc(n*sizeof(int), "mokp_n_ordering");
     for( i = 0 ; i < n ; i++ )
         idxs[i] = i;
 
@@ -233,7 +233,7 @@ Bazgan *bazgan_new(MOKP *mokp){
     Bazgan *baz;
 
     n = mokp->n;
-    baz = (Bazgan*)malloc(sizeof(Bazgan));
+    baz = (Bazgan*)mymalloc(sizeof(Bazgan), "bazgan");
 
     baz->mokp = mokp;
     baz->solsize = _mokp_get_solize(mokp);
@@ -246,7 +246,7 @@ void bazgan_free(Bazgan *bazgan){
     avl_apply_to_all(bazgan->avl_lex, (void(*)(void*))bnode_free);
     if(bazgan->avl_lex)
         avl_free(bazgan->avl_lex);
-    free(bazgan);
+    myfree(bazgan);
 }
 
 BazganNode *bnode_list_insert_if_no_dom(
@@ -348,7 +348,7 @@ BazganNode *_mantain_non_dom_kdtree(
         kdtree_insert(m_kdtree, bnode);
     }
 
-    free(bounds);
+    myfree(bounds);
 
     return dominant;
 }
@@ -519,7 +519,7 @@ Bazgan *bazgan_exec(MOKP *mokp, char ordering_type, int kmax, int ndim){
     /* Reordering MOKP indexes */
     idxs = get_mokp_new_ordering(mokp, ordering_type);
     reord_mokp = mokp_reorder(mokp, idxs);
-    free(idxs);
+    myfree(idxs);
     //mokp_write(stdout, reord_mokp);
 
     /* Creating bazgan execution instance */

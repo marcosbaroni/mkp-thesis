@@ -82,7 +82,8 @@ void *_mymalloc(size_t size, char *label){
 
     mnode = (MemNode*)malloc(sizeof(MemNode));
     mnode->addr = addr;
-    mnode->label = rmlnode->label;
+    mnode->labelnode = rmlnode;
+    rmlnode->n++;
     avl_insert(_mempool->pool, mnode);
 
     return addr;
@@ -91,6 +92,8 @@ void *_mymalloc(size_t size, char *label){
 void _myfree(void *addr){
     MemNode *mnode;
     MemNode *rmnode;
+    MemLblNode *ln;
+    MemLblNode *rln;
 
     mnode = (MemNode*)malloc(sizeof(MemNode));
     mnode->addr = addr;
@@ -108,6 +111,7 @@ void _myfree(void *addr){
         return;
     }
 
+    rmnode->labelnode->n--;
     avl_remove(_mempool->pool, rmnode);
     free(mnode);
     free(rmnode);
@@ -126,7 +130,7 @@ void _mempool_analyse(FILE *out){
 
     while( mln = avliter_forward(iter) ){
         if( mln->n != 0 ){
-            fprintf(out, "%s: %n yet allocated blocks\n", mln->label, mln->n);
+            fprintf(out, "%s: %d yet allocated blocks !!!\n", mln->label, mln->n);
         }else{
             fprintf(out, "%s: proper freeded\n", mln->label);
         }

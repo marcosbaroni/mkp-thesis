@@ -16,7 +16,7 @@ typedef struct MemLblNode{
 
 typedef struct MemNode{
     void *addr;
-    char *label;
+    MemLblNode *labelnode;
 }MemNode;
 
 void mempool_init();

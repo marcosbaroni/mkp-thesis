@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <time.h>
 
+#include "../../utils/mem.h"
 #include "../../utils/util.h"
 #include "../../utils/kdtree.h"
 
@@ -16,7 +17,7 @@ MOKP *mokp_alloc(int n, int np){
     MOKP *mokp;
     int i;
 
-    mokp = (MOKP*)malloc(sizeof(MOKP));
+    mokp = (MOKP*)mymalloc(sizeof(MOKP), "mokp_alloc");
 
     mokp->n = n;
     mokp->np = np;
@@ -176,7 +177,7 @@ MOKP *mokp_from_mkp(MKP *mkp){
     n = mkp->n;
     m = mkp->m;
 
-    mokp = (MOKP*)malloc(sizeof(MOKP));
+    mokp = (MOKP*)mymalloc(sizeof(MOKP), "mokp_from_mkp");
     mokp->n = n;
     mokp->np = m;
     mokp->p = (double**)malloc(m*sizeof(double*));
@@ -219,7 +220,7 @@ void mokp_free(MOKP *mokp){
         free(mokp->p[i]);
     free(mokp->p);
     free(mokp->w);
-    free(mokp);
+    myfree(mokp);
 
     return;
 }

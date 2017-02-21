@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "avl.h"
+#include "mem.h"
 
 int node_is_right(AVLNode *node){
     if( node->parent )
@@ -691,7 +692,7 @@ int _node_get_height(AVLNode *node){
     if( node->left )
         lh = _node_get_height(node->left);
 
-    return (max(lh, rh) + 1);
+    return (_max(lh, rh) + 1);
 }
 
 int _node_assert_balance(AVLNode *node){
