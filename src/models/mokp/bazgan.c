@@ -319,6 +319,7 @@ BazganNode *_mantain_non_dom_list(
     }else{
         list_insert(to_be_freeded, bnode);
     }
+    listiter_free(m_iter);
 
     return dominant;
 }

@@ -11,7 +11,7 @@ typedef struct MemPool{
 
 typedef struct MemLblNode{
     char *label;
-    int n;
+    int n, ntot;
 }MemLblNode;
 
 typedef struct MemNode{

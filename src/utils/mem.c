@@ -72,7 +72,7 @@ void *_mymalloc(size_t size, char *label){
     if( !rmlnode ){
         rmlnode = (MemLblNode*)malloc(sizeof(MemLblNode));
         rmlnode->label = (char*)malloc(32*sizeof(char));
-        rmlnode->n = 0;
+        rmlnode->n = rmlnode->ntot = 0;
         if( strlen(label) > 30 )
             fprintf(stderr, "Warning: mem labels must be smaller than 30 chars\n");
         strcpy(rmlnode->label, label);
@@ -84,6 +84,7 @@ void *_mymalloc(size_t size, char *label){
     mnode->addr = addr;
     mnode->labelnode = rmlnode;
     rmlnode->n++;
+    rmlnode->ntot++;
     avl_insert(_mempool->pool, mnode);
 
     return addr;
@@ -130,9 +131,12 @@ void _mempool_analyse(FILE *out){
 
     while( mln = avliter_forward(iter) ){
         if( mln->n != 0 ){
-            fprintf(out, "%s: %d yet allocated blocks !!!\n", mln->label, mln->n);
+            fprintf(out, "%s: %d/%d yet allocated blocks !!!\n",
+                mln->label,
+                mln->n,
+                mln->ntot);
         }else{
-            fprintf(out, "%s: proper freeded\n", mln->label);
+            fprintf(out, "%s: all %d proper freeded\n", mln->label, mln->ntot);
         }
     }
     avliter_free(iter);
@@ -157,7 +161,7 @@ void mempool_analyse(FILE *out){
     _mempool_analyse(out);
 }
 #else
-void mempool_init(){printf("inited\n");}
+void mempool_init(){}
 void mempool_close(){}
 void myfree(void *addr){
     free(addr);

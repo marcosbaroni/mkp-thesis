@@ -67,7 +67,7 @@ AVLNode* avlnode_get_prev(AVLNode *node){
 /***   BASICS  *********************************************************/
 AVLTree *new_avltree( avl_cmp_f cmp ){
 	AVLTree *avlt;
-	avlt = (AVLTree*)malloc(sizeof(AVLTree));
+	avlt = (AVLTree*)mymalloc(sizeof(AVLTree), "new_avltree");
 	avlt->cmp = cmp;
     avlt->prt = NULL;
 	avlt-> n = 0;
@@ -94,7 +94,7 @@ void sub_avl_free(AVLNode *node){
 void avl_free(AVLTree *avlt){
     if( avlt->root )
         sub_avl_free( avlt->root );
-    free(avlt);
+    myfree(avlt);
 }
 
 /***   ROTATIONS   *****************************************************/
