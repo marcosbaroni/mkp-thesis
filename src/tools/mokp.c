@@ -4,7 +4,6 @@
 #include <string.h>
 #include <time.h>
 
-#include "../utils/mem.h"
 #include "../utils/util.h"
 #include "../models/mkp/mkp.h"
 #include "../models/mokp/mokp.h"
@@ -316,9 +315,6 @@ int main(int argc, char **argv){
         exit(1);
     }
 
-    /* mempool analyser */
-    mempool_init();
-
     /* Opcao desejada */
     option = argv[1];
 
@@ -346,9 +342,6 @@ int main(int argc, char **argv){
     ***************************************************************/
     if( ret == emptyret )
         print_usage(argc, argv);
-    
-    mempool_analyse(stderr);
-    mempool_close();
 
     return ret;
 }
