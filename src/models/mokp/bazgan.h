@@ -20,6 +20,7 @@ typedef struct BazganNode{
 }BazganNode;
 
 BazganNode *bnode_new_empty(struct Bazgan *baz);
+BazganNode *bnode_copy(BazganNode *bnode);
 BazganNode *bnode_new_children(BazganNode *bnode, int idx);
 void bnode_free(BazganNode *bnode);
 int bnode_lex_cmp(BazganNode *n1, BazganNode *n2);

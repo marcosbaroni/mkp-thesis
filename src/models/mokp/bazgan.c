@@ -63,6 +63,25 @@ BazganNode *bnode_new_empty(Bazgan *baz){
     return bnode;
 }
 
+BazganNode *bnode_copy(BazganNode *bnode){
+    BazganNode *bnode2;
+    Bazgan *baz;
+    int i, np, solsize;
+
+    baz = bnode->bazgan;
+    solsize = baz->solsize;
+
+    bnode2 = bnode_alloc(baz);
+    bnode2->idx = bnode->idx;
+    for( i = 0 ; i < baz->mokp->np ; i++ )
+        bnode2->profit[i] = bnode->profit[i];
+    for( i = 0 ; i < solsize ; i++ )
+        bnode2->sol[i] = bnode->sol[i];
+    bnode2->b_left = bnode->b_left;
+
+    return bnode2;
+}
+
 BazganNode *bnode_new_children(BazganNode *bnode, int idx){
     BazganNode *new_bnode;
     double b_left;
@@ -255,24 +274,25 @@ BazganNode *bnode_list_insert_if_no_dom(
     return dominant;
 }
 
-void _mantain_non_dom_list(
+BazganNode *_mantain_non_dom_list(
     BazganNode *bnode,
     AVLTree *c_avl,
     List *m_list,
     List *to_be_freeded
 ){
-    int dominated;
     ListIter *m_iter;
     BazganNode *m_bnode;
+    BazganNode *dominant;
     
     /* Search dominant. */
-    dominated = 0;
+    dominant = NULL;
     m_iter = list_get_first(m_list);
     m_bnode = listiter_get(m_iter);
     if( !list_is_empty(m_list) ){
-        while( bnode_lex_dom(m_bnode, bnode) && !dominated ){
+        // while( && !dominant ){   /* verificar divergencia... */
+        while( bnode_lex_dom(m_bnode, bnode) && !dominant ){
             if( bnode_dominates(m_bnode, bnode) )
-                dominated = 1;
+                dominant = m_bnode;
             else 
                 m_bnode = listiter_forward(m_iter);
 
@@ -281,7 +301,7 @@ void _mantain_non_dom_list(
         }
     }
 
-    if( !dominated ){
+    if( !dominant ){
         avl_insert(c_avl, bnode);
         list_insert_here(m_list, bnode, m_iter);
 
@@ -299,10 +319,10 @@ void _mantain_non_dom_list(
         list_insert(to_be_freeded, bnode);
     }
 
-    return;
+    return dominant;
 }
 
-void _mantain_non_dom_kdtree(
+BazganNode *_mantain_non_dom_kdtree(
     BazganNode *bnode,
     AVLTree *c_avl,
     KDTree *m_kdtree,
@@ -328,19 +348,30 @@ void _mantain_non_dom_kdtree(
     }
 
     free(bounds);
+
+    return dominant;
 }
 
-void _mantain_non_dom(
+BazganNode *_mantain_non_dom(
     BazganNode *bnode,
     AVLTree *c_avl,
     List *m_list,
     KDTree *m_kdtree,
     List *to_be_freeded
 ){
+    BazganNode *bnode2;
+    BazganNode *list_dominant, *kdtree_dominant;
+
+    list_dominant = kdtree_dominant = NULL;
+
     if( m_list )
-        _mantain_non_dom_list(bnode, c_avl, m_list, to_be_freeded);
-    else
-        _mantain_non_dom_kdtree(bnode, c_avl, m_kdtree, to_be_freeded);
+        list_dominant = _mantain_non_dom_list(bnode, c_avl, m_list, to_be_freeded);
+    if( m_kdtree )
+        kdtree_dominant = _mantain_non_dom_kdtree(bnode, c_avl, m_kdtree, to_be_freeded);
+
+    if( list_dominant )
+        return list_dominant;
+    return kdtree_dominant;
 }
 
 /*
@@ -411,9 +442,8 @@ Bazgan *_bazgan_iter(Bazgan *bazgan, int idx, int ndim){
         /* Testing "old nodes" (j_node) */
         while( j_node ){
             /* Stops if actual j_node is lexLess than children */
-            if( bnode_lex_cmp(j_node, child) < 0 ){
+            if( bnode_lex_cmp(j_node, child) < 0 )
                 break;
-            }
 
             _mantain_non_dom(j_node, new_avl_lex, m_list, m_kdtree, to_be_freeded);
             j_node = avliter_forward(j_iter);
@@ -441,8 +471,10 @@ Bazgan *_bazgan_iter(Bazgan *bazgan, int idx, int ndim){
     avl_free(old_avl_lex);
     avliter_free(i_iter);
     avliter_free(j_iter);
-    if( m_kdtree ) kdtree_free(m_kdtree);
-    if( m_list ) list_free(m_list);
+    if( m_kdtree )
+        kdtree_free(m_kdtree);
+    if( m_list )
+        list_free(m_list);
 
     return bazgan;
 }
@@ -496,7 +528,7 @@ Bazgan *bazgan_exec(MOKP *mokp, char ordering_type, int kmax, int ndim){
     /* Method iterations... */
     bazgan_ping(bazgan);
     for( i = 0 ; i < kmax ; i++ ){
-        printf("iter %d/%d\n", i+1, kmax);
+        //printf("iter %d/%d\n", i+1, kmax);
         //bazgan_fprint_nodes(stdout, bazgan);
         _bazgan_iter(bazgan, i, ndim);
     }
