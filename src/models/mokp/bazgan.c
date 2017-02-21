@@ -7,6 +7,7 @@
 #include "../../utils/avl.h"
 #include "../../utils/kdtree.h"
 #include "../../utils/list.h"
+#include "../../utils/mem.h"
 
 #include "mokp.h"
 #include "bazgan.h"
@@ -30,7 +31,7 @@ void ulonglongs_bits_fprintf(FILE *fout, ulonglong *sol, int nbits){
 BazganNode *bnode_alloc(Bazgan *baz){
     BazganNode *bnode;
 
-    bnode = (BazganNode*)malloc(sizeof(BazganNode));
+    bnode = (BazganNode*)mymalloc(sizeof(BazganNode), "bnode");
     bnode->bazgan = baz;
     bnode->profit = (double*)malloc(baz->mokp->np*sizeof(double));
     bnode->sol = (ulonglong*)malloc(baz->solsize*sizeof(ulonglong));
@@ -41,7 +42,7 @@ BazganNode *bnode_alloc(Bazgan *baz){
 void bnode_free(BazganNode *bnode){
     free(bnode->profit);
     free(bnode->sol);
-    free(bnode);
+    myfree(bnode);
     
     return;
 }

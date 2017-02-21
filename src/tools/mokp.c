@@ -4,6 +4,7 @@
 #include <string.h>
 #include <time.h>
 
+#include "../utils/mem.h"
 #include "../utils/util.h"
 #include "../models/mkp/mkp.h"
 #include "../models/mokp/mokp.h"
@@ -305,12 +306,18 @@ void print_usage(int argc, char **argv){
 /* Função principal da utilidade MOKP. */
 int main(int argc, char **argv){
     char *option;
+    int ret, emptyret;
+
+    ret = emptyret = -9989;
 
     /* ao menos 2 argumentos */
     if(argc < 2){
         print_usage(argc, argv);
         exit(1);
     }
+
+    /* mempool analyser */
+    mempool_init();
 
     /* Opcao desejada */
     option = argv[1];
@@ -320,25 +327,29 @@ int main(int argc, char **argv){
     ***************************************************************/
     /*** Geração de instâncias   ***/
     if(!strcmp(option, RAND_OPT))
-        return execute_rand(argc, argv);
+        ret = execute_rand(argc, argv);
 
     /***   Algoritmo de Prog. Dinamica   ***/
     if(!strcmp(option, DYNPROG_OPT))
-        return execute_dynprog(argc, argv);
+        ret = execute_dynprog(argc, argv);
 
     /***   Conversão de instâncias MKP para MOKP   ***/
     if(!strcmp(option, MKP2_OPT))
-        return execute_mkp2(argc, argv);
+        ret = execute_mkp2(argc, argv);
 
     /***   Execução do algoritmo de Bazgan   ***/
     if(!strcmp(option, BAZGAN_OPT))
-        return execute_bazgan(argc, argv);
+        ret = execute_bazgan(argc, argv);
 
     /***************************************************************
     *    IMPRESSÃO DA FORMA DE USO
     ***************************************************************/
-    print_usage(argc, argv);
+    if( ret == emptyret )
+        print_usage(argc, argv);
+    
+    mempool_analyse(stderr);
+    mempool_close();
 
-    return 0;
+    return ret;
 }
 
