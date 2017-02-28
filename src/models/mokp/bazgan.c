@@ -11,6 +11,14 @@
 #include "mokp.h"
 #include "bazgan.h"
 
+void ulonglongs_bits_set(ulonglong *bits, int idx){
+    int i, pos;
+
+    i = idx / (8*sizeof(ulonglong));
+    pos = (idx - i*(8*sizeof(ulonglong)));
+    bits[i] |= (1ULL << pos);
+}
+
 void ulonglongs_bits_fprintf(FILE *fout, ulonglong *sol, int nbits){
     int i, j, ullsize, n, pos;
     ulonglong ull;
@@ -82,29 +90,24 @@ BazganNode *bnode_copy(BazganNode *bnode){
     return bnode2;
 }
 
-BazganNode *bnode_new_children(BazganNode *bnode, int idx){
-    BazganNode *new_bnode;
-    double b_left;
+BazganNode *bnode_insert_item(BazganNode *bnode, int idx){
+    int i;
     MOKP *mokp;
-    int i, np, pos;
 
     mokp = bnode->bazgan->mokp;
-    np = mokp->np;
-    b_left = bnode->b_left - mokp->w[idx];
-    /* discharging if not feasible */
-    if( b_left < 0 ){
-        return NULL;
-    }
+    for( i = 0 ; i < mokp->np ; i++ )
+        bnode->profit[i] += mokp->p[i][idx];
+    bnode->b_left -= mokp->w[idx];
+    ulonglongs_bits_set(bnode->sol, idx);
 
-    new_bnode = bnode_alloc(bnode->bazgan);
-    new_bnode->idx = idx;
-    for( i = 0 ; i < np ; i++ )
-        new_bnode->profit[i] = bnode->profit[i] + mokp->p[i][idx];
-    new_bnode->b_left = b_left;
-    memcpy(new_bnode->sol, bnode->sol, bnode->bazgan->solsize*sizeof(ulonglong));
-    i = idx / (8*sizeof(ulonglong));
-    pos = (idx - i*(8*sizeof(ulonglong)));
-    new_bnode->sol[i] |= (1ULL << pos);
+    return bnode;
+}
+
+BazganNode *bnode_new_children(BazganNode *bnode, int idx){
+    BazganNode *new_bnode;
+
+    new_bnode = bnode_copy(bnode);
+    bnode_insert_item(new_bnode, idx);
 
     return new_bnode;
 }
@@ -172,6 +175,45 @@ void bnode_fprintf2(BazganNode *node, FILE *fout){
     bnode_fprintf(fout, node);
 }
 
+BazganNode *bnode_get_lower_bound(
+    BazganNode *bnode,
+    int fst_idx,            /* index of the fts item to be added */
+    int *idxs
+){
+    int i, np, n;
+    BazganNode *_bnode;
+    double *w;
+
+    _bnode = bnode_copy(bnode);
+    n = bnode->bazgan->mokp->n;
+    for( i = fst_idx ; i < n ; i++ )
+        if( _bnode->b_left >= w[idxs[i]] )
+            _bnode = bnode_insert_item(_bnode, idxs[i]);
+
+    return _bnode;
+}
+
+BazganNode *bnode_get_upper_bound(
+    BazganNode *bnode,
+    int fst_idx,            /* index of the fts item to be added */
+    int *idxs
+){
+    MOKP *mokp;
+    double b_left, *w, **p;
+    int i, ci;
+
+    mokp = bnode->bazgan->mokp;
+    w = mokp->w;
+    p = mokp->p;
+
+    /* find the item limiting feasible greedy packing */
+    b_left = bnode->b_left;
+    while( b_left > 0 ){
+    }
+
+    mokp = bnode->bazgan->mokp;
+}
+
 double *bnode_get_dominant_bounds(BazganNode *bnode, int ndim){
     int np, i;
     double *bounds;
@@ -223,6 +265,28 @@ int *get_mokp_new_ordering(MOKP *mokp, char ordering_type){
 /*******************************************************************************
  *      BAZGAN INSTANCE
 *******************************************************************************/
+int **get_best_profit_cost_order(MOKP *mokp){
+    int **order;
+    int np, n, i, j;
+    double *pcost;
+
+    np = mokp->np;
+    n = mokp->n;
+
+    order = (int**)malloc(np*sizeof(int*));
+    pcost = (double*)malloc(n*sizeof(double));
+
+    for( i = 0 ; i < np ; i++ ){
+        for( j = 0 ; j < n ; j++ )
+            pcost[j] = mokp->w[j]/mokp->p[i][j];
+        order[j] = double_index_sort(pcost, n);
+    }
+
+    free(pcost);
+
+    return order;
+}
+
 int _mokp_get_solize(MOKP *mokp){
     return ((mokp->n-1)/8) + 1;
 }

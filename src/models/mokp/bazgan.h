@@ -13,7 +13,7 @@ typedef AVLNode* BNodeIter;
 
 typedef struct BazganNode{
     struct Bazgan *bazgan;
-	int idx;	      /* the index of item which was fixed */
+	int idx;	      /* the index of item which was last fixed */
     double *profit;
     double b_left;
     ulonglong *sol; /* Solution Representation (bits) */
@@ -37,6 +37,8 @@ typedef struct Bazgan{
     MOKP *mokp;
     int solsize;
     clock_t ping, pong;
+
+    int **best_profit_cost_order;
 
     AVLTree *avl_lex;
 }Bazgan;
