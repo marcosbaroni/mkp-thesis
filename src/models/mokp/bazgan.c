@@ -175,57 +175,6 @@ void bnode_fprintf2(BazganNode *node, FILE *fout){
     bnode_fprintf(fout, node);
 }
 
-BazganNode *bnode_get_lower_bound(
-    BazganNode *bnode,
-    int fst_idx,            /* index of the fts item to be added */
-    int *idxs
-){
-    int i, np, n;
-    BazganNode *_bnode;
-    double *w;
-
-    _bnode = bnode_copy(bnode);
-    n = bnode->bazgan->mokp->n;
-    for( i = fst_idx ; i < n ; i++ )
-        if( _bnode->b_left >= w[idxs[i]] )
-            _bnode = bnode_insert_item(_bnode, idxs[i]);
-
-    return _bnode;
-}
-
-BazganNode *bnode_get_upper_bound(
-    BazganNode *bnode,
-    int fst_idx,            /* index of the fts item to be added */
-    int **idxs              /* worst proft-cost order [np][<n] */
-){
-    MOKP *mokp;
-    double b_left, *w, **p, portion;
-    int n, i, np, idx;
-    BazganNode *_bnode;
-
-    mokp = bnode->bazgan->mokp;
-    _bnode = bnode_copy(bnode);
-    np = mokp->np;
-    n = mokp->n;
-    w = mokp->w;
-    p = mokp->p;
-    i = 0;
-
-    /* greedy per-dimension packing */
-    while( np-- ){
-        b_left = _bnode->b_left;
-        for( i = fst_idx ; i < n && b_left > .0; i++ ){
-            idx = idxs[np][i];
-            portion = fmin(1., b_left/w[idx]);
-            _bnode->profit[np] += portion*p[np][idx];
-            b_left -= portion*w[idx];
-        }
-    }
-    _bnode->b_left = .0;
-
-    return _bnode;
-}
-
 double *bnode_get_dominant_bounds(BazganNode *bnode, int ndim){
     int np, i;
     double *bounds;
@@ -259,6 +208,157 @@ double *bnode_get_dominated_bounds(BazganNode *bnode, int ndim){
 
     return bounds;
 }
+
+BazganNode *bnode_kdtree_find_dominant(
+    BazganNode *bnode,
+    KDTree *kdtree
+){
+    int ndim;
+    double *bounds;
+    BazganNode *dominant;
+
+    bounds = bnode_get_dominant_bounds(bnode, kdtree->ndim);
+    dominant = kdtree_range_search_r(
+        kdtree,
+        bounds, 
+        (property_f_r)bnode_dominates,
+        bnode);
+
+    free(bounds);
+
+    return dominant;
+}
+
+BazganNode *bnode_kdtree_find_dominantor(
+    BazganNode *bnode,
+    KDTree *kdtree
+){
+    int ndim;
+    double *bounds;
+    BazganNode *dominantor;
+
+    bounds = bnode_get_dominated_bounds(bnode, kdtree->ndim);
+    dominantor = kdtree_range_search_r(
+        kdtree,
+        bounds, 
+        (property_f_r)bnode_is_dominated_by,
+        bnode);
+
+    free(bounds);
+
+    return dominantor;
+}
+
+BazganNode *bnode_get_lower_bound(
+    BazganNode *bnode,
+    int fst_idx,            /* index of the fts item to be added */
+    int *idxs
+){
+    int i, np, n;
+    BazganNode *_bnode;
+    double *w;
+
+    _bnode = bnode_copy(bnode);
+    n = bnode->bazgan->mokp->n;
+    for( i = fst_idx ; i < n ; i++ )
+        if( _bnode->b_left >= w[idxs[i]] )
+            _bnode = bnode_insert_item(_bnode, idxs[i]);
+
+    return _bnode;
+}
+
+BazganNode *bnode_get_upper_bound(
+    BazganNode *bnode,
+    int fst_idx,            /* index of the fts item to be added */
+    int **idxs              /* worst proft-cost order [np][<n] */
+){
+    MOKP *mokp;
+    double b_left, *w, **p, portion;
+    int n, i, np, idx;
+    BazganNode *_bnode;
+
+    mokp = bnode->bazgan->mokp;
+    _bnode = bnode_copy(bnode);
+    n = mokp->n;
+    w = mokp->w;
+    p = mokp->p;
+    i = 0;
+
+    /* greedy per-dimension packing */
+    np = mokp->np;
+    while( np-- ){
+        b_left = _bnode->b_left;
+        for( i = fst_idx ; i < n && b_left > .0; i++ ){
+            idx = idxs[np][i];
+            portion = fmin(1., b_left/w[idx]);
+            _bnode->profit[np] += portion*p[np][idx];
+            b_left -= portion*w[idx];
+        }
+    }
+    _bnode->b_left = .0;
+
+    return _bnode;
+}
+
+/*
+ * 1. Buils upper-bound pool
+ * 2. (For each node) Compute upper bound & check its potencial
+ *
+ * */
+void *bazgan_ub_filter_kdtree(
+    Bazgan *bazgan,
+    int fst_idx,
+    int ndim
+){
+    KDTree *lower_bounds;
+    AVLTree *avl_nodes;
+    AVLIter *nodes_iter;
+    BazganNode *bnode, *lower, *upper, *dominator;
+    int i, j, k, n, np, *greedy_idxs;
+    int **upper_idxs, **best_pc_order;
+    double *bounds;
+
+    n = bazgan->mokp->n;
+    np = bazgan->mokp->np;
+
+    /* Initialize */
+    greedy_idxs = (int*)malloc(n*sizeof(int));
+    for( i = 0 ; i < n ; i++ )
+        greedy_idxs[i] = i;
+    avl_nodes = bazgan->avl_lex;
+    lower_bounds = kdtree_new(ndim, (kdtree_eval_f)bnode_axis_val);
+    nodes_iter = avl_get_first(avl_nodes);
+
+    /* Compute lower-bound pool */
+    while( bnode = avliter_forward(nodes_iter) ){
+        lower = bnode_get_lower_bound(bnode, fst_idx, greedy_idxs);
+        kdtree_insert(lower_bounds, lower);
+    }
+
+    /* Build sorted index array of available items */
+    best_pc_order = bazgan->best_profit_cost_order;
+    upper_idxs = (int**)malloc(np*sizeof(int*));
+    for( i = 0 ; i < np ; i++ ){
+        upper_idxs[i] = (int*)malloc(n*sizeof(int));
+        k = 0;
+        for( j = n ; j ; j-- ){
+            if( best_pc_order[i][j-1] >= fst_idx )
+                upper_idxs[i][k++] = best_pc_order[i][j-1];
+        }
+    }
+
+    /* Check potencial */
+    nodes_iter = avl_get_first(avl_nodes);
+    while( bnode = avliter_forward(nodes_iter) ){
+        upper = bnode_get_upper_bound(bnode, fst_idx, best_pc_order);
+        dominator = bnode_kdtree_find_dominantor(upper, lower_bounds);
+
+        if( dominantor ){
+            /* TODO: remove bnode... */
+        }
+    }
+}
+
 
 int *get_mokp_new_ordering(MOKP *mokp, char ordering_type){
     int *idxs;
