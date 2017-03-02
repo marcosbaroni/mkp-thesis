@@ -196,22 +196,34 @@ BazganNode *bnode_get_lower_bound(
 BazganNode *bnode_get_upper_bound(
     BazganNode *bnode,
     int fst_idx,            /* index of the fts item to be added */
-    int *idxs
+    int **idxs              /* worst proft-cost order [np][<n] */
 ){
     MOKP *mokp;
-    double b_left, *w, **p;
-    int i, ci;
+    double b_left, *w, **p, portion;
+    int n, i, np, idx;
+    BazganNode *_bnode;
 
     mokp = bnode->bazgan->mokp;
+    _bnode = bnode_copy(bnode);
+    np = mokp->np;
+    n = mokp->n;
     w = mokp->w;
     p = mokp->p;
+    i = 0;
 
-    /* find the item limiting feasible greedy packing */
-    b_left = bnode->b_left;
-    while( b_left > 0 ){
+    /* greedy per-dimension packing */
+    while( np-- ){
+        b_left = _bnode->b_left;
+        for( i = fst_idx ; i < n && b_left > .0; i++ ){
+            idx = idxs[np][i];
+            portion = fmin(1., b_left/w[idx]);
+            _bnode->profit[np] += portion*p[np][idx];
+            b_left -= portion*w[idx];
+        }
     }
+    _bnode->b_left = .0;
 
-    mokp = bnode->bazgan->mokp;
+    return _bnode;
 }
 
 double *bnode_get_dominant_bounds(BazganNode *bnode, int ndim){
@@ -301,14 +313,21 @@ Bazgan *bazgan_new(MOKP *mokp){
     baz->mokp = mokp;
     baz->solsize = _mokp_get_solize(mokp);
     baz->avl_lex = new_avltree((avl_cmp_f)bnode_lex_cmp_inv);
+    baz->best_profit_cost_order = get_best_profit_cost_order(mokp);
 
     return baz;
 }
 
 void bazgan_free(Bazgan *bazgan){
+    int np;
+
+    np = bazgan->mokp->np;
     avl_apply_to_all(bazgan->avl_lex, (void(*)(void*))bnode_free);
     if(bazgan->avl_lex)
         avl_free(bazgan->avl_lex);
+    while( np-- )
+        free(bazgan->best_profit_cost_order[np]);
+    free(bazgan->best_profit_cost_order);
     free(bazgan);
 }
 
