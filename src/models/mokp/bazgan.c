@@ -229,16 +229,16 @@ BazganNode *bnode_kdtree_find_dominant(
     return dominant;
 }
 
-BazganNode *bnode_kdtree_find_dominantor(
+BazganNode *bnode_kdtree_find_dominator(
     BazganNode *bnode,
     KDTree *kdtree
 ){
     int ndim;
     double *bounds;
-    BazganNode *dominantor;
+    BazganNode *dominator;
 
     bounds = bnode_get_dominated_bounds(bnode, kdtree->ndim);
-    dominantor = kdtree_range_search_r(
+    dominator = kdtree_range_search_r(
         kdtree,
         bounds, 
         (property_f_r)bnode_is_dominated_by,
@@ -246,7 +246,23 @@ BazganNode *bnode_kdtree_find_dominantor(
 
     free(bounds);
 
-    return dominantor;
+    return dominator;
+}
+
+BazganNode *bnode_list_find_dominator(
+    BazganNode *bnode,
+    List *list
+){
+    BazganNode *dominator, *candidate;
+    ListIter *liter;
+
+    dominator = NULL;
+    liter = list_get_first(list);
+    while( (candidate = (BazganNode*)listiter_forward(liter)) && !dominator )
+        if( bnode_dominates( candidate, bnode ) )
+            dominator = candidate;
+
+    return dominator;
 }
 
 BazganNode *bnode_get_lower_bound(
@@ -258,6 +274,7 @@ BazganNode *bnode_get_lower_bound(
     BazganNode *_bnode;
     double *w;
 
+    w = bnode->bazgan->mokp->w;
     _bnode = bnode_copy(bnode);
     n = bnode->bazgan->mokp->n;
     for( i = fst_idx ; i < n ; i++ )
@@ -300,17 +317,19 @@ BazganNode *bnode_get_upper_bound(
     return _bnode;
 }
 
-/*
- * 1. Buils upper-bound pool
- * 2. (For each node) Compute upper bound & check its potencial
- *
+/* Remove from node list those which are not promising, (using KDTree)
+ *   based on their upper-bound and current lower-bounds.
+ *   1. Buils upper-bound pool
+ *   2. (For each node) Compute upper bound & check its potencial
  * */
-void *bazgan_ub_filter_kdtree(
+void bazgan_ub_filter(
     Bazgan *bazgan,
     int fst_idx,
-    int ndim
+    int ndim        /* 0 for list */
 ){
-    KDTree *lower_bounds;
+    KDTree *lower_bounds_kdtree;
+    List *lower_bounds_list;
+
     AVLTree *avl_nodes;
     AVLIter *nodes_iter;
     BazganNode *bnode, *lower, *upper, *dominator;
@@ -320,22 +339,27 @@ void *bazgan_ub_filter_kdtree(
 
     n = bazgan->mokp->n;
     np = bazgan->mokp->np;
+    lower_bounds_kdtree = NULL;
+    lower_bounds_list = NULL;
 
     /* Initialize */
     greedy_idxs = (int*)malloc(n*sizeof(int));
     for( i = 0 ; i < n ; i++ )
         greedy_idxs[i] = i;
     avl_nodes = bazgan->avl_lex;
-    lower_bounds = kdtree_new(ndim, (kdtree_eval_f)bnode_axis_val);
     nodes_iter = avl_get_first(avl_nodes);
+    /* Initilaizing lowerbound pool structure */
+    if( ndim ) lower_bounds_kdtree = kdtree_new(ndim, (kdtree_eval_f)bnode_axis_val);
+    else lower_bounds_list = list_new();
 
     /* Compute lower-bound pool */
     while( bnode = avliter_forward(nodes_iter) ){
         lower = bnode_get_lower_bound(bnode, fst_idx, greedy_idxs);
-        kdtree_insert(lower_bounds, lower);
+        if( ndim ) kdtree_insert(lower_bounds_kdtree, lower);
+        else list_insert(lower_bounds_list, lower);
     }
 
-    /* Build sorted index array of available items */
+    /* Build sorted index array of available items (for upper-bound computation) */
     best_pc_order = bazgan->best_profit_cost_order;
     upper_idxs = (int**)malloc(np*sizeof(int*));
     for( i = 0 ; i < np ; i++ ){
@@ -347,15 +371,24 @@ void *bazgan_ub_filter_kdtree(
         }
     }
 
-    /* Check potencial */
+    /* Checking potencial of each node (based on its upper-bound */
     nodes_iter = avl_get_first(avl_nodes);
-    while( bnode = avliter_forward(nodes_iter) ){
+    while( bnode = avliter_get(nodes_iter) ){
         upper = bnode_get_upper_bound(bnode, fst_idx, best_pc_order);
-        dominator = bnode_kdtree_find_dominantor(upper, lower_bounds);
+        /* check if exist a LB dominating the UB */
+        if( ndim ) dominator = bnode_kdtree_find_dominator(upper, lower_bounds_kdtree);
+        else dominator = bnode_list_find_dominator(upper, lower_bounds_list);
 
-        if( dominantor ){
-            /* TODO: remove bnode... */
-        }
+        if( dominator ){
+            printf("dominator:\n");
+            bnode_fprintf(stdout, dominator);
+            bnode_fprintf(stdout, nodes_iter->node->info);
+            printf("ok\n");
+        }else
+            printf("not dominator\n");
+        /* if a dominator exists (node is not promising) */
+        if( dominator ) avliter_remove(nodes_iter);
+        else avliter_forward(nodes_iter);
     }
 }
 
@@ -391,7 +424,7 @@ int **get_best_profit_cost_order(MOKP *mokp){
     for( i = 0 ; i < np ; i++ ){
         for( j = 0 ; j < n ; j++ )
             pcost[j] = mokp->w[j]/mokp->p[i][j];
-        order[j] = double_index_sort(pcost, n);
+        order[i] = double_index_sort(pcost, n);
     }
 
     free(pcost);
@@ -431,6 +464,8 @@ void bazgan_free(Bazgan *bazgan){
     free(bazgan);
 }
 
+
+/* Inserts node in list if no dominator is found. */
 BazganNode *bnode_list_insert_if_no_dom(
     BazganNode *bnode,
     List *list,
@@ -457,6 +492,9 @@ BazganNode *bnode_list_insert_if_no_dom(
     return dominant;
 }
 
+/* 
+ * Aplication of Dominanced 2 (using List)
+ * */
 BazganNode *_mantain_non_dom_list(
     BazganNode *bnode,
     AVLTree *c_avl,
@@ -506,6 +544,9 @@ BazganNode *_mantain_non_dom_list(
     return dominant;
 }
 
+/* 
+ * Aplication of Dominanced 2 (using KDTree)
+ * */
 BazganNode *_mantain_non_dom_kdtree(
     BazganNode *bnode,
     AVLTree *c_avl,
@@ -536,12 +577,15 @@ BazganNode *_mantain_non_dom_kdtree(
     return dominant;
 }
 
+/* 
+ * Aplication of Dominanced 2 (dispatcher)
+ * */
 BazganNode *_mantain_non_dom(
-    BazganNode *bnode,
-    AVLTree *c_avl,
-    List *m_list,
-    KDTree *m_kdtree,
-    List *to_be_freeded
+    BazganNode *bnode,  /* Candidate node*/
+    AVLTree *c_avl,     /* New node pool*/
+    List *m_list,       /* Current node pool List (optional) */
+    KDTree *m_kdtree,   /* Current node pool AVL (optional) */
+    List *to_be_freeded /* Non-promessing nodes ("node garbage") */
 ){
     BazganNode *bnode2;
     BazganNode *list_dominant, *kdtree_dominant;
@@ -641,11 +685,15 @@ Bazgan *_bazgan_iter(Bazgan *bazgan, int idx, int ndim){
         _mantain_non_dom(j_node, new_avl_lex, m_list, m_kdtree, to_be_freeded);
         j_node = avliter_forward(j_iter);
     }
-    /**********************************************************************
-    * BAZGAN UPDATE
-    **********************************************************************/
+    /***   BAZGAN UPDATE   ***/
     old_avl_lex = bazgan->avl_lex;
     bazgan->avl_lex = new_avl_lex;
+
+    /**********************************************************************
+    * DOM 3
+    * Filtering not-promising nodes
+    **********************************************************************/
+    bazgan_ub_filter(bazgan, idx+1, ndim);
 
     /**********************************************************************
     * FREEING

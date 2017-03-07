@@ -5,3 +5,5 @@
 :vsplit models/mokp/bazgan.h
 :tabnew utils/kdtree.c
 :vsplit utils/kdtree.h
+:tabnew utils/avl.c
+:vsplit utils/avl.h

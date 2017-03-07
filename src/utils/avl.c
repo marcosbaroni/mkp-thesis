@@ -97,6 +97,77 @@ void avl_free(AVLTree *avlt){
     free(avlt);
 }
 
+int _node_get_height(AVLNode *node){
+    int rh, lh;
+
+    rh = lh = 0;
+    if( !node->right && !node->left )
+        return 0;
+
+    if( node->right )
+        rh = _node_get_height(node->right);
+    if( node->left )
+        lh = _node_get_height(node->left);
+
+    return (_max(lh, rh) + 1);
+}
+
+void _avl_fprint_pretty(FILE *fout, AVLNode *node, avl_prt_f prt, char *prefix){
+    int sn;
+    fprintf(fout, prefix);
+    if( node_is_right(node) ){
+        if( node->parent->left )
+            fprintf(fout, "\u251C < ");
+        else
+            fprintf(fout, "\u2514 < ");
+
+        if( node->parent->left )
+            strcat(prefix, "\u2502   ");
+        else
+            strcat(prefix, "\u2576   ");
+    }else{
+        fprintf(fout, "\u2514 > ");
+        strcat(prefix, "\u2002   ");
+    }
+    if(prt)
+        prt(fout, node->info);
+    fprintf(fout, " [%x: %x] (%d/%d)  [p: %x, l: %x, r: %x]\n", node, node->info,
+        _node_get_height(node), node->balance, node->parent, node->left, node->right);
+
+    /* print children */
+    if( node->right )
+        _avl_fprint_pretty(fout, node->right, prt, prefix);
+    if( node->left)
+        _avl_fprint_pretty(fout, node->left, prt, prefix);
+
+    /* clear prefix */
+    sn = strlen(prefix);
+    prefix[sn-6] = '\0';
+
+    return;
+}
+
+void avl_fprint_pretty(FILE *fout, AVLTree *avlt){
+    AVLNode *root;
+    char prefix[1000];
+    prefix[0] = '\0';
+
+    root = avlt->root;
+    if( root ){
+        if( avlt->prt )
+            avlt->prt(fout, root->info);
+        fprintf(fout, " [%x: %x] (%d/%d)  [p: %x, l: %x, r: %x]\n", root, root->info,
+            _node_get_height(root), root->balance, root->parent, root->left, root->right);
+    }
+    if( root->right )
+        _avl_fprint_pretty(fout, root->right, avlt->prt, prefix);
+
+    if( root->left )
+        _avl_fprint_pretty(fout, root->left, avlt->prt, prefix);
+    
+    return;
+}
+
 /***   ROTATIONS   *****************************************************/
 /* 
  *        Rotate Right
@@ -680,21 +751,6 @@ AVLTree *avl_remove(AVLTree *avl, void *info){
 }
 
 /*** DEBUG **********************************************************/
-int _node_get_height(AVLNode *node){
-    int rh, lh;
-
-    rh = lh = 0;
-    if( !node->right && !node->left )
-        return 0;
-
-    if( node->right )
-        rh = _node_get_height(node->right);
-    if( node->left )
-        lh = _node_get_height(node->left);
-
-    return (_max(lh, rh) + 1);
-}
-
 int _node_assert_balance(AVLNode *node){
     int lh, rh, ans;
 
@@ -834,64 +890,6 @@ void _print_edges_dot(FILE *fout, AVLNode *node){
 	return;
 }
 
-void _avl_fprint_pretty(FILE *fout, AVLNode *node, avl_prt_f prt, char *prefix){
-    int sn;
-    fprintf(fout, prefix);
-    if( node_is_right(node) ){
-        if( node->parent->left )
-            fprintf(fout, "\u251C < ");
-        else
-            fprintf(fout, "\u2514 < ");
-
-        if( node->parent->left )
-            strcat(prefix, "\u2502   ");
-        else
-            strcat(prefix, "\u2576   ");
-    }else{
-        fprintf(fout, "\u2514 > ");
-        strcat(prefix, "\u2002   ");
-    }
-    prt(fout, node->info);
-    fprintf(fout, " [%x] (%d/%d)  [p: %x, l: %x, r: %x]\n", node,
-        _node_get_height(node), node->balance, node->parent, node->left, node->right);
-
-    /* print children */
-    if( node->right )
-        _avl_fprint_pretty(fout, node->right, prt, prefix);
-    if( node->left)
-        _avl_fprint_pretty(fout, node->left, prt, prefix);
-
-    /* clear prefix */
-    sn = strlen(prefix);
-    prefix[sn-6] = '\0';
-
-    return;
-}
-
-void avl_fprint_pretty(FILE *fout, AVLTree *avlt){
-    AVLNode *root;
-    char prefix[1000];
-    prefix[0] = '\0';
-
-    root = avlt->root;
-    if( root ){
-        avlt->prt(fout, root->info);
-        fprintf(fout, " [%x] (%d/%d)  [p: %x, l: %x, r: %x]\n", root,
-            _node_get_height(root), root->balance, root->parent, root->left, root->right);
-    }
-    if( root->right )
-        _avl_fprint_pretty(fout, root->right, avlt->prt, prefix);
-
-    if( root->left ){
-        _avl_fprint_pretty(fout, root->left, avlt->prt, prefix);
-    }else{
-        fprintf(fout, "coundsnt find left tree of %x...\n", root);
-    }
-    fflush(stdout);
-
-    return;
-}
-
 /*  print AVL tree in dot format */
 void avl_fprint_dot(FILE *fout, AVLTree *avlt, avl_prt_f prt){
 	fprintf(fout, "graph G {\n");
@@ -906,10 +904,11 @@ void avl_fprint_dot(FILE *fout, AVLTree *avlt, avl_prt_f prt){
 }
 /******************************************************************************/
 
-AVLIter* avliter_new(AVLNode *node){
+AVLIter* avliter_new(AVLTree *avl, AVLNode *node){
     AVLIter *avl_iter;
     avl_iter = (AVLIter*)malloc(sizeof(AVLIter));
     avl_iter->node = node;
+    avl_iter->tree = avl;
 
     return avl_iter;
 }
@@ -922,6 +921,7 @@ AVLIter* avl_get_first(AVLTree *avl){
 
     node = avl->root;
     avl_iter->node = node;
+    avl_iter->tree = avl;
     if( !node )
         return avl_iter;
 
@@ -940,6 +940,7 @@ AVLIter* avl_get_last(AVLTree *avl){
 
     node = avl->root;
     avl_iter->node = node;
+    avl_iter->tree = avl;
     if( !node )
         return avl_iter;
 
@@ -980,6 +981,30 @@ void *avliter_get(AVLIter *avliter){
     return avliter->node->info;
 }
 
+void* avliter_remove(AVLIter *avliter){
+    void *info;
+    AVLNode *next;
+    printf("to remove a avl node:%x tree: %x\n", avliter->node, avliter->tree);
+    avl_fprint_pretty(stdout, avliter->tree);
+
+    info = NULL;
+    if( avliter->node ){
+        printf("old next: %x, info: %x\n", avliter->node, avliter->node->info);
+        next = avlnode_get_next(avliter->node);
+        printf("next: %x, info: %x\n", next, next->info);
+        sub_avl_remove(avliter->tree, avliter->node);
+        printf("removing\n");
+        avl_fprint_pretty(stdout, avliter->tree);
+        avliter->node = next;
+        if( next ){
+            printf("next(2): %x, info: %x\n", next, next->info);
+            info = next->info;
+        }
+    }
+
+    return info;
+}
+
 AVLIter* avl_get_higher_lower_than(AVLTree *avl, void *a){
     AVLNode *node, *scout;
     avl_cmp_f cmp;
@@ -1008,7 +1033,7 @@ AVLIter* avl_get_higher_lower_than(AVLTree *avl, void *a){
         }
     }
 
-    return avliter_new(node);
+    return avliter_new(avl, node);
 }
 
 AVLIter* avl_get_lower_higher_than(AVLTree *avl, void *a){
@@ -1039,7 +1064,7 @@ AVLIter* avl_get_lower_higher_than(AVLTree *avl, void *a){
         }
     }
 
-    return avliter_new(node);
+    return avliter_new(avl, node);
 }
 
 

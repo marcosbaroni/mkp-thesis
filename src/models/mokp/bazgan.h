@@ -32,14 +32,13 @@ double bnode_axis_val(BazganNode *n1, int axis);
 void bnode_fprintf(FILE *fout, BazganNode *node);
 double *bnode_get_dominant_bounds(BazganNode *bnode, int ndim);
 double *bnode_get_dominated_bounds(BazganNode *bnode, int ndim);
-BazganNode *bnode_get_upper_bound(BazganNode*, int, **int);
-BazganNode *bnode_get_lower_bound(BazganNode*, int, *int);
+BazganNode *bnode_get_upper_bound(BazganNode*, int, int**);
+BazganNode *bnode_get_lower_bound(BazganNode*, int, int*);
 
 typedef struct Bazgan{
     MOKP *mokp;
     int solsize;
     clock_t ping, pong;
-
     int **best_profit_cost_order;
 
     AVLTree *avl_lex;

@@ -62,6 +62,7 @@ int         avl_check_sanity(AVLTree *avl);
 
 /* AVL elements iterator */
 typedef struct AVLIter{
+    AVLTree *tree;
     AVLNode *node;
 }AVLIter;
 
@@ -70,6 +71,7 @@ AVLIter*    avl_get_last(AVLTree *avl);
 void*       avliter_backward(AVLIter *avliter);
 void*       avliter_forward(AVLIter *avliter);
 void*       avliter_get(AVLIter *avliter);
+void*       avliter_remove(AVLIter *avliter);
 AVLIter*    avl_get_higher_lower_than(AVLTree *avl, void *a);
 AVLIter*    avl_get_lower_higher_than(AVLTree *avl, void *a);
 void        avliter_free(AVLIter *avliter);
