@@ -622,10 +622,9 @@ AVLNode *_node_swap_with_pred(AVLTree *avl, AVLNode *node){
 
     /* switch the node with the defined predecessor */
     if( pred ){
-        info = pred->info;
-        pred->info = node->info;
-        node->info = info;
+        info = pred->info; pred->info = node->info; node->info = info;
         node = pred;
+        //_avl_swap_avlnodes(avl, pred, node);
     }
 
     return node;
@@ -991,13 +990,10 @@ void* avliter_remove(AVLIter *avliter){
     if( avliter->node ){
         printf("old next: %x, info: %x\n", avliter->node, avliter->node->info);
         next = avlnode_get_next(avliter->node);
-        printf("next: %x, info: %x\n", next, next->info);
         sub_avl_remove(avliter->tree, avliter->node);
-        printf("removing\n");
-        avl_fprint_pretty(stdout, avliter->tree);
         avliter->node = next;
         if( next ){
-            printf("next(2): %x, info: %x\n", next, next->info);
+            printf("next: %x, info: %x\n", next, next->info);
             info = next->info;
         }
     }

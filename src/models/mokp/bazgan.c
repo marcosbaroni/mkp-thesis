@@ -317,6 +317,10 @@ BazganNode *bnode_get_upper_bound(
     return _bnode;
 }
 
+void _avl_remove2(void *bnode, void *avl){
+    avl_remove( (AVLTree*)avl, (AVLNode*)bnode);
+}
+
 /* Remove from node list those which are not promising, (using KDTree)
  *   based on their upper-bound and current lower-bounds.
  *   1. Buils upper-bound pool
@@ -329,7 +333,7 @@ void bazgan_ub_filter(
 ){
     KDTree *lower_bounds_kdtree;
     List *lower_bounds_list;
-
+    List *non_promissings;
     AVLTree *avl_nodes;
     AVLIter *nodes_iter;
     BazganNode *bnode, *lower, *upper, *dominator;
@@ -341,6 +345,7 @@ void bazgan_ub_filter(
     np = bazgan->mokp->np;
     lower_bounds_kdtree = NULL;
     lower_bounds_list = NULL;
+    non_promissings = list_new();
 
     /* Initialize */
     greedy_idxs = (int*)malloc(n*sizeof(int));
@@ -379,17 +384,23 @@ void bazgan_ub_filter(
         if( ndim ) dominator = bnode_kdtree_find_dominator(upper, lower_bounds_kdtree);
         else dominator = bnode_list_find_dominator(upper, lower_bounds_list);
 
+        bnode_fprintf(stdout, bnode);
         if( dominator ){
             printf("dominator:\n");
             bnode_fprintf(stdout, dominator);
-            bnode_fprintf(stdout, nodes_iter->node->info);
-            printf("ok\n");
         }else
-            printf("not dominator\n");
+            printf("no dominator\n");
         /* if a dominator exists (node is not promising) */
-        if( dominator ) avliter_remove(nodes_iter);
-        else avliter_forward(nodes_iter);
+        if( dominator )
+            list_insert(non_promissings, bnode);
+        avliter_forward(nodes_iter);
     }
+
+    list_apply_r( non_promissings, _avl_remove2, avl_nodes);
+    list_apply( non_promissings, (void(*)(void*))bnode_free);
+    list_free(non_promissings);
+
+    return;
 }
 
 
