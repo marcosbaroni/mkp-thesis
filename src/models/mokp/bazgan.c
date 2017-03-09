@@ -384,9 +384,12 @@ void bazgan_ub_filter(
         if( ndim ) dominator = bnode_kdtree_find_dominator(upper, lower_bounds_kdtree);
         else dominator = bnode_list_find_dominator(upper, lower_bounds_list);
 
+        printf("checking node:\n");
         bnode_fprintf(stdout, bnode);
+        printf("its upper is:\n");
+        bnode_fprintf(stdout, upper);
         if( dominator ){
-            printf("dominator:\n");
+            printf("dominator found:\n");
             bnode_fprintf(stdout, dominator);
         }else
             printf("no dominator\n");
@@ -472,6 +475,7 @@ void bazgan_free(Bazgan *bazgan){
     while( np-- )
         free(bazgan->best_profit_cost_order[np]);
     free(bazgan->best_profit_cost_order);
+    mokp_free(bazgan->mokp);  /* freeing, assuming its a reordered copy */
     free(bazgan);
 }
 
@@ -779,7 +783,7 @@ Bazgan *bazgan_exec(MOKP *mokp, char ordering_type, int kmax, int ndim){
     //bazgan_fprint_nodes(stdout, bazgan);
 
     /* Freeing structures */
-    mokp_free(reord_mokp);
+    //mokp_free(reord_mokp);
     //bazgan_free(bazgan);
 
     return bazgan;
