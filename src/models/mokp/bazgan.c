@@ -118,6 +118,7 @@ int bnode_lex_dom(BazganNode *n1, BazganNode *n2){
 
     np = n1->bazgan->mokp->np;
 
+    n1->bazgan->_ncomparison++;
     for( i = 0 ; i < np ; i++ )
         if( n1->profit[i] != n2->profit[i] )
             return( n1->profit[i] > n2->profit[i] );
@@ -144,6 +145,7 @@ int bnode_dominates(BazganNode *b1, BazganNode *b2){
     int i, np;
     np = b1->bazgan->mokp->np;
 
+    b1->bazgan->_ncomparison++;
     for( i = 0 ; i < np ; i++ )
         if( b1->profit[i] < b2->profit[i] )
             return 0;
@@ -237,11 +239,11 @@ BazganNode *bnode_kdtree_find_dominator(
     double *bounds;
     BazganNode *dominator;
 
-    bounds = bnode_get_dominated_bounds(bnode, kdtree->ndim);
+    bounds = bnode_get_dominant_bounds(bnode, kdtree->ndim);
     dominator = kdtree_range_search_r(
         kdtree,
         bounds, 
-        (property_f_r)bnode_is_dominated_by,
+        (property_f_r)bnode_dominates,
         bnode);
 
     free(bounds);
@@ -290,7 +292,7 @@ BazganNode *bnode_get_lower_bound(
 BazganNode *bnode_get_upper_bound(
     BazganNode *bnode,
     int fst_idx,            /* index of the fts item to be added */
-    int **idxs              /* worst proft-cost order [np][<n] */
+    int **idxs              /* available itens (best profit-cost order) [np][<n] */
 ){
     MOKP *mokp;
     double b_left, *w, **p, portion;
@@ -309,7 +311,7 @@ BazganNode *bnode_get_upper_bound(
     for( j = 0 ; j < np ; j++ ){
         printf("      filling dim %d\n", j);
         b_left = _bnode->b_left;
-        for( i = fst_idx ; i < n && b_left > .0; i++ ){
+        for( i = 0 ; i < (n-fst_idx) && b_left > .0; i++ ){
             idx = idxs[j][i];
             portion = fmin(1., b_left/w[idx]);
             _bnode->profit[j] += portion*p[j][idx];
@@ -317,7 +319,7 @@ BazganNode *bnode_get_upper_bound(
             printf("         packing %.3lf of item %d (%.3lf left)\n", portion, idx, b_left);
         }
     }
-    _bnode->b_left = .0;
+    _bnode->b_left = b_left;
 
     return _bnode;
 }
@@ -381,12 +383,11 @@ void bazgan_ub_filter(
     best_pc_order = bazgan->best_profit_cost_order;
     upper_idxs = (int**)malloc(np*sizeof(int*));
     for( i = 0 ; i < np ; i++ ){
-        upper_idxs[i] = (int*)malloc(n*sizeof(int));
         k = 0;
-        for( j = n ; j ; j-- ){
-            if( best_pc_order[i][j-1] >= fst_idx )
-                upper_idxs[i][k++] = best_pc_order[i][j-1];
-        }
+        upper_idxs[i] = (int*)malloc(n*sizeof(int));
+        for( j = 0 ; j < n ; j++ )
+            if( best_pc_order[i][j] >= fst_idx )
+                upper_idxs[i][k++] = best_pc_order[i][j];
     }
 
     /* Checking potencial of each node (based on its upper-bound */
@@ -395,9 +396,10 @@ void bazgan_ub_filter(
     while( bnode = avliter_get(nodes_iter) ){
         printf("  FOR NODE: ");
         bnode_fprintf(stdout, bnode);
-        upper = bnode_get_upper_bound(bnode, fst_idx, best_pc_order);
+        upper = bnode_get_upper_bound(bnode, fst_idx, upper_idxs);
         /* check if exist a LB dominating the UB */
-        if( ndim ) dominator = bnode_kdtree_find_dominator(upper, lower_bounds_kdtree);
+        if( ndim )
+            dominator = bnode_kdtree_find_dominator(upper, lower_bounds_kdtree);
         else dominator = bnode_list_find_dominator(upper, lower_bounds_list);
 
         printf("    its upper is: ");
@@ -409,6 +411,7 @@ void bazgan_ub_filter(
             printf("    no dominator");
         }
         printf("\n");
+
         /* if a dominator exists (node is not promising) */
         if( dominator )
             list_insert(non_promissings, bnode);
@@ -416,6 +419,7 @@ void bazgan_ub_filter(
     }
     printf("\n");
 
+    /* removing marked nodes */
     list_apply_r( non_promissings, _avl_remove2, avl_nodes);
     list_apply( non_promissings, (void(*)(void*))bnode_free);
     list_free(non_promissings);
@@ -456,17 +460,6 @@ int **get_best_profit_cost_order(MOKP *mokp){
         for( j = 0 ; j < n ; j++ )
             pcost[j] = mokp->p[i][j]/mokp->w[j];
         order[i] = double_index_sort(pcost, n);
-    }
-
-    // debuggin
-    printf("BEST COST-PROFIT ORDER OF ITEMS\n");
-    for( i = 0 ; i < np ; i++ ){
-        printf("  for dim %d\n    ", i);
-        for( j = 0 ; j < n ; j++ ){
-            idx = order[i][j];
-            printf(" %d (%2.3lf) ", idx, mokp->p[i][idx]/mokp->w[idx]);
-        }
-        printf("\n");
     }
 
     free(pcost);
@@ -661,7 +654,7 @@ Bazgan *_bazgan_iter(Bazgan *bazgan, int idx, int ndim){
 
     mokp = bazgan->mokp;
     n = mokp->n;
-    printf("ITERETING ITEM %d\n", idx);
+    printf("ITERETING ITEM %d (%d current nodes)\n", idx, bazgan->avl_lex->n);
 
     /*********************************************************************
     * PRE-PROCESSING

@@ -41,6 +41,8 @@ typedef struct Bazgan{
     clock_t ping, pong;
     int **best_profit_cost_order;
 
+    long long _ncomparison;
+
     AVLTree *avl_lex;
 }Bazgan;
 

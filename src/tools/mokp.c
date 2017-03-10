@@ -62,7 +62,10 @@ int execute_bazgan(int argc, char **argv){
     //bazgan_exec_simple(mokp, kmax);
 
     /* Outputing */
-    printf("%d; ;%.3lf\n", bazgan->avl_lex->n, bazgan_get_seconds(bazgan));
+    printf("%d;%lld;%.3lf\n",
+        bazgan->avl_lex->n,
+        bazgan->_ncomparison,
+        bazgan_get_seconds(bazgan));
 
     /* Free */
     bazgan_free(bazgan);
