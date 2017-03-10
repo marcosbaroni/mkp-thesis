@@ -5,7 +5,6 @@ CC = gcc
 #CFLAGS=-g -DUSE_MEMPOOL
 CFLAGS=-g
 DEST=../bin
-DEBUG_FLAG=-DDEBUG_LVL=1
 SOPLEX=-lsoplex -lz -lgmp -lm
 
 all: mkp mokp

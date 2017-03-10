@@ -282,9 +282,11 @@ BazganNode *bnode_get_lower_bound(
     n = bnode->bazgan->mokp->n;
     for( i = fst_idx ; i < n ; i++ )
         if( _bnode->b_left >= w[idxs[i]] ){
-            printf("      inserting item %d... ", idxs[i]);
             _bnode = bnode_insert_item(_bnode, idxs[i]);
+#ifdef DEBUG_LVL
+            printf("      inserting item %d... ", idxs[i]);
             bnode_fprintf(stdout, _bnode);
+#endif
         }
 
     return _bnode;
@@ -310,14 +312,18 @@ BazganNode *bnode_get_upper_bound(
     /* greedy per-dimension packing */
     np = mokp->np;
     for( j = 0 ; j < np ; j++ ){
+#ifdef DEBUG_LVL
         printf("      filling dim %d\n", j);
+#endif
         b_left = _bnode->b_left;
         for( i = 0 ; i < (n-fst_idx) && b_left > .0; i++ ){
             idx = idxs[j][i];
             portion = fmin(1., b_left/w[idx]);
             _bnode->profit[j] += portion*p[j][idx];
             b_left -= portion*w[idx];
+#ifdef DEBUG_LVL
             printf("         packing %.3lf of item %d (%.3lf left)\n", portion, idx, b_left);
+#endif
         }
     }
     _bnode->b_left = b_left;
@@ -367,13 +373,18 @@ void bazgan_ub_filter(
     else lower_bounds_list = list_new();
 
     /* Compute lower-bound pool */
+#ifdef DEBUG_LVL
     printf( "  LOWER BOUNDS:\n");
+#endif
     while( bnode = avliter_forward(nodes_iter) ){
+        lower = bnode_get_lower_bound(bnode, fst_idx, greedy_idxs);
+
+#ifdef DEBUG_LVL
         printf("      FOR NODE: ");
         bnode_fprintf(stdout, bnode);
-        lower = bnode_get_lower_bound(bnode, fst_idx, greedy_idxs);
         printf("      LOWER COMPUTED: ");
         bnode_fprintf(stdout, lower);
+#endif
         if( ndim )
             kdtree_insert(lower_bounds_kdtree, lower);
         else list_insert(lower_bounds_list, lower);
@@ -394,17 +405,20 @@ void bazgan_ub_filter(
     avliter_free(nodes_iter);
 
     /* Checking potencial of each node (based on its upper-bound */
+#ifdef DEBUG_LVL
     printf( "\n  UPPER BOUNDS:\n");
+#endif
     nodes_iter = avl_get_first(avl_nodes);
     while( bnode = avliter_get(nodes_iter) ){
-        printf("  FOR NODE: ");
-        bnode_fprintf(stdout, bnode);
         upper = bnode_get_upper_bound(bnode, fst_idx, upper_idxs);
         /* check if exist a LB dominating the UB */
         if( ndim )
             dominator = bnode_kdtree_find_dominator(upper, lower_bounds_kdtree);
         else dominator = bnode_list_find_dominator(upper, lower_bounds_list);
 
+#ifdef DEBUG_LVL
+        printf("  FOR NODE: ");
+        bnode_fprintf(stdout, bnode);
         printf("    its upper is: ");
         bnode_fprintf(stdout, upper);
         if( dominator ){
@@ -414,6 +428,7 @@ void bazgan_ub_filter(
             printf("    no dominator");
         }
         printf("\n");
+#endif
 
         /* if a dominator exists (node is not promising) */
         if( dominator )
@@ -421,7 +436,9 @@ void bazgan_ub_filter(
         avliter_forward(nodes_iter);
         bnode_free(upper);
     }
+#ifdef DEBUG_LVL
     printf("\n");
+#endif
     /*** FREEING ***/
     for( i = 0 ; i < np ; i++ )
         free(upper_idxs[i]);
@@ -674,7 +691,9 @@ Bazgan *_bazgan_iter(Bazgan *bazgan, int idx, int ndim){
 
     mokp = bazgan->mokp;
     n = mokp->n;
+#ifdef DEBUG_LVL
     printf("ITERETING ITEM %d (%d current nodes)\n", idx, bazgan->avl_lex->n);
+#endif
 
     /*********************************************************************
     * PRE-PROCESSING
