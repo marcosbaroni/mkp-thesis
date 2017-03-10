@@ -170,6 +170,19 @@ void *_kdtree_branch_getter(KDNode *node, char side){
     return NULL;
 }
 
+void _sub_kdtree_apply_to_all(KDNode *node, void(*func)(void*) ){
+    if( node->left)
+        _sub_kdtree_apply_to_all(node->left, func);
+    func( node->info );
+    if( node->right )
+        _sub_kdtree_apply_to_all(node->right, func);
+}
+
+void kdtree_apply_to_all(KDTree *kdtree, void(*func)(void*) ){
+    if( kdtree->root )
+        _sub_kdtree_apply_to_all(kdtree->root, func);
+}
+
 void kdtree_fprint_pretty(FILE *fout, KDTree *kdtree){
     if( kdtree->root )
         tree_pretty_printer(

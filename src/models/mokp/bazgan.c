@@ -263,6 +263,7 @@ BazganNode *bnode_list_find_dominator(
     while( (candidate = (BazganNode*)listiter_forward(liter)) && !dominator )
         if( bnode_dominates( candidate, bnode ) )
             dominator = candidate;
+    listiter_free(liter);
 
     return dominator;
 }
@@ -377,6 +378,7 @@ void bazgan_ub_filter(
             kdtree_insert(lower_bounds_kdtree, lower);
         else list_insert(lower_bounds_list, lower);
     }
+    free(greedy_idxs);
 
     /* Build sorted index array of available items 
      * (for upper-bound computation) */
@@ -389,6 +391,7 @@ void bazgan_ub_filter(
             if( best_pc_order[i][j] >= fst_idx )
                 upper_idxs[i][k++] = best_pc_order[i][j];
     }
+    avliter_free(nodes_iter);
 
     /* Checking potencial of each node (based on its upper-bound */
     printf( "\n  UPPER BOUNDS:\n");
@@ -416,8 +419,24 @@ void bazgan_ub_filter(
         if( dominator )
             list_insert(non_promissings, bnode);
         avliter_forward(nodes_iter);
+        bnode_free(upper);
     }
     printf("\n");
+    /*** FREEING ***/
+    for( i = 0 ; i < np ; i++ )
+        free(upper_idxs[i]);
+    free(upper_idxs);
+    avliter_free(nodes_iter);
+    /* LB nodes */
+    if( lower_bounds_kdtree )
+        kdtree_apply_to_all(lower_bounds_kdtree, (void(*)(void*))bnode_free);
+    else
+        list_apply(lower_bounds_list, (void(*)(void*))bnode_free);
+    /* LB pool structure */
+    if( lower_bounds_kdtree )
+        kdtree_free(lower_bounds_kdtree);
+    if( lower_bounds_list )
+        list_free(lower_bounds_list);
 
     /* removing marked nodes */
     list_apply_r( non_promissings, _avl_remove2, avl_nodes);
@@ -482,6 +501,7 @@ Bazgan *bazgan_new(MOKP *mokp){
     baz->solsize = _mokp_get_solize(mokp);
     baz->avl_lex = new_avltree((avl_cmp_f)bnode_lex_cmp_inv);
     baz->best_profit_cost_order = get_best_profit_cost_order(mokp);
+    baz->_ncomparison = 0;
 
     return baz;
 }
