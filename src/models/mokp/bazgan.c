@@ -332,7 +332,12 @@ BazganNode *bnode_get_upper_bound(
 }
 
 void _avl_remove2(void *bnode, void *avl){
-    avl_remove( (AVLTree*)avl, (AVLNode*)bnode);
+    AVLTree *ptr;
+    ptr = avl_remove( (AVLTree*)avl, (AVLNode*)bnode);
+    if( !ptr ){
+        printf("ERROR!!! avl\n");
+        bnode_fprintf(stdout, (BazganNode*)bnode);
+    }
 }
 
 /* Remove from node list those which are not promising, (using KDTree)
@@ -431,8 +436,9 @@ void bazgan_ub_filter(
 #endif
 
         /* if a dominator exists (node is not promising) */
-        if( dominator )
+        if( dominator ){
             list_insert(non_promissings, bnode);
+        }
         avliter_forward(nodes_iter);
         bnode_free(upper);
     }

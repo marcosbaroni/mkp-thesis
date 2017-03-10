@@ -742,7 +742,7 @@ AVLTree *avl_remove(AVLTree *avl, void *info){
 
     if( !node ){
         fprintf(stderr, "cound not remove element %x: didn't find it.\n", info);
-        return avl;
+        return NULL;
     }
 
     sub_avl_remove(avl, node);

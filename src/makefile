@@ -3,7 +3,9 @@
 #   NO_KDTREE_STATS: Disable kdtree statistics
 CC = gcc
 #CFLAGS=-g -DUSE_MEMPOOL
-CFLAGS=-g
+#CFLAGS=-g -DDEBUG_LVL=1
+CFLAGS=-g $(DEBFLAG)
+#CFLAGS=-g
 DEST=../bin
 SOPLEX=-lsoplex -lz -lgmp -lm
 
