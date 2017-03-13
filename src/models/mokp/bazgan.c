@@ -127,12 +127,15 @@ int bnode_lex_dom(BazganNode *n1, BazganNode *n2){
 }
 
 int bnode_lex_cmp(BazganNode *n1, BazganNode *n2){
-    int res, np, i;
+    int np, i;
+    double res;
 
     res = n1->b_left - n2->b_left;
 
-    if( res )
-        return res;
+    if( res > .0 )
+        return 1;
+    else if( res < .0) 
+        return -1;
 
     return bnode_lex_dom(n1, n2);
 }
@@ -171,6 +174,10 @@ void bnode_fprintf(FILE *fout, BazganNode *node){
     fprintf(fout, "\n");
 
     return;
+}
+
+void bnode_printf(BazganNode *bnode){
+    bnode_fprintf(stdout, bnode);
 }
 
 void bnode_fprintf2(BazganNode *node, FILE *fout){
@@ -436,15 +443,15 @@ void bazgan_ub_filter(
 #endif
 
         /* if a dominator exists (node is not promising) */
-        if( dominator ){
+        if( dominator )
             list_insert(non_promissings, bnode);
-        }
         avliter_forward(nodes_iter);
         bnode_free(upper);
     }
 #ifdef DEBUG_LVL
     printf("\n");
 #endif
+    
     /*** FREEING ***/
     for( i = 0 ; i < np ; i++ )
         free(upper_idxs[i]);
