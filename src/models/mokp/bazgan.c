@@ -116,9 +116,9 @@ BazganNode *bnode_new_children(BazganNode *bnode, int idx){
 int bnode_lex_dom(BazganNode *n1, BazganNode *n2){
     int np, i;
 
+    n1->bazgan->_ncomparison++;
     np = n1->bazgan->mokp->np;
 
-    n1->bazgan->_ncomparison++;
     for( i = 0 ; i < np ; i++ )
         if( n1->profit[i] != n2->profit[i] )
             return( n1->profit[i] > n2->profit[i] );
@@ -130,6 +130,7 @@ int bnode_lex_cmp(BazganNode *n1, BazganNode *n2){
     int np, i;
     double res;
 
+    n1->bazgan->_ncomparison++;
     res = n1->b_left - n2->b_left;
 
     if( res > .0 )
@@ -137,7 +138,11 @@ int bnode_lex_cmp(BazganNode *n1, BazganNode *n2){
     else if( res < .0) 
         return -1;
 
-    return bnode_lex_dom(n1, n2);
+    for( i = 0 ; i < np ; i++ )
+        if( n1->profit[i] != n2->profit[i] )
+            return( n1->profit[i] > n2->profit[i] );
+
+    return 0;
 }
 
 int bnode_lex_cmp_inv(BazganNode *n1, BazganNode *n2){
@@ -683,6 +688,16 @@ BazganNode *_mantain_non_dom(
     if( m_kdtree )
         kdtree_dominant = _mantain_non_dom_kdtree(bnode, c_avl, m_kdtree, to_be_freeded);
 
+    bnode_fprintf(stdout, bnode);
+    if( list_dominant ){
+        printf("Dominant: ");
+        bnode_printf(list_dominant);
+    }else if( kdtree_dominant ){
+        printf("Dominant: ");
+        bnode_printf(kdtree_dominant);
+    }
+
+
     if( list_dominant )
         return list_dominant;
     return kdtree_dominant;
@@ -849,9 +864,9 @@ Bazgan *bazgan_exec(MOKP *mokp, char ordering_type, int kmax, int ndim){
     /* Method iterations... */
     bazgan_ping(bazgan);
     for( i = 0 ; i < kmax ; i++ ){
-        //printf("iter %d/%d\n", i+1, kmax);
         //bazgan_fprint_nodes(stdout, bazgan);
         _bazgan_iter(bazgan, i, ndim);
+        printf("\niter %d/%d (%d)\n", i+1, kmax, bazgan->avl_lex->n);
     }
     bazgan_pong(bazgan);
     //bazgan_fprint_nodes(stdout, bazgan);
