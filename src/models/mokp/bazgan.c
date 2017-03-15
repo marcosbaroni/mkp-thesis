@@ -371,6 +371,7 @@ void bazgan_ub_filter(
     int i, j, k, n, np, *greedy_idxs;
     int **upper_idxs, **best_pc_order;
     double *bounds;
+    int dominance_failed;
 
     n = bazgan->mokp->n;
     np = bazgan->mokp->np;
@@ -389,19 +390,11 @@ void bazgan_ub_filter(
         lower_bounds_kdtree = kdtree_new(ndim, (kdtree_eval_f)bnode_axis_val);
     else lower_bounds_list = list_new();
 
-    /* Compute lower-bound pool */
-#ifdef DEBUG_LVL
-    printf( "  LOWER BOUNDS:\n");
-#endif
+    /***************************************************************************
+    * Computing lower-bound pool
+    ***************************************************************************/
     while( bnode = avliter_forward(nodes_iter) ){
         lower = bnode_get_lower_bound(bnode, fst_idx, greedy_idxs);
-
-#ifdef DEBUG_LVL
-        printf("      FOR NODE: ");
-        bnode_fprintf(stdout, bnode);
-        printf("      LOWER COMPUTED: ");
-        bnode_fprintf(stdout, lower);
-#endif
         if( ndim )
             kdtree_insert(lower_bounds_kdtree, lower);
         else list_insert(lower_bounds_list, lower);
@@ -421,41 +414,26 @@ void bazgan_ub_filter(
     }
     avliter_free(nodes_iter);
 
-    /* Checking potencial of each node (based on its upper-bound */
-#ifdef DEBUG_LVL
-    printf( "\n  UPPER BOUNDS:\n");
-#endif
+    /***************************************************************************
+    * Checking potencial of each node (based on its upper-bound
+    ***************************************************************************/
     nodes_iter = avl_get_first(avl_nodes);
-    while( bnode = avliter_get(nodes_iter) ){
+    dominance_failed = 0;
+    while( (bnode = avliter_get(nodes_iter)) && !dominance_failed ){
         upper = bnode_get_upper_bound(bnode, fst_idx, upper_idxs);
         /* check if exist a LB dominating the UB */
         if( ndim )
             dominator = bnode_kdtree_find_dominator(upper, lower_bounds_kdtree);
         else dominator = bnode_list_find_dominator(upper, lower_bounds_list);
 
-#ifdef DEBUG_LVL
-        printf("  FOR NODE: ");
-        bnode_fprintf(stdout, bnode);
-        printf("    its upper is: ");
-        bnode_fprintf(stdout, upper);
-        if( dominator ){
-            printf("    dominator found: ");
-            bnode_fprintf(stdout, dominator);
-        }else{
-            printf("    no dominator");
-        }
-        printf("\n");
-#endif
-
         /* if a dominator exists (node is not promising) */
         if( dominator )
             list_insert(non_promissings, bnode);
+        else
+            dominance_failed = 1;
         avliter_forward(nodes_iter);
         bnode_free(upper);
     }
-#ifdef DEBUG_LVL
-    printf("\n");
-#endif
     
     /*** FREEING ***/
     for( i = 0 ; i < np ; i++ )
