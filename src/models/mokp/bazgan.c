@@ -689,16 +689,6 @@ BazganNode *_mantain_non_dom(
     if( m_kdtree )
         kdtree_dominant = _mantain_non_dom_kdtree(bnode, c_avl, m_kdtree, to_be_freeded);
 
-    bnode_fprintf(stdout, bnode);
-    if( list_dominant ){
-        printf("Dominant: ");
-        bnode_printf(list_dominant);
-    }else if( kdtree_dominant ){
-        printf("Dominant: ");
-        bnode_printf(kdtree_dominant);
-    }
-
-
     if( list_dominant )
         return list_dominant;
     return kdtree_dominant;
@@ -867,7 +857,7 @@ Bazgan *bazgan_exec(MOKP *mokp, char ordering_type, int kmax, int ndim){
     for( i = 0 ; i < kmax ; i++ ){
         //bazgan_fprint_nodes(stdout, bazgan);
         _bazgan_iter(bazgan, i, ndim);
-        printf("\niter %d/%d (%d)\n", i+1, kmax, bazgan->avl_lex->n);
+        printf("iter %d/%d (%d)\n", i+1, kmax, bazgan->avl_lex->n);
     }
     bazgan_pong(bazgan);
     //bazgan_fprint_nodes(stdout, bazgan);
