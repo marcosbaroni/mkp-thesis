@@ -602,7 +602,8 @@ BazganNode *_mantain_non_dom_list(
     m_bnode = listiter_get(m_iter);
     if( !list_is_empty(m_list) ){
         // while( && !dominant ){   /* verificar divergencia... */
-        while( bnode_lex_dom(m_bnode, bnode) && !dominant ){
+        //while( bnode_lex_dom(m_bnode, bnode) && !dominant ){
+        while( bnode_lex_cmp(m_bnode, bnode) > 0. && !dominant ){
             if( bnode_dominates(m_bnode, bnode) )
                 dominant = m_bnode;
             else 
