@@ -419,6 +419,7 @@ void bazgan_ub_filter(
     ***************************************************************************/
     nodes_iter = avl_get_first(avl_nodes);
     dominance_failed = 0;
+    //while( (bnode = avliter_get(nodes_iter)) ){
     while( (bnode = avliter_get(nodes_iter)) && !dominance_failed ){
         upper = bnode_get_upper_bound(bnode, fst_idx, upper_idxs);
         /* check if exist a LB dominating the UB */
