@@ -30,8 +30,8 @@ int bnode_dominates(BazganNode *b1, BazganNode *b2);
 int bnode_is_dominated_by(BazganNode *b1, BazganNode *b2);
 double bnode_axis_val(BazganNode *n1, int axis);
 void bnode_fprintf(FILE *fout, BazganNode *node);
-double *bnode_get_dominant_bounds(BazganNode *bnode, int ndim);
-double *bnode_get_dominated_bounds(BazganNode *bnode, int ndim);
+double *bnode_get_dominant_bounds(BazganNode *bnode, int ndim, int just_profits);
+double *bnode_get_dominated_bounds(BazganNode *bnode, int ndim, int just_profits);
 BazganNode *bnode_get_upper_bound(BazganNode*, int, int**);
 BazganNode *bnode_get_lower_bound(BazganNode*, int, int*);
 
@@ -42,6 +42,7 @@ typedef struct Bazgan{
     int **best_profit_cost_order;
 
     long long _ncomparison;
+    int just_profits;
 
     AVLTree *avl_lex;
 }Bazgan;
