@@ -41,14 +41,18 @@ BazganNode *bnode_alloc(Bazgan *baz){
     bnode = (BazganNode*)malloc(sizeof(BazganNode));
     bnode->bazgan = baz;
     bnode->profit = (double*)malloc(baz->mokp->np*sizeof(double));
+#if SOL_ARRAY_ENABLED
     bnode->sol = (ulonglong*)malloc(baz->solsize*sizeof(ulonglong));
+#endif
 
     return bnode;
 }
 
 void bnode_free(BazganNode *bnode){
-    free(bnode->profit);
+#if SOL_ARRAY_ENABLED
     free(bnode->sol);
+#endif
+    free(bnode->profit);
     free(bnode);
     
     return;
@@ -64,8 +68,10 @@ BazganNode *bnode_new_empty(Bazgan *baz){
     bnode->idx = -1;
     for( i = 0 ; i < baz->mokp->np ; i++ )
         bnode->profit[i] = 0.0;
+#if SOL_ARRAY_ENABLED
     for( i = 0 ; i < solsize ; i++ )
         bnode->sol[i] = 0ULL;
+#endif
     bnode->b_left = baz->mokp->b;
 
     return bnode;
@@ -83,8 +89,10 @@ BazganNode *bnode_copy(BazganNode *bnode){
     bnode2->idx = bnode->idx;
     for( i = 0 ; i < baz->mokp->np ; i++ )
         bnode2->profit[i] = bnode->profit[i];
+#if SOL_ARRAY_ENABLED
     for( i = 0 ; i < solsize ; i++ )
         bnode2->sol[i] = bnode->sol[i];
+#endif
     bnode2->b_left = bnode->b_left;
 
     return bnode2;
@@ -98,7 +106,9 @@ BazganNode *bnode_insert_item(BazganNode *bnode, int idx){
     for( i = 0 ; i < mokp->np ; i++ )
         bnode->profit[i] += mokp->p[i][idx];
     bnode->b_left -= mokp->w[idx];
+#if SOL_ARRAY_ENABLED
     ulonglongs_bits_set(bnode->sol, idx);
+#endif
 
     return bnode;
 }
@@ -549,7 +559,7 @@ Bazgan *bazgan_new(MOKP *mokp){
     baz->avl_lex = new_avltree((avl_cmp_f)bnode_lex_cmp_inv);
     baz->best_profit_cost_order = get_best_profit_cost_order(mokp);
     baz->_ncomparison = 0;
-    baz->just_profits = 0;
+    baz->just_profits = 1;
 
     return baz;
 }
@@ -742,7 +752,9 @@ Bazgan *_bazgan_iter(Bazgan *bazgan, int idx, int ndim){
 #ifdef DEBUG_LVL
     printf("ITERATING ITEM %d (%d current nodes)\n", idx, bazgan->avl_lex->n);
 #endif
-    printf("ITERATING ITEM %d (%d current nodes)\n", idx, bazgan->avl_lex->n);
+    //printf("\n*** ITERATING ITEM %d (%d current nodes)\n", idx, bazgan->avl_lex->n);
+
+    //avl_apply_to_all(bazgan->avl_lex, (void(*)(void*))bnode_printf);
 
     /*********************************************************************
     * PRE-PROCESSING
@@ -765,8 +777,12 @@ Bazgan *_bazgan_iter(Bazgan *bazgan, int idx, int ndim){
     /* allocing desired structure */
     m_list = NULL;
     m_kdtree = NULL;
-    if( ndim ) m_kdtree = kdtree_new(ndim, (kdtree_eval_f)bnode_profit_val);
-    else m_list = list_new();
+    if( ndim ){
+        if( bazgan->just_profits )
+            m_kdtree = kdtree_new(ndim, (kdtree_eval_f)bnode_profit_val);
+        else
+            m_kdtree = kdtree_new(ndim, (kdtree_eval_f)bnode_axis_val);
+    }else m_list = list_new();
 
     /**********************************************************************
     * DOM 1

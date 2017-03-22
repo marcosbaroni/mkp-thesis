@@ -8,6 +8,10 @@
 
 #include "mokp.h"
 
+#ifndef SOL_ARRAY_ENABLED
+#define SOL_ARRAY_ENABLED 0
+#endif
+
 typedef unsigned long long ulonglong;
 typedef AVLNode* BNodeIter;
 
@@ -16,7 +20,9 @@ typedef struct BazganNode{
 	int idx;	      /* the index of item which was last fixed */
     double *profit;
     double b_left;
+#if SOL_ARRAY_ENABLED
     ulonglong *sol; /* Solution Representation (bits) */
+#endif
 }BazganNode;
 
 BazganNode *bnode_new_empty(struct Bazgan *baz);
