@@ -911,3 +911,72 @@ Bazgan *bazgan_exec(MOKP *mokp, char ordering_type, int kmax, int ndim){
     return bazgan;
 }
 
+Bazgan *bazgan_brute(MOKP *mokp, int k){
+    Bazgan *bazgan;
+    BazganNode *bnode, *bnode2, *new_bnode, *dominant;
+    int i, n;
+
+    List *bnodes, *new_bnodes, *to_free;
+    ListIter *liter, *liter2;
+
+    bazgan = bazgan_new(mokp);
+    n = mokp->n;
+    
+    /* checking input */
+    if( k > n || k < 1 )
+        k = n;
+
+    /* Initializing */
+    bnode = bnode_new_empty(bazgan);
+    bnodes = list_new();
+    list_insert(bnodes, bnode);
+
+    /* For each item */
+    for( i = 0 ; i < k ; i++ ){
+        new_bnodes = list_new();
+
+        /* Generating */
+        liter = list_get_first(bnodes);
+        while( bnode = listiter_forward(liter) ){
+            list_insert(new_bnodes, bnode);
+            new_bnode = bnode_copy(bnode);
+            bnode_insert_item(new_bnode, i);
+            list_insert(new_bnodes, new_bnode);
+        }
+        listiter_free(liter);
+        list_free(bnodes);
+
+        /* Filtering */
+        to_free = list_new();
+        bnodes = list_new();
+        liter = list_get_first(new_bnodes);
+        while( bnode = listiter_forward(liter) ){
+            dominant = NULL;
+            /* Looking for a dominant */
+            liter2 = list_get_first(new_bnodes);
+            while( (bnode2 = listiter_forward(liter2)) && !dominant )
+                if( bnode_dominates(bnode2, bnode) )
+                    dominant = bnode2;
+            if( !dominant && bnode->b_left >= 0.0 )
+                list_insert(bnodes, bnode);
+            else
+                list_insert(to_free, bnode);
+            listiter_free(liter2);
+        }
+        /* Freeing */
+        listiter_free(liter);
+        list_free(new_bnodes);
+        list_apply(to_free, (void(*)(void*))bnode_free);
+        list_free(to_free);
+    }
+
+    /* Outputing */
+    liter = list_get_first(bnodes);
+    while( bnode = listiter_forward(liter) )
+        avl_insert(bazgan->avl_lex, bnode);
+    listiter_free(liter);
+    list_free(bnodes);
+
+    return bazgan;
+}
+
