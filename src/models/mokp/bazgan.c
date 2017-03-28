@@ -911,6 +911,41 @@ Bazgan *bazgan_exec(MOKP *mokp, char ordering_type, int kmax, int ndim){
     return bazgan;
 }
 
+List *bnodes_list_filter(List *bnodes, int just_profits){
+    List *to_free, *new_bnodes;
+    ListIter *liter, *liter2;
+    BazganNode *bnode, *bnode2, *dominant;
+    int(*comp_f)(BazganNode*, BazganNode*);
+
+    comp_f = bnode_dominates;
+    if( just_profits )
+        comp_f = bnode_profit_dominates;
+
+    to_free = list_new();
+    new_bnodes = list_new();
+    liter = list_get_first(bnodes);
+    while( bnode = listiter_forward(liter) ){
+        dominant = NULL;
+        /* Looking for a dominant */
+        liter2 = list_get_first(bnodes);
+        while( (bnode2 = listiter_forward(liter2)) && !dominant )
+            if( comp_f(bnode2, bnode) )
+                dominant = bnode2;
+        if( !dominant && bnode->b_left >= 0.0 )
+            list_insert(new_bnodes, bnode);
+        else
+            list_insert(to_free, bnode);
+        listiter_free(liter2);
+    }
+    /* Freeing */
+    listiter_free(liter);
+    list_free(bnodes);
+    list_apply(to_free, (void(*)(void*))bnode_free);
+    list_free(to_free);
+
+    return new_bnodes;
+}
+
 Bazgan *bazgan_brute(MOKP *mokp, int k){
     Bazgan *bazgan;
     BazganNode *bnode, *bnode2, *new_bnode, *dominant;
@@ -947,28 +982,11 @@ Bazgan *bazgan_brute(MOKP *mokp, int k){
         list_free(bnodes);
 
         /* Filtering */
-        to_free = list_new();
-        bnodes = list_new();
-        liter = list_get_first(new_bnodes);
-        while( bnode = listiter_forward(liter) ){
-            dominant = NULL;
-            /* Looking for a dominant */
-            liter2 = list_get_first(new_bnodes);
-            while( (bnode2 = listiter_forward(liter2)) && !dominant )
-                if( bnode_dominates(bnode2, bnode) )
-                    dominant = bnode2;
-            if( !dominant && bnode->b_left >= 0.0 )
-                list_insert(bnodes, bnode);
-            else
-                list_insert(to_free, bnode);
-            listiter_free(liter2);
-        }
-        /* Freeing */
-        listiter_free(liter);
-        list_free(new_bnodes);
-        list_apply(to_free, (void(*)(void*))bnode_free);
-        list_free(to_free);
+        bnodes = bnodes_list_filter(new_bnodes, 0);
     }
+
+    /* Last filtering */
+    bnodes = bnodes_list_filter(bnodes, 1);
 
     /* Outputing */
     liter = list_get_first(bnodes);

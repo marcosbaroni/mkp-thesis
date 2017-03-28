@@ -176,14 +176,8 @@ int execute_rand(int argc, char **argv){
 
 void print_usage_dynprog(int argc, char **argv){
     printf("Solve Multiobjective Knapsack Problem using Dynamic Programming.\n\n");
-    printf("  usage: %s %s <ndim> [input file] [n iterations] [order option]\n", argv[0], DYNPROG_OPT);
-    printf("    ndim: number of dimensions indexed by kdtree (0 will not use it)\n");
+    printf("  usage: %s %s [input file] [n iterations]\n", argv[0], DYNPROG_OPT);
     printf("    input file: - to read from stdin\n");
-    printf("    order options:\n");
-    printf("      0: given item order is used (default)\n");
-    printf("      M: ordering according to max item rank\n");
-    printf("      m: ordering according to min item rank\n");
-    printf("      s: ordering according to total sum of item rank\n");
     printf("\n  Output:\n");
     printf("    <n nodes>;<n comparison>;<time (s)>\n\n");
 }
@@ -194,9 +188,8 @@ void print_usage_dynprog(int argc, char **argv){
 *******************************************************************************/
 int execute_dynprog(int argc, char **argv){
     FILE *input;
+    Bazgan *bazgan;
     MOKP *mokp;
-    int ndim, use_kdtree, *idxs;
-    char order_opt;
 	clock_t c0, cf;
     int k, i, n, n_nodes;
     long long n_comps;
@@ -212,15 +205,11 @@ int execute_dynprog(int argc, char **argv){
     /**********************************************************
     *    READING INPUTS
     **********************************************************/
-    /* Número de dimensões utilizadas na KD-tree. */
-    ndim = atoll(argv[2]);
-    /* ordenação default */
-    order_opt = '0';
     /* Opening input file */
     input = stdin;
-    if( argc > 3 ){
-        if(strcmp(argv[3], "-") != 0 )
-            input = fopen(argv[3], "r");
+    if( argc > 2 ){
+        if( strcmp(argv[2], "-") )
+            input = fopen(argv[2], "r");
         if(!input){
             fprintf(stderr, "could not open file %s.\n", argv[3]);
             return 1;
@@ -232,59 +221,31 @@ int execute_dynprog(int argc, char **argv){
     fclose(input);
     n = mokp->n;
 
-    /* Checking indexed dimensions consistency */
-    if( ndim > mokp->np + 1 ){
-        fprintf(stderr, "Number od indexing dimensions exceeds problems dimensions. ndim = %d will be used.\n", mokp->np+1);
-        ndim = mokp->np + 1;
-    }
-
     /* Checking k (n. of iterations) consistency */
     k = n;
-    if( argc > 4 ){
-        k = atoll(argv[4]);
+    if( argc > 3 ){
+        k = atoll(argv[3]);
         if( k < 2 || k > n){
             k = n;
             fprintf(stderr, "invalid number of iterations. %d will be used.\n", k);
         }
     }
 
-    /* opção de ordenação de itens */
-    if( argc > 5 ){
-        if( strlen(argv[5]) > 1 ){
-            fprintf(stderr, "invalid argument \"%s\" as ordering option. \"%c\" (default) will be used.", order_opt);
-        }else{
-            order_opt = argv[5][0];
-            switch( order_opt ){
-                case 'm':
-                case 'M':
-                case 's':
-                break;
-                default:
-                order_opt = 's';
-                fprintf(stderr, "invalid argument \"%s\" as ordering option. \"%c\" (default) will be used.", argv[5][0], order_opt);
-            }
-        }
-    }
-
-    /**********************************************************
-    *    PRE-PROCESSING
-    **********************************************************/
-    // TODO: ordenar indices de inserção segundo proposta do Bazgan
-    idxs = mokp_get_order(mokp, order_opt);
-
     /**********************************************************
     *   EXECUTING ALGORITHM
     **********************************************************/
 	c0 = clock();
-    n_nodes = mokp_dynprog(mokp, ndim, k, idxs, &n_comps);
+    bazgan = bazgan_brute(mokp, k);
     exec_time = (clock()-c0)*1./CLOCKS_PER_SEC;
 
     /* Output result */
-    printf("%d;%lld;%.3f\n", n_nodes, n_comps, exec_time);
+    n_comps = 0;
+    printf("%d;%lld;%.3f\n", bazgan->avl_lex->n, n_comps, exec_time);
 
     /* Freeing variables */
-    free(idxs);
-    mokp_free(mokp);
+    bazgan_fprint_nodes(stdout, bazgan);
+    bazgan_free(bazgan);
+    //mokp_free(mokp);
 
     return 0;
 }
