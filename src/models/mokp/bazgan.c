@@ -198,9 +198,11 @@ int bnode_profit_dominates(BazganNode *b1, BazganNode *b2){
     has_higher = 0;
     b1->bazgan->_ncomparison++;
     for( i = 0 ; i < np ; i++ ){
-        if( b1->profit[i] < b2->profit[i] )
+        //if( b1->profit[i] < b2->profit[i] )
+        if( b1->profit[i] - b2->profit[i] < 0.000001 )
             return 0;
-        else if( b1->profit[i] > b2->profit[i] )
+        //else if( b1->profit[i] > b2->profit[i] )
+        else if( b1->profit[i] - b2->profit[i] > 0.000001 )
             has_higher = 1;
     }
 
@@ -211,7 +213,9 @@ int bnode_profit_dominates(BazganNode *b1, BazganNode *b2){
 void bnode_fprintf(FILE *fout, BazganNode *node){
     double_array_fprint(fout, node->profit, node->bazgan->mokp->np);
     fprintf(fout, " (%lf) ", node->b_left);
-    //ulonglongs_bits_fprintf(fout, node->sol, node->bazgan->mokp->n);
+#if SOL_ARRAY_ENABLED
+    ulonglongs_bits_fprintf(fout, node->sol, node->bazgan->mokp->n);
+#endif
     fprintf(fout, " [%x] ", node);
     fprintf(fout, "\n");
 
@@ -284,18 +288,21 @@ double *bnode_get_dominated_bounds(
 
 BazganNode *bnode_kdtree_find_dominator(
     BazganNode *bnode,
-    KDTree *kdtree
+    KDTree *kdtree,
+    int just_profits
 ){
     int ndim;
     double *bounds;
     BazganNode *dominator;
     property_f_r dom_func;
 
-    bounds = bnode_get_dominant_bounds(bnode, kdtree->ndim, bnode->bazgan->just_profits);
-    if( bnode->bazgan->just_profits )
-        dom_func = (property_f_r)bnode_dominates;
-    else
+    bounds = bnode_get_dominant_bounds(bnode, kdtree->ndim, just_profits);
+    printf("     bounds: ");
+    double_array_fprint(stdout, bounds, kdtree->ndim*2);
+    if( just_profits )
         dom_func = (property_f_r)bnode_profit_dominates;
+    else
+        dom_func = (property_f_r)bnode_dominates;
 
     dominator = kdtree_range_search_r(
         kdtree,
@@ -310,13 +317,14 @@ BazganNode *bnode_kdtree_find_dominator(
 
 BazganNode *bnode_list_find_dominator(
     BazganNode *bnode,
-    List *list
+    List *list,
+    int just_profits
 ){
     BazganNode *dominator, *candidate;
     ListIter *liter;
     int(*dom_checker)(BazganNode*, BazganNode*);
 
-    if( bnode->bazgan->just_profits )
+    if( just_profits )
         dom_checker = bnode_profit_dominates;
     else
         dom_checker = bnode_dominates;
@@ -371,12 +379,17 @@ BazganNode *bnode_get_upper_bound(
 
     /* greedy per-dimension packing */
     np = mokp->np;
+    printf("  finding upper for:");
+    bnode_printf(bnode);
     for( j = 0 ; j < np ; j++ ){
+        printf("    for dim %d\n", j);
         b_left = _bnode->b_left;
         for( i = 0 ; i < (n-fst_idx) && b_left > .0; i++ ){
             idx = idxs[j][i];
             portion = fmin(1., b_left/w[idx]);
             _bnode->profit[j] += portion*p[j][idx];
+            printf("       insering %.2lf of %d (+%.2lf = %.2lf)\n",
+                portion, idx, portion*p[j][idx], _bnode->profit[j]);
             b_left -= portion*w[idx];
         }
     }
@@ -428,22 +441,30 @@ void bazgan_ub_filter(
     nodes_iter = avl_get_first(avl_nodes);
     /* Initilaizing lowerbound pool structure */
     if( ndim ){
-        if( bazgan->just_profits )
+        //if( bazgan->just_profits )
             lower_bounds_kdtree = kdtree_new(ndim, (kdtree_eval_f)bnode_profit_val);
-        else
-            lower_bounds_kdtree = kdtree_new(ndim, (kdtree_eval_f)bnode_axis_val);
+        //else
+        //    lower_bounds_kdtree = kdtree_new(ndim, (kdtree_eval_f)bnode_axis_val);
     }else lower_bounds_list = list_new();
 
     /***************************************************************************
     * Computing lower-bound pool
     ***************************************************************************/
+    printf("  LOWER BOUNDS\n");
     while( bnode = avliter_forward(nodes_iter) ){
         lower = bnode_get_lower_bound(bnode, fst_idx, greedy_idxs);
+        printf("    lower for: ");
+        bnode_printf(bnode);
+        printf("               ");
+        bnode_printf(lower);
         if( ndim )
             kdtree_insert(lower_bounds_kdtree, lower);
         else list_insert(lower_bounds_list, lower);
     }
     free(greedy_idxs);
+    printf("   LOWER BOUND POOL:\n");
+    if( lower_bounds_kdtree )
+        kdtree_apply_to_all(lower_bounds_kdtree, (void(*)(void*))bnode_printf);
 
     /***************************************************************************
      * Building sorted index array of available items 
@@ -470,14 +491,22 @@ void bazgan_ub_filter(
         upper = bnode_get_upper_bound(bnode, fst_idx, upper_idxs);
         /* check if exist a LB dominating the UB */
         if( ndim )
-            dominator = bnode_kdtree_find_dominator(upper, lower_bounds_kdtree);
-        else dominator = bnode_list_find_dominator(upper, lower_bounds_list);
+            dominator = bnode_kdtree_find_dominator(upper, lower_bounds_kdtree, 1);
+        else dominator = bnode_list_find_dominator(upper, lower_bounds_list, 1);
 
+        printf("  testing: ");
+        bnode_printf(bnode);
+        printf("    upper: ");
+        bnode_printf(upper);
         /* if a dominator exists (node is not promising) */
-        if( dominator )
+        if( dominator ){
+            printf("    dominator: ");
+            bnode_printf(dominator);
             list_insert(non_promissings, bnode);
-        else
+        }else{
+            printf("  no dominant found\n");
             dominance_failed = 1;
+        }
         avliter_forward(nodes_iter);
         bnode_free(upper);
     }
@@ -821,6 +850,7 @@ Bazgan *_bazgan_iter(Bazgan *bazgan, int idx, int ndim){
     /***   BAZGAN UPDATE   ***/
     old_avl_lex = bazgan->avl_lex;
     bazgan->avl_lex = new_avl_lex;
+    avl_apply_to_all(bazgan->avl_lex, (void(*)(void*))bnode_printf);
 
     /**********************************************************************
     * DOM 3
@@ -957,7 +987,7 @@ Bazgan *bazgan_brute(MOKP *mokp, int k){
     bazgan = bazgan_new(mokp);
     n = mokp->n;
     
-    /* checking input */
+    /* Checking input */
     if( k > n || k < 1 )
         k = n;
 
@@ -983,6 +1013,7 @@ Bazgan *bazgan_brute(MOKP *mokp, int k){
 
         /* Filtering */
         bnodes = bnodes_list_filter(new_bnodes, 0);
+        printf(" %d: %d nodes\n", i, bnodes->n);
     }
 
     /* Last filtering */
