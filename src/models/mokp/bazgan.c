@@ -415,7 +415,8 @@ void _avl_remove2(void *bnode, void *avl){
 void bazgan_ub_filter(
     Bazgan *bazgan,
     int fst_idx,
-    int ndim        /* 0 for list */
+    int ndim,        /* 0 for list */
+    int run_exactly
 ){
     KDTree *lower_bounds_kdtree;
     List *non_promissings, *lower_bounds_list;
@@ -487,7 +488,7 @@ void bazgan_ub_filter(
     nodes_iter = avl_get_first(avl_nodes);
     dominance_failed = 0;
     //while( (bnode = avliter_get(nodes_iter)) ){
-    while( (bnode = avliter_get(nodes_iter)) && !dominance_failed ){ /* heuristic */
+    while( bnode = avliter_get(nodes_iter) ){ /* heuristic */
         upper = bnode_get_upper_bound(bnode, fst_idx, upper_idxs);
         /* check if exist a LB dominating the UB */
         if( ndim )
@@ -498,6 +499,7 @@ void bazgan_ub_filter(
         bnode_printf(bnode);
         printf("    upper: ");
         bnode_printf(upper);
+        bnode_free(upper);
         /* if a dominator exists (node is not promising) */
         if( dominator ){
             printf("    dominator: ");
@@ -506,9 +508,10 @@ void bazgan_ub_filter(
         }else{
             printf("  no dominant found\n");
             dominance_failed = 1;
+            if( !run_exactly )
+                break;
         }
         avliter_forward(nodes_iter);
-        bnode_free(upper);
     }
     
     /*** FREEING ***/
@@ -857,8 +860,7 @@ Bazgan *_bazgan_iter(Bazgan *bazgan, int idx, int ndim){
     * Filtering not-promising nodes
     **********************************************************************/
     printf("NODES AFTER GENERATION: %d\n", bazgan->avl_lex->n);
-    if( idx < n-1 )
-        bazgan_ub_filter(bazgan, idx+1, ndim);
+    bazgan_ub_filter(bazgan, idx+1, ndim, (idx == n-1) );
     printf("NODES AFTER FILTER: %d\n", bazgan->avl_lex->n);
 
     /**********************************************************************
@@ -932,7 +934,8 @@ Bazgan *bazgan_exec(MOKP *mokp, char ordering_type, int kmax, int ndim){
     }
     bazgan_pong(bazgan);
     //bazgan_fprint_nodes(stdout, bazgan);
-    //avl_apply_to_all(bazgan->avl_lex, (void(*)(void*))bnode_printf);
+    printf("SOLUTIONS:\n");
+    avl_apply_to_all(bazgan->avl_lex, (void(*)(void*))bnode_printf);
 
     /* Freeing structures */
     //mokp_free(reord_mokp);
