@@ -18,7 +18,7 @@ typedef AVLNode* BNodeIter;
 typedef struct BazganNode{
     struct Bazgan *bazgan;
 	int idx;	      /* the index of item which was last fixed */
-    double *profit;
+    double profit[6];
     double b_left;
 #if SOL_ARRAY_ENABLED
     ulonglong *sol; /* Solution Representation (bits) */

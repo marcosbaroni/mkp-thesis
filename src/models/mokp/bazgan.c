@@ -40,7 +40,7 @@ BazganNode *bnode_alloc(Bazgan *baz){
 
     bnode = (BazganNode*)malloc(sizeof(BazganNode));
     bnode->bazgan = baz;
-    bnode->profit = (double*)malloc(baz->mokp->np*sizeof(double));
+    //bnode->profit = (double*)malloc(baz->mokp->np*sizeof(double));
 #if SOL_ARRAY_ENABLED
     bnode->sol = (ulonglong*)malloc(baz->solsize*sizeof(ulonglong));
 #endif
@@ -52,7 +52,7 @@ void bnode_free(BazganNode *bnode){
 #if SOL_ARRAY_ENABLED
     free(bnode->sol);
 #endif
-    free(bnode->profit);
+    //free(bnode->profit);
     free(bnode);
     
     return;

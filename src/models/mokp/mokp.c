@@ -9,7 +9,7 @@
 #include "../../utils/kdtree.h"
 
 #include "../mkp/mkp.h"
-#include "mokp.h"
+//#include "mokp.h"
 #include "order.h"
 
 MOKP *mokp_alloc(int n, int np){
@@ -169,6 +169,7 @@ MOKP *mokp_random(int n, int np, int option){
 }
 
 /*  Converts a MKP instace into a MOKP instance */
+/*
 MOKP *mokp_from_mkp(MKP *mkp){
     MOKP *mokp;
     int i, j, n, m, np;
@@ -191,6 +192,7 @@ MOKP *mokp_from_mkp(MKP *mkp){
 
     return mokp;
 }
+*/
 
 MOKP *mokp_reorder(MOKP *mokp, int *new_idx_order){
     MOKP *new_mokp;

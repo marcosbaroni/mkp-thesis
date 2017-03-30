@@ -5,7 +5,7 @@
 #include <time.h>
 
 #include "../utils/util.h"
-#include "../models/mkp/mkp.h"
+//#include "../models/mkp/mkp.h"
 #include "../models/mokp/mokp.h"
 #include "../models/mokp/order.h"
 #include "../models/mokp/bazgan.h"
@@ -86,7 +86,7 @@ void print_usage_mkp2(int argc, char **argv){
 *******************************************************************************/
 int execute_mkp2(int argc, char **argv){
     FILE *input, *output;
-    MKP *mkp;
+    //MKP *mkp;
     MOKP *mokp;
 
     input = stdin;
@@ -108,11 +108,11 @@ int execute_mkp2(int argc, char **argv){
         }
     }
 
-    mkp = mkp_read_from_file(input);
-    mokp = mokp_from_mkp(mkp);
-    mokp_write(output, mokp);
+    //mkp = mkp_read_from_file(input);
+    //mokp = mokp_from_mkp(mkp);
+    //mokp_write(output, mokp);
 
-    mkp_free(mkp);
+    //mkp_free(mkp);
     mokp_free(mokp);
 
     return 0;
