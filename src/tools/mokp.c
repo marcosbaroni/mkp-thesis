@@ -62,10 +62,11 @@ int execute_bazgan(int argc, char **argv){
     //bazgan_exec_simple(mokp, kmax);
 
     /* Outputing */
-    printf("%d;%lld;%.3lf\n",
+    printf("%d;%lld;%.3lf;%d\n",
         bazgan->avl_lex->n,
         bazgan->_ncomparison,
-        bazgan_get_seconds(bazgan));
+        bazgan_get_seconds(bazgan),
+        bazgan->max_nd);
 
     /* Free */
     bazgan_free(bazgan);
@@ -240,7 +241,8 @@ int execute_dynprog(int argc, char **argv){
 
     /* Output result */
     n_comps = 0;
-    printf("%d;%lld;%.3f\n", bazgan->avl_lex->n, n_comps, exec_time);
+    printf("%d;%lld;%.3f;%d\n",
+        bazgan->avl_lex->n, n_comps, exec_time, bazgan->max_nd);
 
     /* Freeing variables */
     bazgan_fprint_nodes(stdout, bazgan);

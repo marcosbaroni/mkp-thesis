@@ -9,7 +9,7 @@
 #include "mokp.h"
 
 #ifndef SOL_ARRAY_ENABLED
-#define SOL_ARRAY_ENABLED 1
+#define SOL_ARRAY_ENABLED 0
 #endif
 
 typedef unsigned long long ulonglong;
@@ -46,6 +46,7 @@ typedef struct Bazgan{
     int solsize;
     clock_t ping, pong;
     int **best_profit_cost_order;
+    int max_nd;
 
     long long _ncomparison;
     int just_profits;
