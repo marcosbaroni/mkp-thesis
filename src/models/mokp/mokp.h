@@ -4,6 +4,9 @@
 #include "../../utils/util.h"
 
 typedef int mokpnum;
+int mokpnum_fscanf(FILE *in, mokpnum *a);
+void mokpnum_fprintf(FILE *out, mokpnum x);
+void mokpnum_array_write(FILE *out, mokpnum *array, int n);
 
 /*  Multi-objective Knaspack Problem Instance */
 typedef struct MOKP{

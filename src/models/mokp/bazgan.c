@@ -67,7 +67,7 @@ BazganNode *bnode_new_empty(Bazgan *baz){
     bnode = bnode_alloc(baz);
     bnode->idx = -1;
     for( i = 0 ; i < baz->mokp->np ; i++ )
-        bnode->profit[i] = 0.0;
+        bnode->profit[i] = 0;
 #if SOL_ARRAY_ENABLED
     for( i = 0 ; i < solsize ; i++ )
         bnode->sol[i] = 0ULL;
@@ -211,8 +211,11 @@ int bnode_profit_dominates(BazganNode *b1, BazganNode *b2){
 /******************************************************************************/
 
 void bnode_fprintf(FILE *fout, BazganNode *node){
-    double_array_fprint(fout, node->profit, node->bazgan->mokp->np);
-    fprintf(fout, " (%lf) ", node->b_left);
+    fprintf(fout, "[");
+    mokpnum_array_write(fout, node->profit, node->bazgan->mokp->np);
+    fprintf(fout, "] (");
+    mokpnum_fprintf(fout, node->b_left);
+    fprintf(fout, ") ");
 #if SOL_ARRAY_ENABLED
     ulonglongs_bits_fprintf(fout, node->sol, node->bazgan->mokp->n);
 #endif
@@ -243,14 +246,14 @@ double *bnode_get_dominant_bounds(
     np = bnode->bazgan->mokp->np;
     if( just_profits ){
         for( i = 0 ; i < ndim ; i++ ){
-            bounds[i*2] = bnode->profit[i];
+            bounds[i*2] = (double)bnode->profit[i];
             bounds[i*2+1] = INFINITY;
         }
     }else{
         bounds[0] = bnode->b_left;
         bounds[1] = INFINITY;
         for( i = 1 ; i < ndim ; i++ ){
-            bounds[i*2] = bnode->profit[i-1];
+            bounds[i*2] = (double)bnode->profit[i-1];
             bounds[i*2+1] = INFINITY;
         }
     }
@@ -272,14 +275,14 @@ double *bnode_get_dominated_bounds(
     if( just_profits ){
         for( i = 0 ; i < ndim ; i++ ){
             bounds[i*2] = 0;
-            bounds[i*2+1] = bnode->profit[i];
+            bounds[i*2+1] = (double)bnode->profit[i];
         }
     }else{
         bounds[0] = 0;
         bounds[1] = bnode->b_left;
         for( i = 1 ; i < ndim ; i++ ){
             bounds[i*2] = 0;
-            bounds[i*2+1] = bnode->profit[i-1];
+            bounds[i*2+1] = (double)bnode->profit[i-1];
         }
     }
 
@@ -547,7 +550,7 @@ int **get_best_profit_cost_order(MOKP *mokp){
 
     for( i = 0 ; i < np ; i++ ){
         for( j = 0 ; j < n ; j++ )
-            pcost[j] = mokp->p[i][j]/mokp->w[j];
+            pcost[j] = (double)mokp->p[i][j]/(double)mokp->w[j];
         order[i] = double_index_sort(pcost, n);
     }
 

@@ -27,7 +27,6 @@ void mokpnum_array_write(FILE *out, mokpnum *array, int n){
     int i;
     for( i = 0 ; i < n ; i++ )
         mokpnum_fprintf(out, array[i]);
-    fprintf(out, "\n");
 }
 
 
@@ -257,8 +256,10 @@ void mokp_write(FILE *out, MOKP *mokp){
     /* size of instance */
     fprintf(out, "%d %d\n", mokp->n, mokp->np);
     /* writing profits of items */
-    for( j = 0 ; j < np ; j++ )
+    for( j = 0 ; j < np ; j++ ){
         mokpnum_array_write(out, mokp->p[j], n);
+        fprintf(out, "\n");
+    }
     /* writing weight of items */
     mokpnum_array_write(out, mokp->w, n);
     /* writing capacity */
