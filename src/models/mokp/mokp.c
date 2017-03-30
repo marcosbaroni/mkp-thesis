@@ -12,6 +12,28 @@
 //#include "mokp.h"
 #include "order.h"
 
+/*******************************************************************************
+*       MOKPNUM
+*******************************************************************************/
+int mokpnum_fscanf(FILE *in, mokpnum *a){
+    return fscanf(in, "%d", a);
+}
+
+void mokpnum_fprintf(FILE *out, mokpnum x){
+    fprintf(out, "%d ");
+}
+
+void mokpnum_array_write(FILE *out, mokpnum *array, int n){
+    int i;
+    for( i = 0 ; i < n ; i++ )
+        mokpnum_fprintf(out, array[i]);
+    fprintf(out, "\n");
+}
+
+
+/*******************************************************************************
+*       MOKP
+*******************************************************************************/
 MOKP *mokp_alloc(int n, int np){
     MOKP *mokp;
     int i;
@@ -20,17 +42,17 @@ MOKP *mokp_alloc(int n, int np){
 
     mokp->n = n;
     mokp->np = np;
-    mokp->p = (double**)malloc(np*sizeof(double*));
+    mokp->p = (mokpnum**)malloc(np*sizeof(mokpnum*));
     for( i = 0 ; i < np ; i++ )
-        mokp->p[i] = (double*)malloc(n*sizeof(double));
-    mokp->w = (double*)malloc(n*sizeof(double));
+        mokp->p[i] = (mokpnum*)malloc(n*sizeof(mokpnum));
+    mokp->w = (mokpnum*)malloc(n*sizeof(mokpnum));
 
     return mokp;
 }
 
-double _mokp_drand(double max){ return drand()*max+1; }
-double min(double a, double b){ return a < b ? a : b; }
-double max(double a, double b){ return a > b ? a : b; }
+mokpnum _mokp_drand(mokpnum max){ return lrand(max-1)+1; }
+mokpnum min(mokpnum a, mokpnum b){ return a < b ? a : b; }
+mokpnum max(mokpnum a, mokpnum b){ return a > b ? a : b; }
 
 /*
  *   Type A
@@ -38,16 +60,16 @@ double max(double a, double b){ return a > b ? a : b; }
 MOKP *_mokp_random_uniform(int n, int np){
     MOKP *mokp;
     int i, j;
-    double maxcoef = 1000.0;
-    double b;
+    mokpnum maxcoef = 1000;
+    mokpnum b;
 
     mokp = mokp_alloc(n, np);
 
     mokp->b = 0;
     for( i = 0 ; i < n ; i++ ){
         for( j = 0 ; j < np ; j++ )
-            mokp->p[j][i] = _mokp_drand(1000.);
-        mokp->w[i] = _mokp_drand(1000.);
+            mokp->p[j][i] = _mokp_drand(maxcoef);
+        mokp->w[i] = _mokp_drand(maxcoef);
         mokp->b += mokp->w[i];
     }
     mokp->b = (mokp->b / 2);
@@ -61,17 +83,17 @@ MOKP *_mokp_random_uniform(int n, int np){
 MOKP *_mokp_random_unconflict(int n, int np){
     MOKP *mokp;
     int i, j;
-    double maxcoef = 1000.0;
-    double b;
+    mokpnum maxcoef = 1000;
+    mokpnum b;
 
     mokp = mokp_alloc(n, np);
 
     mokp->b = 0;
     for( i = 0 ; i < n ; i++ ){
-        mokp->p[0][i] = 111 + _mokp_drand(889.);
+        mokp->p[0][i] = 111 + _mokp_drand(889);
         for( j = 1 ; j < np ; j++ )
-            mokp->p[j][i] = mokp->p[0][i] - _mokp_drand(200.) + 100;
-        mokp->w[i] = _mokp_drand(1000.);
+            mokp->p[j][i] = mokp->p[0][i] - _mokp_drand(200) + 100;
+        mokp->w[i] = _mokp_drand(1000);
         mokp->b += mokp->w[i];
     }
     mokp->b = (mokp->b / 2);
@@ -85,8 +107,8 @@ MOKP *_mokp_random_unconflict(int n, int np){
 MOKP *_mokp_random_conflict(int n, int np){
     MOKP *mokp;
     int i, j;
-    double lower, upper;
-    double **p;
+    mokpnum lower, upper;
+    mokpnum **p;
 
     mokp = mokp_alloc(n, np);
     p = mokp->p;
@@ -94,7 +116,7 @@ MOKP *_mokp_random_conflict(int n, int np){
     mokp->b = 0;
     for( i = 0 ; i < n ; i++ ){
         /* first profit */
-        p[0][i] = _mokp_drand(1000.);
+        p[0][i] = _mokp_drand(1000);
 
         /* case m = 2 */
         if( np == 2 ){
@@ -104,17 +126,17 @@ MOKP *_mokp_random_conflict(int n, int np){
         }
         /* case m = 3,4,5,... */
         if( np > 2 ){
-            p[1][i] = _mokp_drand(1001. - p[0][i]);
+            p[1][i] = _mokp_drand(1001 - p[0][i]);
             lower = max( 900 - p[0][i] - p[1][i], 1);
-            upper = min(1100 - p[0][i] - p[1][i], 1001. - p[0][i]);
+            upper = min(1100 - p[0][i] - p[1][i], 1001 - p[0][i]);
             p[2][i] = lower + _mokp_drand((upper - lower));
         }
         /* further profits... */
         for( j = 3 ; j < np ; j++ )
-            mokp->p[j][i] = _mokp_drand(1000.);
+            mokp->p[j][i] = _mokp_drand(1000);
 
         /* wieght */
-        mokp->w[i] = _mokp_drand(1000.);
+        mokp->w[i] = _mokp_drand(1000);
         mokp->b += mokp->w[i];
     }
     mokp->b = mokp->b / 2;
@@ -128,13 +150,13 @@ MOKP *_mokp_random_conflict(int n, int np){
 MOKP *_mokp_random_conflict_correl(int n, int np){
     MOKP *mokp;
     int i, j;
-    double upper, lower;
+    mokpnum upper, lower;
 
     mokp = mokp_alloc(n, np);
 
     mokp-> b = 0;
     for( i = 0 ; i < n ; i++ ){
-            mokp->p[0][i] = _mokp_drand(1000.);
+            mokp->p[0][i] = _mokp_drand(1000);
             /* second profit */
             if( np > 1 ){
                 lower = max( 900 - mokp->p[0][i], 1);
@@ -143,7 +165,7 @@ MOKP *_mokp_random_conflict_correl(int n, int np){
             }
             /* further profits... */
             for( j = 2 ; j < np ; j++ )
-                mokp->p[j][i] = _mokp_drand(1000.);
+                mokp->p[j][i] = _mokp_drand(1000);
 
         /* wieght */
         mokp->w[i] = mokp->p[0][i] + mokp->p[1][i] - 200 + _mokp_drand(400);
@@ -235,14 +257,13 @@ void mokp_write(FILE *out, MOKP *mokp){
     /* size of instance */
     fprintf(out, "%d %d\n", mokp->n, mokp->np);
     /* writing profits of items */
-    for( j = 0 ; j < np ; j++ ){
-        double_array_write(out, mokp->p[j], n);
-        fprintf(out, "\n");
-    }
+    for( j = 0 ; j < np ; j++ )
+        mokpnum_array_write(out, mokp->p[j], n);
     /* writing weight of items */
-    double_array_write(out, mokp->w, n);
+    mokpnum_array_write(out, mokp->w, n);
     /* writing capacity */
-    fprintf(out, "\n%.3lf\n", mokp->b);
+    mokpnum_fprintf(out, mokp->b);
+    fprintf(out, "\n");
 
     return;
 }
@@ -258,9 +279,11 @@ MOKP *mokp_read(FILE *fin){
 
     MOKP *mokp = mokp_alloc(n, np);
     for( i = 0 ; i < np ; i++ )
-        mokp->p[i] = double_array_read(fin, mokp->p[i], n);
-    double_array_read(fin, mokp->w, n);
-    nerr = fscanf(fin, "%lf", &(mokp->b));
+        for( j = 0 ; j < n ; j++ )
+            mokpnum_fscanf(fin, &(mokp->p[i][j]));
+    for( j = 0 ; j < n ; j++ )
+        mokpnum_fscanf(fin, &(mokp->w[j]));
+    mokpnum_fscanf(fin, &(mokp->b));
 
     return mokp;
 }
@@ -313,7 +336,7 @@ MOKPNode *mokpnode_new(MOKPNode *father, int idx){
     node->tree = father->tree;
     node->idx = idx;
     node->tree = father->tree;
-    node->profit = double_array_copy(father->profit, np);
+    node->profit = int_array_copy(NULL, father->profit, np);
     node->b_left = father->b_left;
     node->father = father;
     node->prev = node->next = NULL;
@@ -335,7 +358,7 @@ MOKPNode *mokpnode_new_empty(MOKPTree *tree){
     np = mokp->np;
 
     node = (MOKPNode*)malloc(sizeof(MOKPNode));
-    node->profit = double_array_init(NULL, np, 0);
+    node->profit = int_array_init(NULL, np, 0);
 
     node->tree = tree;
     node->idx = -1;
@@ -350,8 +373,8 @@ void mokpnode_fprintf(FILE *out, MOKPNode *node){
     np = node->tree->mokp->np;
     fprintf(out, "%x: ", node);
     for( i = 0 ; i < np ; i++ )
-        fprintf(out, "%.0lf ", node->profit[i]);
-    fprintf(out, "(%.0lf)", node->b_left);
+        mokpnum_fprintf(out, node->profit[i]);
+    mokpnum_fprintf(out, node->b_left);
 
     return;
 }

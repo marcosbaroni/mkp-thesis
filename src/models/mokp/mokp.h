@@ -2,15 +2,16 @@
 #define MOKP_H 1
 
 #include "../../utils/util.h"
-//#include "../mkp/mkp.h"
+
+typedef int mokpnum;
 
 /*  Multi-objective Knaspack Problem Instance */
 typedef struct MOKP{
     int n;              /* number of itens */
     int np;             /* number of objectives */
-    double **p;         /* the profits [np x n] */
-    double *w;          /* the weight [n] */
-    double b;
+    mokpnum **p;         /* the profits [np x n] */
+    mokpnum *w;          /* the weight [n] */
+    mokpnum b;
 }MOKP;
 
 MOKP *mokp_alloc(int n, int np);
@@ -27,8 +28,8 @@ void mokp_free(MOKP *mokp);
 typedef struct MOKPNode{
     struct MOKPTree *tree;
 	int idx;	      /* the index of item which was fixed */
-    double *profit;   /* [np] */
-    double b_left;
+    mokpnum *profit;   /* [np] */
+    mokpnum b_left;
     struct MOKPNode *father;
     struct MOKPNode *next, *prev;
     /* Algorithm Auxiliar structure */

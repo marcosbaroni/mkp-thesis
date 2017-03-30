@@ -12,10 +12,10 @@
  *******************************************************************/
 int *mokp_get_order(MOKP *mokp, char opt){
     int n, np, i, j, _max, _min;
-    double **p, *w;
+    mokpnum **p, *w;
     double **ratios;
     int **rank;
-    double *sums;
+    int *sums;
     double *metric;
     int **ordering;
     int *idxs;
@@ -26,7 +26,7 @@ int *mokp_get_order(MOKP *mokp, char opt){
     w = mokp->w;
 
     ratios = double_matrix_alloc(np, n);
-    sums = (double*)malloc(n*sizeof(double));
+    sums = (int*)malloc(n*sizeof(int));
     metric = (double*)malloc(n*sizeof(double));
 
     /* computing p/w ratios */

@@ -3,6 +3,7 @@
 #include <math.h>
 #include <string.h>
 #include <time.h>
+#include <sys/time.h>
 
 #include "../utils/util.h"
 //#include "../models/mkp/mkp.h"
@@ -126,6 +127,7 @@ int execute_rand(int argc, char **argv){
     int n, np, classe;
     unsigned int seed;
     MOKP *mokp;
+    struct timeval timeval_seeder;
 
     if( argc < 4 ){
         printf("usage: %s %s <n> <np> [classe] [seed] [outfile] \n", argv[0], RAND_OPT);
@@ -154,8 +156,11 @@ int execute_rand(int argc, char **argv){
     seed = 0;
     if( argc > 5 )
         seed = atoll(argv[5]);
-    if(!seed)
-    seed = time(NULL);
+    if(!seed){
+        gettimeofday(&timeval_seeder, NULL);
+        seed = timeval_seeder.tv_sec*1000;
+        seed += timeval_seeder.tv_usec;
+    }
     srand(seed);
 
     /* setting output file */

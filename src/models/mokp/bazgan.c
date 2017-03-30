@@ -344,7 +344,7 @@ BazganNode *bnode_get_lower_bound(
 ){
     int i, np, n;
     BazganNode *_bnode;
-    double *w;
+    mokpnum *w;
 
     w = bnode->bazgan->mokp->w;
     _bnode = bnode_copy(bnode);
@@ -364,7 +364,7 @@ BazganNode *bnode_get_upper_bound(
     int **idxs              /* available itens (best profit-cost order) [np][<n] */
 ){
     MOKP *mokp;
-    double b_left, *w, **p, portion;
+    mokpnum b_left, *w, **p, portion;
     int n, i, j, np, idx;
     BazganNode *_bnode;
 
