@@ -138,19 +138,26 @@ int bnode_lex_dom(BazganNode *n1, BazganNode *n2){
 
 int bnode_lex_cmp(BazganNode *n1, BazganNode *n2){
     int np, i;
-    double res;
+    mokpnum res;
 
     n1->bazgan->_ncomparison++;
     res = n1->b_left - n2->b_left;
+    np = n1->bazgan->mokp->np;
 
-    if( res > .0 )
+    if( res > 0 )
         return 1;
-    else if( res < .0) 
+    else if( res < 0) 
         return -1;
 
-    for( i = 0 ; i < np ; i++ )
-        if( n1->profit[i] != n2->profit[i] )
-            return( n1->profit[i] > n2->profit[i] );
+    for( i = 0 ; i < np ; i++ ){
+        if( n1->profit[i] != n2->profit[i] ){
+            if( n1->profit[i] > n2->profit[i] ){
+                return 1;
+            }else if( n1->profit[i] < n2->profit[i] ){
+                return -1;
+            }
+        }
+    }
 
     return 0;
 }
@@ -181,28 +188,28 @@ int bnode_is_dominated_by(BazganNode *b1, BazganNode *b2){
 
 double bnode_axis_val(BazganNode *n1, int axis){
     if( !axis )
-        return n1->b_left;
-    return n1->profit[axis-1];
+        return (double)n1->b_left;
+    return (double)n1->profit[axis-1];
 }
 
 
 /***    Profit-only operations    *********************************************/
 double bnode_profit_val(BazganNode *n1, int axis){
-    return n1->profit[axis];
+    return (double)n1->profit[axis];
 }
 
 int bnode_profit_dominates(BazganNode *b1, BazganNode *b2){
     int i, np, has_higher;
-    np = b1->bazgan->mokp->np;
 
     has_higher = 0;
     b1->bazgan->_ncomparison++;
+    np = b1->bazgan->mokp->np;
     for( i = 0 ; i < np ; i++ ){
         //if( b1->profit[i] < b2->profit[i] )
-        if( b1->profit[i] - b2->profit[i] < 0.000001 )
+        if( b1->profit[i] < b2->profit[i] )
             return 0;
         //else if( b1->profit[i] > b2->profit[i] )
-        else if( b1->profit[i] - b2->profit[i] > 0.000001 )
+        else if( b1->profit[i] > b2->profit[i] )
             has_higher = 1;
     }
 
@@ -352,11 +359,9 @@ BazganNode *bnode_get_lower_bound(
     w = bnode->bazgan->mokp->w;
     _bnode = bnode_copy(bnode);
     n = bnode->bazgan->mokp->n;
-    for( i = fst_idx ; i < n ; i++ ){
-        if( _bnode->b_left >= w[idxs[i]] ){
+    for( i = fst_idx ; i < n ; i++ )
+        if( _bnode->b_left >= w[idxs[i]] )
             _bnode = bnode_insert_item(_bnode, idxs[i]);
-        }
-    }
 
     return _bnode;
 }
@@ -430,7 +435,9 @@ void bazgan_ub_filter(
     lower_bounds_list = NULL;
     non_promissings = list_new();
 
-    /* Initialize */
+    /***************************************************************************
+    * Initialize
+    ***************************************************************************/
     greedy_idxs = (int*)malloc(n*sizeof(int));
     for( i = 0 ; i < n ; i++ )
         greedy_idxs[i] = i;
@@ -438,10 +445,7 @@ void bazgan_ub_filter(
     nodes_iter = avl_get_first(avl_nodes);
     /* Initilaizing lowerbound pool structure */
     if( ndim ){
-        //if( bazgan->just_profits )
-            lower_bounds_kdtree = kdtree_new(ndim, (kdtree_eval_f)bnode_profit_val);
-        //else
-        //    lower_bounds_kdtree = kdtree_new(ndim, (kdtree_eval_f)bnode_axis_val);
+        lower_bounds_kdtree = kdtree_new(ndim, (kdtree_eval_f)bnode_profit_val);
     }else lower_bounds_list = list_new();
 
     /***************************************************************************
@@ -456,9 +460,9 @@ void bazgan_ub_filter(
     free(greedy_idxs);
 
     /***************************************************************************
-     * Building sorted index array of available items 
-     * (for upper-bound computation)
-     **************************************************************************/
+    * Building sorted index array of available items 
+    * (for upper-bound computation)
+    ***************************************************************************/
     best_pc_order = bazgan->best_profit_cost_order;
     upper_idxs = (int**)malloc(np*sizeof(int*));
     for( i = 0 ; i < np ; i++ ){
@@ -495,7 +499,9 @@ void bazgan_ub_filter(
         avliter_forward(nodes_iter);
     }
     
-    /*** FREEING ***/
+    /***************************************************************************
+    * Freeing
+    ***************************************************************************/
     for( i = 0 ; i < np ; i++ )
         free(upper_idxs[i]);
     free(upper_idxs);
@@ -586,8 +592,7 @@ void bazgan_free(Bazgan *bazgan){
 
     np = bazgan->mokp->np;
     avl_apply_to_all(bazgan->avl_lex, (void(*)(void*))bnode_free);
-    if(bazgan->avl_lex)
-        avl_free(bazgan->avl_lex);
+    avl_free(bazgan->avl_lex);
     while( np-- )
         free(bazgan->best_profit_cost_order[np]);
     free(bazgan->best_profit_cost_order);
@@ -643,7 +648,7 @@ BazganNode *_mantain_non_dom_list(
     if( !list_is_empty(m_list) ){
         // while( && !dominant ){   /* verificar divergencia... */
         //while( bnode_lex_dom(m_bnode, bnode) && !dominant ){
-        while( bnode_lex_cmp(m_bnode, bnode) > 0. && !dominant ){
+        while( bnode_lex_cmp(m_bnode, bnode) > 0 && !dominant ){
             if( bnode_profit_dominates(m_bnode, bnode) )
                 dominant = m_bnode;
             else 
@@ -747,7 +752,7 @@ BazganNode *_mantain_non_dom(
  * Bazgan2009, p. 14.
  */
 Bazgan *_bazgan_iter(Bazgan *bazgan, int idx, int ndim){
-    double max_b_left_needed, min_b_left_feasible;
+    mokpnum max_b_left_needed, min_b_left_feasible;
     int n, i;
     BazganNode *j_node, *i_node, *child;
     AVLIter *j_iter, *i_iter;
@@ -908,9 +913,9 @@ Bazgan *bazgan_exec(MOKP *mokp, char ordering_type, int kmax, int ndim){
     /* Method iterations... */
     bazgan_ping(bazgan);
     for( i = 0 ; i < kmax ; i++ ){
+        //printf("iter %d/%d (%d)\n", i+1, kmax, bazgan->avl_lex->n);
         //bazgan_fprint_nodes(stdout, bazgan);
         _bazgan_iter(bazgan, i, ndim);
-        //printf("iter %d/%d (%d)\n", i+1, kmax, bazgan->avl_lex->n);
     }
     bazgan_pong(bazgan);
     //bazgan_fprint_nodes(stdout, bazgan);
