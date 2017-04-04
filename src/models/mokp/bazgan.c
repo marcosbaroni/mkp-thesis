@@ -526,7 +526,7 @@ void bazgan_ub_filter(
 }
 
 
-int *get_mokp_new_ordering(MOKP *mokp, char ordering_type){
+int *t_mokp_new_ordering(MOKP *mokp, char ordering_type){
     int *idxs;
     int i, n, np;
 
@@ -596,7 +596,7 @@ void bazgan_free(Bazgan *bazgan){
     while( np-- )
         free(bazgan->best_profit_cost_order[np]);
     free(bazgan->best_profit_cost_order);
-    mokp_free(bazgan->mokp);  /* freeing, assuming its a reordered copy */
+    //mokp_free(bazgan->mokp);  /* freeing, assuming its a reordered copy */
     free(bazgan);
 }
 
@@ -894,20 +894,12 @@ void bazgan_fprint_nodes(FILE *out, Bazgan *bazgan){
     return;
 }
 
-Bazgan *bazgan_exec(MOKP *mokp, char ordering_type, int kmax, int ndim){
+Bazgan *bazgan_exec(MOKP *mokp, int kmax, int ndim){
     Bazgan *bazgan;
-    MOKP *reord_mokp;
     int i;
-    int *idxs;
-
-    /* Reordering MOKP indexes */
-    idxs = get_mokp_new_ordering(mokp, ordering_type);
-    reord_mokp = mokp_reorder(mokp, idxs);
-    free(idxs);
-    //mokp_write(stdout, reord_mokp);
 
     /* Creating bazgan execution instance */
-    bazgan = bazgan_new(reord_mokp);
+    bazgan = bazgan_new(mokp);
     avl_insert(bazgan->avl_lex, bnode_new_empty(bazgan));
 
     /* Method iterations... */

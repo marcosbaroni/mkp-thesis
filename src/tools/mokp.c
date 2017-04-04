@@ -15,6 +15,82 @@
 #define RAND_OPT "rand"
 #define MKP2_OPT "mkp2"
 #define BAZGAN_OPT "bazgan"
+#define BATCH_OPT "batch"
+
+int print_usage_batch(int argc, char **argv){
+    printf("Batch test for the Bazgan MOKP algorithm using KDTree.\n\n");
+    printf("   Uses random instance generation.\n\n");
+    printf("  usage: %s %s <n> <np> [seed] [times=10] [DKdim=3] [print_avg=1]\n", argv[0], BAZGAN_OPT);
+    printf("\n  Output: list of results\n");
+    printf("    <n nodes>;<n comparison>;<time (s)>\n\n");
+
+    return 1;
+}
+
+int execute_batch(int argc, char **argv){
+    int n, np, ndim, i, seed, times, print_avg;
+    int *inds;
+    MOKP *mokp;
+    struct timeval timeval_seeder;
+    Bazgan *bazgan;
+    char ordering_type;
+
+    if( argc < 4 )
+        return print_usage_batch(argc, argv);
+
+    n = atoll(argv[2]);
+    np = atoll(argv[3]);
+
+    /* setting random seed */
+    seed = 0;
+    if( argc > 4 )
+        seed = atoll(argv[4]);
+    if(!seed){
+        gettimeofday(&timeval_seeder, NULL);
+        seed = timeval_seeder.tv_sec*1000;
+        seed += timeval_seeder.tv_usec;
+    }
+    srand(seed);
+
+    /* setting times */
+    times = 10;
+    if( argc > 5 )
+        times =  atoll(argv[5]);
+
+    /* setting kdtree dimension */
+    ndim = 3;
+    if( argc > 6 )
+        ndim = atoll(argv[6]);
+
+    /* setting print avg */
+    print_avg = 1;
+    if( argc > 7 )
+        print_avg = 1 && atoll(argv[7]);
+
+    ordering_type = 'l';
+    for( i = 0 ; i < times ; i++ ){
+        mokp = mokp_random(n, np, 1);
+
+        /* Reordering MOKP indexes */
+        mokp = mokp_reord_by_type(mokp, ordering_type);
+
+        /* Execute */
+        bazgan = bazgan_exec(mokp, , mokp->n, ndim);
+
+        /* Outputing */
+        printf("%d;%lld;%.3lf;%d\n",
+            bazgan->avl_lex->n,
+            bazgan->_ncomparison,
+            bazgan_get_seconds(bazgan),
+            bazgan->max_nd);
+
+        /* Free */
+        bazgan_free(bazgan);
+        mokp_free(mokp);
+    }
+
+    return 0;
+}
 
 int print_usage_bazgan(int argc, char **argv){
     printf("Solve Multiobjective Knapsack Problem using Bazgan 2009 Algorithm.\n\n");
@@ -268,6 +344,7 @@ void print_usage(int argc, char **argv){
     printf("  %s\tGenerate a random MOKP instance\n", RAND_OPT);
     printf("  %s\tSolve a MOKP using simple dynamic programming\n", DYNPROG_OPT);
     printf("  %s\tSolve a MOKP using Bazgan2009 algorithm\n", BAZGAN_OPT);
+    printf("  %s\tBatch test of bazgan MOKP algorithm.\n", BATCH_OPT);
     printf("  %s\tConvert a MKP instance in MOKP instance\n", MKP2_OPT);
 
     return;
@@ -307,6 +384,10 @@ int main(int argc, char **argv){
     /***   Execução do algoritmo de Bazgan   ***/
     if(!strcmp(option, BAZGAN_OPT))
         ret = execute_bazgan(argc, argv);
+
+    /***   Execução Batch do algoritmo Bazgan ***/
+    if(!strcmp(option, BATCH_OPT))
+        ret = execute_batch(argc, argv);
 
     /***************************************************************
     *    IMPRESSÃO DA FORMA DE USO

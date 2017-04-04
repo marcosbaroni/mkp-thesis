@@ -234,6 +234,10 @@ MOKP *mokp_reorder(MOKP *mokp, int *new_idx_order){
     return new_mokp;
 }
 
+MOKP *mokp_reord_by_type(MOKP *mokp, char ordering_type){
+    int ³idxs;
+}
+
 void mokp_free(MOKP *mokp){
     int i, np;
 
