@@ -6,6 +6,7 @@
 typedef int mokpnum;
 int mokpnum_fscanf(FILE *in, mokpnum *a);
 void mokpnum_fprintf(FILE *out, mokpnum x);
+void mokpnum_printf(mokpnum x);
 void mokpnum_array_write(FILE *out, mokpnum *array, int n);
 
 /*  Multi-objective Knaspack Problem Instance */
@@ -24,7 +25,7 @@ void mokp_write(FILE *out, MOKP *mokp);
 MOKP *mokp_read(FILE *fin);
 void mokp_save(char *filename, MOKP *mokp);
 MOKP *mokp_open(char *filename);
-MOKP *mokp_reorder(MOKP *mokp, int *new_idx_order);
+MOKP *mokp_new_reordered(MOKP *mokp, int *new_idx_order);
 MOKP *mokp_reord_by_type(MOKP *mokp, char ordering_type);
 void mokp_free(MOKP *mokp);
 

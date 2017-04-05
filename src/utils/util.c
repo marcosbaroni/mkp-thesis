@@ -152,6 +152,10 @@ void int_array_fprint(FILE *out, int *array, int n){
 	return;
 }
 
+void int_array_print(int *array, int n){
+    return int_array_fprint(stdout, array, n);
+}
+
 void int_array_free(int *array){
 	free(array);
 	return;
@@ -587,6 +591,24 @@ int int_matrix_max(int **mat, int n, int m){
     return max;
 }
 
+int **int_matrix_alloc(int n, int m){
+    int **mat, i, j;
+
+    mat = (int**)malloc(n*sizeof(int*));
+    for( i = 0 ; i < n ; i++ )
+        mat[i] = (int*)malloc(m*sizeof(int));
+
+    return mat;
+}
+
+void int_matrix_free(int **mat, int n){
+    int i;
+
+    for( i = 0 ; i < n ; i++ )
+        free(mat[i]);
+    free(mat);
+}
+
 void int_matrix_fprintf(FILE *out, int **mat, int n, int m){
     int i, j, ndigits;
     char format[20];
@@ -870,6 +892,10 @@ void double_array_fprint(FILE *out, double *a, int n){
 	fprintf(out, "]");
 
 	return;
+}
+
+void double_array_print(double *a, int n){
+    return double_array_fprint(stdout, a, n);
 }
 
 double *double_array_from_scip(double *array, FILE *in){

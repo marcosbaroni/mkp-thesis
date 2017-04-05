@@ -63,6 +63,7 @@ void int_array_write(FILE *out, int *array, int n);
 int *int_array_init(int *array, int n, int x);   /* init int array */
 int *int_array_copy(int *dest, int *src, int n); /* copy a int array */
 void int_array_fprint(FILE *out, int *array, int n);
+void int_array_print(int *array, int n);
 void int_array_free(int *array);
 int int_array_max(int *array, int n);            /* max number on array */
 int *int_array_random(int n, int *array, int bound);
@@ -111,6 +112,8 @@ long long long_long_array_sum(long long *array, int n);
 int *int_matrix_max_cols(int **mat, int n, int m); /* max elems of EACH COLUMN */
 int int_matrix_max(int **mat, int n, int m);     /* max elem from matrix */
 void int_matrix_fprintf(FILE *out, int **mat, int n, int m);
+int **int_matrix_alloc(int n, int m);
+void int_matrix_free(int **mat, int n);
 
 /*******************************************************************************
  ***     LONG MATRIX
@@ -150,6 +153,7 @@ double *double_array_copy(double *array, int n);
 double double_array_sum(double *array, int n);
 double *double_array_init(double *array, int n, double x);
 void double_array_fprint(FILE *out, double *a, int n);
+void double_array_print(double *a, int n);
 double *double_array_from_scip(double *array, FILE *in);    /*reads a double array from scip solution output format */
 double *double_array_read(FILE *fin, double *p, int n);
 void double_array_write(FILE *out, double *p, int n);

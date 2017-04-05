@@ -20,7 +20,10 @@ int mokpnum_fscanf(FILE *in, mokpnum *a){
 }
 
 void mokpnum_fprintf(FILE *out, mokpnum x){
-    fprintf(out, "%d ");
+    fprintf(out, "%d ", x);
+}
+void mokpnum_printf(mokpnum x){
+    return mokpnum_fprintf(stdout, x);
 }
 
 void mokpnum_array_write(FILE *out, mokpnum *array, int n){
@@ -49,7 +52,7 @@ MOKP *mokp_alloc(int n, int np){
     return mokp;
 }
 
-mokpnum _mokp_drand(mokpnum max){ return lrand(max-1)+1; }
+mokpnum mokpnum_rand(mokpnum max){ return (rand() % max) + 1; }
 mokpnum min(mokpnum a, mokpnum b){ return a < b ? a : b; }
 mokpnum max(mokpnum a, mokpnum b){ return a > b ? a : b; }
 
@@ -67,8 +70,8 @@ MOKP *_mokp_random_uniform(int n, int np){
     mokp->b = 0;
     for( i = 0 ; i < n ; i++ ){
         for( j = 0 ; j < np ; j++ )
-            mokp->p[j][i] = _mokp_drand(maxcoef);
-        mokp->w[i] = _mokp_drand(maxcoef);
+            mokp->p[j][i] = mokpnum_rand(maxcoef);
+        mokp->w[i] = mokpnum_rand(maxcoef);
         mokp->b += mokp->w[i];
     }
     mokp->b = (mokp->b / 2);
@@ -89,10 +92,10 @@ MOKP *_mokp_random_unconflict(int n, int np){
 
     mokp->b = 0;
     for( i = 0 ; i < n ; i++ ){
-        mokp->p[0][i] = 111 + _mokp_drand(889);
+        mokp->p[0][i] = 111 + mokpnum_rand(889);
         for( j = 1 ; j < np ; j++ )
-            mokp->p[j][i] = mokp->p[0][i] - _mokp_drand(200) + 100;
-        mokp->w[i] = _mokp_drand(1000);
+            mokp->p[j][i] = mokp->p[0][i] - mokpnum_rand(200) + 100;
+        mokp->w[i] = mokpnum_rand(1000);
         mokp->b += mokp->w[i];
     }
     mokp->b = (mokp->b / 2);
@@ -115,27 +118,27 @@ MOKP *_mokp_random_conflict(int n, int np){
     mokp->b = 0;
     for( i = 0 ; i < n ; i++ ){
         /* first profit */
-        p[0][i] = _mokp_drand(1000);
+        p[0][i] = mokpnum_rand(1000);
 
         /* case m = 2 */
         if( np == 2 ){
             lower = max( 900 - p[0][i],   1);
             upper = min(1100 - p[0][i], 100);
-            p[1][i] = lower + _mokp_drand((upper - lower));
+            p[1][i] = lower + mokpnum_rand((upper - lower));
         }
         /* case m = 3,4,5,... */
         if( np > 2 ){
-            p[1][i] = _mokp_drand(1001 - p[0][i]);
+            p[1][i] = mokpnum_rand(1001 - p[0][i]);
             lower = max( 900 - p[0][i] - p[1][i], 1);
             upper = min(1100 - p[0][i] - p[1][i], 1001 - p[0][i]);
-            p[2][i] = lower + _mokp_drand((upper - lower));
+            p[2][i] = lower + mokpnum_rand((upper - lower));
         }
         /* further profits... */
         for( j = 3 ; j < np ; j++ )
-            mokp->p[j][i] = _mokp_drand(1000);
+            mokp->p[j][i] = mokpnum_rand(1000);
 
         /* wieght */
-        mokp->w[i] = _mokp_drand(1000);
+        mokp->w[i] = mokpnum_rand(1000);
         mokp->b += mokp->w[i];
     }
     mokp->b = mokp->b / 2;
@@ -155,19 +158,19 @@ MOKP *_mokp_random_conflict_correl(int n, int np){
 
     mokp-> b = 0;
     for( i = 0 ; i < n ; i++ ){
-            mokp->p[0][i] = _mokp_drand(1000);
+            mokp->p[0][i] = mokpnum_rand(1000);
             /* second profit */
             if( np > 1 ){
                 lower = max( 900 - mokp->p[0][i], 1);
                 upper = min(1100 - mokp->p[0][i], 1000);
-                mokp->p[1][i] = lower + _mokp_drand(upper - lower);
+                mokp->p[1][i] = lower + mokpnum_rand(upper - lower);
             }
             /* further profits... */
             for( j = 2 ; j < np ; j++ )
-                mokp->p[j][i] = _mokp_drand(1000);
+                mokp->p[j][i] = mokpnum_rand(1000);
 
         /* wieght */
-        mokp->w[i] = mokp->p[0][i] + mokp->p[1][i] - 200 + _mokp_drand(400);
+        mokp->w[i] = mokp->p[0][i] + mokp->p[1][i] - 200 + mokpnum_rand(400);
         mokp->b += mokp->w[i];
     }
     mokp->b = mokp->b / 2;
@@ -215,7 +218,76 @@ MOKP *mokp_from_mkp(MKP *mkp){
 }
 */
 
-MOKP *mokp_reorder(MOKP *mokp, int *new_idx_order){
+int *mokp_get_item_order(MOKP *mokp, char ordering_type){
+    int **ranks, *sort, *idxs, n, np, i, j;
+    mokpnum *w, **p;
+    double *ratios, *measure, *sum;
+
+    n = mokp->n;
+    np = mokp->np;
+    w = mokp->w;
+    p = mokp->p;
+
+    ranks = int_matrix_alloc(np, n);
+    ratios = (double*)malloc(n*sizeof(double));
+    sum = double_array_init(NULL, n, 0.0);
+
+    for( i = 0 ; i < np ; i++ ){
+        for( j = 0 ; j < n ; j++ )
+            ratios[j] = p[i][j]/(double)w[j];
+        sort = double_index_sort(ratios, n);
+        for( j = 0 ; j < n ; j++ )
+            ranks[i][sort[j]] = j;
+        free(sort);
+    }
+
+    measure = (double*)malloc(n*sizeof(double));
+    for( i = 0 ; i < np ; i++ )
+        for( j = 0 ; j < n ; j++ )
+            sum[j] += ranks[i][j];
+
+    switch( ordering_type ){
+        /***   MIN   ***/
+        case 'm':
+            for( i = 0 ; i < n ; i++ ){
+                measure[i] = ranks[0][i];
+                for( j = 0 ; j < np ; j++ )
+                    if( ranks[j][i] < measure[i] )
+                        measure[i] = ranks[j][i];
+                measure[i] += sum[i]/(double)(np*n);
+            }
+            break;
+
+        /***   MAX   ***/
+        case 'M':
+            for( i = 0 ; i < n ; i++ ){
+                measure[i] = ranks[0][i];
+                for( j = 0 ; j < np ; j++ )
+                    if( ranks[j][i] > measure[i] )
+                        measure[i] = ranks[j][i];
+                measure[i] += sum[i]/(double)(np*n);
+            }
+            break;
+
+        /***   SUM   ***/
+        case 's':
+            for( i = 0 ; i < n ; i++ )
+                measure[i] = sum[i];
+            break;
+    }
+
+    idxs = double_index_sort(measure, n);
+    idxs = int_array_reverse(idxs, n);
+
+    free(ratios);
+    free(measure);
+    free(sum);
+    int_matrix_free(ranks, np);
+
+    return idxs;
+}
+
+MOKP *mokp_new_reordered(MOKP *mokp, int *new_idx_order){
     MOKP *new_mokp;
     int i, j, idx, n, np;
 
@@ -235,7 +307,15 @@ MOKP *mokp_reorder(MOKP *mokp, int *new_idx_order){
 }
 
 MOKP *mokp_reord_by_type(MOKP *mokp, char ordering_type){
-    int ³idxs;
+    int *idxs;
+    MOKP *mokp2;
+
+    idxs = mokp_get_item_order(mokp, ordering_type);
+    mokp2 = mokp_new_reordered(mokp, idxs);
+
+    free(idxs);
+    
+    return mokp2;
 }
 
 void mokp_free(MOKP *mokp){

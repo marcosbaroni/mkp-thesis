@@ -62,7 +62,7 @@ double bazgan_get_seconds(Bazgan *bazgan);
 void bazgan_fprint_nodes(FILE *out, Bazgan *bazgan);
 
 List *bazgan_exec_simple(MOKP *mokp, int k);
-Bazgan *bazgan_exec(MOKP *mokp, char ordering_type, int kmax, int ndim);
+Bazgan *bazgan_exec(MOKP *mokp, int kmax, int ndim);
 Bazgan *bazgan_brute(MOKP *mokp, int k);
 
 #endif

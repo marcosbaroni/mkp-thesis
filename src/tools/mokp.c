@@ -20,7 +20,7 @@
 int print_usage_batch(int argc, char **argv){
     printf("Batch test for the Bazgan MOKP algorithm using KDTree.\n\n");
     printf("   Uses random instance generation.\n\n");
-    printf("  usage: %s %s <n> <np> [seed] [times=10] [DKdim=3] [print_avg=1]\n", argv[0], BAZGAN_OPT);
+    printf("  usage: %s %s <n> <np> [seed] [times=10] [DKdim=3] [print_summary=0] [ordering=0]\n", argv[0], BAZGAN_OPT);
     printf("\n  Output: list of results\n");
     printf("    <n nodes>;<n comparison>;<time (s)>\n\n");
 
@@ -28,7 +28,7 @@ int print_usage_batch(int argc, char **argv){
 }
 
 int execute_batch(int argc, char **argv){
-    int n, np, ndim, i, seed, times, print_avg;
+    int n, np, ndim, i, seed, times, print_summary;
     int *inds;
     MOKP *mokp;
     struct timeval timeval_seeder;
@@ -56,6 +56,8 @@ int execute_batch(int argc, char **argv){
     times = 10;
     if( argc > 5 )
         times =  atoll(argv[5]);
+    if( !times )
+        times = 10;
 
     /* setting kdtree dimension */
     ndim = 3;
@@ -63,26 +65,40 @@ int execute_batch(int argc, char **argv){
         ndim = atoll(argv[6]);
 
     /* setting print avg */
-    print_avg = 1;
+    print_summary = 0;
     if( argc > 7 )
-        print_avg = 1 && atoll(argv[7]);
+        print_summary = 1 && atoll(argv[7]);
 
-    ordering_type = 'l';
+    ordering_type = 0;
+    if( argc > 8 )
+        ordering_type = argv[8][0];
+    switch( ordering_type ){
+        case 'm':
+        case 'M':
+        case 's':
+            break;
+
+        default:
+            ordering_type = 0;
+    }
+
     for( i = 0 ; i < times ; i++ ){
         mokp = mokp_random(n, np, 1);
 
         /* Reordering MOKP indexes */
-        mokp = mokp_reord_by_type(mokp, ordering_type);
+        if( ordering_type )
+            mokp = mokp_reord_by_type(mokp, ordering_type);
 
         /* Execute */
-        bazgan = bazgan_exec(mokp, , mokp->n, ndim);
+        bazgan = bazgan_exec(mokp, mokp->n, ndim);
 
         /* Outputing */
-        printf("%d;%lld;%.3lf;%d\n",
-            bazgan->avl_lex->n,
-            bazgan->_ncomparison,
-            bazgan_get_seconds(bazgan),
-            bazgan->max_nd);
+        if( !print_summary )
+            printf("%d;%lld;%.3lf;%d\n",
+                bazgan->avl_lex->n,
+                bazgan->_ncomparison,
+                bazgan_get_seconds(bazgan),
+                bazgan->max_nd);
 
         /* Free */
         bazgan_free(bazgan);
@@ -135,7 +151,7 @@ int execute_bazgan(int argc, char **argv){
     use_kdtree = 0;
 
     /* Execute Bazgan */
-    bazgan = bazgan_exec(mokp, order_opt, kmax, ndim);
+    bazgan = bazgan_exec(mokp, kmax, ndim);
     //bazgan_exec_simple(mokp, kmax);
 
     /* Outputing */
