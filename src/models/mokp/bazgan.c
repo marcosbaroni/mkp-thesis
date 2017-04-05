@@ -576,6 +576,7 @@ Bazgan *bazgan_new(MOKP *mokp){
     n = mokp->n;
     baz = (Bazgan*)malloc(sizeof(Bazgan));
 
+    bazgan_pong(baz);
     baz->mokp = mokp;
     baz->solsize = _mokp_get_solize(mokp);
     baz->avl_lex = new_avltree((avl_cmp_f)bnode_lex_cmp_inv);
@@ -583,6 +584,7 @@ Bazgan *bazgan_new(MOKP *mokp){
     baz->_ncomparison = 0;
     baz->just_profits = 1;
     baz->max_nd = 0;
+    bazgan_ping(baz);
 
     return baz;
 }
@@ -968,6 +970,7 @@ Bazgan *bazgan_brute(MOKP *mokp, int k){
     /* Checking input */
     if( k > n || k < 1 )
         k = n;
+    bazgan_ping(bazgan);
 
     /* Initializing */
     bnode = bnode_new_empty(bazgan);
@@ -991,6 +994,9 @@ Bazgan *bazgan_brute(MOKP *mokp, int k){
 
         /* Filtering */
         bnodes = bnodes_list_filter(new_bnodes, 0);
+
+        if( bnodes->n > bazgan->max_nd )
+            bazgan->max_nd = bnodes->n;
     }
 
     /* Last filtering */
@@ -1002,7 +1008,16 @@ Bazgan *bazgan_brute(MOKP *mokp, int k){
         avl_insert(bazgan->avl_lex, bnode);
     listiter_free(liter);
     list_free(bnodes);
+    bazgan_pong(bazgan);
 
     return bazgan;
+}
+
+void bazgan_fprint_summary(FILE *out, Bazgan *bazgan){
+    fprintf(out, "%d;%lld;%.3lf;%d",
+        bazgan->avl_lex->n,
+        bazgan->_ncomparison,
+        bazgan_get_seconds(bazgan),
+        bazgan->max_nd);
 }
 

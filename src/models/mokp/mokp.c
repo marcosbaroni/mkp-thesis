@@ -687,11 +687,6 @@ int mokp_dynprog(MOKP *mokp, int ndim, int k, int *idxs, long long *n_comps){
     if( n_comps )
        (*n_comps) = tree->n_comparisons;
 
-#ifdef MOKP_DEBUG
-    /* output pareto*/
-    printf("PARETO:\n");
-    mokptree_fprintf(stdout, tree);
-#endif
     //printf("total time to balance: %.5lf\n", bal_time);
     //printf("total time searching: %.5lf\n", stime);
 

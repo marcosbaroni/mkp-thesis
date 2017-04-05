@@ -89,19 +89,31 @@ int execute_batch(int argc, char **argv){
         if( ordering_type )
             mokp = mokp_reord_by_type(mokp, ordering_type);
 
-        /* Execute */
+        /*** KDTREE ***/
         bazgan = bazgan_exec(mokp, mokp->n, ndim);
+        if( !print_summary ){
+            bazgan_fprint_summary(stdout, bazgan);
+            printf("\n");
+        }
+        bazgan_free(bazgan);
 
-        /* Outputing */
-        if( !print_summary )
-            printf("%d;%lld;%.3lf;%d\n",
-                bazgan->avl_lex->n,
-                bazgan->_ncomparison,
-                bazgan_get_seconds(bazgan),
-                bazgan->max_nd);
+        /*** LIST ***/
+        bazgan = bazgan_exec(mokp, mokp->n, 0);
+        if( !print_summary ){
+            bazgan_fprint_summary(stdout, bazgan);
+            printf("\n");
+        }
+        bazgan_free(bazgan);
+
+        /*** BRUTE ***/
+        bazgan = bazgan_brute(mokp, mokp->n);
+        if( !print_summary ){
+            bazgan_fprint_summary(stdout, bazgan);
+            printf("\n");
+        }
+        bazgan_free(bazgan);
 
         /* Free */
-        bazgan_free(bazgan);
         mokp_free(mokp);
     }
 
