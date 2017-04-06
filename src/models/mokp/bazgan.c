@@ -438,7 +438,7 @@ void bazgan_ub_filter(
     AVLTree *avl_nodes;
     AVLIter *nodes_iter;
     BazganNode *bnode, *lower, *upper, *dominator;
-    int i, j, k, n, np, *greedy_idxs;
+    int i, j, k, n, np, *idxs_max_, *idxs_sum_;
     int **upper_idxs, **best_pc_order;
     double *bounds;
     int dominance_failed;
@@ -452,9 +452,6 @@ void bazgan_ub_filter(
     /***************************************************************************
     * Initialize
     ***************************************************************************/
-    greedy_idxs = (int*)malloc(n*sizeof(int));
-    for( i = 0 ; i < n ; i++ )
-        greedy_idxs[i] = i;
     avl_nodes = bazgan->avl_lex;
     nodes_iter = avl_get_first(avl_nodes);
     /* Initilaizing lowerbound pool structure */
@@ -462,16 +459,26 @@ void bazgan_ub_filter(
         lower_bounds_kdtree = kdtree_new(ndim, (kdtree_eval_f)bnode_profit_val);
     }else lower_bounds_list = list_new();
 
+    idxs_sum_ = mokp_get_item_order(bazgan->mokp, 's');
+    idxs_max_ = mokp_get_item_order(bazgan->mokp, 'M');
+    /* TODO: EXLUIR DA LISTA DE ITEM AQUELES QUE JA FORAM ITERADOS. */
+
     /***************************************************************************
     * Computing lower-bound pool
     ***************************************************************************/
     while( bnode = avliter_forward(nodes_iter) ){
-        lower = bnode_get_lower_bound(bnode, fst_idx, greedy_idxs);
+        lower = bnode_get_lower_bound(bnode, fst_idx, idxs_sum_);
+        if( ndim )
+            kdtree_insert(lower_bounds_kdtree, lower);
+        else list_insert(lower_bounds_list, lower);
+
+        lower = bnode_get_lower_bound(bnode, fst_idx, idxs_max_);
         if( ndim )
             kdtree_insert(lower_bounds_kdtree, lower);
         else list_insert(lower_bounds_list, lower);
     }
-    free(greedy_idxs);
+    free(idxs_sum_);
+    free(idxs_max_);
 
     /***************************************************************************
     * Building sorted index array of available items 

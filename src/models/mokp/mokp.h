@@ -27,6 +27,7 @@ void mokp_save(char *filename, MOKP *mokp);
 MOKP *mokp_open(char *filename);
 MOKP *mokp_new_reordered(MOKP *mokp, int *new_idx_order);
 MOKP *mokp_reord_by_type(MOKP *mokp, char ordering_type);
+int *mokp_get_item_order(MOKP *mokp, char ordering_type);
 void mokp_free(MOKP *mokp);
 
 /* MOKP Node (for Dynamic Programming) */
