@@ -92,7 +92,7 @@ int execute_batch(int argc, char **argv){
         /*** KDTREE ***/
         bazgan = bazgan_exec(mokp, mokp->n, ndim);
         if( !print_summary ){
-            printf("KD;");
+            printf("%d;KD;", i+1);
             bazgan_fprint_summary(stdout, bazgan);
             printf("\n");
         }
@@ -101,7 +101,7 @@ int execute_batch(int argc, char **argv){
         /*** LIST ***/
         bazgan = bazgan_exec(mokp, mokp->n, 0);
         if( !print_summary ){
-            printf("LS;");
+            printf("%d;LS;", i+1);
             bazgan_fprint_summary(stdout, bazgan);
             printf("\n");
         }
@@ -110,7 +110,7 @@ int execute_batch(int argc, char **argv){
         /*** BRUTE ***/
         //bazgan = bazgan_brute(mokp, mokp->n);
         //if( !print_summary ){
-        //    printf("BR;");
+        //    printf("%d;BR;", i+1);
         //    bazgan_fprint_summary(stdout, bazgan);
         //    printf("\n");
         //}
@@ -118,6 +118,7 @@ int execute_batch(int argc, char **argv){
 
         /* Free */
         mokp_free(mokp);
+        fflush(stdout);
     }
 
     return 0;
@@ -170,11 +171,9 @@ int execute_bazgan(int argc, char **argv){
     //bazgan_exec_simple(mokp, kmax);
 
     /* Outputing */
-    printf("%d;%lld;%.3lf;%d\n",
-        bazgan->avl_lex->n,
-        bazgan->_ncomparison,
-        bazgan_get_seconds(bazgan),
-        bazgan->max_nd);
+    bazgan_print_nodes_lex(bazgan);
+    bazgan_print_summary(bazgan);
+    printf("\n");
 
     /* Free */
     bazgan_free(bazgan);

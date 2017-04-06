@@ -60,11 +60,15 @@ void bazgan_ping(Bazgan *bazgan);
 void bazgan_pong(Bazgan *bazgan);
 double bazgan_get_seconds(Bazgan *bazgan);
 void bazgan_fprint_nodes(FILE *out, Bazgan *bazgan);
+void bazgan_print_nodes( Bazgan *bazgan);
+void bazgan_fprint_nodes_lex(FILE *out, Bazgan *bazgan);
+void bazgan_print_nodes_lex(Bazgan *bazgan);
 
 List *bazgan_exec_simple(MOKP *mokp, int k);
 Bazgan *bazgan_exec(MOKP *mokp, int kmax, int ndim);
 Bazgan *bazgan_brute(MOKP *mokp, int k);
 void bazgan_fprint_summary(FILE *out, Bazgan *bazgan);
+void bazgan_print_summary(Bazgan *bazgan);
 
 #endif
 

@@ -168,9 +168,9 @@ int bnode_lex_cmp_inv(BazganNode *n1, BazganNode *n2){
 
 int bnode_dominates(BazganNode *b1, BazganNode *b2){
     int i, np, has_higher;
-    np = b1->bazgan->mokp->np;
 
     has_higher = 0;
+    np = b1->bazgan->mokp->np;
     b1->bazgan->_ncomparison++;
     for( i = 0 ; i < np ; i++ ){
         if( b1->profit[i] < b2->profit[i] )
@@ -214,6 +214,20 @@ int bnode_profit_dominates(BazganNode *b1, BazganNode *b2){
     }
 
     return has_higher;
+}
+
+int bnode_profit_lex_cmp(BazganNode *n1, BazganNode *n2){
+    int np, i;
+    mokpnum res;
+
+    n1->bazgan->_ncomparison++;
+    np = n1->bazgan->mokp->np;
+
+    for( i = 0 ; i < np ; i++ )
+        if( n1->profit[i] != n2->profit[i] )
+            return n1->profit[i] > n2->profit[i] ? 1 : -1;
+
+    return 0;
 }
 /******************************************************************************/
 
@@ -896,6 +910,10 @@ void bazgan_fprint_nodes(FILE *out, Bazgan *bazgan){
     return;
 }
 
+void bazgan_print_nodes( Bazgan *bazgan){
+    return bazgan_fprint_nodes(stdout, bazgan);
+}
+
 Bazgan *bazgan_exec(MOKP *mokp, int kmax, int ndim){
     Bazgan *bazgan;
     int i;
@@ -1013,11 +1031,37 @@ Bazgan *bazgan_brute(MOKP *mokp, int k){
     return bazgan;
 }
 
+void _avl_insert( AVLTree *avl, BazganNode *n1){
+    avl_insert(avl, n1);
+}
+
+void bazgan_fprint_nodes_lex(FILE *out, Bazgan *bazgan){
+    BazganNode **nodes;
+    AVLTree *avl;
+
+    avl = new_avltree( (avl_cmp_f)bnode_profit_lex_cmp );
+    avl_apply_to_all_r( bazgan->avl_lex, (void(*)(void*,void*))_avl_insert, avl);
+    avl_apply_to_all( avl, (void(*)(void*))bnode_printf);
+    printf("\n");
+
+    avl_free(avl);
+
+    return;
+}
+
+void bazgan_print_nodes_lex(Bazgan *bazgan){
+    return bazgan_fprint_nodes_lex(stdout, bazgan);
+}
+
 void bazgan_fprint_summary(FILE *out, Bazgan *bazgan){
     fprintf(out, "%d;%lld;%.3lf;%d",
         bazgan->avl_lex->n,
         bazgan->_ncomparison,
         bazgan_get_seconds(bazgan),
         bazgan->max_nd);
+}
+
+void bazgan_print_summary(Bazgan *bazgan){
+    return bazgan_fprint_summary(stdout, bazgan);
 }
 

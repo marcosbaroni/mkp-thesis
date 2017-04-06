@@ -839,6 +839,18 @@ void avl_apply_to_all(AVLTree *avlt, void(*func)(void*) ){
         sub_avl_apply_to_all(avlt->root, func);
 }
 
+void sub_avl_apply_to_all_r(AVLNode *node, void(*func)(void*, void*), void *arg){
+	if( node->left )
+        sub_avl_apply_to_all_r( node->left, func, arg );
+    func( arg, node->info );
+	if( node->right )
+        sub_avl_apply_to_all_r( node->right, func, arg );
+}
+
+void avl_apply_to_all_r(AVLTree *avlt, void(*func)(void*, void*), void* arg){
+    return sub_avl_apply_to_all_r(avlt->root, func, arg);
+}
+
 int sub_avl_to_array(AVLNode *node, void **v, int k){
 	if(!node)
 		return k;
