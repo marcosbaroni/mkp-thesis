@@ -92,6 +92,7 @@ int execute_batch(int argc, char **argv){
         /*** KDTREE ***/
         bazgan = bazgan_exec(mokp, mokp->n, ndim);
         if( !print_summary ){
+            printf("KD;");
             bazgan_fprint_summary(stdout, bazgan);
             printf("\n");
         }
@@ -100,18 +101,20 @@ int execute_batch(int argc, char **argv){
         /*** LIST ***/
         bazgan = bazgan_exec(mokp, mokp->n, 0);
         if( !print_summary ){
+            printf("LS;");
             bazgan_fprint_summary(stdout, bazgan);
             printf("\n");
         }
         bazgan_free(bazgan);
 
         /*** BRUTE ***/
-        bazgan = bazgan_brute(mokp, mokp->n);
-        if( !print_summary ){
-            bazgan_fprint_summary(stdout, bazgan);
-            printf("\n");
-        }
-        bazgan_free(bazgan);
+        //bazgan = bazgan_brute(mokp, mokp->n);
+        //if( !print_summary ){
+        //    printf("BR;");
+        //    bazgan_fprint_summary(stdout, bazgan);
+        //    printf("\n");
+        //}
+        //bazgan_free(bazgan);
 
         /* Free */
         mokp_free(mokp);
