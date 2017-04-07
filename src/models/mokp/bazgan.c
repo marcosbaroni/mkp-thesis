@@ -363,8 +363,8 @@ BazganNode *bnode_list_find_dominator(
 
 BazganNode *bnode_get_lower_bound(
     BazganNode *bnode,
-    int fst_idx,            /* index of the fts item to be added */
-    int *idxs
+    int *idxs,       /* array of available items */
+    int nleft        /* items left */
 ){
     int i, np, n;
     BazganNode *_bnode;
@@ -373,7 +373,7 @@ BazganNode *bnode_get_lower_bound(
     w = bnode->bazgan->mokp->w;
     _bnode = bnode_copy(bnode);
     n = bnode->bazgan->mokp->n;
-    for( i = fst_idx ; i < n ; i++ )
+    for( i = 0 ; i < nleft ; i++ )
         if( _bnode->b_left >= w[idxs[i]] )
             _bnode = bnode_insert_item(_bnode, idxs[i]);
 
@@ -439,6 +439,8 @@ void bazgan_ub_filter(
     AVLIter *nodes_iter;
     BazganNode *bnode, *lower, *upper, *dominator;
     int i, j, k, n, np, *idxs_max_, *idxs_sum_;
+    int *max_order, *sum_order;
+    int isum, imax;
     int **upper_idxs, **best_pc_order;
     double *bounds;
     int dominance_failed;
@@ -458,21 +460,31 @@ void bazgan_ub_filter(
     if( ndim ){
         lower_bounds_kdtree = kdtree_new(ndim, (kdtree_eval_f)bnode_profit_val);
     }else lower_bounds_list = list_new();
+    /* preparing array of available items */
+    idxs_max_ = (int*)malloc(n*sizeof(int));
+    idxs_sum_ = (int*)malloc(n*sizeof(int));
+    max_order = bazgan->max_order;
+    sum_order = bazgan->sum_order;
+    isum = imax = 0;
+    for( i = 0 ; i < n ; i++ ){
+        if( max_order[i] >= fst_idx )
+            idxs_max_[imax++] = max_order[i];
+        if( sum_order[i] >= fst_idx )
+            idxs_sum_[isum++] = sum_order[i];
+    }
 
-    idxs_sum_ = mokp_get_item_order(bazgan->mokp, 's');
-    idxs_max_ = mokp_get_item_order(bazgan->mokp, 'M');
     /* TODO: EXLUIR DA LISTA DE ITEM AQUELES QUE JA FORAM ITERADOS. */
 
     /***************************************************************************
     * Computing lower-bound pool
     ***************************************************************************/
     while( bnode = avliter_forward(nodes_iter) ){
-        lower = bnode_get_lower_bound(bnode, fst_idx, idxs_sum_);
+        lower = bnode_get_lower_bound(bnode, idxs_sum_, n-fst_idx);
         if( ndim )
             kdtree_insert(lower_bounds_kdtree, lower);
         else list_insert(lower_bounds_list, lower);
 
-        lower = bnode_get_lower_bound(bnode, fst_idx, idxs_max_);
+        lower = bnode_get_lower_bound(bnode, idxs_max_, n-fst_idx);
         if( ndim )
             kdtree_insert(lower_bounds_kdtree, lower);
         else list_insert(lower_bounds_list, lower);
@@ -605,6 +617,8 @@ Bazgan *bazgan_new(MOKP *mokp){
     baz->_ncomparison = 0;
     baz->just_profits = 1;
     baz->max_nd = 0;
+    baz->max_order = mokp_get_item_order(mokp, 'M');
+    baz->sum_order = mokp_get_item_order(mokp, 's');
     bazgan_ping(baz);
 
     return baz;
@@ -619,6 +633,8 @@ void bazgan_free(Bazgan *bazgan){
     while( np-- )
         free(bazgan->best_profit_cost_order[np]);
     free(bazgan->best_profit_cost_order);
+    free(bazgan->max_order);
+    free(bazgan->sum_order);
     //mokp_free(bazgan->mokp);  /* freeing, assuming its a reordered copy */
     free(bazgan);
 }

@@ -27,6 +27,30 @@ int print_usage_batch(int argc, char **argv){
     return 1;
 }
 
+struct BatchSummary{
+    double time, max_nd, nd, comps;
+    int n;
+};
+void bsummary_init(struct BatchSummary *bsum){
+    bsum->time = bsum->max_nd = bsum->nd = bsum->comps = 0.0;
+    bsum->n = 0;
+}
+void bsummary_accum(struct BatchSummary *bsum, Bazgan *bazgan){
+    bsum->time += bazgan_get_seconds(bazgan);
+    bsum->max_nd += (double)bazgan->max_nd;
+    bsum->nd += (double)bazgan->avl_lex->n;
+    bsum->comps += (double)bazgan->_ncomparison;
+    bsum->n++;
+}
+void bsummary_print(struct BatchSummary *bsum){
+    int n;
+    printf("%.3lf;%.3lf;%.3lf;%.3lf",
+        bsum->nd / (double)bsum->n,
+        bsum->comps / (double)bsum->n,
+        bsum->time / (double)bsum->n,
+        bsum->max_nd / (double)bsum->n);
+}
+
 int execute_batch(int argc, char **argv){
     int n, np, ndim, i, seed, times, print_summary;
     int *inds;
@@ -34,6 +58,11 @@ int execute_batch(int argc, char **argv){
     struct timeval timeval_seeder;
     Bazgan *bazgan;
     char ordering_type;
+    struct BatchSummary bsummaries[3];
+
+    bsummary_init(&(bsummaries[0]));
+    bsummary_init(&(bsummaries[1]));
+    bsummary_init(&(bsummaries[2]));
 
     if( argc < 4 )
         return print_usage_batch(argc, argv);
@@ -90,20 +119,22 @@ int execute_batch(int argc, char **argv){
             mokp = mokp_reord_by_type(mokp, ordering_type);
 
         /*** KDTREE ***/
-        bazgan = bazgan_exec(mokp, mokp->n, ndim);
-        if( !print_summary ){
-            printf("%d;KD;", i+1);
-            bazgan_fprint_summary(stdout, bazgan);
-            printf("\n");
-        }
-        bazgan_free(bazgan);
+        //bazgan = bazgan_exec(mokp, mokp->n, ndim);
+        //if( !print_summary ){
+        //    printf("%d;KD;", i+1);
+        //    bazgan_print_summary(bazgan);
+        //    printf("\n");
+        //    bsummary_accum(&(bsummaries[0]), bazgan);
+        //}
+        //bazgan_free(bazgan);
 
         /*** LIST ***/
         bazgan = bazgan_exec(mokp, mokp->n, 0);
         if( !print_summary ){
             printf("%d;LS;", i+1);
-            bazgan_fprint_summary(stdout, bazgan);
+            bazgan_print_summary(bazgan);
             printf("\n");
+            bsummary_accum(&(bsummaries[1]), bazgan);
         }
         bazgan_free(bazgan);
 
@@ -111,15 +142,27 @@ int execute_batch(int argc, char **argv){
         //bazgan = bazgan_brute(mokp, mokp->n);
         //if( !print_summary ){
         //    printf("%d;BR;", i+1);
-        //    bazgan_fprint_summary(stdout, bazgan);
+        //    bazgan_print_summary(bazgan);
         //    printf("\n");
+        //    bsummary_accum(&(bsummaries[2]), bazgan);
         //}
         //bazgan_free(bazgan);
-
+        
         /* Free */
         mokp_free(mokp);
         fflush(stdout);
     }
+
+    /* OUTPUT TOTAL */
+    //printf("KD;");
+    //bsummary_print(&(bsummaries[0]));
+    //printf("\n");
+    printf("LS;");
+    bsummary_print(&(bsummaries[1]));
+    printf("\n");
+    //printf("BR;");
+    //bsummary_print(&(bsummaries[2]));
+    //printf("\n");
 
     return 0;
 }
