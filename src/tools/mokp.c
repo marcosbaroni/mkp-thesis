@@ -100,7 +100,7 @@ int execute_batch(int argc, char **argv){
     if( argc > 7 )
         print_summary = 1 && atoll(argv[7]);
 
-    ordering_type = 0;
+    ordering_type = 'M';
     if( argc > 8 )
         ordering_type = argv[8][0];
     switch( ordering_type ){
@@ -110,7 +110,7 @@ int execute_batch(int argc, char **argv){
             break;
 
         default:
-            ordering_type = 0;
+            ordering_type = 'M';
     }
 
     exec_list = exec_brute = exec_kd = 0;
