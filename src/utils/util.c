@@ -1410,7 +1410,6 @@ int *parse_int_list(char *str, int *n){
 		c = str[++len];
 	}
 
-	printf("nmax=%d\n", nmax);
 	vec = (int*)malloc((nmax+10)*sizeof(int));
 
 	/* FIXME */

@@ -479,11 +479,13 @@ void bazgan_ub_filter(
     * Computing lower-bound pool
     ***************************************************************************/
     while( bnode = avliter_forward(nodes_iter) ){
+        /* Lower-bound using SUM_ */
         lower = bnode_get_lower_bound(bnode, idxs_sum_, n-fst_idx);
         if( ndim )
             kdtree_insert(lower_bounds_kdtree, lower);
         else list_insert(lower_bounds_list, lower);
 
+        /* Lower-bound using MAX_ */
         lower = bnode_get_lower_bound(bnode, idxs_max_, n-fst_idx);
         if( ndim )
             kdtree_insert(lower_bounds_kdtree, lower);

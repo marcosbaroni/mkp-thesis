@@ -20,7 +20,7 @@
 int print_usage_batch(int argc, char **argv){
     printf("Batch test for the Bazgan MOKP algorithm using KDTree.\n\n");
     printf("   Uses random instance generation.\n\n");
-    printf("  usage: %s %s <n> <np> [seed] [times=10] [DKdim=3] [print_summary=0] [ordering=0]\n", argv[0], BAZGAN_OPT);
+    printf("  usage: %s %s <n> <np> [seed] [times=10] [DKdim=3] [print_summary=0] [ordering=0] [algs=[0,3,10]]\n", argv[0], BAZGAN_OPT);
     printf("\n  Output: list of results\n");
     printf("    <n nodes>;<n comparison>;<time (s)>\n\n");
 
@@ -59,6 +59,8 @@ int execute_batch(int argc, char **argv){
     Bazgan *bazgan;
     char ordering_type;
     struct BatchSummary bsummaries[3];
+    char exec_list, exec_brute, exec_kd;
+    int *execs, nexecs;
 
     bsummary_init(&(bsummaries[0]));
     bsummary_init(&(bsummaries[1]));
@@ -111,6 +113,20 @@ int execute_batch(int argc, char **argv){
             ordering_type = 0;
     }
 
+    exec_list = exec_brute = exec_kd = 0;
+    if( argc > 9 ){
+        execs = parse_int_list(argv[9], &nexecs);
+        for( i = 0 ; i < nexecs ; i++ ){
+            if( execs[i] > 9 )
+                exec_brute = 1;
+            else if( execs[i] == 0 )
+                exec_list = 1;
+            else if( execs[i] > 0 )
+                exec_kd = execs[i];
+        }
+        free(execs);
+    }
+
     for( i = 0 ; i < times ; i++ ){
         mokp = mokp_random(n, np, 1);
 
@@ -119,34 +135,40 @@ int execute_batch(int argc, char **argv){
             mokp = mokp_reord_by_type(mokp, ordering_type);
 
         /*** KDTREE ***/
-        //bazgan = bazgan_exec(mokp, mokp->n, ndim);
-        //if( !print_summary ){
-        //    printf("%d;KD;", i+1);
-        //    bazgan_print_summary(bazgan);
-        //    printf("\n");
-        //    bsummary_accum(&(bsummaries[0]), bazgan);
-        //}
-        //bazgan_free(bazgan);
+        if( exec_kd ){
+            bazgan = bazgan_exec(mokp, mokp->n, exec_kd);
+            if( !print_summary ){
+                printf("%d;KD;", i+1);
+                bazgan_print_summary(bazgan);
+                printf("\n");
+                bsummary_accum(&(bsummaries[0]), bazgan);
+            }
+            bazgan_free(bazgan);
+        }
 
         /*** LIST ***/
-        bazgan = bazgan_exec(mokp, mokp->n, 0);
-        if( !print_summary ){
-            printf("%d;LS;", i+1);
-            bazgan_print_summary(bazgan);
-            printf("\n");
-            bsummary_accum(&(bsummaries[1]), bazgan);
+        if( exec_list ){
+            bazgan = bazgan_exec(mokp, mokp->n, 0);
+            if( !print_summary ){
+                printf("%d;LS;", i+1);
+                bazgan_print_summary(bazgan);
+                printf("\n");
+                bsummary_accum(&(bsummaries[1]), bazgan);
+            }
+            bazgan_free(bazgan);
         }
-        bazgan_free(bazgan);
 
         /*** BRUTE ***/
-        //bazgan = bazgan_brute(mokp, mokp->n);
-        //if( !print_summary ){
-        //    printf("%d;BR;", i+1);
-        //    bazgan_print_summary(bazgan);
-        //    printf("\n");
-        //    bsummary_accum(&(bsummaries[2]), bazgan);
-        //}
-        //bazgan_free(bazgan);
+        if( exec_brute ){
+            bazgan = bazgan_brute(mokp, mokp->n);
+            if( !print_summary ){
+                printf("%d;BR;", i+1);
+                bazgan_print_summary(bazgan);
+                printf("\n");
+                bsummary_accum(&(bsummaries[2]), bazgan);
+            }
+            bazgan_free(bazgan);
+        }
         
         /* Free */
         mokp_free(mokp);
@@ -154,15 +176,21 @@ int execute_batch(int argc, char **argv){
     }
 
     /* OUTPUT TOTAL */
-    //printf("KD;");
-    //bsummary_print(&(bsummaries[0]));
-    //printf("\n");
-    printf("LS;");
-    bsummary_print(&(bsummaries[1]));
-    printf("\n");
-    //printf("BR;");
-    //bsummary_print(&(bsummaries[2]));
-    //printf("\n");
+    if( exec_kd ){
+        printf("KD;");
+        bsummary_print(&(bsummaries[0]));
+        printf("\n");
+    }
+    if( exec_list ){
+        printf("LS;");
+        bsummary_print(&(bsummaries[1]));
+        printf("\n");
+    }
+    if( exec_brute ){
+        printf("BR;");
+        bsummary_print(&(bsummaries[2]));
+        printf("\n");
+    }
 
     return 0;
 }
@@ -214,7 +242,7 @@ int execute_bazgan(int argc, char **argv){
     //bazgan_exec_simple(mokp, kmax);
 
     /* Outputing */
-    bazgan_print_nodes_lex(bazgan);
+    //bazgan_print_nodes_lex(bazgan);
     bazgan_print_summary(bazgan);
     printf("\n");
 
