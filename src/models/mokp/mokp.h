@@ -23,6 +23,7 @@ MOKP *mokp_random(int n, int np, int option);
 //MOKP *mokp_from_mkp(MKP *mkp);
 void mokp_write(FILE *out, MOKP *mokp);
 MOKP *mokp_read(FILE *fin);
+MOKP *mokp_read_bazgan_format(FILE *fin);
 void mokp_save(char *filename, MOKP *mokp);
 MOKP *mokp_open(char *filename);
 MOKP *mokp_new_reordered(MOKP *mokp, int *new_idx_order);

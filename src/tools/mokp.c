@@ -16,6 +16,36 @@
 #define MKP2_OPT "mkp2"
 #define BAZGAN_OPT "bazgan"
 #define BATCH_OPT "batch"
+#define CONVERT_OPT "convert"
+
+int print_usage_convert(int argc, char **argv){
+    printf("Convert instance.\n\n");
+    printf("  usage: %s %s <input-file> [output-file]\n", argv[0], BAZGAN_OPT);
+    printf("\n  input-file: '-' for stdin\n");
+    printf("  output-file: if not given, user stdout\n");
+
+    return 1;
+}
+
+int execute_convert(int argc, char **argv){
+    MOKP *mokp;
+    FILE *fin, *fout;
+
+    if( argc < 3 )
+        return print_usage_convert(argc, argv);
+
+    fin = stdin;
+    if( strcmp(argv[2], "-") )
+        fin = fopen(argv[2], "r");
+
+    fout = stdout;
+    if( argc > 2 )
+        fout = fopen(argv[3], "w");
+    
+    mokp = mokp_read_bazgan_format(fin);
+
+    return 0;
+}
 
 int print_usage_batch(int argc, char **argv){
     printf("Batch test for the Bazgan MOKP algorithm using KDTree.\n\n");
@@ -442,11 +472,12 @@ void print_usage(int argc, char **argv){
     printf("usage: %s <option> [args...]\n", argv[0]);
     printf("Multiobjective Knapsack Problem analysis tool.\n\n");
     printf("Please check option list below:\n");
-    printf("  %s\tGenerate a random MOKP instance\n", RAND_OPT);
+    printf("  %s\t\tGenerate a random MOKP instance\n", RAND_OPT);
     printf("  %s\tSolve a MOKP using simple dynamic programming\n", DYNPROG_OPT);
     printf("  %s\tSolve a MOKP using Bazgan2009 algorithm\n", BAZGAN_OPT);
-    printf("  %s\tBatch test of bazgan MOKP algorithm.\n", BATCH_OPT);
-    printf("  %s\tConvert a MKP instance in MOKP instance\n", MKP2_OPT);
+    printf("  %s\t\tBatch test of bazgan MOKP algorithm.\n", BATCH_OPT);
+    printf("  %s\t\tConvert a MKP instance in MOKP instance\n", MKP2_OPT);
+    printf("  %s\tConvert a MOKP Bazgan instance.\n", CONVERT_OPT);
 
     return;
 }
@@ -489,6 +520,10 @@ int main(int argc, char **argv){
     /***   Execução Batch do algoritmo Bazgan ***/
     if(!strcmp(option, BATCH_OPT))
         ret = execute_batch(argc, argv);
+
+    /***   Conversao das instancias ***/
+    if(!strcmp(option, CONVERT_OPT))
+        ret = execute_convert(argc, argv);
 
     /***************************************************************
     *    IMPRESSÃO DA FORMA DE USO

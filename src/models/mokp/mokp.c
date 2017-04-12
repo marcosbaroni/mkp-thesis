@@ -373,6 +373,32 @@ MOKP *mokp_read(FILE *fin){
     return mokp;
 }
 
+MOKP *mokp_read_bazgan_format(FILE *fin){
+    MOKP *mokp;
+    int i, j, it, n, np;
+    char cbuffer[1000], c;
+
+    it = 0;
+    n = np = 0;
+    mokp = NULL;
+
+    /* Reading Instance */
+    while( !feof(fin) ){
+        fgets(cbuffer, 1000, fin);
+        switch( cbuffer[0] ){
+            /* Comment */
+            case 'c': break;
+
+            /* N of itens */
+            case 'n':
+            sscanf(cbuffer, "%c %d", &c, &n);
+            break;
+        }
+    }
+
+    return mokp;
+}
+
 /*  Writes a MOKP instance into a file */
 void mokp_save(char *filename, MOKP *mokp){
     FILE *fout;
