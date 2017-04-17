@@ -15,6 +15,9 @@
 /*******************************************************************************
 *       MOKPNUM
 *******************************************************************************/
+int mokpnode_sscanf(char *str, mokpnum *a){
+    return sscanf(str, "%d", a);
+}
 int mokpnum_fscanf(FILE *in, mokpnum *a){
     return fscanf(in, "%d", a);
 }
@@ -373,13 +376,55 @@ MOKP *mokp_read(FILE *fin){
     return mokp;
 }
 
+int _get_np_from_bazgan_line(char *line){
+    int i, np;
+
+    i = np = 0;
+    while( line[i] ){
+        if( ISNUM(line[i]) ){
+            np++;
+            while( ISNUM(line[i]) )
+                i++;
+        }
+        i++;
+    }
+
+    return np;
+}
+
+void _read_new_item_from_bazgan_line(char *cbuffer, MOKP *mokp, int _n){
+    int i;
+
+    i = 0;
+    /* read weight */
+    printf("cbuffer:\n%s\n", cbuffer);
+    while( !ISNUM(*cbuffer) )
+        cbuffer++;
+    printf("cbuffer:\n%s\n", cbuffer);
+    mokpnode_sscanf(cbuffer, &(mokp->w[_n]));
+    while( ISNUM(*cbuffer) )
+        cbuffer++;
+    
+    /* read profits */
+    while( *cbuffer ){
+        while( !ISNUM(*cbuffer) && *cbuffer )
+            cbuffer++;
+        printf("cbuffer:\n%s\n", cbuffer);
+        if( *cbuffer )
+            mokpnode_sscanf(cbuffer, &(mokp->p[i++][_n]));
+
+        while( ISNUM(*cbuffer) && *cbuffer )
+            cbuffer++;
+    }
+}
+
 MOKP *mokp_read_bazgan_format(FILE *fin){
     MOKP *mokp;
-    int i, j, it, n, np;
+    int i, j, it, n, _n, np, w;
     char cbuffer[1000], c;
 
     it = 0;
-    n = np = 0;
+    n = np = _n = 0;
     mokp = NULL;
 
     /* Reading Instance */
@@ -392,6 +437,23 @@ MOKP *mokp_read_bazgan_format(FILE *fin){
             /* N of itens */
             case 'n':
             sscanf(cbuffer, "%c %d", &c, &n);
+            break;
+
+            /* Capacity */
+            case 'w':
+            case 'W':
+            sscanf(cbuffer, "%c %d", &c, &w);
+            break;
+
+            /* Itens */
+            case 'i':
+            case 'I':
+            if( !np ){
+                np = _get_np_from_bazgan_line(cbuffer);
+                mokp = mokp_alloc(n, np);
+            }
+            _read_new_item_from_bazgan_line(cbuffer, mokp, _n);
+            _n++;
             break;
         }
     }

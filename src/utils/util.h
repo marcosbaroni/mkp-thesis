@@ -17,6 +17,8 @@
 #define MAX(x, y) (x > y ? x : y)
 #define MIN(x, y) (x < y ? x : y)
 
+#define ISNUM(c) ( (c > 47) && (c < 58) )
+
 extern int verbose;
 
 void SWAP_LONG(long *array, int a, int b);

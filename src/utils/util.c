@@ -6,8 +6,6 @@
 #include <math.h>
 #include "util.h"
 
-#define ISNUM(c) ( (c > 47) && (c < 58) )
-
 int verbose = 0;
 int shell_gaps[8] = {1, 4, 10, 23, 57, 132, 301, 701};
 

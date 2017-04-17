@@ -39,8 +39,10 @@ int execute_convert(int argc, char **argv){
         fin = fopen(argv[2], "r");
 
     fout = stdout;
-    if( argc > 2 )
+    if( argc > 3 ){
+        printf("FILE TO OPEN: %s\n", argv[3]);
         fout = fopen(argv[3], "w");
+    }
     
     mokp = mokp_read_bazgan_format(fin);
 
