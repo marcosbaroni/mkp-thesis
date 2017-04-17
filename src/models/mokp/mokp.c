@@ -395,8 +395,6 @@ int _get_np_from_bazgan_line(char *line){
 void _read_new_item_from_bazgan_line(char *cbuffer, MOKP *mokp, int _n){
     int i;
 
-    printf("_n: %d\n", _n);
-
     i = 0;
     /* read weight */
     while( !ISNUM(*cbuffer) )
