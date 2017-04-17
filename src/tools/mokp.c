@@ -45,6 +45,11 @@ int execute_convert(int argc, char **argv){
     }
     
     mokp = mokp_read_bazgan_format(fin);
+    fclose(fin);
+
+    mokp_write(fout, mokp);
+
+    mokp_free(mokp);
 
     return 0;
 }

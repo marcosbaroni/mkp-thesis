@@ -389,18 +389,18 @@ int _get_np_from_bazgan_line(char *line){
         i++;
     }
 
-    return np;
+    return np-1;
 }
 
 void _read_new_item_from_bazgan_line(char *cbuffer, MOKP *mokp, int _n){
     int i;
 
+    printf("_n: %d\n", _n);
+
     i = 0;
     /* read weight */
-    printf("cbuffer:\n%s\n", cbuffer);
     while( !ISNUM(*cbuffer) )
         cbuffer++;
-    printf("cbuffer:\n%s\n", cbuffer);
     mokpnode_sscanf(cbuffer, &(mokp->w[_n]));
     while( ISNUM(*cbuffer) )
         cbuffer++;
@@ -409,7 +409,6 @@ void _read_new_item_from_bazgan_line(char *cbuffer, MOKP *mokp, int _n){
     while( *cbuffer ){
         while( !ISNUM(*cbuffer) && *cbuffer )
             cbuffer++;
-        printf("cbuffer:\n%s\n", cbuffer);
         if( *cbuffer )
             mokpnode_sscanf(cbuffer, &(mokp->p[i++][_n]));
 
@@ -420,8 +419,8 @@ void _read_new_item_from_bazgan_line(char *cbuffer, MOKP *mokp, int _n){
 
 MOKP *mokp_read_bazgan_format(FILE *fin){
     MOKP *mokp;
-    int i, j, it, n, _n, np, w;
-    char cbuffer[1000], c;
+    int i, j, it, n, _n, np, b;
+    char *cbuffer, cbuffer_[1000], c;
 
     it = 0;
     n = np = _n = 0;
@@ -429,7 +428,8 @@ MOKP *mokp_read_bazgan_format(FILE *fin){
 
     /* Reading Instance */
     while( !feof(fin) ){
-        fgets(cbuffer, 1000, fin);
+        fgets(cbuffer_, 1000, fin);
+        cbuffer = cbuffer_;
         switch( cbuffer[0] ){
             /* Comment */
             case 'c': break;
@@ -442,7 +442,9 @@ MOKP *mokp_read_bazgan_format(FILE *fin){
             /* Capacity */
             case 'w':
             case 'W':
-            sscanf(cbuffer, "%c %d", &c, &w);
+            while( !ISNUM(*cbuffer) )
+                cbuffer++;
+            mokpnode_sscanf(cbuffer, &(mokp->b) );
             break;
 
             /* Itens */
