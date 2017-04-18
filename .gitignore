@@ -29,4 +29,5 @@ bin/mmkp-rand
 bin/ssum-rand
 bin/mokp
 insts/chubeas/*
+insts/bazgan/*
 mkp-fast-nu

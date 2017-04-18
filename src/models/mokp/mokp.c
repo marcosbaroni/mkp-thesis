@@ -317,6 +317,7 @@ MOKP *mokp_reord_by_type(MOKP *mokp, char ordering_type){
     mokp2 = mokp_new_reordered(mokp, idxs);
 
     free(idxs);
+    mokp_free(mokp);
     
     return mokp2;
 }
