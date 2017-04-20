@@ -150,8 +150,9 @@ int execute_batch(int argc, char **argv){
             ordering_type = 'M';
     }
 
-    exec_list = exec_brute = exec_kd = 0;
+    exec_list = exec_brute = exec_kd = 1;
     if( argc > 9 ){
+        exec_list = exec_brute = exec_kd = 0;
         execs = parse_int_list(argv[9], &nexecs);
         for( i = 0 ; i < nexecs ; i++ ){
             if( execs[i] > 9 )
