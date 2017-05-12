@@ -55,7 +55,7 @@ MOKP *mokp_alloc(int n, int np){
     return mokp;
 }
 
-mokpnum mokpnum_rand(mokpnum max){ return (rand() % max) + 1; }
+mokpnum mokpnum_rand(mokpnum max){ return (!max ? 0 : (rand() % max) + 1); }
 mokpnum min(mokpnum a, mokpnum b){ return a < b ? a : b; }
 mokpnum max(mokpnum a, mokpnum b){ return a > b ? a : b; }
 
