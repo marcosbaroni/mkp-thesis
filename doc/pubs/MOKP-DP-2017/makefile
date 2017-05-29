@@ -4,8 +4,7 @@ TDIR=tex
 all: pdf clean
 pdf: pdflatex
 pdflatex:
-	cd $(TDIR); pdflatex $(TARGET).tex
-	mv $(TDIR)/$(TARGET).pdf .
+	pdflatex $(TARGET).tex
 clean:
-	cd $(TDIR); rm -f *.aux *.log
+	rm -f *.aux *.log
 

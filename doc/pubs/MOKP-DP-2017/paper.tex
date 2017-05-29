@@ -1,0 +1,81 @@
+\documentclass{article}
+
+\usepackage{amsfonts}
+\usepackage{amssymb,amsmath}
+\usepackage{graphicx}
+
+\begin{document}
+
+\title{A fast dynamic programming multi-objective knapsack problem}
+
+\author{
+   Marcos Daniel Valad\~ao Baroni\thanks{Research supported by Funda\c c\~ao de Amparo \`a Pesquisa do Esp\'irito Santo.}
+   \and
+   Fl\'avio Miguel Varej\~ao
+}
+
+
+%%%   OUTLINE   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 1. Introduction
+%    - The problem and its application
+%    - Literature background
+%    - The Bazgan algorithm
+%    - Our approach
+%    - Article structure
+% 2. The MOKP
+%    - (some definition needed)
+%    - Multi-objective problems
+%    - 
+% 3. Dyn. Programming Alg. for MOKP
+%    - Process overview of DP for MKP
+%    - Dom. relations
+%    - Application of dom. rel.
+% 4. Use of KDTree
+%    - (motiuvation: ops. on the algorithms)
+%    - The KDTree data structure (...performance issues/dimensions)
+%    - Operations
+% 5. Experiments
+%    - Instances
+%    - Results
+% 6. Conclusions
+%    - (could not achieve bazgan times)
+
+
+%%%   STRUCTURE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\maketitle
+
+\begin{abstract}
+\input{tex/abstract.tex}
+\end{abstract}
+
+\section{Introduction}
+\label{sec:intro}
+% THE MOKP Problem
+\input{tex/01-intro.tex}
+
+\section{The Multidimensional Knapsack Problem}
+\label{sec:mokp}
+\input{tex/02-mokp.tex}
+
+\section{The Dynamic Programing Algorithm}
+\label{sec:mokp}
+\input{tex/03-dynprog.tex}
+
+\section{The use of data structure}
+\label{sec:kdtree}
+\input{tex/04-kdtree.tex}
+
+\section{Computational experiments}
+\label{sec:exp}
+\input{tex/05-experiments.tex}
+
+\section{Conclusions and future remarks}
+\label{sec:conc}
+\input{tex/06-conc.tex}
+
+%\bibliographystyle{splncs03}
+\bibliography{tex/refs}
+
+\end{document}
+
