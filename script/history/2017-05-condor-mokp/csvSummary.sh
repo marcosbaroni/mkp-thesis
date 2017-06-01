@@ -18,18 +18,27 @@ cat $res_arq >> $csv_arq
 $CSV2SQL $csv_arq $db_arq
 sqlite3 $db_arq <<!
 SELECT
-    dim,
+    -- PARAMS --
     c,
     np,
     n,
+    -- TIME --
+    (select avg(time) from mokp as m2 where dim = 0 AND m1.n = m2.n AND m1.c = m2.c AND m1.np = m2.np) as time0,
+    (select avg(time) from mokp as m2 where dim = 3 AND m1.n = m2.n AND m1.c = m2.c AND m1.np = m2.np) as time3,
+    -- COMP --
+    (select avg(ncomp) from mokp as m2 where dim = 0 AND m1.n = m2.n AND m1.c = m2.c AND m1.np = m2.np) as comp0,
+    (select avg(ncomp) from mokp as m2 where dim = 3 AND m1.n = m2.n AND m1.c = m2.c AND m1.np = m2.np) as comp3,
+    -- |ND| --
     avg(nd),
-    avg(ncomp),
-    avg(time),
+    -- MAXND --
     avg(maxnd),
-    count(*) qtd
-FROM mokp
-GROUP BY dim, c, np, n
-ORDER BY c ASC, np ASC, n ASC, dim ASC;
+    -- COUNTS --
+    (select count(*) from mokp as m2 where dim = 0 AND m1.n = m2.n AND m1.c = m2.c AND m1.np = m2.np) as c0,
+    (select count(*) from mokp as m2 where dim = 3 AND m1.n = m2.n AND m1.c = m2.c AND m1.np = m2.np) as c3
+FROM mokp as m1
+GROUP BY c, np, n
+ORDER BY c ASC, np ASC, n ASC;
 !
 
 rm $db_arq $csv_arq
+
