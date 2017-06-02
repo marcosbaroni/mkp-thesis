@@ -2,6 +2,13 @@
 %  - primeira proposta. 
 %  - Objetivo. Eficientcia
 %  - Teste de colisão, pertinencia e amplitude
+The \kdtree{} is a type of binary search tree for indexing multidimenstional
+data with simple construction and low space usage.
+Despite its simplicity it efficiently supports operations like nearest
+neighbour search and range search~\cite{bentley1975} and is widely used on
+spacial geometry algorithms~\cite{preparata2012computational, guttman1984r}, 
+clustering algorithms~\cite{kanungo2002efficient, indyk1998approximate}
+and ~\cite{owens2007survey}
 
 % Utilizacao:
 %  - objetos espaciais 2D/3D):
@@ -9,21 +16,26 @@
 
 % Vantagens sobre outras estruturas (quad-tree, etc):
 %  - menor sensibilidade a distribuicao tendensiosa.
+Its advantages.
 
 % Discussao sobre eficiencia
 %  - máximo de dimensoes ( |n| >> 2^dim )
+Efficiency notes.
 
 % Estrutura e Operacoes:
 %  - estrutura de indexacão
 %  - Insercao
 %  - range-search
+Its operations...
 
 % Utilizacao no Algoritmo
 % Possibilidade de utilizacao no processo de range seaarch, ao buscar uma
 % solucao dominante.
+Use on the algorithm.
 
 % Explicacão da indexacão das solucoes e da funcao de range.
+Indexing the solutions and range operations.
 
 % Mencionar que esta proposta de indexacao viabiliza a aplicacão do algoritmo em problemas
 % com maiores dimensões.
-
+Tends to increase the feasibility on problems with higher dimensions.
