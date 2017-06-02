@@ -24,9 +24,11 @@ SELECT
     n,
     -- TIME --
     (select avg(time) from mokp as m2 where dim = 0 AND m1.n = m2.n AND m1.c = m2.c AND m1.np = m2.np) as time0,
+    (select avg(time) from mokp as m2 where dim = 1 AND m1.n = m2.n AND m1.c = m2.c AND m1.np = m2.np) as time1,
     (select avg(time) from mokp as m2 where dim = 3 AND m1.n = m2.n AND m1.c = m2.c AND m1.np = m2.np) as time3,
     -- COMP --
     (select avg(ncomp) from mokp as m2 where dim = 0 AND m1.n = m2.n AND m1.c = m2.c AND m1.np = m2.np) as comp0,
+    (select avg(ncomp) from mokp as m2 where dim = 1 AND m1.n = m2.n AND m1.c = m2.c AND m1.np = m2.np) as comp1,
     (select avg(ncomp) from mokp as m2 where dim = 3 AND m1.n = m2.n AND m1.c = m2.c AND m1.np = m2.np) as comp3,
     -- |ND| --
     avg(nd),
@@ -34,6 +36,7 @@ SELECT
     avg(maxnd),
     -- COUNTS --
     (select count(*) from mokp as m2 where dim = 0 AND m1.n = m2.n AND m1.c = m2.c AND m1.np = m2.np) as c0,
+    (select count(*) from mokp as m2 where dim = 1 AND m1.n = m2.n AND m1.c = m2.c AND m1.np = m2.np) as c1,
     (select count(*) from mokp as m2 where dim = 3 AND m1.n = m2.n AND m1.c = m2.c AND m1.np = m2.np) as c3
 FROM mokp as m1
 GROUP BY c, np, n
