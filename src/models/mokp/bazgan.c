@@ -192,6 +192,10 @@ double bnode_axis_val(BazganNode *n1, int axis){
     return (double)n1->profit[axis-1];
 }
 
+int bnode_profit1_cmp(BazganNode *n1, BazganNode *n2){
+    return (n1->profit[0] - n2->profit[0]);
+}
+
 
 /***    Profit-only operations    *********************************************/
 double bnode_profit_val(BazganNode *n1, int axis){
@@ -310,21 +314,55 @@ double *bnode_get_dominated_bounds(
     return bounds;
 }
 
+BazganNode *bnode_list_find_dominator(
+    BazganNode *bnode,
+    List *list
+){
+    BazganNode *dominator, *candidate;
+    ListIter *liter;
+    int(*dom_checker)(BazganNode*, BazganNode*);
+
+    dom_checker = bnode_profit_dominates;
+
+    dominator = NULL;
+    liter = list_get_first(list);
+    while( (candidate = (BazganNode*)listiter_forward(liter)) && !dominator )
+        if( dom_checker( candidate, bnode ) )
+            dominator = candidate;
+    listiter_free(liter);
+
+    return dominator;
+}
+
+BazganNode *bnode_avl_find_dominator(
+    BazganNode *upper,
+    AVLTree *lower_bounds_avl
+){
+    BazganNode *dominator, *bnode;
+    AVLIter *iter;
+
+    dominator = NULL;
+    iter = avl_get_higher_lower_than(lower_bounds_avl, upper);
+    while( (bnode = avliter_forward(iter)) && !dominator ){
+        if( bnode_dominates(bnode, upper) )
+            dominator = bnode;
+    }
+
+    avliter_free(iter);
+    return dominator;
+}
+
 BazganNode *bnode_kdtree_find_dominator(
     BazganNode *bnode,
-    KDTree *kdtree,
-    int just_profits
+    KDTree *kdtree
 ){
     int ndim;
     double *bounds;
     BazganNode *dominator;
     property_f_r dom_func;
 
-    bounds = bnode_get_dominant_bounds(bnode, kdtree->ndim, just_profits);
-    if( just_profits )
-        dom_func = (property_f_r)bnode_profit_dominates;
-    else
-        dom_func = (property_f_r)bnode_dominates;
+    bounds = bnode_get_dominant_bounds(bnode, kdtree->ndim, 1);
+    dom_func = (property_f_r)bnode_profit_dominates;
 
     dominator = kdtree_range_search_r(
         kdtree,
@@ -333,30 +371,6 @@ BazganNode *bnode_kdtree_find_dominator(
         bnode);
 
     free(bounds);
-
-    return dominator;
-}
-
-BazganNode *bnode_list_find_dominator(
-    BazganNode *bnode,
-    List *list,
-    int just_profits
-){
-    BazganNode *dominator, *candidate;
-    ListIter *liter;
-    int(*dom_checker)(BazganNode*, BazganNode*);
-
-    if( just_profits )
-        dom_checker = bnode_profit_dominates;
-    else
-        dom_checker = bnode_dominates;
-
-    dominator = NULL;
-    liter = list_get_first(list);
-    while( (candidate = (BazganNode*)listiter_forward(liter)) && !dominator )
-        if( dom_checker( candidate, bnode ) )
-            dominator = candidate;
-    listiter_free(liter);
 
     return dominator;
 }
@@ -435,7 +449,7 @@ void bazgan_ub_filter(
 ){
     KDTree *lower_bounds_kdtree;
     List *non_promissings, *lower_bounds_list;
-    AVLTree *avl_nodes;
+    AVLTree *avl_nodes, *lower_bounds_avl;
     AVLIter *nodes_iter;
     BazganNode *bnode, *lower, *upper, *dominator;
     int i, j, k, n, np, *idxs_max_, *idxs_sum_;
@@ -448,6 +462,7 @@ void bazgan_ub_filter(
     n = bazgan->mokp->n;
     np = bazgan->mokp->np;
     lower_bounds_kdtree = NULL;
+    lower_bounds_avl = NULL;
     lower_bounds_list = NULL;
     non_promissings = list_new();
 
@@ -457,10 +472,14 @@ void bazgan_ub_filter(
     avl_nodes = bazgan->avl_lex;
     nodes_iter = avl_get_first(avl_nodes);
     /* Initilaizing lowerbound pool structure */
-    if( ndim ){
+    if( !ndim )
+        lower_bounds_list = list_new();
+    else if( ndim == 1 )
+        lower_bounds_avl = new_avltree((avl_cmp_f)bnode_profit1_cmp);
+    else
         lower_bounds_kdtree = kdtree_new(ndim, (kdtree_eval_f)bnode_profit_val);
-    }else lower_bounds_list = list_new();
-    /* preparing array of available items */
+
+    /* preparing ARRAY of available items */
     idxs_max_ = (int*)malloc(n*sizeof(int));
     idxs_sum_ = (int*)malloc(n*sizeof(int));
     max_order = bazgan->max_order;
@@ -481,15 +500,22 @@ void bazgan_ub_filter(
     while( bnode = avliter_forward(nodes_iter) ){
         /* Lower-bound using SUM_ */
         lower = bnode_get_lower_bound(bnode, idxs_sum_, n-fst_idx);
-        if( ndim )
+        /* Inserting lower-bounds node */
+        if( !ndim )
+            list_insert(lower_bounds_list, lower);
+        else if( ndim == 1 )
+            avl_insert(lower_bounds_avl, lower);
+        else
             kdtree_insert(lower_bounds_kdtree, lower);
-        else list_insert(lower_bounds_list, lower);
 
         /* Lower-bound using MAX_ */
         lower = bnode_get_lower_bound(bnode, idxs_max_, n-fst_idx);
-        if( ndim )
+        if( !ndim )
+            list_insert(lower_bounds_list, lower);
+        else if( ndim == 1 )
+            avl_insert(lower_bounds_avl, lower);
+        else
             kdtree_insert(lower_bounds_kdtree, lower);
-        else list_insert(lower_bounds_list, lower);
     }
     free(idxs_sum_);
     free(idxs_max_);
@@ -518,9 +544,12 @@ void bazgan_ub_filter(
     while( bnode = avliter_get(nodes_iter) ){ /* heuristic */
         upper = bnode_get_upper_bound(bnode, fst_idx, upper_idxs);
         /* check if exist a LB dominating the UB */
-        if( ndim )
-            dominator = bnode_kdtree_find_dominator(upper, lower_bounds_kdtree, 1);
-        else dominator = bnode_list_find_dominator(upper, lower_bounds_list, 1);
+        if( !ndim )
+            dominator = bnode_list_find_dominator(upper, lower_bounds_list);
+        else if( ndim == 1 )
+            dominator = bnode_avl_find_dominator(upper, lower_bounds_avl);
+        else
+            dominator = bnode_kdtree_find_dominator(upper, lower_bounds_kdtree);
 
         bnode_free(upper);
         /* if a dominator exists (node is not promising) */
@@ -542,15 +571,19 @@ void bazgan_ub_filter(
     free(upper_idxs);
     avliter_free(nodes_iter);
     /* LB nodes */
+    if( lower_bounds_avl )
+        avl_apply_to_all(lower_bounds_avl, (void(*)(void*))bnode_free);
     if( lower_bounds_kdtree )
         kdtree_apply_to_all(lower_bounds_kdtree, (void(*)(void*))bnode_free);
     else
         list_apply(lower_bounds_list, (void(*)(void*))bnode_free);
     /* LB pool structure */
-    if( lower_bounds_kdtree )
-        kdtree_free(lower_bounds_kdtree);
     if( lower_bounds_list )
         list_free(lower_bounds_list);
+    if( lower_bounds_avl )
+        avl_free(lower_bounds_avl);
+    if( lower_bounds_kdtree )
+        kdtree_free(lower_bounds_kdtree);
 
     /* removing marked nodes */
     list_apply_r( non_promissings, _avl_remove2, avl_nodes);
@@ -723,6 +756,28 @@ BazganNode *_mantain_non_dom_list(
     return dominant;
 }
 
+BazganNode *_mantain_non_dom_avl(
+    BazganNode *bnode,
+    AVLTree *c_avl,
+    AVLTree *m_avl,
+    List *to_be_freeded
+){
+    Bazgan *bazgan;
+    BazganNode *dominant;
+    BazganNode *m_bnode;
+    AVLIter *iter;
+
+    printf("using avltree \n");
+    dominant = NULL;
+    iter = avl_get_higher_lower_than(m_avl, bnode);
+    while( (m_bnode = avliter_forward(iter)) && !dominant )
+        if( bnode_dominates(m_bnode, bnode) )
+            dominant = m_bnode;
+
+    avliter_free(iter);
+    return dominant;
+}
+
 /* 
  * Aplication of Dominanced 2 (using KDTree)
  * */
@@ -771,21 +826,26 @@ BazganNode *_mantain_non_dom(
     BazganNode *bnode,  /* Candidate node*/
     AVLTree *c_avl,     /* New node pool*/
     List *m_list,       /* Current node pool List (optional) */
-    KDTree *m_kdtree,   /* Current node pool AVL (optional) */
+    AVLTree *m_avl,     /* Current node pool AVL (optional) */
+    KDTree *m_kdtree,   /* Current node pool KDTree (optional) */
     List *to_be_freeded /* Non-promessing nodes ("node garbage") */
 ){
     BazganNode *bnode2;
-    BazganNode *list_dominant, *kdtree_dominant;
+    BazganNode *list_dominant, *avl_dominant, *kdtree_dominant;
 
-    list_dominant = kdtree_dominant = NULL;
+    list_dominant = kdtree_dominant = avl_dominant = NULL;
 
     if( m_list )
         list_dominant = _mantain_non_dom_list(bnode, c_avl, m_list, to_be_freeded);
+    if( avl_dominant )
+        avl_dominant = _mantain_non_dom_avl(bnode, c_avl, m_avl, to_be_freeded);
     if( m_kdtree )
         kdtree_dominant = _mantain_non_dom_kdtree(bnode, c_avl, m_kdtree, to_be_freeded);
 
     if( list_dominant )
         return list_dominant;
+    if( avl_dominant )
+        return avl_dominant;
     return kdtree_dominant;
 }
 
@@ -802,6 +862,7 @@ Bazgan *_bazgan_iter(Bazgan *bazgan, int idx, int ndim){
     List *to_be_freeded;
     List *m_list;
     KDTree *m_kdtree;
+    AVLTree *m_avl;
 
     mokp = bazgan->mokp;
     n = mokp->n;
@@ -824,15 +885,16 @@ Bazgan *_bazgan_iter(Bazgan *bazgan, int idx, int ndim){
     new_avl_lex = new_avltree((avl_cmp_f)bnode_lex_cmp_inv);
     to_be_freeded = list_new();
 
-    /* allocing desired structure */
     m_list = NULL;
     m_kdtree = NULL;
-    if( ndim ){
-        if( bazgan->just_profits )
-            m_kdtree = kdtree_new(ndim, (kdtree_eval_f)bnode_profit_val);
-        else
-            m_kdtree = kdtree_new(ndim, (kdtree_eval_f)bnode_axis_val);
-    }else m_list = list_new();
+    m_avl = NULL;
+    /* allocing desired structure */
+    if( !ndim )
+        m_list = list_new();
+    else if( ndim == 1 )
+        m_avl = new_avltree((avl_cmp_f)bnode_profit1_cmp);
+    else
+        m_kdtree = kdtree_new(ndim, (kdtree_eval_f)bnode_profit_val);
 
     /**********************************************************************
     * DOM 1
@@ -864,16 +926,16 @@ Bazgan *_bazgan_iter(Bazgan *bazgan, int idx, int ndim){
             if( bnode_lex_cmp(j_node, child) < 0 )
                 break;
 
-            _mantain_non_dom(j_node, new_avl_lex, m_list, m_kdtree, to_be_freeded);
+            _mantain_non_dom(j_node, new_avl_lex, m_list, m_avl, m_kdtree, to_be_freeded);
             j_node = avliter_forward(j_iter);
         }
-        _mantain_non_dom(child, new_avl_lex, m_list, m_kdtree, to_be_freeded);
+        _mantain_non_dom(child, new_avl_lex, m_list, m_avl, m_kdtree, to_be_freeded);
         i_node = avliter_forward(i_iter);
     }
 
     /* Inserting remaining j_nodes */
     while( j_node ){
-        _mantain_non_dom(j_node, new_avl_lex, m_list, m_kdtree, to_be_freeded);
+        _mantain_non_dom(j_node, new_avl_lex, m_list, m_avl, m_kdtree, to_be_freeded);
         j_node = avliter_forward(j_iter);
     }
     /***   BAZGAN UPDATE   ***/

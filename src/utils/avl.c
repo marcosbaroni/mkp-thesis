@@ -1022,13 +1022,13 @@ AVLIter* avl_get_higher_lower_than(AVLTree *avl, void *a){
     node = avl->root;
 
     if( !node )
-        return NULL;
+        return avliter_new(avl, NULL);
 
     /* Finding a "less than" candidate */
     while( cmp(node->info, a) >= 0 ){
         node = node->left;
         if( !node )
-            return NULL;
+            return avliter_new(avl, NULL);
     }
 
     /* Search for a highers */
@@ -1053,13 +1053,13 @@ AVLIter* avl_get_lower_higher_than(AVLTree *avl, void *a){
     node = avl->root;
 
     if( !node )
-        return NULL;
+        return avliter_new(avl, NULL);
 
     /* Finding a "higher than" candidate */
     while( cmp(node->info, a) >= 0 ){
         node = node->right;
         if( !node )
-            return NULL;
+            return avliter_new(avl, NULL);
     }
 
     /* Search for a lowers */
