@@ -573,7 +573,7 @@ void bazgan_ub_filter(
     /* LB nodes */
     if( lower_bounds_avl )
         avl_apply_to_all(lower_bounds_avl, (void(*)(void*))bnode_free);
-    if( lower_bounds_kdtree )
+    else if( lower_bounds_kdtree )
         kdtree_apply_to_all(lower_bounds_kdtree, (void(*)(void*))bnode_free);
     else
         list_apply(lower_bounds_list, (void(*)(void*))bnode_free);
@@ -773,8 +773,13 @@ BazganNode *_mantain_non_dom_avl(
     while( (m_bnode = avliter_forward(iter)) && !dominant )
         if( bnode_dominates(m_bnode, bnode) )
             dominant = m_bnode;
-
     avliter_free(iter);
+
+    if( !dominant ){
+        avl_insert(c_avl, bnode);
+        avl_insert(m_avl, bnode);
+    }
+
     return dominant;
 }
 
@@ -837,7 +842,7 @@ BazganNode *_mantain_non_dom(
 
     if( m_list )
         list_dominant = _mantain_non_dom_list(bnode, c_avl, m_list, to_be_freeded);
-    if( avl_dominant )
+    if( m_avl )
         avl_dominant = _mantain_non_dom_avl(bnode, c_avl, m_avl, to_be_freeded);
     if( m_kdtree )
         kdtree_dominant = _mantain_non_dom_kdtree(bnode, c_avl, m_kdtree, to_be_freeded);
