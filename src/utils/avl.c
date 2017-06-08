@@ -996,19 +996,15 @@ void *avliter_get(AVLIter *avliter){
 void* avliter_remove(AVLIter *avliter){
     void *info;
     AVLNode *next;
-    printf("to remove a avl node:%x tree: %x\n", avliter->node, avliter->tree);
     avl_fprint_pretty(stdout, avliter->tree);
 
     info = NULL;
     if( avliter->node ){
-        printf("old next: %x, info: %x\n", avliter->node, avliter->node->info);
         next = avlnode_get_next(avliter->node);
         sub_avl_remove(avliter->tree, avliter->node);
         avliter->node = next;
-        if( next ){
-            printf("next: %x, info: %x\n", next, next->info);
+        if( next )
             info = next->info;
-        }
     }
 
     return info;

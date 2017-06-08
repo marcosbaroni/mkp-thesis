@@ -275,7 +275,6 @@ int execute_bazgan(int argc, char **argv){
 
     use_kdtree = 0;
 
-    printf("ndim = %d\n", ndim);
     /* Execute Bazgan */
     bazgan = bazgan_exec(mokp, kmax, ndim);
     //bazgan_exec_simple(mokp, kmax);

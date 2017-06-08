@@ -245,7 +245,7 @@ void bnode_fprintf(FILE *fout, BazganNode *node){
     ulonglongs_bits_fprintf(fout, node->sol, node->bazgan->mokp->n);
 #endif
     fprintf(fout, " [%x] ", node);
-    fprintf(fout, "\n");
+    //fprintf(fout, "\n");
 
     return;
 }
@@ -336,17 +336,16 @@ BazganNode *bnode_list_find_dominator(
 
 BazganNode *bnode_avl_find_dominator(
     BazganNode *upper,
-    AVLTree *lower_bounds_avl
+    AVLTree *avl_pool
 ){
     BazganNode *dominator, *bnode;
     AVLIter *iter;
 
     dominator = NULL;
-    iter = avl_get_higher_lower_than(lower_bounds_avl, upper);
-    while( (bnode = avliter_forward(iter)) && !dominator ){
-        if( bnode_dominates(bnode, upper) )
+    iter = avl_get_lower_higher_than(avl_pool, upper);
+    while( (bnode = avliter_forward(iter)) && !dominator )
+        if( bnode_profit_dominates(bnode, upper) )
             dominator = bnode;
-    }
 
     avliter_free(iter);
     return dominator;
@@ -762,25 +761,9 @@ BazganNode *_mantain_non_dom_avl(
     AVLTree *m_avl,
     List *to_be_freeded
 ){
-    Bazgan *bazgan;
     BazganNode *dominant;
-    BazganNode *m_bnode;
-    AVLIter *iter;
 
-    printf("using avltree for :\n");
-    bnode_printf(bnode);
-    printf("\n");
-    dominant = NULL;
-    iter = avl_get_lower_higher_than(m_avl, bnode);
-    while( (m_bnode = avliter_forward(iter)) && !dominant ){
-        bnode_printf(m_bnode);
-        printf(" profit dominantes\n");
-        bnode_printf(bnode);
-        if( bnode_profit_dominates(m_bnode, bnode) )
-            dominant = m_bnode;
-        printf("%s\n\n", dominant ? "YES " : "NO ");
-    }
-    avliter_free(iter);
+    dominant = bnode_avl_find_dominator(bnode, m_avl);
 
     if( !dominant ){
         avl_insert(c_avl, bnode);
@@ -918,7 +901,6 @@ Bazgan *_bazgan_iter(Bazgan *bazgan, int idx, int ndim){
             break;
         j_node = avliter_forward(j_iter);
     }
-    printf(" iter %d\n", idx);
 
     /**********************************************************************
     * DOM 2
