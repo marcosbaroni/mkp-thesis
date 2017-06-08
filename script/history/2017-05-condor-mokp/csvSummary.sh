@@ -40,27 +40,40 @@ $CSV2SQL $csv_arq $db_arq
 sqlite3 $db_arq <<!
 $pretty_str
 .header on
+.separator ';'
 SELECT
-    -- PARAMS --
     n,
-    -- TIME --
-    printf("%.3f", (select avg(time) from mokp as m2 where dim = $baz_dim AND m1.n = m2.n AND m2.c = $c AND m2.np = $np)) as time,
-    printf("%.3f", (select avg(time) from mokp as m2 where dim = $kdt_dim AND m1.n = m2.n AND m2.c = $c AND m2.np = $np)) as time2,
-    -- COMP --
-    printf("%.3f", (select avg(ncomp) from mokp as m2 where dim = $baz_dim AND m1.n = m2.n AND m2.c = $c AND m1.np = $np)) as comp,
-    printf("%.3f", (select avg(ncomp) from mokp as m2 where dim = $kdt_dim AND m1.n = m2.n AND m2.c = $c AND m1.np = $np)) as comp2,
-    -- |ND| --
-    printf("%.3f", avg(nd)) as nd,
-    -- MAXND --
-    printf("%.3f", avg(maxnd)) as maxnd,
-    -- COUNTS --
-    (select count(*) from mokp as m2 where dim = $baz_dim AND m1.n = m2.n AND m2.c = $c AND m2.np = $np) as qtd,
-    (select count(*) from mokp as m2 where dim = $kdt_dim AND m1.n = m2.n AND m2.c = $c AND m2.np = $np) as qtd2
-FROM mokp as m1
-WHERE m1.np = $np
-  AND m1.c = $c
-GROUP BY n
-ORDER BY n ASC;
+    printf("%.3f", time) as time,
+    printf("%.3f", time2) as time2,
+    printf("%.3f", (time+0.0001)/(time2+0.0001)) as "(spd_up)",
+    printf("%.3f", comp) as comp,
+    printf("%.3f", comp2) as comp2,
+    printf("%.3f", (comp/comp2)) as "(cmp_up)",
+    nd,
+    maxnd,
+    qtd, qtd2
+FROM
+    (SELECT
+        -- PARAMS --
+        n,
+        -- TIME --
+        (select avg(time) from mokp as m2 where dim = $baz_dim AND m1.n = m2.n AND m2.c = $c AND m2.np = $np) as time,
+        (select avg(time) from mokp as m2 where dim = $kdt_dim AND m1.n = m2.n AND m2.c = $c AND m2.np = $np) as time2,
+        -- COMP --
+        (select avg(ncomp) from mokp as m2 where dim = $baz_dim AND m1.n = m2.n AND m2.c = $c AND m1.np = $np) as comp,
+        (select avg(ncomp) from mokp as m2 where dim = $kdt_dim AND m1.n = m2.n AND m2.c = $c AND m1.np = $np) as comp2,
+        -- |ND| --
+        avg(nd) as nd,
+        -- MAXND --
+        avg(maxnd) as maxnd,
+        -- COUNTS --
+        (select count(*) from mokp as m2 where dim = $baz_dim AND m1.n = m2.n AND m2.c = $c AND m2.np = $np) as qtd,
+        (select count(*) from mokp as m2 where dim = $kdt_dim AND m1.n = m2.n AND m2.c = $c AND m2.np = $np) as qtd2
+    FROM mokp as m1
+    WHERE m1.np = $np
+      AND m1.c = $c
+    GROUP BY n
+    ORDER BY n ASC);
 !
 
 rm $db_arq $csv_arq
