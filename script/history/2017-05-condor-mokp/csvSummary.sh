@@ -12,6 +12,7 @@ np=$2
 c=$3
 pretty_str=".mode csv"
 
+
 # Deciding dim analized
 if [ $np -eq "2" ]; then
     baz_dim=1
@@ -26,6 +27,7 @@ if [ $# -gt 3 ]; then
     fi
 fi
 
+
 # Building data file
 db_arq=`mktemp`
 csv_arq=`mktemp`
@@ -35,6 +37,7 @@ echo "dim;c;np;n;i;nd;ncomp;time;maxnd;qtd" >> $csv_arq
 echo "int;int;int;int;int;int;int;float;int" >> $csv_arq
 cat $res_arq >> $csv_arq
 $CSV2SQL $csv_arq $db_arq
+
 
 # Quering
 sqlite3 $db_arq <<!
@@ -76,5 +79,7 @@ FROM
     ORDER BY n ASC);
 !
 
+
+#Cleaning
 rm $db_arq $csv_arq
 
