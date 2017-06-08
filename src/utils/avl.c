@@ -1024,23 +1024,20 @@ AVLIter* avl_get_higher_lower_than(AVLTree *avl, void *a){
     if( !node )
         return avliter_new(avl, NULL);
 
-    /* Finding a "less than" candidate */
-    while( cmp(node->info, a) >= 0 ){
-        node = node->left;
-        if( !node )
+    /* Finding a "lower than" candidate */
+    while( cmp(node->info, a) >= 0 )
+        if( !(node = node->left) )
             return avliter_new(avl, NULL);
-    }
 
-    /* Search for a highers */
+    /* Searchnig for highers */
     scout = node->right;
-    while( scout ){
+    while( scout )
         if( cmp(scout->info, a) < 0 ){
-            scout = scout->right;
             node = scout;
+            scout = scout->right;
         }else{
             scout = scout->left;
         }
-    }
 
     return avliter_new(avl, node);
 }
@@ -1056,7 +1053,7 @@ AVLIter* avl_get_lower_higher_than(AVLTree *avl, void *a){
         return avliter_new(avl, NULL);
 
     /* Finding a "higher than" candidate */
-    while( cmp(node->info, a) >= 0 ){
+    while( cmp(node->info, a) <= 0 ){
         node = node->right;
         if( !node )
             return avliter_new(avl, NULL);
@@ -1066,8 +1063,8 @@ AVLIter* avl_get_lower_higher_than(AVLTree *avl, void *a){
     scout = node->left;
     while( scout ){
         if( cmp(scout->info, a) > 0 ){
-            scout = scout->left;
             node = scout;
+            scout = scout->left;
         }else{
             scout = scout->right;
         }

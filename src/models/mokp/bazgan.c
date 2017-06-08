@@ -767,12 +767,19 @@ BazganNode *_mantain_non_dom_avl(
     BazganNode *m_bnode;
     AVLIter *iter;
 
-    printf("using avltree \n");
+    printf("using avltree for :\n");
+    bnode_printf(bnode);
+    printf("\n");
     dominant = NULL;
-    iter = avl_get_higher_lower_than(m_avl, bnode);
-    while( (m_bnode = avliter_forward(iter)) && !dominant )
-        if( bnode_dominates(m_bnode, bnode) )
+    iter = avl_get_lower_higher_than(m_avl, bnode);
+    while( (m_bnode = avliter_forward(iter)) && !dominant ){
+        bnode_printf(m_bnode);
+        printf(" profit dominantes\n");
+        bnode_printf(bnode);
+        if( bnode_profit_dominates(m_bnode, bnode) )
             dominant = m_bnode;
+        printf("%s\n\n", dominant ? "YES " : "NO ");
+    }
     avliter_free(iter);
 
     if( !dominant ){
@@ -911,6 +918,7 @@ Bazgan *_bazgan_iter(Bazgan *bazgan, int idx, int ndim){
             break;
         j_node = avliter_forward(j_iter);
     }
+    printf(" iter %d\n", idx);
 
     /**********************************************************************
     * DOM 2
