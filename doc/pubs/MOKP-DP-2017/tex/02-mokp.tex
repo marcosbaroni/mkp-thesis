@@ -1,4 +1,51 @@
-% Breve resumo sobre métodos de programação dynamica
-% Explicação overview do método para o MOKP
+% Breve definicao de multiobjective opt
+A general multiobjective optimization problem can be described as a vector
+function $f$ that maps a tuple of $n$ parameters (decision variables) to a tuple
+of $\np$ objectives.
+Formally:
+\begin{align*}
+  \text{min/max} ~ \sol{y} &= f(\sol{x}) = 
+    \big(f_1(\sol{x})
+    ,f_2(\sol{x})
+    ,\ldots
+    ,f_{\np}(\sol{x})\big) \\
+  \text{subject to} ~ \sol{x} & = (x_1, x_2, \ldots, x_n) \in X
+\end{align*}
+where $\sol{x}$ is called the \emph{decision vector} or \emph{solution}, $X$ denotes the set
+of feasible solutions, and $\sol{y}$ is the \emph{objective vector} or \emph{criterion vector} where
+each objective has to be minimized (or maximized).
+
+Considering two decision vectors $\sol{a}, \sol{b} \in X$, $a$ is said to
+\emph{dominate} $b$ if, and only if:
+\begin{align*}
+    \forall i &\in \{1, 2, \ldots, \np\}: f_i(\sol{a}) \geq f_i(\sol{b}) \\
+    \exists j &\in \{1, 2, \ldots, \np\}: f_j(\sol{a}) > f_j(\sol{b})
+\end{align*}
+
+A solution $\sol{a} \in X$ is called \emph{efficient} or \emph{non-dominated}
+if there is not other feasible solution $\sol{b} \in X$ such that $\sol{b}$ dominates $\sol{a}$.
+The set of solutions of a multiobjective optimization problem consists of all efficient solutions.
+This set is known as \emph{Pareto optimal}.
+
+The instance of a multiobjective knapsack problem with $\np$
+objectives consists of an integer capacity $W > 0$ and $n$ items.
+Each item $i$ has a positive weight $w^i$ and $\np$ non negative integer
+profits $p_{i}^{1}, \ldots, p_{i}^{\np}$.
+A solution is represented by a vector $\sol{x} = (x_1, \ldots, x_n)$ of binary
+decision variables $x_i$, such that $x_i = 1$ if item $i$ is included in the
+solution and $0$ otherwise, satisfing the capacity of the knapsack.
+For any instance of the problem, we aim at determining the set of efficient solutions.
+
+Formally the definition of the problem is:
+\begin{align*}
+    \text{max   } & f(\sol{x}) = 
+      \big(f_1(\sol{x}) ,f_2(\sol{x}) ,\ldots ,f_{\np}(\sol{x})\big) \\
+    \text{subject to   } & w(\sol{x}) < W \\
+    & x_{i} \in \{0, 1\} \quad i = 1, \ldots, n \\
+    \text{where} \phantom{mmmmm} \\
+    f_j(\sol{x}) &= \sum_{i=1}^{n} v^j_i x_i \quad j = 1, \ldots, \np \\
+    w(\sol{x}) &= \sum_{i=1}^{n} w_i x_i
+\end{align*}
+
 % Definições, Propriedados e teoremas para o MOKP: dominancia
 

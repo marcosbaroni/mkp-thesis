@@ -3,9 +3,12 @@
 \usepackage{amsfonts}
 \usepackage{amssymb,amsmath}
 \usepackage{graphicx}
+\usepackage{bm}
 
 %%%   PREDEFINITIONS   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newcommand{\kdtree}{$k$-d~tree}
+\newcommand{\sol}[1]{\boldsymbol{#1}}
+\newcommand{\np}{k}
 
 \begin{document}
 
@@ -56,12 +59,12 @@
 % THE MOKP Problem
 \input{tex/01-intro.tex}
 
-\section{The Multidimensional Knapsack Problem}
+\section{The Multiobjective Knapsack Problem}
 \label{sec:mokp}
 \input{tex/02-mokp.tex}
 
 \section{The Dynamic Programing Algorithm}
-\label{sec:mokp}
+\label{sec:progdyn}
 \input{tex/03-dynprog.tex}
 
 \section{The use of data structure}
