@@ -11,31 +11,35 @@ Formally:
     ,f_{\np}(\sol{x})\big) \\
   \text{subject to} ~ \sol{x} & = (x_1, x_2, \ldots, x_n) \in X
 \end{align*}
-where $\sol{x}$ is called the \emph{decision vector} or \emph{solution}, $X$ denotes the set
-of feasible solutions, and $\sol{y}$ is the \emph{objective vector} or \emph{criterion vector} where
+where $\sol{x}$ is the \emph{decision vector}, $X$ denotes the set
+of feasible solutions, and $\sol{y}$ is the \emph{objective vector} where
 each objective has to be minimized (or maximized).
 
-Considering two decision vectors $\sol{a}, \sol{b} \in X$, $a$ is said to
-\emph{dominate} $b$ if, and only if:
+Considering two decision vectors $\sol{a}, \sol{b} \in X$, $\sol{a}$ is said to
+\emph{dominate} $\sol{b}$ if, and only if $\sol{a}$ is at least as good as $\sol{b}$
+in all objectives and better than $\sol{b}$ in at least one objective.
+Formally:
 \begin{align*}
     \forall i &\in \{1, 2, \ldots, \np\}: f_i(\sol{a}) \geq f_i(\sol{b}) \\
     \exists j &\in \{1, 2, \ldots, \np\}: f_j(\sol{a}) > f_j(\sol{b})
 \end{align*}
+A feasible solution $\sol{a} \in X$ is called \emph{efficient} %or \emph{non-dominated}
+if its not dominated by any other feasible solution.
+%if there is no other feasible solution $\sol{b} \in X$ such that $\sol{b}$ dominates $\sol{a}$.
+The set of all efficient solutions of a multiobjective optimization problem is
+known as \emph{Pareto optimal}.
+Solving a multiobjective problem consists in giving its Pareto optimal set.
 
-A solution $\sol{a} \in X$ is called \emph{efficient} or \emph{non-dominated}
-if there is not other feasible solution $\sol{b} \in X$ such that $\sol{b}$ dominates $\sol{a}$.
-The set of solutions of a multiobjective optimization problem consists of all efficient solutions.
-This set is known as \emph{Pareto optimal}.
-
-The instance of a multiobjective knapsack problem with $\np$
+An instance of a multiobjective knapsack problem (MOKP) with $\np$
 objectives consists of an integer capacity $W > 0$ and $n$ items.
-Each item $i$ has a positive weight $w^i$ and $\np$ non negative integer
-profits $p_{i}^{1}, \ldots, p_{i}^{\np}$.
+Each item $i$ has a positive weight $w_i$ and non negative integer
+profits $p_i^1, p_i^2, \ldots, p_{i}^{\np}$.
+Each profit $p_i^k$ represents the contribution of the $i$-th item for $k$-th objective.
 A solution is represented by a vector $\sol{x} = (x_1, \ldots, x_n)$ of binary
-decision variables $x_i$, such that $x_i = 1$ if item $i$ is included in the
-solution and $0$ otherwise, satisfing the capacity of the knapsack.
-For any instance of the problem, we aim at determining the set of efficient solutions.
-
+decision variables such that $x_i = 1$ if, and only if item $i$ is included in the
+solution.
+A solution is feasible if the total weight included in the knapsack does
+not exceed its capacity.
 Formally the definition of the problem is:
 \begin{align*}
     \text{max   } & f(\sol{x}) = 
@@ -47,13 +51,15 @@ Formally the definition of the problem is:
     w(\sol{x}) &= \sum_{i=1}^{n} w_i x_i
 \end{align*}
 
-The MOKP is considered a \nphard{} problem, since it is a generalization
-of the well-known 0$-$1 knapsack problem and
-it is quite difficult to determine the Pareto optimal set for the MOKP,
-especially for high dimension instances, in which the Pareto set it self tends
-to grow exponentially.
-For this reason, the development of methods efficiently deal with high-dimension
-instances is...
+The MOKP is considered a \nphard{} problem since it is a generalization
+of the well-known 0$-$1 knapsack problem, in which $\np = 1$.
+It is quite difficult to determine the Pareto optimal set for the MOKP,
+especially for high dimension instances, in which the solution it self
+(Pareto optimal set) tends to grow exponentially.
+Even for the bi-objective case, small problems may prove intractable.
+For this reason we are interested in developing efficient methods for
+handling large solution sets, which may bring tractability to previously
+intractable instances.
 
 % Definições, Propriedados e teoremas para o MOKP: dominancia
 
