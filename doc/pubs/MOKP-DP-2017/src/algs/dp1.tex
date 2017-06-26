@@ -1,12 +1,13 @@
 \begin{algorithm}
-    \caption{}
-    \label{euclid}
+    \caption{Basic dynamic programming algorithm for MOKP}
+    \label{nemull}
     \begin{algorithmic}[1] % The number tells where the line numbering should start
-      \Function{DP}{x}
-        \State $S^0 = \{\vec{0}\}$
+        \Function{DP}{$\bsym{p}, \bsym{w}, W$}
+        \State $S^0 = \big\{\emptyset\big\}$
         \For{$i \gets 1, n$}
-          \State $S'^0 = S^{i-1} \cup \}$
-        \EndFor{$i \gets 1, n$}
+          \State $S_1^i = S^{i-1} \cup \{\sol{x} \cup i \:|\: \sol{x} \in S^{i-1}\}$
+          \State $S^i = \{\sol{x} \:|\: \nexists \sol{a} \in S_1^i: \dominates{a}{x} \}$
+        \EndFor
       \EndFunction
     \end{algorithmic}
 \end{algorithm}

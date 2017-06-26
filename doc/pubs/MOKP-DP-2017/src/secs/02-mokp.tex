@@ -19,10 +19,13 @@ Considering two decision vectors $\sol{a}, \sol{b} \in X$, $\sol{a}$ is said to
 \emph{dominate} $\sol{b}$ if, and only if $\sol{a}$ is at least as good as $\sol{b}$
 in all objectives and better than $\sol{b}$ in at least one objective.
 Formally:
-\begin{align*}
-    \forall i &\in \{1, 2, \ldots, \np\}: f_i(\sol{a}) \geq f_i(\sol{b}) \\
-    \exists j &\in \{1, 2, \ldots, \np\}: f_j(\sol{a}) > f_j(\sol{b})
-\end{align*}
+\begin{displaymath}
+    \dominates{a}{b} = \left\{
+      \begin{array}{c}
+    \forall i \in \{1, 2, \ldots, \np\}: f_i(\sol{a}) \geq f_i(\sol{b}) \\
+    \exists j \in \{1, 2, \ldots, \np\}: f_j(\sol{a}) > f_j(\sol{b})
+  \end{array} \right.
+\end{displaymath}
 A feasible solution $\sol{a} \in X$ is called \emph{efficient} %or \emph{non-dominated}
 if its not dominated by any other feasible solution.
 %if there is no other feasible solution $\sol{b} \in X$ such that $\sol{b}$ dominates $\sol{a}$.
@@ -35,20 +38,19 @@ objectives consists of an integer capacity $W > 0$ and $n$ items.
 Each item $i$ has a positive weight $w_i$ and non negative integer
 profits $p_i^1, p_i^2, \ldots, p_{i}^{\np}$.
 Each profit $p_i^k$ represents the contribution of the $i$-th item for $k$-th objective.
-A solution is represented by a vector $\sol{x} = (x_1, \ldots, x_n)$ of binary
-decision variables such that $x_i = 1$ if, and only if item $i$ is included in the
-solution.
+A solution is represented by a set $\sol{s} \subseteq \{1, \ldots, n\}$
+containing the indexes of the itens included in the solution.
 A solution is feasible if the total weight included in the knapsack does
 not exceed its capacity.
 Formally the definition of the problem is:
 \begin{align*}
-    \text{max   } & f(\sol{x}) = 
-      \big(f_1(\sol{x}) ,f_2(\sol{x}) ,\ldots ,f_{\np}(\sol{x})\big) \\
-    \text{subject to   } & w(\sol{x}) < W \\
-    & x_{i} \in \{0, 1\} \quad i = 1, \ldots, n \\
+    \text{max   } & f(\sol{s}) = 
+      \big(f_1(\sol{s}) ,f_2(\sol{s}) ,\ldots ,f_{\np}(\sol{s})\big) \\
+    \text{subject to   } & w(\sol{s}) < W \\
+    & \sol{s} \subseteq \{1, \ldots, n\}\\
     \text{where} \phantom{mmmmm} \\
-    f_j(\sol{x}) &= \sum_{i=1}^{n} v^j_i x_i \quad j = 1, \ldots, \np \\
-    w(\sol{x}) &= \sum_{i=1}^{n} w_i x_i
+    f_j(\sol{s}) &= \sum_{i \in \sol{s}} p^j_i\\
+    w(\sol{s}) &= \sum_{i \in \sol{s}} w_i
 \end{align*}
 
 The MOKP is considered a \nphard{} problem since it is a generalization
