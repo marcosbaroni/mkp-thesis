@@ -21,11 +21,14 @@ in all objectives and better than $\sol{b}$ in at least one objective.
 Formally:
 \begin{displaymath}
     \dominates{a}{b} = \left\{
-      \begin{array}{c}
-    \forall i \in \{1, 2, \ldots, \np\}: f_i(\sol{a}) \geq f_i(\sol{b}) \\
-    \exists j \in \{1, 2, \ldots, \np\}: f_j(\sol{a}) > f_j(\sol{b})
+      \begin{array}{l}
+          \forall i \in \{1, 2, \ldots, \np\}: f_i(\sol{a}) \geq f_i(\sol{b}) \text{and}\\
+          \exists j \in \{1, 2, \ldots, \np\}: f_j(\sol{a}) > f_j(\sol{b})
   \end{array} \right.
 \end{displaymath}
+This relation is based on the dominance relation proposed by Weingartner and
+Ness for the multidimensional knapsack problem~\cite{weingartner1967methods}.
+
 A feasible solution $\sol{a} \in X$ is called \emph{efficient} %or \emph{non-dominated}
 if its not dominated by any other feasible solution.
 %if there is no other feasible solution $\sol{b} \in X$ such that $\sol{b}$ dominates $\sol{a}$.
