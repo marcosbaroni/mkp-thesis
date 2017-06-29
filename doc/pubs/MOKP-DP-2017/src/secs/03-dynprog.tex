@@ -6,21 +6,52 @@
 
 \missing{Paragrafo de introducao da secao, justificando toda a explicacao que segue..}
 
-We will introduce the dynamic programming algorithm for the MOKP proposed in \cite{bazgan2009}.
+We will introduce the dynamic programming (DP) algorithm for the MOKP proposed in \cite{bazgan2009}.
 This algorithm is based on the classical dynamic programming algorithm proposed in \cite{nemhauser1969discrete},
 although with some optimizations.
 
-\subsection{The basic dynamic programming algorithm}
+A solution $\sol{x}$ is called \emph{deficient} if it has available space
+to fit more item, i.e.\,, $W - w(\sol{x}) \leq min\{ w_i : i \notin \sol{x} \}$.
+
+\emph{partial dominance} Formally:
+\begin{displaymath}
+    \dominatesp{x}{y} = \left\{
+      \begin{array}{l}
+          \dominates{x}{y} \quad \text{and}\\
+          w(\sol{x}) \leq w(\sol{y})
+  \end{array} \right.
+\end{displaymath}
+
+\subsection{The basic DP algorithm and the dominance filter}
 The sequential process used in the algorithm consists of $n$ stages.
-At the $i$ stage the algorithm generates a set $S^k$ solutions that correspond
-to subsets containing exclusively the first $i$ itens, i.e.\ ,
+The Pareto optimal set is obtained in this constructive way and finally returned after
+$n$-th stage.
+
+It's pseudocode is presented in Algorithm~\ref{alg:nemull}.
+\begin{algorithm}
+  \caption{Basic dynamic programming algorithm for MOKP}
+  \label{alg:nemull}
+  \input{src/algs/dp1.tex}
+\end{algorithm}
+At the $k$-th stage the algorithm receives a set $S^{k-1}$ of solutions and
+generates the set $S^k$ of solutions that correspond
+to subsets containing exclusively the first $k$ itens, i.e.\,,
 $\forall\sol{x} \in S^k, \sol{x} \subseteq \{1, \ldots, k\}$.
 
-\input{src/algs/dp1.tex}
+This is done by expanding $S^{k-1}$ by adding a copy of each solution with the
+inclusion of $k$ item (line 4).
+We will refer as \emph{partial solutions} all the solutions handled by 
+stages prior to $n$-th stage.
+
+The clever part of the algorithm is that it uses the concept of dominance
+on partial solutions to filter solutions that will not lead to efficient solutions (line 5).
+Considering two partial solutions $\sol{x}, \sol{y} \in S^k$, if
+$\sol{x}$ is dominated by $\sol{y}$ then we may discard $\sol{x}$ since all
+solutions generated from $\sol{x}$ will not be 
 
 \subsection{Avoiding deficient solutions}
 
-...those solutions
+The first optimization that can be made on algorithm is avoiding deficient solution.
 
 \subsection{Removing unpromissing solutions}
 

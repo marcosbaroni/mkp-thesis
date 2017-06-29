@@ -1,13 +1,11 @@
-\begin{algorithm}
-    \caption{Basic dynamic programming algorithm for MOKP}
-    \label{nemull}
-    \begin{algorithmic}[1] % The number tells where the line numbering should start
-        \Function{DP}{$\bsym{p}, \bsym{w}, W$}
-        \State $S^0 = \big\{\emptyset\big\}$
-        \For{$i \gets 1, n$}
-          \State $S_1^i = S^{i-1} \cup \{\sol{x} \cup i \:|\: \sol{x} \in S^{i-1}\}$
-          \State $S^i = \{\sol{x} \:|\: \nexists \sol{a} \in S_1^i: \dominates{a}{x} \}$
-        \EndFor
-      \EndFunction
-    \end{algorithmic}
-\end{algorithm}
+\begin{algorithmic}[1] % The number tells where the line numbering should start
+    \Function{DP}{$\bsym{p}, \bsym{w}, W$}
+    \State $S^0 = \big\{\emptyset\big\}$
+    \For{$k \gets 1, n$}
+      \State $S_*^k = S^{k-1} \cup \{\sol{x} \cup k \:|\: \sol{x} \in S^{k-1}\}$
+      \State $S^k = \{\sol{x} \:|\: \nexists \sol{a} \in S_*^k: \dominatesp{a}{x} \}$
+    \EndFor
+  \State $P = \{\sol{x} \:|\: \nexists \sol{a} \in S_*^k: \dominates{a}{x} \}$
+  \State \Return $P$
+  \EndFunction
+\end{algorithmic}
