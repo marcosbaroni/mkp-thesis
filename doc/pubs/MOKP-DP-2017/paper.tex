@@ -1,7 +1,7 @@
 \documentclass{article}
 
 \usepackage{amsfonts}
-\usepackage{amssymb,amsmath}
+\usepackage{amssymb,amsmath,amsthm}
 \usepackage{graphicx}
 \usepackage{bm}
 
@@ -12,11 +12,14 @@
 \newcommand{\kdtree}{$k$-d~tree}
 \newcommand{\bsym}[1]{\boldsymbol{#1}}
 \newcommand{\sol}[1]{\boldsymbol{#1}}
-\newcommand{\np}{k}
+\newcommand{\np}{m}
 \newcommand{\nphard}{$\mathcal{NP}$-Hard}
 \newcommand{\missing}[1]{\fbox{\tiny \bf #1}}
+\newcommand{\weight}[1]{w(\sol{#1})}
 \newcommand{\dominates}[2]{dom(\sol{#1}, \sol{#2})}
 \newcommand{\dominatesp}[2]{dom_p(\sol{#1}, \sol{#2})}
+
+\newtheorem{theorem}{Theorem}
 
 \begin{document}
 

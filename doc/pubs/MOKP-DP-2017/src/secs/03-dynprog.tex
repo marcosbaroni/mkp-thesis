@@ -7,13 +7,23 @@
 \missing{Paragrafo de introducao da secao, justificando toda a explicacao que segue..}
 
 We will introduce the dynamic programming (DP) algorithm for the MOKP proposed in \cite{bazgan2009}.
-This algorithm is based on the classical dynamic programming algorithm proposed in \cite{nemhauser1969discrete},
-although with some optimizations.
+This algorithm is based on the classical dynamic programming algorithm proposed
+in \cite{nemhauser1969discrete}, although with some optimizations.
 
+The sequential process used in the algorithm consists of $n$ stages.
+The Pareto optimal set is obtained in this constructive way and finally returned after
+$n$-th stage.
+...we will apply three filter trying to reduce the number of solutions
+handled on mid stages of the algorithm.
+
+%\subsection{Preliminaries}
 A solution $\sol{x}$ is called \emph{deficient} if it has available space
-to fit more item, i.e.\,, $W - w(\sol{x}) \leq min\{ w_i : i \notin \sol{x} \}$.
-
-\emph{partial dominance} Formally:
+to fit one or more item, i.e.\,, $\weight{x} + min\{ w_i : i \notin \sol{x} \} \leq W$.
+Considering two solution $\sol{x}, \sol{y} \subseteq I_n$ we say
+$\sol{x}$ \emph{partially dominates} $\sol{y}$ if it dominates $\sol{y}$ and
+does not weight more than $\sol{y}$.
+For shortening we will say that $\sol{x}$ partially dominates $\sol{y}$ by saying $\dominatesp{x}{y}$.
+Formally:
 \begin{displaymath}
     \dominatesp{x}{y} = \left\{
       \begin{array}{l}
@@ -22,10 +32,7 @@ to fit more item, i.e.\,, $W - w(\sol{x}) \leq min\{ w_i : i \notin \sol{x} \}$.
   \end{array} \right.
 \end{displaymath}
 
-\subsection{The basic DP algorithm and the dominance filter}
-The sequential process used in the algorithm consists of $n$ stages.
-The Pareto optimal set is obtained in this constructive way and finally returned after
-$n$-th stage.
+\subsection{The basic DP algorithm and partial dominance filter}
 
 It's pseudocode is presented in Algorithm~\ref{alg:nemull}.
 \begin{algorithm}
@@ -35,7 +42,7 @@ It's pseudocode is presented in Algorithm~\ref{alg:nemull}.
 \end{algorithm}
 At the $k$-th stage the algorithm receives a set $S^{k-1}$ of solutions and
 generates the set $S^k$ of solutions that correspond
-to subsets containing exclusively the first $k$ itens, i.e.\,,
+to subsets containing exclusively the first $k$ items, i.e.\,,
 $\forall\sol{x} \in S^k, \sol{x} \subseteq \{1, \ldots, k\}$.
 
 This is done by expanding $S^{k-1}$ by adding a copy of each solution with the
@@ -43,19 +50,54 @@ inclusion of $k$ item (line 4).
 We will refer as \emph{partial solutions} all the solutions handled by 
 stages prior to $n$-th stage.
 
-The clever part of the algorithm is that it uses the concept of dominance
-on partial solutions to filter solutions that will not lead to efficient solutions (line 5).
+The clever part of the algorithm is that it uses the concept of partial dominance
+to filter solutions that will not lead to efficient solutions (line 5).
 Considering two partial solutions $\sol{x}, \sol{y} \in S^k$, if
-$\sol{x}$ is dominated by $\sol{y}$ then we may discard $\sol{x}$ since all
-solutions generated from $\sol{x}$ will not be 
+$\sol{x}$ is partially dominated by $\sol{y}$ then we may discard $\sol{x}$ since all
+solutions generated from $\sol{x}$ will be dominated by those generated from $\sol{y}$.
 
 \subsection{Avoiding deficient solutions}
 
-The first optimization that can be made on algorithm is avoiding deficient solution.
+The first optimization that can be made on Algorithm~\ref{alg:nemull} is
+avoiding the generation of deficient solution.
+As noted above on line 4, at $k$-th stage all previous solution is copied to the
+new solution set without adding $k$-th item.
+However coping a solution that has a lot o space left may lead to deficient
+solutions.
+
+Considering the $k$-th stage, if a partial solution $\sol{x} \in S^{k-1}$ has enough
+space to fit all remaining items, i.e.\,, $\weight{x} + \sum_{i=k}^n w_i \leq W$,
+$\sol{x}$ may be discarded and only $\sol{x} \cup \{k\}$ keeped, once
+keeping $\sol{x}$ will certainly lead to deficient solutions.
 
 \subsection{Removing unpromissing solutions}
 
+Another optimization that can be applied on later stages is
+filtering unpromissing solutions by computing upper bounds for its objectives
+functions and comparing it with the set of available lower bounds.
+An upper(lower) bound of a solution is an upper(lower) limit each objective
+value can achieve given its remaining capacity and the remaining items.
+If the upper bound of a solution is dominated by an existing lower bound,
+that solution can be discarded since it will not generate an efficient solution.
+
+A lower bound of a solution can be easily computed...
+
+Formally:
+\begin{displaymath}
+\end{displaymath}
+\begin{align*}
+    lb(\sol{x}) &= \big(lb_1(\sol{x}),\ldots, lb_\np(\sol{x}) \big) \\
+    \text{where} \phantom{mmmmm} \\
+    lb_i(\sol{x}) &= ...
+\end{align*}
+
 \subsection{Item order}
+
+\begin{algorithm}
+  \caption{Bazgan's DP algorithm for the MOKP}
+  \label{alg:bazgan}
+  \input{src/algs/dp2.tex}
+\end{algorithm}
 
 
 % Basic simple Dynamic Programming
