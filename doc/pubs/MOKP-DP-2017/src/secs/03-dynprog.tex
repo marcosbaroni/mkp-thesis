@@ -6,15 +6,22 @@
 
 \missing{Paragrafo de introducao da secao, justificando toda a explicacao que segue..}
 
-We will introduce the dynamic programming (DP) algorithm for the MOKP proposed in \cite{bazgan2009}.
-This algorithm is based on the classical dynamic programming algorithm proposed
-in \cite{nemhauser1969discrete}, although with some optimizations.
+This dynamic programming algorithm is based on the classical Nemhauser-Ullmann algorithm proposed
+in \cite{nemhauser1969discrete}, which consists of a sequential process of $n$ stages.
+At each stage a new set of solution is constructed using a concept of domination
+proposed by Weingartner and Ness~\cite{weingartner1967methods} for knapsack problems.
+At the the $n$-th stage the Pareto optimal set obtained.
 
-The sequential process used in the algorithm consists of $n$ stages.
-The Pareto optimal set is obtained in this constructive way and finally returned after
-$n$-th stage.
-...we will apply three filter trying to reduce the number of solutions
+Some property of the MOKP will be explored
+three filter as optimizations for the trying
+to reduce the number of solutions
 handled on mid stages of the algorithm.
+We will introduce the dynamic programming (DP) algorithm for the MOKP proposed in \cite{bazgan2009}.
+
+\subsection{Definitions}
+Before we will present some definitions...
+
+\subsection{The basic DP algorithm and partial dominance filter}
 
 %\subsection{Preliminaries}
 A solution $\sol{x}$ is called \emph{deficient} if it has available space
@@ -31,8 +38,6 @@ Formally:
           w(\sol{x}) \leq w(\sol{y})
   \end{array} \right.
 \end{displaymath}
-
-\subsection{The basic DP algorithm and partial dominance filter}
 
 It's pseudocode is presented in Algorithm~\ref{alg:nemull}.
 \begin{algorithm}
