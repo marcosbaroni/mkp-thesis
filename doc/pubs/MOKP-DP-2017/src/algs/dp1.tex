@@ -4,7 +4,7 @@
     \For{$k \gets 1, n$}
       \State $S_*^k = S^{k-1} \cup \{\sol{x} \cup k \:|\: \sol{x} \in S^{k-1}\}$
         \Comment{solutions extension}
-      \State $S^k = \{\sol{x} \:|\: \nexists \sol{a} \in S_*^k: \dominatesp{a}{x} \}$
+      \State $S^k = \{\sol{x} \:|\: \nexists \sol{a} \in S_*^k: \dominatesk{a}{x} \}$
         \Comment{partial dominance filter}
     \EndFor
   \State $P = \{\sol{x} \:|\: \nexists \sol{a} \in S^n: \dominates{a}{x} \}$

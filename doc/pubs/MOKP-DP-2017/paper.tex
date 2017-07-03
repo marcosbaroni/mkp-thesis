@@ -17,7 +17,8 @@
 \newcommand{\missing}[1]{\fbox{\tiny \bf #1}}
 \newcommand{\weight}[1]{w(\sol{#1})}
 \newcommand{\dominates}[2]{dom(\sol{#1}, \sol{#2})}
-\newcommand{\dominatesp}[2]{dom_p(\sol{#1}, \sol{#2})}
+\newcommand{\dominatesk}[2]{dom_k(\sol{#1}, \sol{#2})}
+\newcommand{\setIN}{\{1, \ldots, n\}}
 
 \newtheorem{theorem}{Theorem}
 
@@ -78,7 +79,7 @@
 \label{sec:progdyn}
 \input{src/secs/03-dynprog.tex}
 
-\section{The use of data structure}
+\section{The use of \kdtree{}}
 \label{sec:kdtree}
 \input{src/secs/04-kdtree.tex}
 

@@ -6,10 +6,10 @@
 
 \missing{Paragrafo de introducao da secao, justificando toda a explicacao que segue..}
 
-This dynamic programming algorithm is based on the classical Nemhauser-Ullmann algorithm proposed
-in \cite{nemhauser1969discrete}, which consists of a sequential process of $n$ stages.
-At each stage a new set of solution is constructed using a concept of domination
-proposed by Weingartner and Ness~\cite{weingartner1967methods} for knapsack problems.
+This dynamic programming algorithm is based on the classical Nemhauser-Ullmann (NU) algorithm proposed
+in \cite{nemhauser1969discrete} which consists of a sequential process of $n$ stages.
+At each stage a new set of solution is constructed using a concept of domination for knapsack problems
+proposed by Weingartner and Ness~\cite{weingartner1967methods}.
 At the the $n$-th stage the Pareto optimal set obtained.
 
 Some property of the MOKP will be explored
@@ -18,28 +18,28 @@ to reduce the number of solutions
 handled on mid stages of the algorithm.
 We will introduce the dynamic programming (DP) algorithm for the MOKP proposed in \cite{bazgan2009}.
 
-\subsection{Definitions}
+%\subsection{Definitions}
 Before we will present some definitions...
 
-\subsection{The basic DP algorithm and partial dominance filter}
+\subsection{The NU algorithm -- the knapsack dominance}
 
 %\subsection{Preliminaries}
 A solution $\sol{x}$ is called \emph{deficient} if it has available space
 to fit one or more item, i.e.\,, $\weight{x} + min\{ w_i : i \notin \sol{x} \} \leq W$.
-Considering two solution $\sol{x}, \sol{y} \subseteq I_n$ we say
-$\sol{x}$ \emph{partially dominates} $\sol{y}$ if it dominates $\sol{y}$ and
+Considering two solution $\sol{x}, \sol{y} \subseteq \setIN$ we say
+$\sol{x}$ \emph{knapsack-dominates} $\sol{y}$ if it dominates $\sol{y}$ and
 does not weight more than $\sol{y}$.
-For shortening we will say that $\sol{x}$ partially dominates $\sol{y}$ by saying $\dominatesp{x}{y}$.
+For shortening we will say that $\sol{x}$ knapsack-dominates $\sol{y}$ by saying $\dominatesk{x}{y}$.
 Formally:
 \begin{displaymath}
-    \dominatesp{x}{y} = \left\{
+    \dominatesk{x}{y} = \left\{
       \begin{array}{l}
           \dominates{x}{y} \quad \text{and}\\
           w(\sol{x}) \leq w(\sol{y})
   \end{array} \right.
 \end{displaymath}
 
-It's pseudocode is presented in Algorithm~\ref{alg:nemull}.
+The pseudocode for the algorithm is presented in Algorithm~\ref{alg:nemull}.
 \begin{algorithm}
   \caption{Basic dynamic programming algorithm for MOKP}
   \label{alg:nemull}
@@ -55,20 +55,25 @@ inclusion of $k$ item (line 4).
 We will refer as \emph{partial solutions} all the solutions handled by 
 stages prior to $n$-th stage.
 
-The clever part of the algorithm is that it uses the concept of partial dominance
+The clever part of the algorithm is that it uses the concept of knapsack dominance
 to filter solutions that will not lead to efficient solutions (line 5).
 Considering two partial solutions $\sol{x}, \sol{y} \in S^k$, if
-$\sol{x}$ is partially dominated by $\sol{y}$ then we may discard $\sol{x}$ since all
+$\sol{x}$ is knapsack-dominated by $\sol{y}$ then we may discard $\sol{x}$ since all
 solutions generated from $\sol{x}$ will be dominated by those generated from $\sol{y}$.
 
 \subsection{Avoiding deficient solutions}
 
 The first optimization that can be made on Algorithm~\ref{alg:nemull} is
-avoiding the generation of deficient solution.
-As noted above on line 4, at $k$-th stage all previous solution is copied to the
-new solution set without adding $k$-th item.
-However coping a solution that has a lot o space left may lead to deficient
-solutions.
+avoiding the generation of deficient solutions.
+At $k$-th stage all previous solution is copied to the
+new solution set without adding $k$-th item (line 4).
+However preserving solutions with a lot of space left, concerning the remaining itens,
+may lead to deficient solutions.
+
+\begin{theorem}
+   Considering the $k$-th stage of the algorithm and $\sol{x} \in S^{k-1}$.
+   If $\weight{x} + \sum_{i \in {\{k, \ldots, n\}}} w_i \leq W$ than 
+\end{theorem}
 
 Considering the $k$-th stage, if a partial solution $\sol{x} \in S^{k-1}$ has enough
 space to fit all remaining items, i.e.\,, $\weight{x} + \sum_{i=k}^n w_i \leq W$,
