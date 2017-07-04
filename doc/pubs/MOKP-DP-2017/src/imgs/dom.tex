@@ -1,0 +1,11 @@
+
+\begin{pspicture}(10, 10)
+  \def\sol#1#2{
+    \qdisk(#1,#2){0.1}
+    \rput(#1,#2){\rput(0,0.4){(#1,#2)}}
+  }
+  \psgrid[gridlabels=0,subgriddiv=0,gridwidth=0.02,griddots=10](1,1)(10,10)
+  \psaxes[arrowscale=2]{->}(1,1)(1,1)(10,10)
+  \sol{1}{1}
+  \sol{2}{2}
+\end{pspicture}
