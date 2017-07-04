@@ -1,35 +1,9 @@
-
-\begin{pspicture}(-2,-2)(10, 10)
-  % PONTOS-PARETO
-  \def\sol#1#2{
-    \qdisk(#1,#2){0.1}
-    \rput(#1,#2){\rput(0.3,0.4){(#1,#2)}}
-  }
-  % SOLUCAO DOMINADA
-  \def\dominated#1#2{
-    % ponto (x)
-    \rput(#1,#2){
-      \rput(0.3,0.4){(#1,#2)}
-      \psscalebox{1.3}{
-        \psline[linewidth=0.05]{cc-cc}(-.1,-.1)(.1,.1)
-        \psline[linewidth=0.05]{cc-cc}(.1,-.1)(-.1,.1)
-      }
-    }
-    % area
-    \psframe[linewidth=0.0001,fillstyle=hlines,hatchwidth=0.01,hatchcolor=black](0, 9)(#1,#2)
-  }
-  % LEGENDAS
-  \def\plbl{\rput[bl]{90}(-0.7,0.5){\Large Profit}}
-  \def\wlbl{\rput[bl](0.3,-1.2){\Large Weight}}
-  % GRID
-  \psgrid[gridlabels=0,subgriddiv=0,gridwidth=0.02,griddots=10](0,0)(9,9)
-  \psaxes[arrowscale=2]{->}(0,0)(0,0)(9,9)
-  \plbl
-  \wlbl
-  \sol{1}{1}
-  \sol{2}{2}
-  \sol{3}{4}
-  \sol{5}{5}
-  \sol{7}{6}
-  \dominated{4}{3}
+\begin{pspicture}(-2,-2)(9, 8)
+  \MGgridconfig{8}{7}
+  \MGsol{1}{1}
+  \MGsol{2}{2}
+  \MGsol{3}{4}
+  \MGsol{5}{5}
+  \MGsol{7}{6}
+  \MGdominated{4}{3}{7}
 \end{pspicture}
