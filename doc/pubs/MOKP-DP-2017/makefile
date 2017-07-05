@@ -11,6 +11,7 @@ latex:
 	latex $(TARGET).tex
 	bibtex $(TARGET).aux
 	latex $(TARGET).tex
+	latex $(TARGET).tex
 clean:
 	rm -f *.aux *.log *.bbl *.blg *.dvi *.ps
 

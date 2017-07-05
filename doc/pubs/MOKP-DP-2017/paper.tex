@@ -19,9 +19,10 @@
 \newcommand{\nphard}{$\mathcal{NP}$-Hard}
 \newcommand{\missing}[1]{\fbox{\tiny \bf #1}}
 \newcommand{\weight}[1]{w(\sol{#1})}
-\newcommand{\dominates}[2]{dom(\sol{#1}, \sol{#2})}
-\newcommand{\dominatesk}[2]{dom_k(\sol{#1}, \sol{#2})}
+\newcommand{\dom}[2]{dom(\sol{#1}, \sol{#2})}
+\newcommand{\domk}[2]{dom_k(\sol{#1}, \sol{#2})}
 \newcommand{\setIN}{\{1, \ldots, n\}}
+\newcommand{\ext}[2]{ext(#1, #2)}
 
 \input{src/mokp-grid.tex}   % configuracoes para desenho de grid
 
@@ -80,7 +81,7 @@
 \label{sec:mokp}
 \input{src/secs/02-mokp.tex}
 
-\section{The Dynamic Programing Algorithm}
+\section{The Dynamic Programming Algorithm}
 \label{sec:progdyn}
 \input{src/secs/03-dynprog.tex}
 

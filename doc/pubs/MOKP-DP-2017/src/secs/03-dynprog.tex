@@ -6,40 +6,53 @@
 
 \missing{Paragrafo de introducao da secao, justificando toda a explicacao que segue..}
 
-This dynamic programming algorithm is based on the classical Nemhauser-Ullmann (NU) algorithm proposed
-in \cite{nemhauser1969discrete} which consists of a sequential process of $n$ stages.
-At each stage a new set of solution is constructed using a concept of domination for knapsack problems
+The dynamic programming algorithm is based on the classical Nemhauser-Ullmann (NU) algorithm proposed
+in \cite{nemhauser1969discrete}.
+concept of domination for knapsack problems,
 proposed by Weingartner and Ness~\cite{weingartner1967methods}.
-At the the $n$-th stage the Pareto optimal set obtained.
 
-Some property of the MOKP will be explored
+Some property of the MOKP will be explored...
 three filter as optimizations for the trying
 to reduce the number of solutions
-handled on mid stages of the algorithm.
+handled on mid stages of the algorithm...
 We will introduce the dynamic programming (DP) algorithm for the MOKP proposed in \cite{bazgan2009}.
 
 %\subsection{Definitions}
-Before we will present some definitions...
 
 \subsection{The NU algorithm -- the knapsack dominance}
-
-%\subsection{Preliminaries}
-A solution $\sol{x}$ is called \emph{deficient} if it has available space
-to fit one or more item, i.e.\,, $\weight{x} + min\{ w_i : i \notin \sol{x} \} \leq W$.
+The knapsack-domination is the concept that mainly driver the algorithm...
 Considering two solution $\sol{x}, \sol{y} \subseteq \setIN$ we say
-$\sol{x}$ \emph{knapsack-dominates} $\sol{y}$ if it dominates $\sol{y}$ and
-does not weight more than $\sol{y}$.
-For shortening we will say that $\sol{x}$ knapsack-dominates $\sol{y}$ by saying $\dominatesk{x}{y}$.
+$\sol{x}$ \emph{knapsack-dominates} $\sol{y}$, denoted as $\domk{x}{y}$,
+if $\sol{x}$ dominates $\sol{y}$ and does not weight more than $\sol{y}$.
 Formally:
 \begin{displaymath}
-    \dominatesk{x}{y} = \left\{
-      \begin{array}{l}
-          \dominates{x}{y} \quad \text{and}\\
-          w(\sol{x}) \leq w(\sol{y})
-  \end{array} \right.
+  \domk{x}{y} = \left\{
+    \begin{array}{l}
+      \dom{x}{y} \quad \text{and} \\
+      w(\sol{x}) \leq w(\sol{y})
+    \end{array}
+  \right.
 \end{displaymath}
 
-\input{src/imgs/dom.tex}
+If $\domk{x}{y}$ for any common extender $e$, $\sol{x}
+
+\begin{theorem}
+  Consider two solutions $\sol{x}, \sol{y} \subseteq \setIN$
+  and $\sol{e}$ an extender for $\sol{x}$ and $\sol{y}$.
+  If $\domk{x}{y}$ than $\domk{x \cup e}{y \cup e}$.
+\end{theorem}
+\begin{proof}
+  
+\end{proof}
+
+Figure~\ref{fig:kdom} illustrates the concept for a problem with $m = 1$.
+Any solution in the cross-hatched area knapsack-dominates the marked solution.
+
+\begin{figure}
+  \input{src/imgs/dom.tex}
+  \caption{A knapsack-dominated solution.}
+  \label{fig:kdom}
+\end{figure}
 
 The pseudocode for the algorithm is presented in Algorithm~\ref{alg:nemull}.
 \begin{algorithm}
@@ -53,7 +66,7 @@ to subsets containing exclusively the first $k$ items, i.e.\,,
 $\forall\sol{x} \in S^k, \sol{x} \subseteq \{1, \ldots, k\}$.
 
 This is done by expanding $S^{k-1}$ by adding a copy of each solution with the
-inclusion of $k$ item (line 4).
+inclusion of $k$-th item (line 4).
 We will refer as \emph{partial solutions} all the solutions handled by 
 stages prior to $n$-th stage.
 
@@ -65,6 +78,8 @@ solutions generated from $\sol{x}$ will be dominated by those generated from $\s
 
 \subsection{Avoiding deficient solutions}
 
+A solution $\sol{x}$ is called \emph{deficient} if it has available space
+to fit one or more item, i.e.\,, $\weight{x} + min\{ w_i : i \notin \sol{x} \} \leq W$.
 The first optimization that can be made on Algorithm~\ref{alg:nemull} is
 avoiding the generation of deficient solutions.
 At $k$-th stage all previous solution is copied to the

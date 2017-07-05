@@ -4,10 +4,10 @@
     \For{$k \gets 1, n$}
       \State $S_*^k = S^{k-1} \cup \{\sol{x} \cup k \:|\: \sol{x} \in S^{k-1}\}$
         \Comment{solutions extension}
-      \State $S^k = \{\sol{x} \:|\: \nexists \sol{a} \in S_*^k: \dominatesk{a}{x} \}$
+      \State $S^k = \{\sol{x} \:|\: \nexists \sol{a} \in S_*^k: \dom{a}{x} \}$
         \Comment{partial dominance filter}
     \EndFor
-  \State $P = \{\sol{x} \:|\: \nexists \sol{a} \in S^n: \dominates{a}{x} \}$
+  \State $P = \{\sol{x} \:|\: \nexists \sol{a} \in S^n: \dom{a}{x} \}$
     \Comment{dominance filter}
   \State \Return $P$
   \EndFunction
