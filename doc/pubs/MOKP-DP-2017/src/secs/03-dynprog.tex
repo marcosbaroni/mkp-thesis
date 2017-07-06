@@ -21,39 +21,6 @@ We will introduce the dynamic programming (DP) algorithm for the MOKP proposed i
 
 \subsection{The NU algorithm -- the knapsack dominance}
 The knapsack-domination is the concept that mainly driver the algorithm...
-Considering two solution $\sol{x}, \sol{y} \subseteq \setIN$ we say
-$\sol{x}$ \emph{knapsack-dominates} $\sol{y}$, denoted as $\domk{x}{y}$,
-if $\sol{x}$ dominates $\sol{y}$ and does not weight more than $\sol{y}$.
-Formally:
-\begin{displaymath}
-  \domk{x}{y} = \left\{
-    \begin{array}{l}
-      \dom{x}{y} \quad \text{and} \\
-      w(\sol{x}) \leq w(\sol{y})
-    \end{array}
-  \right.
-\end{displaymath}
-
-If $\domk{x}{y}$ for any common extender $e$, $\sol{x}
-
-\begin{theorem}
-  Consider two solutions $\sol{x}, \sol{y} \subseteq \setIN$
-  and $\sol{e}$ an extender for $\sol{x}$ and $\sol{y}$.
-  If $\domk{x}{y}$ than $\domk{x \cup e}{y \cup e}$.
-\end{theorem}
-\begin{proof}
-  
-\end{proof}
-
-Figure~\ref{fig:kdom} illustrates the concept for a problem with $m = 1$.
-Any solution in the cross-hatched area knapsack-dominates the marked solution.
-
-\begin{figure}
-  \input{src/imgs/dom.tex}
-  \caption{A knapsack-dominated solution.}
-  \label{fig:kdom}
-\end{figure}
-
 The pseudocode for the algorithm is presented in Algorithm~\ref{alg:nemull}.
 \begin{algorithm}
   \caption{Basic dynamic programming algorithm for MOKP}
@@ -78,8 +45,6 @@ solutions generated from $\sol{x}$ will be dominated by those generated from $\s
 
 \subsection{Avoiding deficient solutions}
 
-A solution $\sol{x}$ is called \emph{deficient} if it has available space
-to fit one or more item, i.e.\,, $\weight{x} + min\{ w_i : i \notin \sol{x} \} \leq W$.
 The first optimization that can be made on Algorithm~\ref{alg:nemull} is
 avoiding the generation of deficient solutions.
 At $k$-th stage all previous solution is copied to the

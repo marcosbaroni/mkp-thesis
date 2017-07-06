@@ -1,11 +1,17 @@
 \begin{algorithmic}[1]
     \Function{BazDP}{$\bsym{p}, \bsym{w}, W$}
-    \State $S^0 = \big\{\emptyset\big\}$
+    \State $S^0 = [\emptyset ]$
     \For{$k \gets 1, n$}
-      \State 2...
+      \State $S^{k-1} = [\sol{s_1}, \ldots, \sol{s_p}]$
+      \State $w_{left} \gets (w_{k} + \ldots + w_n)$
+      \State $i \gets min\{i \;| \; \weight{s_i} \geq w_{left}\}$
+        \Comment{Avoiding deficient}
+      \While{ $\weight{s^k_i} < w_{left}$ }
+        \State $i \gets i + 1$
+      \EndWhile
+      \State $1$
     \EndFor
-  \State $P = \{\sol{x} \:|\: \nexists \sol{a} \in S^n: \dom{a}{x} \}$
-    \Comment{dominance filter}
+  %\State $P = \{\sol{x} \:|\: \nexists \sol{a} \in S^n: \dom{a}{x} \}$
   \State \Return $P$
   \EndFunction
 \end{algorithmic}
