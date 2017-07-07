@@ -5,8 +5,10 @@
       \State $S^{k-1} = [\sol{s_1}, \ldots, \sol{s_p}]$
       \State $w_{left} \gets (w_{k} + \ldots + w_n)$
       \State $i \gets min\{i \;| \; \weight{s_i} \geq w_{left}\}$
-        \Comment{Avoiding deficient}
-      \While{ $\weight{s^k_i} < w_{left}$ }
+        \Comment{Deficient solution avoidance}
+      \State $j \gets 1$
+      \While{ $\bigweight{s^{k-1}_i} < w_{left}$ }
+        \State $\ldots$
         \State $i \gets i + 1$
       \EndWhile
       \State $1$
