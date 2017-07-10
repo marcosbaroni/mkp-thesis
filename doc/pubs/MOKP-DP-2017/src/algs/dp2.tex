@@ -1,22 +1,19 @@
 \begin{algorithmic}[1]
-    \Function{BazDP}{$\bsym{p}, \bsym{w}, W, S^*, k$}
-    %\State $w_{left} \gets (w_{k+1} + \ldots + w_n)$
-    %\For{$\sol{x} = \{\sol{s_1}, \ldots, \sol{s_p}\}$}
-    %\State $j \gets min\big\{ j \;| \; \weight{s_j} \geq w_{left}\big\}$
-    \State $S_1 \gets \big\{\sol{x} \cup \{k\} \;|\; \sol{x}
-      \in S^* \logicAnd \weight{x} < w_k \big\}$
-      \Comment{solutions extension}
-      %\State $\phantom{S_1 \gets } \cup \big\{ \sol{x} \in S^* \; | \; \weight{x} > w_{left} \big\}$
-      \State $\phantom{S_1 \gets } \cup \big\{ \sol{x} \in S^* \;|\; \weight{x} > (w_{k+1} + \ldots + w_n)\big\}$
-      %\State $\phantom{S_1 \gets } \cup \big\{ \sol{x} \in S^* \; | \; \weight{x} > \sum_{i = k+1}^n w_i \big\}$
-        \Comment{deficiency avoidance}
-    \State $S_2 \gets \{\sol{x} \in S_1 \;|\; (\nexists \sol{a} \in S_1)[\domk{a}{x}] \}$
-      \Comment{knapsack dominance filter}
-    %\State $S_{lb} \gets \{ lb(\sol{x}) \;|\; \sol{x} \in S_2 \}$
-    %  \Comment{LBs computation}
-    \State $S \gets \big\{ \sol{x} \;|\; (\nexists \sol{a} \in S_2)\big[dom\big(lb(\sol{a}), up(\sol{x})\big)\big]\big\}$
-      \Comment{LBs filter}
-  %\State $P = \{\sol{x} \:|\: \nexists \sol{a} \in S^n: \dom{a}{x} \}$
-  \State \Return $S$
+  \Function{BazDP}{$\bsym{p}, \bsym{w}, W$}
+    \State $\solSet^0 = \big\{\emptyset\big\}$
+    \For{$k \gets 1, n$}
+      \State $\solSetA^k = \big\{\sol{x} \cup \{k\} \;|\; \sol{x}
+        \in \solSet^{k-1} \logicAnd \big(\weight{x} + w_k \leq W\big) \big\}$
+        %\Comment{solutions extension}
+        \State $\phantom{\solSetA^k = } \cup \big\{ \sol{x} \in \solSetA^k \;|\;
+          \weight{x} - W \leq w_{k+1} + \ldots + w_n \big\}$
+          %\Comment{deficiency avoidance}
+      \State $\solSetB^k = \{\sol{x} \in \solSetA^k \;|\; (\nexists \sol{a} \in \solSetA^k)[\domk{a}{x}] \}$
+        %\Comment{knapsack dominance}
+      \State $S^k = \big\{ \sol{x} \in \solSetB^k \;|\; (\nexists \sol{a} \in \solSetB^k)\big[dom\big(lb(\sol{a}), up(\sol{x})\big)\big]\big\}$
+        %\Comment{LBs filter}
+    \EndFor
+    \State \Return $S^n$
   \EndFunction
 \end{algorithmic}
+
