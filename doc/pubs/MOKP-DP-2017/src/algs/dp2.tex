@@ -4,17 +4,17 @@
     %\For{$\sol{x} = \{\sol{s_1}, \ldots, \sol{s_p}\}$}
     %\State $j \gets min\big\{ j \;| \; \weight{s_j} \geq w_{left}\big\}$
     \State $S_1 \gets \big\{\sol{x} \cup \{k\} \;|\; \sol{x}
-      \in S^*, \weight{x} < w_k \big\}$
+      \in S^* \logicAnd \weight{x} < w_k \big\}$
       \Comment{solutions extension}
       %\State $\phantom{S_1 \gets } \cup \big\{ \sol{x} \in S^* \; | \; \weight{x} > w_{left} \big\}$
-      \State $\phantom{S_1 \gets } \cup \big\{ \sol{x} \in S^* \; | \; \weight{x} > (w_{k+1} + \ldots + w_n)\big\}$
+      \State $\phantom{S_1 \gets } \cup \big\{ \sol{x} \in S^* \;|\; \weight{x} > (w_{k+1} + \ldots + w_n)\big\}$
       %\State $\phantom{S_1 \gets } \cup \big\{ \sol{x} \in S^* \; | \; \weight{x} > \sum_{i = k+1}^n w_i \big\}$
         \Comment{deficiency avoidance}
-    \State $S_2 \gets \{\sol{x} \in S_1 \;|\; \nexists \sol{a} \in S_1: \domk{a}{x} \}$
+    \State $S_2 \gets \{\sol{x} \in S_1 \;|\; (\nexists \sol{a} \in S_1)[\domk{a}{x}] \}$
       \Comment{knapsack dominance filter}
     %\State $S_{lb} \gets \{ lb(\sol{x}) \;|\; \sol{x} \in S_2 \}$
     %  \Comment{LBs computation}
-    \State $S \gets \big\{ \sol{x} \;|\; \nexists \sol{a} \in S_2 : dom\big(lb(\sol{a}), up(\sol{x})\big)\big\}$
+    \State $S \gets \big\{ \sol{x} \;|\; (\nexists \sol{a} \in S_2)\big[dom\big(lb(\sol{a}), up(\sol{x})\big)\big]\big\}$
       \Comment{LBs filter}
   %\State $P = \{\sol{x} \:|\: \nexists \sol{a} \in S^n: \dom{a}{x} \}$
   \State \Return $S$
