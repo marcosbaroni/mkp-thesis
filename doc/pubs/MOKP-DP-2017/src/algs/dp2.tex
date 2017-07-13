@@ -2,18 +2,18 @@
   \Function{BazDP}{$\bsym{p}, \bsym{w}, W$}
     \State $\solSet^0 = \big\{\emptyset\big\}$
     \For{$k \gets 1, n$}
-      \State $\solSetA^k = \big\{\sol{x} \cup \{k\} \;|\; \sol{x}
+      % Extension
+      \State $\solSett^k = \big\{\sol{x} \cup \{k\} \;\big|\; \sol{x}
         \in \solSet^{k-1} \logicAnd \big(\weight{x} + w_k \leq W\big) \big\}$
-        %\Comment{solutions extension}
-        \State $\phantom{\solSetA^k = } \cup \big\{ \sol{x} \in \solSetA^k \;|\;
-          \weight{x} - W \leq w_{k+1} + \ldots + w_n \big\}$
-          %\Comment{deficiency avoidance}
-      \State $\solSetB^k = \{\sol{x} \in \solSetA^k \;|\; (\nexists \sol{a} \in \solSetA^k)[\domk{a}{x}] \}$
-        %\Comment{knapsack dominance}
-      \State $S^k = \big\{ \sol{x} \in \solSetB^k \;|\; (\nexists \sol{a} \in \solSetB^k)\big[dom\big(lb(\sol{a}), up(\sol{x})\big)\big]\big\}$
-        %\Comment{LBs filter}
+      % Extension (cont.)
+      \State $\phantom{\solSett^k = } \cup \big\{ \sol{x} \;\big|\; \sol{x} \in \solSet^{k-1} \logicAnd
+        \big(\weight{x} + w_{k} + \ldots + w_n\big) > W \big\}$
+      % Dominance filter
+      \State $\solSet^k = \big\{\sol{x} \in \solSett^k \;\big|\;
+        (\nexists \sol{a} \in \solSett^k)\big[\domk{a}{x}
+          \logicOr dom\big(lb(\sol{a}), up(\sol{x})\big)\big] \big\}$
     \EndFor
-    \State \Return $S^n$
+    \State \Return $\solSet^n$
   \EndFunction
 \end{algorithmic}
 
