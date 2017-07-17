@@ -43,6 +43,8 @@ Considering two partial solutions $\sol{x}, \sol{y} \in S^k$, if
 $\sol{x}$ is knapsack-dominated by $\sol{y}$ then we may discard $\sol{x}$ since all
 solutions generated from $\sol{x}$ will be dominated by those generated from $\sol{y}$.
 
+\subsection{Item order}
+
 \subsection{Avoiding deficient solutions}
 
 The first optimization that can be made on Algorithm~\ref{alg:nemull} is
@@ -75,19 +77,13 @@ that solution can be discarded since it will not generate an efficient solution.
 A lower bound of a solution can be easily computed...
 
 Formally:
-\begin{displaymath}
-\end{displaymath}
 \begin{align*}
-  lb(\sol{x}) &= \big(lb_1(\sol{x}),\ldots, lb_\np(\sol{x}) \big) \\
+    lb(\sol{x}, \sol{s}) &= \sol{x} \cup
+      %\bigg\{ o_i \;\bigg|\; \weight{x} + \sum_{j=1}^i w_{o_j} \leq W \bigg\} \\
+      \big\{ o_i \;\big|\; \weight{x} + \textstyle\sum_{j=1}^i w_{o_j} \leq W \big\} \\
   \text{where} \phantom{mmmmm} \\
-  I_{s} &= \{i, \ldots, n\}\backslash \sol{x} \\
-    \alpha &= \big\{ \alpha_i \in I_{s} \;|\;
-      (\forall j)[o_{\alpha_i} \geq o_{\alpha_j}] \big\} \\
-    q &= max( i \;|\; \sum_{i=1}^{})\\
-  lb_i(\sol{x}) &= \big\{  \big\} \\
+    (o_1, \ldots, o_k) &= O_{max}(\sol{s}) \\
 \end{align*}
-
-\subsection{Item order}
 
 \begin{algorithm}
   \caption{Bazgan's DP algorithm for the MOKP}
