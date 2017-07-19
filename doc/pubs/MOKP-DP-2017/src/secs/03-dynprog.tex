@@ -34,7 +34,7 @@ $\forall\sol{x} \in S^k, \sol{x} \subseteq \{1, \ldots, k\}$.
 
 This is done by expanding $S^{k-1}$ by adding a copy of each solution with the
 inclusion of $k$-th item (line 4).
-We will refer as \emph{partial solutions} all the solutions handled by 
+We will refer as \emph{partial solutions} all the solutions handled by
 stages prior to $n$-th stage.
 
 The clever part of the algorithm is that it uses the concept of knapsack dominance
@@ -56,7 +56,7 @@ may lead to deficient solutions.
 
 \begin{theorem}
    Considering the $k$-th stage of the algorithm and $\sol{x} \in S^{k-1}$.
-   If $\weight{x} + \sum_{i \in {\{k, \ldots, n\}}} w_i \leq W$ than 
+   If $\weight{x} + \sum_{i \in {\{k, \ldots, n\}}} w_i \leq W$ than
 \end{theorem}
 
 Considering the $k$-th stage, if a partial solution $\sol{x} \in S^{k-1}$ has enough
@@ -103,19 +103,11 @@ Formally:
   \label{alg:up}
   \begin{algorithmic}[1]
       \Function{UP}{$\sol{p}, \bsym{w}, W, \sol{x}, \sol{S}$}
-      \State $\solSet^0 = \big\{\emptyset\big\}$
-      \For{$k \gets 1, n$}
+      \State $w_{left} \gets W - \weight{x}$
+      \While{$w_{left} > w_i$}
         % Extension
-        \State $\solSett^k = \big\{\sol{x} \cup \{k\} \;\big|\; \sol{x}
-          \in \solSet^{k-1} \logicAnd \big(\weight{x} + w_k \leq W\big) \big\}$
-        % Extension (cont.)
-        \State $\phantom{\solSett^k = } \cup \big\{ \sol{x} \;\big|\; \sol{x} \in \solSet^{k-1} \logicAnd
-          \big(\weight{x} + w_{k} + \ldots + w_n\big) > W \big\}$
-        % Dominance filter
-        \State $\solSet^k = \big\{\sol{x} \in \solSett^k \;\big|\;
-          (\nexists \sol{a} \in \solSett^k)\big[\domk{a}{x}
-            \logicOr dom\big(lb(\sol{a}), up(\sol{x})\big)\big] \big\}$
-      \EndFor
+        \State $2$
+      \EndWhile
       \State \Return $\solSet^n$
     \EndFunction
   \end{algorithmic}
@@ -131,4 +123,3 @@ Formally:
 
 % Basic simple Dynamic Programming
 % Nemhauser-Ullmann algorithm
-
