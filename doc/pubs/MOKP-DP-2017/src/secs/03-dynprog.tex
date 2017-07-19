@@ -19,6 +19,8 @@ We will introduce the dynamic programming (DP) algorithm for the MOKP proposed i
 
 %\subsection{Definitions}
 
+\subsection{Item ordering}
+
 \subsection{The NU algorithm -- the knapsack dominance}
 The knapsack-domination is the concept that mainly driver the algorithm...
 The pseudocode for the algorithm is presented in Algorithm~\ref{alg:nemull}.
@@ -43,7 +45,6 @@ Considering two partial solutions $\sol{x}, \sol{y} \in S^k$, if
 $\sol{x}$ is knapsack-dominated by $\sol{y}$ then we may discard $\sol{x}$ since all
 solutions generated from $\sol{x}$ will be dominated by those generated from $\sol{y}$.
 
-\subsection{Item order}
 
 \subsection{Avoiding deficient solutions}
 
@@ -69,42 +70,45 @@ keeping $\sol{x}$ will certainly lead to deficient solutions.
 Another optimization that can be applied on later stages is
 filtering unpromissing solutions by computing upper bounds for its objectives
 functions and comparing it with the set of available lower bounds.
-An upper(lower) bound of a solution is an upper(lower) limit each objective
-value can achieve given its remaining capacity and the remaining items.
-If the upper bound of a solution is dominated by an existing lower bound,
-that solution can be discarded since it will not generate an efficient solution.
+Considering a given $k$-th iteration, an upper(lower) bound of a partial solution
+is an upper(lower) limit each objective value can achieve,
+given its remaining capacity and the remaining items $(k+1, \ldots, n)$.
+A solution can be discharged if its upper bound is dominated by an existing lower bound, since it will generate no efficient solution.
 
-A lower bound of a solution can be easily computed...
+A lower bound of a solution can be easily computed by greedily filling the
+knapsack.
+A better quality lower bound tends to be obained by considering a good
+cost-benefit ordering of the items.
 
 Formally:
 \begin{align*}
-    lb(\sol{x}, \sol{s}) &= \sol{x} \cup
+    &lb(\sol{x}, \sol{s}) = \sol{x} \cup
       %\bigg\{ o_i \;\bigg|\; \weight{x} + \sum_{j=1}^i w_{o_j} \leq W \bigg\} \\
-      \big\{ o_i \;\big|\; \weight{x} + \textstyle\sum_{j=1}^i w_{o_j} \leq W \big\} \\
+      \left\{ o_i \;\middle|\; \weight{x} + \textstyle\sum_{j=1}^i w_{o_j} \leq W \right\} \\
   \text{where} \phantom{mmmmm} \\
-    (o_1, \ldots, o_k) &= O_{max}(\sol{s}) \\
+    &(o_1, \ldots, o_k) = \ord^{max}(\sol{s}) \\
 \end{align*}
 
 An upper bound of a solution can be easily computed...
 
 Formally:
-\begin{align*}
-    ub(\sol{x}, \sol{S}) &= \big(ub_1(\sol{x}, \sol{S}), \ldots, ub_\np(\sol{x}, \sol{S})\big) \\
+\begin{equation*}
+    ub(\sol{x}, \sol{s}) = \big(ub_1(\sol{x}, \sol{s}), \ldots, ub_\np(\sol{x}, \sol{s})\big) \\
       %\bigg\{ o_i \;\bigg|\; \weight{x} + \sum_{j=1}^i w_{o_j} \leq W \bigg\} \\
-    ub_i(\sol{x}, \sol{s}) &= f_i(\sol{x}) + \textstyle\sum^r_{j=1} p^i_{o^i_j} + t.p^i_{o^i_{r+1}}\\
+    ub_i(\sol{x}, \sol{s}) = f_i(\sol{x}) + \textstyle\sum^t_{j=1} p^i_{o^i_j} + \frac{w_{res}}{w_{o^i_{t+1}}}.p^i_{o^i_{t+1}}\\
   \text{where} \phantom{mmmmm} \\
-    (o_1, \ldots, o_k) &= O_{cb}^i(\sol{S}) \\
-    r &= max\big( j \;\big|\; \weight{x} + \textstyle\sum_{l = 1}^j w_{o^i_l} \leq W \big) \\
-    t &= \textstyle
-\end{align*}
+    (o^i_1, \ldots, o^i_k) = \ord^i(\sol{s}) \\
+    t = max\big( j \;\big|\; \weight{x} + \textstyle\sum_{l = 1}^j w_{o^i_l} \leq W \big) \\
+    w_{res} = W - \weight{x} - \sum^t_{j=1}w_{o^i_t}
+\end{equation*}
 
 \begin{algorithm}
   \caption{Upper-bound computation for a partial solution.}
-  \label{alg:up}
+  \label{alg:ub}
   \begin{algorithmic}[1]
-      \Function{UP}{$\sol{p}, \bsym{w}, W, \sol{x}, \sol{S}$}
+      \Function{UB}{$\sol{p}, \bsym{w}, W, \sol{x}, \sol{s}$}
       \State $w_{left} \gets W - \weight{x}$
-      \State $\{o_1, \ldots, o_k\} \gets Ord_{j}(\sol{S})$
+      \State $(o_1, \ldots, o_k) \gets \ord_{j}(\sol{s})$
       \State $u_j \gets f_j(\sol{x})$
       \State $i \gets 1$
       \While{$w_{left} \geq w_i$ {\bf and} $i \leq k$}
