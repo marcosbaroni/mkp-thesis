@@ -104,11 +104,16 @@ Formally:
   \begin{algorithmic}[1]
       \Function{UP}{$\sol{p}, \bsym{w}, W, \sol{x}, \sol{S}$}
       \State $w_{left} \gets W - \weight{x}$
-      \While{$w_{left} > w_i$}
-        % Extension
-        \State $2$
+      \State $\{o_1, \ldots, o_k\} \gets Ord_{j}(\sol{S})$
+      \State $u_j \gets f_j(\sol{x})$
+      \State $i \gets 1$
+      \While{$w_{left} \geq w_i$ {\bf and} $i \leq k$}
+        \State $u_j \gets u_j + p^i_{o_j}$
       \EndWhile
-      \State \Return $\solSet^n$
+      \If{$i < k$}
+        \State $u_j \gets u_j + \frac{w_{left}}{w_{o_i}}.p^j_{o_i}$
+      \EndIf
+      \State \Return $u_j$
     \EndFunction
   \end{algorithmic}
 \end{algorithm}
