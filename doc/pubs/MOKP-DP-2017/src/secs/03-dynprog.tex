@@ -21,6 +21,30 @@ We will introduce the dynamic programming (DP) algorithm for the MOKP proposed i
 
 \subsection{Item ordering}
 
+An important issue in the MOKP is the ordering of items.
+It is well-known that good solutions of knapsack problems
+are generally composed of items with good profit-weight relation.
+Therefore...
+
+Such cost-benefit measure is straightforward for the single-objective case. For the multi-objective case however, there is no such natural measure.
+The method proposed by~\cite{bazgan2009} will be considered in this work,
+in which is based on the ranking of items from their cost-benefit measures
+in the various objectives.
+
+Considering the function $\cb{j}{a} = {p^j_a}/{w_a}$ the cost-benefit function of item $a$ over objective $j$, we denote $\ord^i$ the
+ordered by ascending order of cost-benefit function over objective $j$.
+Formally:
+\begin{align*}
+  %\ord^j &= (o_1, \ldots, o_n) , \qquad \cb{j}{o_{a}} \leq \cb{j}{o_{b}} \; \iff \; a \leq b \\
+  \ord^j &= (o_1, \ldots, o_n) , \qquad \cb{j}{o_{1}} \leq \cb{j}{o_{2}} \leq \cdots \leq \cb{j}{o_{n}}
+\end{align*}
+Let $r^j_i$ be the rank of item $i$ in order $\ord^j$.
+$\ord^{sum}$, $\ord^{min}$ and $\ord^{max}$ denotes an order according to inscreasing values of the sum, minimum and maximum ranks.
+Formally:
+\begin{align*}
+  r^j_i =
+\end{align*}
+
 \subsection{The NU algorithm -- the knapsack dominance}
 The knapsack-domination is the concept that mainly driver the algorithm...
 The pseudocode for the algorithm is presented in Algorithm~\ref{alg:nemull}.
@@ -89,10 +113,12 @@ Formally:
     &(o_1, \ldots, o_k) = \ord^{max}(\sol{s}) \\
 \end{align*}
 
-An upper bound of a solution can be easily computed...
+The upper-bound value on the $j$-th objective for a solution $\sol{x}$ is
+computed by continuously filling its remaining capacity with the remaining
+items considering the reverse order of $\ord^j$.
 
 Formally:
-\begin{equation*}
+\begin{gather*}
     ub(\sol{x}, \sol{s}) = \big(ub_1(\sol{x}, \sol{s}), \ldots, ub_\np(\sol{x}, \sol{s})\big) \\
       %\bigg\{ o_i \;\bigg|\; \weight{x} + \sum_{j=1}^i w_{o_j} \leq W \bigg\} \\
     ub_i(\sol{x}, \sol{s}) = f_i(\sol{x}) + \textstyle\sum^t_{j=1} p^i_{o^i_j} + \frac{w_{res}}{w_{o^i_{t+1}}}.p^i_{o^i_{t+1}}\\
@@ -100,7 +126,7 @@ Formally:
     (o^i_1, \ldots, o^i_k) = \ord^i(\sol{s}) \\
     t = max\big( j \;\big|\; \weight{x} + \textstyle\sum_{l = 1}^j w_{o^i_l} \leq W \big) \\
     w_{res} = W - \weight{x} - \sum^t_{j=1}w_{o^i_t}
-\end{equation*}
+\end{gather*}
 
 \begin{algorithm}
   \caption{Upper-bound computation for a partial solution.}
