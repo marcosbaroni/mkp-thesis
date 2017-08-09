@@ -24,36 +24,46 @@ We will introduce the dynamic programming (DP) algorithm for the MOKP proposed i
 An important issue in the MOKP is the ordering of items.
 It is well-known that good solutions of knapsack problems
 are generally composed of items with good profit-weight relation.
-Therefore...
+Therefore, the prioritization of those items tends to lead to better solutions.
 
-Such cost-benefit measure is straightforward for the single-objective case. For the multi-objective case however, there is no such natural measure.
-The method proposed by~\cite{bazgan2009} will be considered in this work,
-in which is based on the ranking of items from their cost-benefit measures
-in the various objectives.
+For the multi-objective case however, there is no such natural measure.
+The method proposed by~\cite{bazgan2009} will be considered in this work, in which is based on the ranking of items from their cost-benefit measures in the various objectives.
+Those measures will give us several items orders which will be useful during the development of the algorithm.
 
-Considering the function $\cb{j}{a} = {p^j_a}/{w_a}$ the cost-benefit function of item $a$ over objective $j$, we denote $\ord^i$ the
-ordered by ascending order of cost-benefit function over objective $j$.
-Formally:
+We denote $\ord^j$ the set of items ordered by ascending order of cost-benefit function regarding objective $j$.
+Formally, considering the function $\cb{j}{a} = {p^j_a}/{w_a}$ the
+cost-benefit function of item $a$ regarding objective $j$, order
+$\ord^j$ can be defined by:
 \begin{align*}
-  %\ord^j &= (o_1, \ldots, o_n) , \qquad \cb{j}{o_{a}} \leq \cb{j}{o_{b}} \; \iff \; a \leq b \\
-  \ord^j &= (o_1, \ldots, o_n) , \qquad \cb{j}{o_{1}} \leq \cb{j}{o_{2}} \leq \cdots \leq \cb{j}{o_{n}}
+  \ord^j &= (o^j_1, \ldots, o^j_n) , \qquad \cb{j}{o^j_1} \leq \cb{j}{o^j_2} \leq \cdots \leq \cb{j}{o^j_n}
 \end{align*}
 Let $r^j_i$ be the rank of item $i$ in order $\ord^j$.
 $\ord^{sum}$, $\ord^{min}$ and $\ord^{max}$ denotes an order according to inscreasing values of the sum, minimum and maximum ranks.
 Formally:
 \begin{align*}
-  r^j_i =
+  r^j_i &= \max\{ k \;|\; o^j_k = i \} \\
+  r^{sum}_i &= \textstyle\sum^\np_{j=1} r^j_i \\
+  \ord^{sum} &= (o_1, \ldots, o_n) , \qquad r^{sum}_{o_1} \leq \cdots \leq r^{sum}_{o_n}
 \end{align*}
+The orders $\ord^{min}$ and $\ord^{max}$ are conceived in the same manner as
+$\ord^{sum}$, except for the fact that $\frac{r^{sum}_i}{\np}$ is added up
+in their ranks as tie breaking criteria.
+The notation $\ord(\sol{s})$ will be used to denote the respective ordering
+of a $\sol{s}$ restrict set of items.
 
-\subsection{The NU algorithm -- the knapsack dominance}
-The knapsack-domination is the concept that mainly driver the algorithm...
-The pseudocode for the algorithm is presented in Algorithm~\ref{alg:nemull}.
+
+\subsection{Nemhauser-Ullmann algorithm -- the knapsack dominance}
+
+The algorithm considered in this work is based on the Nemhauser-Ullmann algorithm,
+a dynamic programming method for knapsack problems, which is presented by Algorithm~\ref{alg:nemull}
+
 \begin{algorithm}
   \caption{Basic dynamic programming algorithm for MOKP}
   \label{alg:nemull}
   \input{src/algs/dp1.tex}
 \end{algorithm}
-At the $k$-th stage the algorithm receives a set $S^{k-1}$ of solutions and
+
+At $k$-th stage the algorithm receives the set $S^{k-1}$ of solutions and
 generates the set $S^k$ of solutions that correspond
 to subsets containing exclusively the first $k$ items, i.e.\,,
 $\forall\sol{x} \in S^k, \sol{x} \subseteq \{1, \ldots, k\}$.
@@ -63,12 +73,11 @@ inclusion of $k$-th item (line 4).
 We will refer as \emph{partial solutions} all the solutions handled by
 stages prior to $n$-th stage.
 
-The clever part of the algorithm is that it uses the concept of knapsack dominance
+The clever part of it is that it uses the concept of knapsack dominance
 to filter solutions that will not lead to efficient solutions (line 5).
 Considering two partial solutions $\sol{x}, \sol{y} \in S^k$, if
 $\sol{x}$ is knapsack-dominated by $\sol{y}$ then we may discard $\sol{x}$ since all
 solutions generated from $\sol{x}$ will be dominated by those generated from $\sol{y}$.
-
 
 \subsection{Avoiding deficient solutions}
 
@@ -99,11 +108,8 @@ is an upper(lower) limit each objective value can achieve,
 given its remaining capacity and the remaining items $(k+1, \ldots, n)$.
 A solution can be discharged if its upper bound is dominated by an existing lower bound, since it will generate no efficient solution.
 
-A lower bound of a solution can be easily computed by greedily filling the
-knapsack.
-A better quality lower bound tends to be obained by considering a good
-cost-benefit ordering of the items.
-
+A lower bound of a solution can be computed by greedily filling the
+knapsack with respect to $\ord^{max}$ which is a good quality order of items.
 Formally:
 \begin{align*}
     &lb(\sol{x}, \sol{s}) = \sol{x} \cup
@@ -113,35 +119,40 @@ Formally:
     &(o_1, \ldots, o_k) = \ord^{max}(\sol{s}) \\
 \end{align*}
 
-The upper-bound value on the $j$-th objective for a solution $\sol{x}$ is
-computed by continuously filling its remaining capacity with the remaining
-items considering the reverse order of $\ord^j$.
-
-Formally:
-\begin{gather*}
-    ub(\sol{x}, \sol{s}) = \big(ub_1(\sol{x}, \sol{s}), \ldots, ub_\np(\sol{x}, \sol{s})\big) \\
-      %\bigg\{ o_i \;\bigg|\; \weight{x} + \sum_{j=1}^i w_{o_j} \leq W \bigg\} \\
-    ub_i(\sol{x}, \sol{s}) = f_i(\sol{x}) + \textstyle\sum^t_{j=1} p^i_{o^i_j} + \frac{w_{res}}{w_{o^i_{t+1}}}.p^i_{o^i_{t+1}}\\
-  \text{where} \phantom{mmmmm} \\
-    (o^i_1, \ldots, o^i_k) = \ord^i(\sol{s}) \\
-    t = max\big( j \;\big|\; \weight{x} + \textstyle\sum_{l = 1}^j w_{o^i_l} \leq W \big) \\
-    w_{res} = W - \weight{x} - \sum^t_{j=1}w_{o^i_t}
-\end{gather*}
+The upper-bound of a partial solution $\sol{x}$ is computed considering
+its available capacity and the remaining items on the current algorithm stage.
+To ensure the upper-bound its computation is done separately for.
+For the each $j$-th objective the reversed order $\ord^j({\sol{s}})$ on
+the set $\sol{s}$ of remaining items is considered to iteratively fill the
+remaining capacity of $\sol{x}$.
+%Formally:
+%\begin{gather*}
+%    ub(\sol{x}, \sol{s}) = \big(ub_1(\sol{x}, \sol{s}), \ldots, ub_\np(\sol{x}, \sol{s})\big) \\
+%      %\bigg\{ o_i \;\bigg|\; \weight{x} + \sum_{j=1}^i w_{o_j} \leq W \bigg\} \\
+%    ub_i(\sol{x}, \sol{s}) = f_i(\sol{x}) + \textstyle\sum^t_{j=1} p^i_{o^i_j} + \frac{w_{res}}{w_{o^i_{t+1}}}.p^i_{o^i_{t+1}}\\
+%  \text{where} \phantom{mmmmm} \\
+%    (o^i_1, \ldots, o^i_k) = \ord^i(\sol{s}) \\
+%    t = max\big( j \;\big|\; \weight{x} + \textstyle\sum_{l = 1}^j w_{o^i_l} \leq W \big) \\
+%    w_{res} = W - \weight{x} - \sum^t_{j=1}w_{o^i_t}
+%\end{gather*}
 
 \begin{algorithm}
   \caption{Upper-bound computation for a partial solution.}
   \label{alg:ub}
   \begin{algorithmic}[1]
-      \Function{UB}{$\sol{p}, \bsym{w}, W, \sol{x}, \sol{s}$}
+      \Function{UB$_j$}{$\sol{p}, \bsym{w}, W, \sol{x}, \sol{s}$}
       \State $w_{left} \gets W - \weight{x}$
-      \State $(o_1, \ldots, o_k) \gets \ord_{j}(\sol{s})$
+      \State $(o^j_1, \ldots, o^j_k) \gets \ord^j(\sol{s})$
       \State $u_j \gets f_j(\sol{x})$
       \State $i \gets 1$
-      \While{$w_{left} \geq w_i$ {\bf and} $i \leq k$}
-        \State $u_j \gets u_j + p^i_{o_j}$
+      \State $l \gets o^j_i$
+      \While{$w_{left} \geq w_l$ {\bf and} $i \leq k$}
+        \State $u_j \gets u_j + p^j_{l}$
+        \State $w_{left} \gets w_{left} - w_l$
       \EndWhile
-      \If{$i < k$}
-        \State $u_j \gets u_j + \frac{w_{left}}{w_{o_i}}.p^j_{o_i}$
+      \If{$i \leq k$}
+        \State $l \gets o^j_i$
+        \State $u_j \gets u_j + \frac{w_{left}}{w_l}.p^j_{l}$
       \EndIf
       \State \Return $u_j$
     \EndFunction
