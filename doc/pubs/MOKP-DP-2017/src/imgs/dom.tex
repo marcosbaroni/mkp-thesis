@@ -1,3 +1,12 @@
+\documentclass[margin=3pt]{standalone}%
+\usepackage[pdf]{pstricks}
+\usepackage{pst-node}
+\usepackage{pstricks-add}
+
+\input{mokp-grid.tex}   % configuracoes para desenho de grid
+
+\begin{document}
+
 \begin{pspicture}(-2,-2)(9, 8)
 \psscalebox{0.5}{
   \MGgridconfig{8}{7}
@@ -9,3 +18,5 @@
   \MGdominated{4}{3}{7}
 }
 \end{pspicture}
+
+\end{document}
