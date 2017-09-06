@@ -4,7 +4,7 @@ function $f$ that maps a decision variable (solution) to a tuple
 of $\np$ objectives.
 Formally:
 \begin{align*}
-  \text{min/max} ~ \sol{y} &= f(\sol{x}) = 
+  \text{min/max} ~ \sol{y} &= f(\sol{x}) =
     \big(f_1(\sol{x})
     ,f_2(\sol{x})
     ,\ldots
@@ -46,7 +46,7 @@ A solution is feasible if the total weight included in the knapsack does
 not exceed its capacity.
 Formally the definition of the problem is:
 \begin{align*}
-  \text{max   } & f(\sol{x}) = 
+  \text{max   } & f(\sol{x}) =
     \big(f_1(\sol{x}) ,f_2(\sol{x}) ,\ldots ,f_{\np}(\sol{x})\big) \\
   \text{subject to   } & w(\sol{x}) < W \\
   & \sol{x} \subseteq \setIN\\
@@ -59,7 +59,7 @@ Formally the definition of the problem is:
 The MOKP is considered a \nphard{} problem since it is a generalization
 of the well-known 0$-$1 knapsack problem, in which $\np = 1$.
 It is quite difficult to determine the Pareto optimal set for the MOKP,
-especially for high dimension instances, in which the 
+especially for high dimension instances, in which the
 Pareto optimal set tends to grow exponentially.
 Even for the bi-objective case, small problems may prove intractable.
 For this reason we are interested in developing efficient methods for
@@ -92,7 +92,7 @@ Figure~\ref{fig:kdom} illustrates the concept of kanpsack-dominance for a
 problem with $m = 1$.
 Any solution in the cross-hatched area knapsack-dominates the marked solution.
 \begin{figure}
-  \input{src/imgs/dom.tex}
+  \includegraphics[scale=5.0]{src/imgs/dom}
   \caption{A knapsack-dominated solution.}
   \label{fig:kdom}
 \end{figure}
@@ -103,7 +103,7 @@ Any solution in the cross-hatched area knapsack-dominates the marked solution.
   If $\domk{x}{y}$ than $\domk{x \cup e}{y \cup e}$.
 \end{theorem}
 \begin{proof}
-  
+
 \end{proof}
 
 
