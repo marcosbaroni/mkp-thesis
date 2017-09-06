@@ -19,17 +19,54 @@ We will introduce the dynamic programming (DP) algorithm for the MOKP proposed i
 
 %\subsection{Definitions}
 
-\subsection{Item ordering}
 
-An important issue in the MOKP is the ordering of items.
+\subsection{Nemhauser-Ullmann algorithm -- the knapsack dominance}
+
+The algorithm considered in this work for solving the MOKP is based on the
+Nemhauser-Ullmann algorithm, a dynamic programming method for knapsack problems,
+which is presented by Algorithm~\ref{alg:nemull}.
+
+\begin{algorithm}
+  \caption{Basic dynamic programming algorithm for MOKP}
+  \label{alg:nemull}
+  \input{src/algs/dp1.tex}
+\end{algorithm}
+
+%%% Explicação do algoritmo básico
+At $k$-th stage the algorithm receives the set $S^{k-1}$ of solutions and
+generates the set $S^k$ of solutions that correspond
+to subsets containing exclusively the first $k$ items, i.e.\,,
+$\forall\sol{x} \in S^k, \sol{x} \subseteq \{1, \ldots, k\}$.
+This is done by expanding $S^{k-1}$ by adding a copy of each solution with the
+inclusion of $k$-th item (line 4).
+We will refer as \emph{partial solutions} all the solutions handled by
+stages prior to $n$-th stage.
+
+%%% Comentário sobre o algoritmo (application of knapsack dominance)
+The clever part of it is that it uses the concept of knapsack dominance
+to filter solutions that will not lead to efficient solutions (line 5).
+Considering two partial solutions $\sol{x}, \sol{y} \in S^k$, if
+$\sol{x}$ is knapsack-dominated by $\sol{y}$ then we may discard $\sol{x}$ since all
+solutions generated from $\sol{x}$ will be dominated by those generated from $\sol{y}$.
+
+
+\subsection{Item ordering}
+%%% Motivação para considerar ordenação
+An important issue in the MOKP is the ordering of the items.
 It is well-known that good solutions of knapsack problems
-are generally composed of items with good profit-weight relation.
+are generally composed of items with the best cost-benefit rate.
 Therefore, the prioritization of those items tends to lead to better solutions.
 
-For the multi-objective case however, there is no such natural measure.
-The method proposed by~\cite{bazgan2009} will be considered in this work, in which is based on the ranking of items from their cost-benefit measures in the various objectives.
-Those measures will give us several items orders which will be useful during the development of the algorithm.
+%%% Problema de ordenação para Multi Objective
+The profit-weight relation for the single objective case may be directly derived
+from the profit/weight ratio of the items.
+However, for the multi-objective case, there is no such natural measure.
+The method proposed by~\cite{bazgan2009} will be considered in this work,
+which is based on the ranking of items from their cost-benefit measures in all objectives.
+Those measures will give us several items orders which will be useful during
+the development of the algorithm.
 
+%%% Definição de ordenação
 We denote $\ord^j$ the set of items ordered by ascending order of cost-benefit function regarding objective $j$.
 Formally, considering the function $\cb{j}{a} = {p^j_a}/{w_a}$ the
 cost-benefit function of item $a$ regarding objective $j$, order
@@ -50,34 +87,6 @@ $\ord^{sum}$, except for the fact that $\frac{r^{sum}_i}{\np}$ is added up
 in their ranks as tie breaking criteria.
 The notation $\ord(\sol{s})$ will be used to denote the respective ordering
 of a $\sol{s}$ restrict set of items.
-
-
-\subsection{Nemhauser-Ullmann algorithm -- the knapsack dominance}
-
-The algorithm considered in this work is based on the Nemhauser-Ullmann algorithm,
-a dynamic programming method for knapsack problems, which is presented by Algorithm~\ref{alg:nemull}
-
-\begin{algorithm}
-  \caption{Basic dynamic programming algorithm for MOKP}
-  \label{alg:nemull}
-  \input{src/algs/dp1.tex}
-\end{algorithm}
-
-At $k$-th stage the algorithm receives the set $S^{k-1}$ of solutions and
-generates the set $S^k$ of solutions that correspond
-to subsets containing exclusively the first $k$ items, i.e.\,,
-$\forall\sol{x} \in S^k, \sol{x} \subseteq \{1, \ldots, k\}$.
-
-This is done by expanding $S^{k-1}$ by adding a copy of each solution with the
-inclusion of $k$-th item (line 4).
-We will refer as \emph{partial solutions} all the solutions handled by
-stages prior to $n$-th stage.
-
-The clever part of it is that it uses the concept of knapsack dominance
-to filter solutions that will not lead to efficient solutions (line 5).
-Considering two partial solutions $\sol{x}, \sol{y} \in S^k$, if
-$\sol{x}$ is knapsack-dominated by $\sol{y}$ then we may discard $\sol{x}$ since all
-solutions generated from $\sol{x}$ will be dominated by those generated from $\sol{y}$.
 
 \subsection{Avoiding deficient solutions}
 

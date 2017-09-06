@@ -1,14 +1,16 @@
-all: imgs clean
-imgs: dom domkd
-dom:
-	latex dom.tex
-	dvips dom.dvi
-	ps2pdf dom.ps
-	pdfcrop dom.pdf dom.pdf
-domkd:
-	latex dom-kd.tex
-	dvips dom-kd.dvi
-	ps2pdf dom-kd.ps
-	pdfcrop dom-kd.pdf dom-kd.pdf
-clean:
-	rm -f *.log *.aux
+#!/bin/bash
+
+# pstriks file
+PSTFILES="dom dom-kd"
+
+# produce
+for f in $PSTFILES; do
+	latex $f.tex
+	dvips $f.dvi
+	ps2pdf $f.ps
+	pdfcrop $f.pdf $f.pdf
+	pdftops $f.pdf
+done
+
+# clear
+rm -f *.log *.aux
