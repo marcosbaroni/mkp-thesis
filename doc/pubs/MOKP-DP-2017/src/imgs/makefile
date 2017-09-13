@@ -10,6 +10,7 @@ for f in $PSTFILES; do
 	ps2pdf $f.ps
 	pdfcrop $f.pdf $f.pdf
 	pdftops $f.pdf
+	ps2eps $f.ps
 done
 
 # clear

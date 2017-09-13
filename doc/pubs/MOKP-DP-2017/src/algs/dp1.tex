@@ -7,8 +7,8 @@
       \State $S^k = \{\sol{x} \:|\: \nexists \sol{a} \in S_*^k: \domk{a}{x} \}$
         \Comment{partial dominance filter}
     \EndFor
-  \State $P = \{\sol{x} \:|\: \nexists \sol{a} \in S^n: \dom{a}{x} \}$
-    \Comment{dominance filter}
+  \State $P = \{\sol{x} \:|\: \nexists \sol{a} \in S^n: \dom{a}{x} \;|\; \weight{x} \leq W \}$
+    \Comment{dominance/feasibility}
   \State \Return $P$
   \EndFunction
 \end{algorithmic}

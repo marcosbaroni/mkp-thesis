@@ -1,4 +1,5 @@
 TARGET=paper
+TEXFLAGS=-halt-on-error
 
 all: pdf clean
 pdf: dvipdf
@@ -8,10 +9,9 @@ dvipdf: latex
 	dvipdf $(TARGET).dvi
 	#ps2pdf $(TARGET).ps
 latex:
-	latex $(TARGET).tex
+	latex $(TEXFLAGS) $(TARGET).tex
 	bibtex $(TARGET).aux
-	latex $(TARGET).tex
-	latex $(TARGET).tex
+	latex $(TEXFLAGS) $(TARGET).tex
+	latex $(TEXFLAGS) $(TARGET).tex
 clean:
 	rm -f *.aux *.log *.bbl *.blg *.dvi *.ps
-

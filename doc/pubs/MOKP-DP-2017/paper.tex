@@ -3,10 +3,15 @@
 \usepackage{amsfonts}
 \usepackage{amssymb,amsmath,amsthm}
 \usepackage{graphicx}
-\usepackage{bm}  % bold math symbols (\boldsymbol)
+\usepackage{bm}           % bold math symbols (\boldsymbol)
 
 \usepackage{pstricks}
 \usepackage{pstricks-add}
+%\usepackage[breaklinks=true]{hyperref}
+%\usepackage{breakcites}
+\usepackage{microtype}    % melhorias no micro-espaçamento de texto
+%\usepackage{minibox}   % para caixa de texto com borda
+\usepackage{framed}
 
 \usepackage{algorithm}
 \usepackage{algpseudocode}
@@ -18,7 +23,11 @@
 \newcommand{\fsol}[1]{f(\sol{#1})}
 \newcommand{\np}{m}
 \newcommand{\nphard}{$\mathcal{NP}$-Hard}
-\newcommand{\missing}[1]{\fbox{\tiny \bf #1}}
+\newcommand{\missing}[1]{
+  \begin{framed}
+    {\scriptsize \bf #1}
+  \end{framed}
+}
 \newcommand{\weight}[1]{w(\sol{#1})}
 \newcommand{\bigweight}[1]{w\big(\sol{#1}\big)}
 \newcommand{\dom}[2]{dom(\sol{#1}, \sol{#2})}
@@ -91,7 +100,7 @@
 \label{sec:mokp}
 \input{src/secs/02-mokp.tex}
 
-\section{The Dynamic Programming Algorithm}
+\section{The Dynamic Programming algorithm}
 \label{sec:progdyn}
 \input{src/secs/03-dynprog.tex}
 

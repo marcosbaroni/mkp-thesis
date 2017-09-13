@@ -76,8 +76,7 @@ If $\weight{x} + \weight{e} \leq W$ than $\sol{e}$ is called a
 A solution $\sol{x}$ is called \emph{deficient} if it has available space
 to fit one or more item, i.e.\,, $\weight{x} + min\{ w_i : i \notin \sol{x} \} \leq W$.
 %Considering two solution $\sol{x}, \sol{y} \subseteq \setIN$
-We say
-$\sol{x}$ \emph{knapsack-dominates} $\sol{y}$, denoted as $\domk{x}{y}$,
+We say $\sol{x}$ \emph{knapsack-dominates} $\sol{y}$, denoted as $\domk{x}{y}$,
 if $\sol{x}$ dominates $\sol{y}$ and does not weight more than $\sol{y}$.
 Formally:
 \begin{displaymath}
@@ -88,12 +87,16 @@ Formally:
     \end{array}
   \right.
 \end{displaymath}
-Figure~\ref{fig:kdom} illustrates the concept of knapsack-dominance for a
-problem with $m = 1$.
+
+The concept of knapsack dominance was proposed by Weingartner and Ness~\cite{weingartner1967methods}
+and is the basis the algorithm considered in this work which will be presented
+in the next section.
+Figure~\ref{fig:kdom} illustrates the concept for a problem with $m = 1$.
 Any solution in the cross-hatched area knapsack-dominates the marked solution.
+
 \begin{figure}
   \centering
-  \includegraphics[scale=1.8]{src/imgs/dom}
+  \includegraphics[scale=1.2]{src/imgs/dom}
   \caption{A knapsack-dominated solution.}
   \label{fig:kdom}
 \end{figure}

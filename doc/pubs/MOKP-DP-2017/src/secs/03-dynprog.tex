@@ -4,53 +4,56 @@
 % - Dom. relations
 % - Application of dom. rel.
 
-\missing{Paragrafo de introducao da secao, justificando toda a explicacao que segue..}
+The algorithm addressed in this work
+can be seen as a MOKP specialization of the classical Nemhauser
+and Ullmann's algorithm proposed in ~\cite{nemhauser1969discrete}
+for solving knapsack problems.
+A basic multi-objective version of the algorithm will be
+presented in Section~\ref{subsec:nu}.
+Sections \ref{subsec:order},~\ref{subsec:deficient} and \ref{subsec:unpromissing}
+will cover the optimizations proposed by Bazgan considering some singularities
+of MOKP.
 
-The dynamic programming algorithm is based on the classical Nemhauser-Ullmann (NU) algorithm proposed
-in \cite{nemhauser1969discrete}.
-concept of domination for knapsack problems,
-proposed by Weingartner and Ness~\cite{weingartner1967methods}.
+%uses the concept of knapsack dominance to remove solutions
+%that will not lead to efficient ones.
 
-Some property of the MOKP will be explored...
-three filter as optimizations for the trying
-to reduce the number of solutions
-handled on mid stages of the algorithm...
-We will introduce the dynamic programming (DP) algorithm for the MOKP proposed in \cite{bazgan2009}.
+\subsection{The Nemhauser-Ullmann algorithm}
+\label{subsec:nu}
 
-%\subsection{Definitions}
-
-
-\subsection{Nemhauser-Ullmann algorithm -- the knapsack dominance}
-
-The algorithm considered in this work for solving the MOKP is based on the
-Nemhauser-Ullmann algorithm, a dynamic programming method for knapsack problems,
-which is presented by Algorithm~\ref{alg:nemull}.
+The Nemhauser and Ullmann's algorithm generically solves knapsack problems
+by applying the concept of knapsack dominance to remove solutions that will
+not lead to efficient ones.
+A basic multi-objective version of the algorithm is presented in Algorithm~\ref{alg:nemull}.
 
 \begin{algorithm}
-  \caption{Basic dynamic programming algorithm for MOKP}
+  \caption{Nemhauser and Ullmann's algorithm for MOKP}
   \label{alg:nemull}
   \input{src/algs/dp1.tex}
 \end{algorithm}
 
 %%% Explicação do algoritmo básico
-At $k$-th stage the algorithm receives the set $S^{k-1}$ of solutions and
-generates the set $S^k$ of solutions that correspond
-to subsets containing exclusively the first $k$ items, i.e.\,,
-$\forall\sol{x} \in S^k, \sol{x} \subseteq \{1, \ldots, k\}$.
-This is done by expanding $S^{k-1}$ by adding a copy of each solution with the
-inclusion of $k$-th item (line 4).
-We will refer as \emph{partial solutions} all the solutions handled by
-stages prior to $n$-th stage.
+The algorithm begins by defining an initial solution set $S^0$ containing only
+the empty solution (line 2).
+At a $k$-th stage the algorithm receives a set $S^{k-1}$
+exclusively containing solutions composed by the first ${k-1}$ items, i.e.\,,
+$\forall\sol{x} \in S^k, \sol{x} \subseteq \{1, \ldots, k-1\}$.
+This set is then expanded by adding a copy of its solutions,
+but now including $k$-th item (line 4).
+This new set is defined by $S^k_*$ thence having twice the cardinality of $S^{k-1}$.
+Set $S^k$ is then defined by selecting all the solutions from $S^k_*$
+that are not knapsack-dominated by any other existing solution (line 5).
+The last step of the algorithm is selecting the solutions that are
+not dominated by any other according to their objective values.
+Any solution in the context of stages prior than $n$-th stage
+will be considered a \emph{partial solution}.
 
-%%% Comentário sobre o algoritmo (application of knapsack dominance)
-The clever part of it is that it uses the concept of knapsack dominance
-to filter solutions that will not lead to efficient solutions (line 5).
-Considering two partial solutions $\sol{x}, \sol{y} \in S^k$, if
-$\sol{x}$ is knapsack-dominated by $\sol{y}$ then we may discard $\sol{x}$ since all
-solutions generated from $\sol{x}$ will be dominated by those generated from $\sol{y}$.
-
+Algorithm~\ref{alg:nemull} is quite powerful considering its simplicity.
+However...
+o carater potenciamente exponencial do problema may lead it
+degraded performance
 
 \subsection{Item ordering}
+\label{subsec:order}
 %%% Motivação para considerar ordenação
 An important issue in the MOKP is the ordering of the items.
 It is well-known that good solutions of knapsack problems
@@ -89,7 +92,7 @@ The notation $\ord(\sol{s})$ will be used to denote the respective ordering
 of a $\sol{s}$ restrict set of items.
 
 \subsection{Avoiding deficient solutions}
-
+\label{subsec:deficient}
 The first optimization that can be made on Algorithm~\ref{alg:nemull} is
 avoiding the generation of deficient solutions.
 At $k$-th stage all previous solution is copied to the
@@ -108,7 +111,7 @@ $\sol{x}$ may be discarded and only $\sol{x} \cup \{k\}$ keeped, once
 keeping $\sol{x}$ will certainly lead to deficient solutions.
 
 \subsection{Removing unpromissing solutions}
-
+\label{subsec:unpromissing}
 Another optimization that can be applied on later stages is
 filtering unpromissing solutions by computing upper bounds for its objectives
 functions and comparing it with the set of available lower bounds.
