@@ -28,6 +28,7 @@ bin/mkp-simplex
 bin/mmkp-rand
 bin/ssum-rand
 bin/mokp
+bin/gmon.out
 insts/chubeas/*
 insts/bazgan/*
 mkp-fast-nu
