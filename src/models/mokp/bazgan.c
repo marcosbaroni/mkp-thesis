@@ -1009,17 +1009,17 @@ Bazgan *bazgan_exec(MOKP *mokp, int kmax, int ndim){
 	long long last_cmp;
 	last_cmp = 0;
     for( i = 0 ; i < kmax ; i++ ){
-        printf("\riter %d/%d (nd: %d) cmp: %lld"
-			, i+1
-			, kmax
-			, bazgan->avl_lex->n
-			, (bazgan->_ncomparison - last_cmp) );
-		fflush(stdout);
+        //printf("\riter %d/%d (nd: %d) cmp: %lld"
+		//	, i+1
+		//	, kmax
+		//	, bazgan->avl_lex->n
+		//	, (bazgan->_ncomparison - last_cmp) );
+		//fflush(stdout);
 		last_cmp = bazgan->_ncomparison;
         //bazgan_fprint_nodes(stdout, bazgan);
         _bazgan_iter(bazgan, i, ndim);
     }
-	printf("\n");
+	//printf("\n");
     bazgan_pong(bazgan);
     //bazgan_fprint_nodes(stdout, bazgan);
 
