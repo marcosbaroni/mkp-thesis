@@ -20,7 +20,7 @@
 
 int print_usage_convert(int argc, char **argv){
     printf("Convert instance.\n\n");
-    printf("  usage: %s %s <input-file> [output-file]\n", argv[0], BAZGAN_OPT);
+    printf("  usage: %s %s <input-file> [output-file]\n", argv[0], CONVERT_OPT);
     printf("\n  input-file: '-' for stdin\n");
     printf("  output-file: if not given, user stdout\n");
 
@@ -238,7 +238,7 @@ int print_usage_bazgan(int argc, char **argv){
     printf("  usage: %s %s <ndim> [input file] [n iterations] [order option]\n", argv[0], BAZGAN_OPT);
     printf("  ...\n");
     printf("\n  Output:\n");
-    printf("    <n nodes>;<n comparison>;<time (s)>\n\n");
+    printf("    <n nodes>;<n comparison>;<time (s)>;<max nd>\n\n");
 
     return 1;
 }

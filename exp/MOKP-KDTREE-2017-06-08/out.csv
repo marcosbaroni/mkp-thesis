@@ -1,3 +1,6 @@
+mokp
+ndim;t;m;n;i;nd;ncomp;time;maxnd
+int;int;int;int;int;int;int;float;int
 0;1;2;10;0;4;1994;0.000;14
 0;1;2;30;3;29;7773407;0.031;606
 3;3;2;30;0;103;381134;0.131;2121

@@ -4,8 +4,8 @@
 CC = gcc
 #CFLAGS=-g -DUSE_MEMPOOL
 #CFLAGS=-g -DDEBUG_LVL=1
-CFLAGS=-g $(DEBFLAG) -pg
-#CFLAGS=-O3
+#CFLAGS=-g $(DEBFLAG) -pg
+CFLAGS=-O3
 DEST=../bin
 SOPLEX=-lsoplex -lz -lgmp -lm
 
@@ -63,7 +63,7 @@ test: util.o avl.o heap.o
 mkp.o: utils/util.c
 mokp: mokp.o tmokp.o util.o lp.o order.o kdtree.o avl.o heap.o bazgan.o list.o
 	#g++ $(CFLAGS) -o mokp tmokp.o mokp.o mkp.o util.o lp.o mkp-soputils.o order.o bazgan.o kdtree.o avl.o heap.o list.o -lm $(SOPLEX)
-	gcc $(CFLAGS) -o mokp tmokp.o mokp.o util.o lp.o order.o bazgan.o kdtree.o avl.o heap.o list.o -lm $(SOPLEX)
+	gcc $(CFLAGS) -o mokp tmokp.o mokp.o util.o lp.o order.o bazgan.o kdtree.o avl.o heap.o list.o -lm #$(SOPLEX)
 	mv mokp $(DEST)
 mokp.o:
 	gcc $(CFLAGS) -c models/mokp/mokp.c

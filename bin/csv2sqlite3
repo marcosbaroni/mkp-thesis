@@ -29,9 +29,9 @@ if [ ! -f $inputfile ]; then
 	exit 1
 fi
 
-sqlfile=`tempfile`
-datafile=`tempfile`
-aux=`tempfile`
+sqlfile=`mktemp`
+datafile=`mktemp`
+aux=`mktemp`
 tail -n +4 $1 > $datafile
 
 # assembling schema of sql table
