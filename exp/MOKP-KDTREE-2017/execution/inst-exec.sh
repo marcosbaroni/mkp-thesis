@@ -16,9 +16,9 @@ fi
 function arg_spliter(){
     np=$1
     cls=$2
-    n=$2
-    i=$3
-    ndim=$4
+    n=$3
+    i=$4
+    ndim=$5
 }
 
 # gettin params

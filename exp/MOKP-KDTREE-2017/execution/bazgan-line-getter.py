@@ -4,16 +4,22 @@ from sys import argv
 config = [
   ( 2      # np
   , [1, 2]  # ndims
-  , [ ('A', list(range(50, 201, 50))) # types / n ranges
-    , ('B', list(range(50, 301, 50)))
-    , ('C', list(range(50, 201, 50)))
-    , ('D', list(range(50, 101, 50)))
+  , [ ('A', list(range(40, 121, 20))) # types / n ranges
+    , ('B', list(range(100, 301, 50)))
+    , ('C', list(range(20, 101, 20)))
+    , ('D', list(range(20, 51, 10)))
     ]
   ),
   ( 3        # np
   , [1, 2, 3]  # ndims
-  , [ ('A', list(range(50, 201, 50))) # types / n ranges
-    , ('C', list(range(50, 201, 50)))
+  , [ ('A', list(range(50, 81, 10))) # types / n ranges
+    , ('C', list(range(20, 41, 10)))
+    ]
+  ),
+  ( 4        # np
+  , [1, 2, 3, 4]  # ndims
+  , [ ('A', list(range(20, 51, 10))) # types / n ranges
+    , ('C', list(range(10, 31, 10)))
     ]
   )
 ]
