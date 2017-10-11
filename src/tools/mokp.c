@@ -339,7 +339,8 @@ int execute_mkp2(int argc, char **argv){
 *    Gerador de instâncias MOKP sintéticas (aleatórias).
 *******************************************************************************/
 int execute_rand(int argc, char **argv){
-    int n, np, classe;
+    int n, np;
+	char classe;
     unsigned int seed;
     MOKP *mokp;
     struct timeval timeval_seeder;
@@ -347,24 +348,24 @@ int execute_rand(int argc, char **argv){
     if( argc < 4 ){
         printf("usage: %s %s <n> <np> [classe] [seed] [outfile] \n", argv[0], RAND_OPT);
         printf("\nclasse:\n");
-        printf("   1: uniform [1,1000]   (default)\n");
-        printf("   2: unconflicting [111,1000], [p-100, p+100]\n");
-        printf("   3: profits negatively-correlated, weight uniform\n");
-        printf("   4: profits negatively-correlated, weight positively-correlated with profits\n");
+        printf("   A: uniform [1,1000]   (default)\n");
+        printf("   B: unconflicting [111,1000], [p-100, p+100]\n");
+        printf("   C: profits negatively-correlated, weight uniform\n");
+        printf("   D: profits negatively-correlated, weight positively-correlated with profits\n");
         printf("\n");
         return 1;
     }
 
-    classe = 1;
+    classe = 'A';
     n = atoll(argv[2]);
     np = atoll(argv[3]);
     if( argc > 4 )
-        classe = atoll(argv[4]);
+        classe = argv[4][0];
 
     /* checking classe consistency */
-    if( !classe || classe > 4 ){
-        fprintf(stderr, "Invalid classe %d. classe 1 will be used.\n", classe);
-        classe = 1;
+    if( !((classe > 64 && classe < 69) || (classe > 96 && classe < 101)) ){
+        fprintf(stderr, "Invalid classe %c. classe A will be used.\n", classe);
+        classe = 'A';
     }
 
     /* setting random seed */

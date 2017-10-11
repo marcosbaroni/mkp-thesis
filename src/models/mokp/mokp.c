@@ -182,14 +182,25 @@ MOKP *_mokp_random_conflict_correl(int n, int np){
 }
 
 /*  Sintethic MOKP instance */
-MOKP *mokp_random(int n, int np, int option){
+MOKP *mokp_random(int n, int np, char option){
     MOKP *mokp;
     
     switch( option ){
-        case 1: mokp = _mokp_random_uniform(n, np); break;
-        case 2: mokp = _mokp_random_unconflict(n, np); break;
-        case 3: mokp = _mokp_random_conflict(n, np); break;
-        case 4: mokp = _mokp_random_conflict_correl(n, np); break;
+        case 'a':
+        case 'A':
+		mokp = _mokp_random_uniform(n, np); break;
+
+        case 'b':
+        case 'B':
+		mokp = _mokp_random_unconflict(n, np); break;
+
+        case 'c':
+        case 'C':
+		mokp = _mokp_random_conflict(n, np); break;
+
+        case 'd':
+        case 'D':
+		mokp = _mokp_random_conflict_correl(n, np); break;
     }
 
     return mokp;

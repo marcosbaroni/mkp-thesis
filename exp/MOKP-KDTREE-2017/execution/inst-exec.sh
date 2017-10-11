@@ -1,6 +1,7 @@
 #!/bin/bash
 LINE_PARSER="python bazgan-line-getter.py"
-BIN_FOLDER="/home/mbaroni/Computacao/phd/dmkp/bin"
+#BIN_FOLDER="/home/mbaroni/Computacao/phd/dmkp/bin"
+BIN_FOLDER="./"
 MOKP="$BIN_FOLDER/mokp"
 #INST_FOLDER="mokp-insts"
 #OUT_FOLDER="/home/mbaroni/mokp-kd/"
