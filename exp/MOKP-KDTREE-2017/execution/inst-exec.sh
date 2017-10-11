@@ -15,9 +15,10 @@ fi
 
 function arg_spliter(){
     np=$1
+    cls=$2
     n=$2
     i=$3
-    dim=$4
+    ndim=$4
 }
 
 # gettin params
@@ -33,8 +34,8 @@ arg_spliter $args
 outputfile="$OUT_FOLDER/$cluster-$HOST.csv"
 
 # running
-resp=`$MOKP rand $n $np 1 $i|$MOKP bazgan $dim`
+resp=`$MOKP rand $n $np $cls $i|$MOKP bazgan $ndim`
 
 # outputing
-echo "$dim;$np;$n;$i;$resp" >> $outputfile
+echo "$cls;$ndim;$np;$n;$i;$resp" >> $outputfile
 
