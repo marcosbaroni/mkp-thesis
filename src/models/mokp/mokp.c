@@ -62,7 +62,7 @@ mokpnum max(mokpnum a, mokpnum b){ return a > b ? a : b; }
 /*
  *   Type A
  * */
-MOKP *_mokp_random_uniform(int n, int np){
+MOKP *_mokp_random_A(int n, int np){
     MOKP *mokp;
     int i, j;
     mokpnum maxcoef = 1000;
@@ -85,7 +85,7 @@ MOKP *_mokp_random_uniform(int n, int np){
 /*
  *   Type B
  * */
-MOKP *_mokp_random_unconflict(int n, int np){
+MOKP *_mokp_random_B(int n, int np){
     MOKP *mokp;
     int i, j;
     mokpnum maxcoef = 1000;
@@ -109,7 +109,7 @@ MOKP *_mokp_random_unconflict(int n, int np){
 /*
  *   Type C
  * */
-MOKP *_mokp_random_conflict(int n, int np){
+MOKP *_mokp_random_C(int n, int np){
     MOKP *mokp;
     int i, j;
     mokpnum lower, upper;
@@ -126,7 +126,7 @@ MOKP *_mokp_random_conflict(int n, int np){
         /* case m = 2 */
         if( np == 2 ){
             lower = max( 900 - p[0][i],   1);
-            upper = min(1100 - p[0][i], 100);
+            upper = min(1100 - p[0][i], 1000);
             p[1][i] = lower + mokpnum_rand((upper - lower));
         }
         /* case m = 3,4,5,... */
@@ -152,28 +152,45 @@ MOKP *_mokp_random_conflict(int n, int np){
 /*
  *   Type D
  * */
-MOKP *_mokp_random_conflict_correl(int n, int np){
+MOKP *_mokp_random_D(int n, int np){
     MOKP *mokp;
     int i, j;
-    mokpnum upper, lower;
+    mokpnum upper, lower, psum;
+    mokpnum **p;
 
     mokp = mokp_alloc(n, np);
+	p = mokp->p;
 
-    mokp-> b = 0;
+    mokp->b = 0;
     for( i = 0 ; i < n ; i++ ){
-            mokp->p[0][i] = mokpnum_rand(1000);
+        psum = p[0][i] = mokpnum_rand(1000);
+        if( np == 2 ){
             /* second profit */
-            if( np > 1 ){
-                lower = max( 900 - mokp->p[0][i], 1);
-                upper = min(1100 - mokp->p[0][i], 1000);
-                mokp->p[1][i] = lower + mokpnum_rand(upper - lower);
-            }
-            /* further profits... */
-            for( j = 2 ; j < np ; j++ )
-                mokp->p[j][i] = mokpnum_rand(1000);
+            lower = max( 900 - p[0][i], 1);
+            upper = min(1100 - p[0][i], 1000);
+            p[1][i] = lower + mokpnum_rand(upper - lower);
+			psum += p[1][i];
+        }
+		if( np == 3 ){
+            /* second profit */
+            p[1][i] = mokpnum_rand(1001 - p[0][i]);
+			psum += p[1][i];
+
+            /* third profit */
+            lower = max( 900 - p[0][i] - p[1][i], 1);
+            upper = min(1100 - p[0][i] - p[1][i], 1001 - p[0][i]);
+            p[2][i] = lower + mokpnum_rand((upper - lower));
+			psum += p[2][i];
+		}
+        /* further profits... */
+		if( np > 3 ){
+            for( j = 2 ; j < np ; j++ ){
+                p[j][i] = mokpnum_rand(1000);
+			}
+		}
+        mokp->w[i] = psum - 200 + mokpnum_rand(400);
 
         /* wieght */
-        mokp->w[i] = mokp->p[0][i] + mokp->p[1][i] - 200 + mokpnum_rand(400);
         mokp->b += mokp->w[i];
     }
     mokp->b = mokp->b / 2;
@@ -188,19 +205,19 @@ MOKP *mokp_random(int n, int np, char option){
     switch( option ){
         case 'a':
         case 'A':
-		mokp = _mokp_random_uniform(n, np); break;
+		mokp = _mokp_random_A(n, np); break;
 
         case 'b':
         case 'B':
-		mokp = _mokp_random_unconflict(n, np); break;
+		mokp = _mokp_random_B(n, np); break;
 
         case 'c':
         case 'C':
-		mokp = _mokp_random_conflict(n, np); break;
+		mokp = _mokp_random_C(n, np); break;
 
         case 'd':
         case 'D':
-		mokp = _mokp_random_conflict_correl(n, np); break;
+		mokp = _mokp_random_D(n, np); break;
     }
 
     return mokp;
