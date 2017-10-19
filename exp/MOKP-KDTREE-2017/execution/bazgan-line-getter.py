@@ -1,29 +1,36 @@
 #!/usr/bin/python
 from sys import argv
 
-config = [
-  ( 2      # np
+# m = 2
+c2 = ( 2      # np
   , [1, 2]  # ndims
   , [ ('A', list(range(40, 121, 20))) # types / n ranges
     , ('B', list(range(100, 301, 50)))
     , ('C', list(range(20, 101, 20)))
     , ('D', list(range(20, 51, 10)))
     ]
-  ),
-  ( 3        # np
+  )
+
+# m = 3
+c3 = ( 3        # np
   , [1, 2, 3]  # ndims
-  , [ ('A', list(range(50, 81, 10))) # types / n ranges
-    , ('C', list(range(20, 41, 10)))
+  , [ #('A', list(range(50, 81, 10))) # types / n ranges
+    ('B', list(range(100, 401, 100)))
+    #, ('C', list(range(20, 41, 10)))
+    , ('D', list(range(10, 31, 10)))
     ]
-  ),
-  ( 4        # np
+  );
+
+# m = 4
+c4 = ( 4        # np
   , [1, 2, 3, 4]  # ndims
   , [ ('A', list(range(20, 51, 10))) # types / n ranges
     , ('C', list(range(10, 31, 10)))
     ]
   )
-]
-#nps = [2, 3, 4, 5];
+
+#config = [c2, c3, c4]
+config = [c3]
 iis = range(1, 11);
 
 argList = []
