@@ -1,0 +1,134 @@
+As exposed in previous chapters,
+exact methods have difficulties solving several MOKP instances,
+especially with more than 2 objectives.
+This motivates the development of heuristic methods.
+This chapter will discuss the development of
+the proposed heuristic algorithm, how tests will be
+conducted and analyzed.
+A final schedule is presented in the last section.
+
+\section{Algorithm Proposal}
+For designing a multi-objective heuristic, one still take into account
+two important criteria: (a) how to allow the diversity of solutions
+and (b) how to ensure the convergence towards the Pareto optimal set.
+The SCE algorithm (a) allows diversity of solutions by evolving independent
+sets of solutions which are constructed by shuffling the 
+population and (b) ensures convergence by prioritizing
+the crossing of individuals with better fitness, which
+indicates the potential to compute a good approximate Pareto optimal set.
+
+As seen in previous sections
+the SCE is easily applied to any optimization problem.
+The fact that the MKP shares the same solution representation
+as the MOKP
+-- set of items included in the knapsack --
+allow us to use the same procedures
+presented in Section~\ref{sec:scemkp}
+for (a) creating a new random solution
+and (b) crossing two solutions.
+
+A crucial point for the successful application of a metaheuristic
+on a multi-objective problem is the definition of the fitness function.
+One of the most popular multi-objective heuristic algorithms successfully uses sorts
+based on the dominance relation for measuring the quality of a solution.
+The method is called \emph{non-dominated sort}~\cite{deb2002fast}:
+given a set $Q$ of solution, it first selects those which are not dominated
+by any other solution in $Q$ to compose the set $S_1$, denoted as
+\emph{first non-dominated front}.
+Now, all select solutions are removed from $Q$ set and the process
+is repeated to make set $S_2$.
+The process continues until all fronts are identified.
+Solutions in the first fronts are considered the ones with the best fitness.
+For tie breaking the aggregation method can be used, which consist of using
+a weight vector to compute a scalar over the multiple objective values
+of a solution.
+
+A performance issue on the non-dominated sort procedure is
+checking if a solutions is dominated by another.
+Our propose is to minimize this issue with the assistance
+of the indexing strategy proposed in Chapter~\ref{cap:kdtree}.
+
+\section{Computational Experiments and Analyzes}
+The proposed algorithm will be tested on the same types
+of instances presented  in Chapter~\ref{sec:dynprogcomp},
+this time considering 2, 3 and 4 objective cases
+and compared with the results that will be obtained from
+the MOFPA proposed in~\cite{zouache2018cooperative}.
+
+Two performance metrics will be used to evaluate the
+approximation quality of the generated solutions:
+(a) set coverage metric~\cite{zitzler1998multiobjective}
+and (b) spacing metric~\cite{schott1995fault}:
+\begin{itemize}
+  \item[(a)]{Set coverage metric ($SC$):
+  This metric is intended to be used for comparing
+    two non-dominated Pareto sets.
+    It defines a semi-distance between two solutions set $A$ and $B$ by:
+    \begin{displaymath}
+      SC(A, B) = \frac{\big|\{ b \in B
+        \;|\; \exists a \in A : dom(a, b)\}\big|}{|B|}
+    \end{displaymath}
+    This quantity corresponds to the proportion of the solutions
+    of the set $B$, that are dominated by at least one solution
+    of $A$. It should be noted that $C(A,B)$ is not necessarily
+    equal to $1-C(B, A)$. To compare $A$ and $B$ sets, both values
+    of  $C(A,B)$ and $C(B,A)$ must be calculated.}
+  \item[(b)]{Spacing metric ($SP$): This metric evaluates the uniformity
+    of the distribution of non-dominated solutions:
+    \begin{displaymath}
+      SP(A) = \sqrt{\frac{1}{n-1} \sum^n_{i=1} (\bar{d}-d_i)^2}
+    \end{displaymath}
+    where $d_i$ is defined as:
+    \begin{displaymath}
+     d_i = min \sum^M_{m=1} | f^i_m - f^k_m | \qquad k \in A, k \neq i
+    \end{displaymath}
+    and $\bar{d}$ denotes the average of the distances $d_i$ for
+    $i = 1, \ldots, n$.
+    $SP$ represents the standard deviation of distance values between
+    two consecutive solutions of the set $A$.
+    The smaller $SP$, the better distribution of the solutions.
+    Moreover, a null value of SP indicates that the solutions are
+    equidistant. }
+\end{itemize}
+
+The computational results will be reported on a paper to be submitted
+to IEEE Congress on Evolutionary Computation 2018 (CEC 2018) that
+will be held on July 80-14 in Rio de Janeiro, Brazil.
+Its paper submission deadline is January 15.
+
+\newpage
+\section{Final Doctoral Schedule}
+Table~\ref{tab:sched} presents the final doctoral schedule.
+
+\begin{table}[hb]
+\centering
+\bgroup
+\def\arraystretch{1.1}%
+\begin{tabular}{|l|c:c:c|c:c:c:c|c:c:c:c|}
+ \hline
+  \multirow{3}{*}{\textbf{ \phantom{aaaa} Activities}}
+  & \multicolumn{11}{c|}{\textbf{Weeks}} \\ \cline{2-12}
+   & \multicolumn{3}{c|}{\textbf{ November }}
+   & \multicolumn{4}{c|}{\textbf{December}}
+   & \multicolumn{4}{c|}{\textbf{January}} \\ \cline{2-12}
+  & \;2º\; & 3º & 4º & 1º & 2º & 3º & 4º & 1º & 2º & 3º & 4º \\ \hline
+ Literature review
+  & $\bbt$ & $\bbt$ & $\bbt$ & & & & & & & & \\ \hline
+ Implementation and adjustments
+  & $\bbt$ & $\bbt$ & $\bbt$ & $\bbt$ & & & & & & & \\ \hline
+ Computational experiments
+  & & & $\bbt$ & $\bbt$ & $\bbt$ & & & & & & \\ \hline
+ CEC Paper writing
+  & & & & & & $\bbt$ & $\bbt$ & $\bbt$ & & & \\ \hline
+ CEC Paper submission
+  & & & & & & & & & $\bbt$ & & \\ \hline
+ Thesis writing
+  & & & & $\bbt$ & $\bbt$ & $\bbt$ & $\bbt$ & $\bbt$ & $\bbt$ & $\bbt$ & \\ \hline
+\end{tabular}
+\egroup
+\caption{Final doctoral schedule.}
+\label{tab:sched}
+\end{table}
+
+%\vspace{15pt}
+%\emph{Métricas de avaliação de solucao, instancias de testes e analises.}

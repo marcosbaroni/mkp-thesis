@@ -1,0 +1,138 @@
+Several computational experiments were performed with the objective of
+verifying the efficiency of multi-dimensional indexing on the algorithm,
+especially for instances with higher dimensions.
+All instances were generated in the same manner as described in~\cite{bazgan2009}.
+Four types of bi-objective instances were considered:
+\begin{enumerate}
+  \item[A)] Random instances: $
+    p^j_i \in [1, 1000],
+    w_i \in [1,1000]$.
+  \item[B)] Unconflicting instances: $
+    p^1_i \in [111, 1000],\\
+    p^2_i \in [p^1_i - 100, p^1_i + 100],\\
+    w_i \in [1,1000]$.
+  \item[C)] Conflicting instances: $
+    p^1_i \in [1, 1000],\\
+    p^2_i \in [max\{900-p^1_i;1\}, min\{1100-p^1_i, 1000\}],\\
+    w_i \in [1,1000]$.
+  \item[D)] Conflicting instances with correlated weight: $
+    p^1_i \in [1, 1000],\\
+    p^2_i \in [max\{900-p^1_i;1\}, min\{1100-p^1_i, 1000\}],\\
+    w_i \in [p^1_i+p^2_i-200, p^1_i+p^2_i+200]$.
+\end{enumerate}
+where $\in [a,b]$ denotes uniformly randomly generated in range $[a,b]$.
+Instances of type B are considered the easiest ones
+while type D are considered the hardest.
+For all instances, we set $W=\frac{1}{2}\floor{\sum^n_{k=1} w^k}$.
+For each type and each value of $n$ 10 different instances were generated.
+The experiments were run on a Intel\textsuperscript{\textregistered}
+Core\textsuperscript{TM} i5-3570 3.40HGz computer with 4GB of RAM and
+the algorithms were implemented in C programming language.
+
+\begin{table}[]
+  \centering
+  \input{tab/cpu2dim.tex}
+  \caption{Average CPU-time for bi-objective instances.}
+  \label{tab:cpu2dim}
+\end{table}
+
+Table~\ref{tab:cpu2dim} presents results on bi-objective instances
+where $|ND|$ is the size of the solution set.
+The last column of the table shows the speedup of using \dtree{2}.
+Fig.~\ref{fig:cmp2dim} presents the number of solutions
+evaluations for bi-objective cases.
+The horizontal axis presents the number of items.
+Each presented value is the average for 10 instances.
+
+It can be noted that the use of \dtree{2} 
+increased the performance of
+the algorithm with a speedup up to $2.3$ on instances
+of type A, C and D, which have large solution sets.
+In most cases occurred the reduction of almost
+an order of magnitude in the number of solution evaluations.
+For instances of type B the use of \dtree{2} had a poor performance,
+even with the reduction in the number of evaluations.
+This is probably to the small size of the solution set
+for which the use of the structure is not efficient.
+
+\begin{figure}[]
+  \input{tab/cmp2dim.tex}
+  \caption{Average number of solution evaluations for bi-objective instances.}
+  \label{fig:cmp2dim}
+\end{figure}
+
+For the experiments with $3$-objective cases
+we considered the generalization introduced in \cite{bazgan2009}
+for the bi-dimensional types A and C,
+and proposed the generalization of types B and D as follows:
+\begin{enumerate}
+  \item[A)] Random instances: $
+    p^j_i \in [1, 1000]\\
+    w_i \in [1,1000]$
+  \item[B)] Unconflicting instances: $
+    p^1_i \in [111, 1000],\\
+    p^2_i \in [p^1_i - 100, p^1_i + 100],\\
+    p^3_i \in [p^1_i - 100, p^1_i + 100],\\
+    w_i \in [1,1000]$.
+  \item[C)] Conflicting instances: $
+    p^1_i \in [1, 1000], \;
+    p^2_i \in [1, 1001 - p^1_i] \\
+    p^3_i \in [max\{900-p^1_i-p^2_i;1\}, min\{1100-p^1_i-p^2_i, 1001-p^1_i\}]\\
+    w_i \in [1,1000]$.
+  \item[D)] Conflicting instances with correlated weight: $
+    p^1_i \in [1, 1000]\\
+    p^2_i \in [1, 1001 - p^1_i] \\
+    p^3_i \in [max\{900-p^1_i-p^2_i;1\}, min\{1100-p^1_i-p^2_i, 1001-p^1_i\}]\\
+    w_i \in [p^1_i+p^2_i+p^3_i-200, p^1_i+p^2_i+p^3_i+200]$.
+\end{enumerate}
+
+\begin{table}[]
+  \centering
+  \input{tab/cpu3dim.tex}
+  \caption{Average CPU-time for 3-objective instances.}
+  \label{tab:cpu3dim}
+\end{table}
+
+\begin{figure}[]
+  \input{tab/cmp3dim.tex}
+  \caption{Average number of solution evaluations for 3-objective instances.}
+  \label{fig:cmp3dim}
+\end{figure}
+
+Table~\ref{tab:cpu3dim} shows results on 3-objective instances for which
+were used AVL tree, \dtree{2} and \dtree{3}.
+Fig.~\ref{fig:cmp3dim} presents the number of solutions evaluations for 3-objective cases.
+Each presented value is the average for 10 instances.
+
+The use of multi-dimensional indexing for all 3-objective cases
+increased the performance of the algorithm with \dtree{3}
+outperforming \dtree{2} on types A, C and D.
+The use of \kdtree{} still had lower performance on type B.
+
+
+\subsection{Conclusions}
+This chapter shows the application of a multi-dimensional indexing structure
+for exactly solving the MOKP with a dynamic programming algorithm
+and investigating its efficiency.
+Through computational experiments we showed that multi-dimensional indexing
+is applicable to the problem requiring considerably less solution evaluations,
+especially on hard instances,
+which resulted in a algorithm speedup $2.3$ for bi-dimensional
+cases and up to $15.5$ on 3-dimensional cases.
+The multi-dimensional indexing was not efficient on \emph{easy} instances
+for which the set of solutions is relatively small.
+
+Despite the considerable performance improvement
+provided by the multi-dimensional indexing strategy,
+several instances are still intractable due 
+the large number of intermediate solutions,
+especially for 3-objective cases.
+For this reason this work proposes to use the indexing strategy
+in conjunction with an evolutionary metaheuristic
+which is expected to provide
+promising results for hard instances,
+particularly for many-objective instances.
+
+The following chapter will introduce the shuffled complex algorithm
+and presents is application for efficiently solves
+the multi-dimensional knapsack problem.

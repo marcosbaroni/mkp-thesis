@@ -1,0 +1,68 @@
+Several exact approaches have been proposed in the literature for
+solving the MOKP.
+Examples of such approaches are
+the theoretical work
+on~\cite{klamroth2000dynamic} where several
+dynamic programming formulations are presented,
+a $\varepsilon$-constraint method presented in \cite{chankong2008multiobjective},
+the two-phase method including a branch and bound algorithm proposed
+in~\cite{visee1998two}, a labeling method presented
+in~\cite{captivo2003solving} and the dynamic programming
+algorithm proposed in~\cite{bazgan2009} which is the most
+efficient exact algorithm according to literature.
+Some later contributions for the dynamic programming approach
+are an algorithmic improvement for bi-objective
+cases~\cite{figueira2013algorithmic},
+techniques for reducing its memory usage~\cite{correia2018} and
+a multi-dimensional solution indexing strategy for performance
+improvement~\cite{baroni2017}.
+
+One of the main difficulties on multi-objective optimization problems
+is the large cardinality of the set of non-dominated (or \emph{efficient}) solutions,
+which has motivated research to provide an approximation of the solution
+set~\cite{bazgan2015approximate, vanderpooten2017covers}.
+Indeed, it is well-known, in particular, that most multi-objective combinatorial
+optimization problems are \emph{intractable}, in the sense that
+the number of non-dominated points is exponential in the size of the instance
+\cite{ehrgott2013multicriteria}, which motivates the use of heuristics.
+
+Most of proposed multi-objective metaheuristic are adaptations
+of metaheuristics originally proposed for single-objective cases.
+Among these we may mention
+a simulated annealing algorithm~\cite{czyzzak1998pareto},
+a scatter search based method~\cite{da2006scatter,da2007integrating},
+a tabu search-based method~\cite{gandibleux2000tabu},
+%a cooperative swarm intelligence~\cite{zouache2018cooperative},
+a quantum inspired artificial immune system~\cite{gao2014quantum},
+a hybrid genetic algorithm~\cite{abdelaziz1999hybrid} and
+an estimation of distribution method~\cite{martins2017hybrid}.
+
+One of the most popular heuristic algorithm for the MOKP
+is the nondominated sorting genetic algorithm (NSGA-II)
+proposed in~\cite{deb2002fast}.
+This algorithm uses sorts based on the dominance concept
+to obtain the convergence towards the Pareto optimal set.
+It also employs the crowding distance to maintain the diversity
+of the solution set.
+
+Another common heuristic algorithm is the Strength Pareto
+Evolutionary Algorithm (SPEA-II), proposed in~\cite{zitzler2001spea2}.
+SPEA-II is a genetic algorithm that, in contrast
+to NSGA-II, is based on the use of a external population
+called archive.
+This external population contains a limited number of
+non-dominated solutions during the optimization phase.
+At any iteration, the new non-dominated solutions of the
+population are compared to members of the archive
+with respect to dominance.
+
+Recently a cooperative swarm intelligence algorithm called
+MOFPA has been proposed in~\cite{zouache2018cooperative},
+combing a firefly algorithm and a particle swarm
+optimization for cooperation on the exploration of the search space.
+A transfer function is used for discretization of the solutions.
+The results are compared with NSGA-II, SPEA-II and other 3
+algorithms.
+The experiments showed that this novel approach 
+out-performed the other algorithms in terms of convergence
+to optimal while preserving good diversity of solutions.

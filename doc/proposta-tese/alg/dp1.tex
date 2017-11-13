@@ -1,0 +1,14 @@
+\begin{algorithmic}[1] % The number tells where the line numbering should start
+    \Function{DP}{$\bsym{p}, \bsym{w}, W$}
+    \State $S^0 = \big\{\emptyset\big\}$
+    \For{$k \gets 1, n$}
+      \State $S_*^k = S^{k-1} \cup \{\sol{x} \cup k \:|\: \sol{x} \in S^{k-1}\}$
+        \Comment{solutions extension}
+      \State $S^k = \{\sol{x} \:|\: \nexists \sol{a} \in S_*^k: \domk{a}{x} \}$
+        \Comment{partial dominance filter}
+    \EndFor
+  \State $P = \{\sol{x} \:|\: \nexists \sol{a} \in S^n: \dom{a}{x} \;|\; \weight{x} \leq W \}$
+    \Comment{dominance/feasibility}
+  \State \Return $P$
+  \EndFunction
+\end{algorithmic}

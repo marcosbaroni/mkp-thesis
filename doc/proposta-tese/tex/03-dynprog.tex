@@ -1,0 +1,236 @@
+% Breve resumo sobre métodos de programação dynamica
+% Explicação overview do método para o MOKP
+% - Process overview of DP for MKP
+% - Dom. relations
+% - Application of dom. rel.
+
+As an application of the indexing proposal we will use the \kdtree{}
+in an exact algorithm for the MOKP proposed by~\cite{bazgan2009}.
+The algorithm can be seen as a MOKP specialization of the classical
+Nemhauser and Ullmann's algorithm proposed in~\cite{nemhauser1969discrete}
+for generically solving knapsack problems.
+The basic algorithm will be presented first.
+Three optimizations will be presented next
+as specialization of the algorithm: reordering of items,
+the avoidance of deficient solutions and
+the elimination of unpromising partial solutions.
+
+%\subsection{The Nemhauser-Ullmann algorithm}
+%\label{subsec:nu}
+
+The Nemhauser and Ullmann's algorithm generically solves knapsack problems
+by applying the concept of knapsack dominance to remove partial solutions that will
+not generate efficient ones.
+A basic multi-objective version of the algorithm is presented by Algorithm~\ref{alg:nemull}.
+
+\begin{algorithm}
+  \caption{Nemhauser and Ullmann's algorithm for MOKP}
+  \label{alg:nemull}
+  \input{alg/dp1.tex}
+\end{algorithm}
+
+%%% Explicação do algoritmo básico
+The algorithm begins by defining an initial solution set $S^0$ containing only
+the empty solution (line 2).
+At a $k$-th stage the algorithm receives a set $S^{k-1}$
+exclusively containing solutions composed by the first ${k-1}$ items, i.e.\,,
+$\forall\sol{x} \in S^{k-1}, \sol{x} \subseteq \{1, \ldots, k-1\}$.
+The set $S^{k-1}$ is then expanded by adding a copy of its solutions
+but now including the $k$-th item (line 4).
+This new set is defined by $S^k_*$ having twice the cardinality of $S^{k-1}$.
+Set $S^k$ is then defined by selecting from $S^k_*$ all solutions
+that are not knapsack dominated by any other existing solution (line 5).
+The last step of the algorithm (line 7) consists of selecting the
+efficient solutions, i.e., that are not dominated by any other partial solution
+according to their objective values.
+Any partial solution in the context of stages prior than $n$-th stage
+will be considered \emph{efficient} if it is not knapsack dominated by any other
+partial solution.
+
+Regarding its simplicity Algorithm~\ref{alg:nemull} is considerably powerful.
+However the exponential growth potencial of MOKP solutions sets
+may severely compromise its performance.
+One way of tackling this is reducing the number of partial solutions
+handled through the algorithm stages.
+%either by generating the least
+%possible number of solution or removing those that are not promising.
+Following, three optimizations for achieving this  reduction, proposed in the
+Bazgan's algorithm  \cite{bazgan2009}, are described.
+
+%\subsection{Item order}
+%subsection{Input order of items}
+\label{subsec:order}
+%%% Motivação para considerar ordenação
+The first important issue to be considered is the order
+in which the items are introduced in the algorithm.
+It is well-known that good knapsack problem solutions
+are generally composed of items with the best cost-benefit rate.
+Therefore, the prioritization of those items tends to lead to better solutions.
+
+%%% Problema de ordenação para Multi Objective
+An appropriate cost-benefit rate for the single objective case may be directly derived
+from the profit/weight ratio of the items.
+For the multi-objective case however there is no such natural measure.
+Thus, one may mainly consider item orders defined over the aggregation of their ranks
+derived from cost-benefit from all objectives.
+
+%%% Definição de ordenação
+We denote $\ord^j$ as the set of items ordered by descending order of profit/weight
+ratio regarding objective $j$.
+Formally:
+\begin{align*}
+  \ord^j &= (o^j_1, \ldots, o^j_n) , \qquad \cb{j}{o^j_1} \geq \ldots \geq \cb{j}{o^j_n}
+\end{align*}
+where function $\cb{j}{a} = {p^j_a}/{w_a}$ is the
+cost-benefit function of item $a$ regarding objective $j$.
+Let $r^j_i$ be the rank of item $i$ in order $\ord^j$ and
+$\ord^{sum}$, $\ord^{min}$ and $\ord^{max}$ denotes orders according to increasing
+values of the sum, minimum and maximum ranks respectively.
+Formally:
+\begin{align*}
+  r^j_i &= \max\{ k \;|\; o^j_k = i \} \\
+  r^{sum}_i &= \textstyle\sum^\np_{j=1} r^j_i \\
+  \ord^{sum} &= (o_1, \ldots, o_n) , \qquad r^{sum}_{o_1} \leq \ldots \leq r^{sum}_{o_n}
+\end{align*}
+The orders $\ord^{min}$ and $\ord^{max}$ are conceived in the same manner as
+$\ord^{sum}$, except for the fact that $\frac{r^{sum}_i}{\np}$ is added up
+in their ranks as tie breaking criteria.
+The notation $\ord(\sol{s})$ will be used to denote order $\ord$
+over a restrict set $\sol{s}$ of items and $\ord_{rev}$ to denote the reverse
+order of $\ord$.
+
+The order of interest is the one that generates the smallest partial solutions sets.
+According to literature, experimental tests have reported $\ord^{max}$
+superior to others for inputting items on the algorithm and was adopted
+in this work as the cost-benefit order of choice.
+
+%\subsection{Deficient solutions avoidance}
+\label{subsec:deficient}
+At $k$-th stage of the algorithm
+a copy of all previous solutions is strictly added to the
+new solution set without adding the $k$-th item (line 4).
+However preserving solutions with too much available capacity
+may generate unnecessary deficient solutions.
+%These partial solutions most be detected and discarded.
+If a partial solution $\sol{x} \in S^{k-1}$ has enough
+space to fit all remaining items, i.e.\,, $\weight{x} + \sum_{i=k}^n w_i \leq W$,
+$\sol{x}$ may be discarded and only $\sol{x} \cup \{k\}$ kept, once
+keeping $\sol{x}$ will certainly lead to deficient solutions.
+It is worth noting that this optimization only regards the available capacities of solutions
+and the weights of remaining items.
+
+%\begin{theorem}
+%   Considering the $k$-th stage of the algorithm and $\sol{x} \in S^{k-1}$.
+%   If $\weight{x} + \sum_{i \in {\{k, \ldots, n\}}} w_i \leq W$ than
+%\end{theorem}
+
+%\subsection{Elimination of unpromising partial solutions}
+\label{subsec:unpromissing}
+Another way of reducing the amount of partial solutions
+generated is by analyzing their potential to generate an efficient solution
+regarding their available capacity, their current quality and the set of remaining items.
+This may be done by computing an upper bound for their objective functions
+and a set of lower bounds values over the current set of partial solutions.
+If the upper bound of a solution is dominated by any known lower bound
+this partial solution can be safely discarded.
+
+Lower bound values of partial solutions can be computed by greedly filling
+their available capacity with remaining items.
+As in this case the order in which the items are inserted is relevant, 
+items must be prioritized according to order $\ord^{max}$.
+Given a partial solution $\sol{x}$ and the set $\sol{s}$ of remaining items,
+the lower bound function $lb(\sol{x}, \sol{s})$ can be defined as:
+\begin{align*}
+    lb(\sol{x}, \sol{s}) &= \obj{}{x} + \obj{}{y} \\
+  \text{where} \phantom{mmmmm} \\
+    \sol{y} &= \left\{ o_i \;\middle|\; \textstyle\sum_{j=1}^i w_{o_j} \leq W - \weight{x} \right\} \\
+    (o_1, \ldots, o_k) &= \ord^{max}(\sol{s})
+\end{align*}
+%Set $\sol{y} \subseteq \sol{s}$ represents a greedy extender for $\sol{x}$ 
+%according to order $\ord^{max}$.
+
+The upper bound of a partial solution most be an upper limit for each
+objective function considering any feasible extender defined on the remaining items.
+It must be an optimistic measure, ensuring that any higher value is unfeasible.
+For this reason those values will be computed separately for each $j$-th objective,
+according to the order $\ord^j$.
+Given a partial solution $\sol{x}$ and the set $\sol{s}$ of remaining items,
+the upper bound function $ub(\sol{x}, \sol{s})$ can be formally defined as:
+\begin{align*}
+    ub(\sol{x}, \sol{s}) &= (u_1, \ldots, u_{\np})  \\
+  \text{where} \phantom{mmmmm} \\
+    u_j &= f_j(\sol{x}) + f_j(\sol{y}) + r.p^j_i\\
+    \sol{y} &= \left\{ o_i^j \;\middle|\; \textstyle\sum_{l=1}^i w_{o_l^j} \leq W - \weight{x} \right\} \\
+    (o_1^j, \ldots, o_k^j) &= \ord^j(\sol{s}) \\
+    r &= \frac{W - \weight{x} - \weight{y}}{w_{o^j_{i+1}}}
+\end{align*}
+This upper bound definition was presented in~\cite{martello1990knapsack}
+and is the same one adopted in~\cite{bazgan2009}.
+
+These three optimization proposals were applied on
+Algorithm~\ref{alg:nemull} for defining algorithm 
+Algorithm~\ref{alg:bazgan} proposed by \cite{bazgan2009} which
+is considerably faster once it handles much less partial solutions.
+Further theoretical support for the proposals can be found
+in the original paper.
+
+\begin{algorithm}
+  \caption{Bazgan's DP algorithm for the MOKP}
+  \label{alg:bazgan}
+  \input{alg/dp2.tex}
+\end{algorithm}
+Algorithm~\ref{alg:bazgan} begins by defining an initial solution set $S^0$ containing only the empty solution (line 1).
+Then the items order is defined according to the chosen cost-benefit order (line 2).
+For each $k$-th stage of the algorithm, a set $S^k$ of partial solutions are generated after the
+set $S^{k-1}$ previously defined (lines 5-7).
+At line 5 all solutions in the previous set are extended by item $o_k$ except for those which are not feasible.
+At line 6 all solutions in the previous set are copied, except for those with too much left capacity (deficient solution avoidance).
+At line 7 the knapsack dominance and lower bound filter are applied.
+Any solution which is knapsack dominated by any existing solution or has an upper bound
+dominated by the lower bound of any existing solution is discarded.
+
+For efficiency reasons the original authors
+suggest to apply the knapsack dominance check operation
+in parallel with the construction of the new solution set $\solSett^k$.
+The elimination of unpromising solutions, which is more
+computationally expensive, is implemented as a final step in which
+a set of lower bounds is primarily generated
+out of the partial solutions in $\solSett^k$.
+Then the upper bound of each partial solution is
+generated and compared with the lower bound set.
+The partial solutions for set $\solSett^k$ are also
+generated and stored in ascending order of weight,
+which allows us to simplify the knapsack dominance
+check operation, once their weights do not need to be
+explicitly evaluated.
+
+Despite the effort to reduce the number of partial solutions
+Algorithm~\ref{alg:bazgan} still suffers from the size of
+efficient solutions set,
+especially with higher number of objectives,
+since the enumeration of all solutions is necessary.
+Operations on lines 2-6 demand linear time and do not present  difficulties.
+However the dominance check operation of line 7
+may represent the computational bottleneck of the algorithm.
+This operation must cover the entire set of solutions and if
+the right strategy is not considered, the algorithm
+will have to compare each solution individually,
+which represents a great computational effort.
+
+For the bi-dimensional case~\cite{bazgan2009} proposes
+to use an AVL tree for  indexing solutions by its
+first objective value, which improves significantly
+its performance over the use of a list.
+
+However, the most indicated structure seems to be a
+multi-dimensional one as proposed in Section~\ref{sec:kdtree},
+which may reduces the computational complexity of the algorithm,
+minimizing the impact of solution growth.
+This performance improvement may even bring
+viability to previously unfeasible instances.
+The use of \kdtree{} is applied on Algorithm~\ref{alg:bazgan}
+to index sets for which there is a demand of dominance check operation.
+These sets are (a) the set $\solSett^k$ of intermediate partial solutions
+and (b) the set of upper bound solutions.
+In both cases there is no need to evaluate the weight of the solution,
+therefore a \kdtree{} indexing up to all $\np$ objective values may be used.

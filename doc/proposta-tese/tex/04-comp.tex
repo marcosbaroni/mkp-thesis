@@ -1,0 +1,111 @@
+To verify the efficiency of the proposed metaheuristic, several computational
+experiments was executed considering the original SCE for the MKP
+without using the problem reduction procedure -- as proposed in \cite{baroni2015shuffled} --
+and the SCE with the reduction procedure.
+For brevity the SCE with the reduction procedure will be referred to as \scecore.
+
+For the experiments, two sets of MKP instances was used:
+a first set composed by 270 instances provided by Chu and Beasley (\cite{Chu-Beasley-1998})
+and a second set composed by 11 instances provided by Glover and Kochenberger in
+\cite{glover1996critical}.
+These instances are all available at \cite{ORLibrary}.
+
+The best known solution for all instances were taken from the literature and
+were found by different algorithms which we had no access to the implementation.
+In mosts cases those are exact algorithms which took
+minutes or hours of execution time.
+
+The set of MKP instances provided by Chu and Beasley was generated using a
+procedure suggested by Freville and Plateau~\cite{freville1994efficient}, which
+attempts to generate instances hard to solve.
+The number of constraints $m$ varies among $5$, $10$ and $30$, and the number
+of variables $n$ varies among $100$, $250$ and $500$.
+
+The $w_{ij}$ were integer numbers drawn from the discrete uniform distribution
+$U(0, 1000)$.
+The capacity coefficient $c_i$ were set using
+$b_i = \alpha\sum_{j=1}^{n} w_{ij}$ where $\alpha$ is a tightness ratio and
+varies among $0.25$, $0.5$ and $0.75$.
+For each combination of $(m,n,\alpha)$ parameters, $10$ random problems was generated,
+totaling $270$ problems.
+The profit $p_j$ of the items were correlated to $w_{ij}$ and generated as follows:
+\begin{equation}
+  p_j = \sum_{i=1}^m \frac{w_{ij}}{m} + 500q_j \qquad j = 1, \ldots, n
+\end{equation}
+
+%\subsection{Experimental Results}
+
+All the experiments were run on a Intel$^R$ Core i5-3570 CPU @3.40GHz computer
+with 4GB of RAM.
+The original SCE and \scecore was both implemented in C programming language.
+%For the set of random instance all best known solution was found by the solver
+%SCIP 3.0.1 running for at least 10 minutes.
+
+For the variable fixing procedure used on \scecore, the range size of the approximate core was
+$|C| = m+\frac{n}{10}$ for all instances.
+In all instances the parameters used for SCE and \scecore were the same recommended
+in \cite{baroni2015shuffled} which was found after a batch test using Chu and Beasley instances:
+\begin{itemize}
+  \item $N = 20$: number of complexes;
+  \item $M = 20$: number of individuals in each complex;
+  \item $P = 5$: number of individuals in each subcomplex;
+  \item $K = 300$: number of algorithm iterations;
+  \item $K' = 20$: number of iterations used in the complex evolving process;
+  \item $c = n/5$: number of genes carried from parent in crossing process.
+\end{itemize}
+
+Table~\ref{tab:chu} shows the performance of the SCE and \scecore on the Chu-Beasley set of instances.
+Each instance in the set was executed 10 times for each algorithm.
+Columns \textit{n}, \textit{m} and \textit{$\alpha$} shows the parameters used
+on each instance generation.
+The \textit{time} column shows the average execution time of the algorithms (lower is better).
+The \textit{quality} column shows the average ratio of the solution found and
+the best known solution from literature (\cite{vimont2008reduced, della2012improved}) of each instance (higher is better).
+Best values are in bold.
+
+It can be observed that the \scecore had faster convergence speed, achieving higher
+quality solutions in all cases, achieving at least $97.96\%$ of best known, in less than $2$ seconds
+for every instance.
+
+It can be also noticed that \scecore executed in much less processing time than original
+SCE.
+This is due the variable fixing procedure which reduced the problem size,
+resulting in less genes operations during the evolving procedures.
+The variable fixing procedure also brought robustness for the method, as the quality
+of the solution found increased in case of larger instances while on original
+SCE the quality decreased considerably.
+
+Table~\ref{tab:gk} shows the performance of SCE and \scecore on the Glover-Kochenberger set of instances.
+Each instance in the set was executed 10 times for each algorithm.
+Columns \textit{n} and \textit{m} indicate the size of each instance.
+The \textit{time} column shows the average execution (lower is better).
+The \textit{quality} column shows the average ratio of the solution found and
+the best known solution of each instance.
+Best values are in bold.
+It can be noticed that SCEcr achieved high quality solutions, at least $98.22\%$
+of best known solution, spending small amount of processing time, compared
+to the time taken to find the best known solutions.
+
+\begin{table}[hb]
+{
+\renewcommand{\arraystretch}{1}%
+\fontsize{10.5pt}{1em}\selectfont 
+\begin{center}
+  \input{tab/tab-chub2.tex}
+\end{center}
+}
+ \caption{SCE and \scecore  performance on Chu-Beasley problems.}
+ \label{tab:chu}
+\end{table}
+
+\begin{table}[hb]
+{
+\renewcommand{\arraystretch}{1}%
+\fontsize{10.5pt}{1em}\selectfont 
+\begin{center}
+  \input{tab/tab-gk2.tex}
+\end{center}
+}
+ \caption{\scecore performance on Glover-Kochenberger problems.}
+ \label{tab:gk}
+\end{table}

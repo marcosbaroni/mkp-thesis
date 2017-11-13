@@ -1,0 +1,46 @@
+\newcommand{\dtree}[1]{$#1$-d~tree}
+\newcommand{\kdtree}{\dtree{k}}
+\newcommand{\bsym}[1]{\boldsymbol{#1}}
+\newcommand{\sol}[1]{\boldsymbol{#1}}
+\newcommand{\pnt}[1]{pnt(\sol{#1})}
+\newcommand{\fsol}[1]{f(\sol{#1})}
+\newcommand{\np}{m}
+\newcommand{\nphard}{$\mathcal{NP}$-Hard}
+\newcommand{\missingI}[1]{}
+\newcommand{\missing}[1]{
+  \begin{framed}
+    {\scriptsize \bf #1}
+  \end{framed}
+}
+\newcommand{\weight}[1]{w(\sol{#1})}
+\newcommand{\obj}[2]{f_{#1}(\sol{#2})}
+\newcommand{\bigweight}[1]{w\big(\sol{#1}\big)}
+\newcommand{\dom}[2]{dom(\sol{#1}, \sol{#2})}
+\newcommand{\domk}[2]{dom_k(\sol{#1}, \sol{#2})}
+\newcommand{\setIN}{\{1, \ldots, n\}}
+\newcommand{\ext}[2]{ext(\sol{#1}, \sol{#2})}
+\newcommand{\domLess}[2]{ \sol{#1} \prec \sol{#2} }
+%\newcommand{\logicAnd}{ \textrm{ and } }
+\newcommand{\logicAnd}{ \land }
+\newcommand{\logicOr}{ \lor}
+\newcommand{\solSetA}{ Q }
+\newcommand{\solSetB}{ R }
+\newcommand{\solSett}{ S_* }
+\newcommand{\solSet}{ S }
+\renewcommand{\ord}{\mathcal{O}}
+\newcommand{\rord}{\mathcal{O}_{rev}}
+\newcommand{\cb}[2]{cb^{#1}(#2)}  % cost-benefit function
+\renewcommand{\leq}{\leqslant}
+\renewcommand{\geq}{\geqslant}
+\newcommand{\floor}[1]{\left \lfloor{#1}\right \rfloor}
+
+% bar graphs configs
+\newcommand{\cmpH}{4.0cm}
+\newcommand{\cmpW}{7cm}
+\newcommand{\legX}{0.45}
+\newcommand{\legY}{-0.30}
+
+% big bullet
+\newcommand{\bbt}{\,\begin{picture}(-1,1)(-1,-2)\circle*{5}\end{picture}\ }
+
+\newcolumntype{C}[1]{>{\centering\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}

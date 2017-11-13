@@ -1,0 +1,42 @@
+\begin{tikzpicture}
+\begin{axis}[
+	x tick label style={ /pgf/number format/1000 sep=},
+	width=\cmpW, height=\cmpH,
+	ylabel=Evaluations,
+	ymode=log,
+	grid = both,
+	grid style={line width=.1pt, draw=gray!10},
+	major grid style={line width=.2pt,draw=gray!50},
+	%xlabel=Number of items (n),
+	enlargelimits=0.15,
+	legend style={at={(\legX,\legY)},
+		anchor=north,legend columns=-1},
+	ybar=2pt,% configures `bar shift'
+	bar width=8pt,
+	xtick={100,200,300,400,500},
+	xticklabels={100,200,300,400,500},
+	point meta=y *10^-7, % the displayed number
+	cycle list = {black!80,black!30}
+]
+
+\addplot+[fill, text=black]
+  coordinates {
+    (100,562886)
+    (200,27327963)
+    (300,349249789)
+    (400,17406619609)
+    (500,12137619611)
+  };
+
+\addplot+[fill, text=black]
+  coordinates {
+    (100,330881)
+    (200,5329798)
+    (300,396002213)
+    (400,148865700)
+    (500,318904809)
+  };
+
+\legend {AVL-tree,\dtree{2}}
+\end{axis}
+\end{tikzpicture}

@@ -1,0 +1,102 @@
+The multi-dimensional knapsack problem (MKP) is a strongly NP-hard combinatorial
+optimization problem which can be viewed as a resource allocation problem and
+defined as follows:
+\begin{align}
+  \text{maximize} & \sum_{j=1}^n p_j x_j \\
+  \text{subject to} & \sum_{j=1}^n w_{ij} x_j \leqslant c_i \quad i \in \{1, \ldots, m\}\\
+   & x_j \in \{0, 1\}, \quad j \in \{1, \ldots, n\}.
+\end{align}
+
+% Define the MKP
+The problem can be interpreted as a set of $n$ items with profits $p_j$
+and a set of $m$ resources with capacities $c_i$.
+Each item $j$ consumes an amount $w_{ij}$ from each resource $i$, if selected.
+The objective is to select a subset of items with maximum total profit,
+not exceeding the defined resource capacities.
+The decision variable $x_j$ indicates if $j$-th item is selected.
+It is considered an integer programming problem (IP) since its variables $x_i$
+are restricted to be integers.
+
+The multi-dimensional knapsack problem can be applied on budget planning 
+scenarios and project selections~\cite{mcmillan1973resource},
+cutting stock problems~\cite{Gilmore-Gomory-1966}, loading problems~\cite{Shih-1979},
+allocation of processors and databases in distributed computer programs~\cite{Gavish-Pirckul-1982}.
+
+The problem is a generalization of the well-known knapsack problem (KP) in which
+$m = 1$.
+However it is a NP-hard problem significantly harder to solve in practice than the KP.
+%Despite the existence of a fully polynomial approximation scheme (FPAS) for the KP,
+%finding a FPAS for the MKP is NP-hard for $m \geqslant 2$~\cite{magazine1984note}.
+Due its simple definition but challenging difficulty of solving, the MKP is often used to
+to verify the efficiency of novel metaheuristics.
+
+Its well known that the hardness of a NP-hard problem grows exponentially over
+its size.
+Thereupon, a suitable approach for tackling NP-hard problems is to reduce their size
+through some variable fixing procedure.
+Despite not guaranteeing optimality of the solution, an efficient variable
+fixing procedure may provide near optimal solutions through a small computational effort.
+
+%A metaheuristic is a set of concepts that can be used to define heuristic methods
+%that can be applied to a wide set of different problems.
+%In other words, a metaheuristic can be seen as a general algorithmic framework which can be applied to
+%different optimization problems with relatively few modifications to make them adapted to a specific problem.”
+As it can be noted in its description the SCE is easily applied to any
+optimization problem.
+The only steps needed to be specified is (a) the creation of a new random
+solution and (b) the crossing procedure of two solutions.
+The procedures presented in this section are based
+on the work in \cite{baroni2015shuffled}.
+These two procedures for the MKP are respectively presented by algorithms on
+Figure~\ref{alg:new} and Figure~\ref{alg:cross}.
+
+To construct a new random solution (Figure~\ref{alg:new}) the items are
+at first shuffled in random order and stored in a list (line 2).
+A new empty solution is then defined (line 3).
+The algorithm iteratively tries to fill the solution's knapsack with 
+the an item taken from the list (lines 4-9).
+The feasibility of the solution is then checked: if the item insertion let
+the solution unfeasible (line 6) its removed from knapsack (line 7).
+After trying to place all available items the new solution is returned.
+
+\begin{figure}
+\begin{algorithmic}[1]
+  \Procedure{Crossing}{$x^w:$ worst individual, $x^b:$ better individual, $c$}
+    \State $v \leftarrow $ shuffle($1, 2, \ldots, n$)
+    \For{$ i \leftarrow 1:c$ }
+	  \State $j \leftarrow v_i$
+	  \State $x^w_j \leftarrow x^b_j$ \Comment{gene carriage}
+	\EndFor
+	\If{$s^w$ is not feasible}
+	  \State repair $s^w$
+	\EndIf
+	\State update $s^w$ fitness
+  \State return $s^w$
+  \EndProcedure
+\end{algorithmic}
+\caption{Crossing procedure used on SCE algorithm.}
+\label{alg:cross}
+\end{figure}
+
+The crossing procedure (Figure~\ref{alg:cross}) takes as input the worst
+solution taken from the subcomplex $x^w = (x^w_1, x^w_2, \ldots, x^w_n$),
+the selected better solution $x_b = (x^b_1, x^b_2, \ldots, x^b_n$)
+and the number $c$ of genes that will be carried from the better solution.
+The $c$ parameter will control how similar the worst individual will be from the
+given better individual.
+At first the items are shuffled in random order and stored in a list (line 2).
+Then $c$ randomly chosen genes are carried from the better individual to the worst
+individual (line 5).
+At the end of steps the feasibility of the solution is checked (line 7) and
+the solution is repaired if needed.
+The repair stage is a greedy procedure that iteratively removes the item that less
+decreases the objective function.
+Finally the fitness of the generated solution is updated (line 10) and
+returned (line 11).
+
+The following section will present the core concept for the MKP.
+The concept will be used as a problem reduction
+technique that will assist the SCE method as a pre-processing
+step on the algorithm.
+Its application on the SCE algorithm for the MKP is
+also a contribution of this work.
