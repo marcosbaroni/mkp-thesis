@@ -23,7 +23,7 @@ int mokpnum_fscanf(FILE *in, mokpnum *a){
 }
 
 void mokpnum_fprintf(FILE *out, mokpnum x){
-    fprintf(out, "%d ", x);
+    fprintf(out, "%d", x);
 }
 void mokpnum_printf(mokpnum x){
     return mokpnum_fprintf(stdout, x);
@@ -31,8 +31,10 @@ void mokpnum_printf(mokpnum x){
 
 void mokpnum_array_write(FILE *out, mokpnum *array, int n){
     int i;
-    for( i = 0 ; i < n ; i++ )
+    for( i = 0 ; i < n ; i++ ){
         mokpnum_fprintf(out, array[i]);
+		fprintf(out, " ");
+	}
 }
 
 
@@ -523,6 +525,99 @@ MOKP *mokp_open(char *filename){
     return mokp;
 }
 
+
+/*************************
+ *     MOKP Solution     *
+ ************************/
+/* New MOKP empty solution */
+MOKPSol *mokpsol_new_empty(MOKP *mokp){
+	MOKPSol *sol;
+	int i, n, np;
+
+	n = mokp->n;
+	np = mokp->np;
+
+	sol = (MOKPSol*)malloc(sizeof(MOKPSol));
+	sol->mokp = mokp;
+	sol->x = (mokpval*)malloc(n*sizeof(mokpval));
+	for( i = 0 ; i < n ; i++ )
+		sol->x[i] = 0;
+	sol->profit = (mokpnum*)malloc(np*sizeof(mokpnum));
+	for( i = 0 ; i < np ; i++ )
+		sol->profit[i] = 0;
+	sol->b_left = mokp->b;
+	
+	return sol;
+}
+/* Free a MOKP solution */
+void mokpsol_free(MOKPSol *sol){
+	free(sol->x);
+	free(sol->profit);
+	free(sol);
+
+	return;
+}
+
+void mokpsol_fprintf(FILE* out, MOKPSol* sol){
+	int i;
+	for( i = 0 ; i < sol->mokp->n ; i++ )
+		fprintf(out, "%d", sol->x[i]);
+	fprintf(out, " (");
+	mokpnum_fprintf(out, sol->profit[0]);
+	for( i = 1 ; i < sol->mokp->np ; i++ ){
+		fprintf(out, ",");
+		mokpnum_fprintf(out, sol->profit[i]);
+	}
+	fprintf(out, ") [");
+	mokpnum_fprintf(out, sol->b_left);
+	fprintf(out, "]\n");
+	return;
+}
+void mokpsol_printf(MOKPSol* sol){
+	return mokpsol_fprintf(stdout, sol);
+}
+
+/* Insert item (if not) */
+MOKPSol *mokpsol_insert_item(MOKPSol *sol, int idx){
+	int i;
+
+	MOKP *mokp;
+	if(sol->x[idx])
+		return sol;
+
+	mokp = sol->mokp;
+	sol->x[idx] = 1;
+	sol->b_left -= mokp->w[idx];
+	for( i = 0 ; i < mokp->np ; i++ )
+		sol->profit[i] += mokp->p[i][idx];
+
+	return sol;
+}
+
+/* New random solution */
+MOKPSol *mokpsol_new_random(MOKP *mokp){
+	int i, n, *idxs;
+	MOKPSol *sol;
+
+	n = mokp->n;
+	sol = mokpsol_new_empty(mokp);
+	idxs = (int*)malloc(n*sizeof(int));
+	for( i = 0 ; i < n ; i++ )
+		idxs[i] = i;
+	idxs = int_array_shuffle(idxs, n);
+	for( i = 0 ; i < n ; i++ )
+		if( sol->b_left >= mokp->w[idxs[i]] )
+			sol = mokpsol_insert_item(sol, idxs[i]);
+
+	free(idxs);
+
+	return sol;
+}
+
+
+/*******************************
+ *     MOKPNode (DynProg)      *
+ ******************************/
 /*  returns a new MOKP Node (for Dynamic Programming), given its father and the
  *  item to be inserted. */
 MOKPNode *mokpnode_new(MOKPNode *father, int idx){

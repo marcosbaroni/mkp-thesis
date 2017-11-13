@@ -1,5 +1,6 @@
 BINDIR="../../../bin"
-CFLAGS=-lm -O3 -Wno-unused-result -g
+#CFLAGS=-lm -O3 -Wno-unused-result
+CFLAGS=-lm -g
 all: kp mkp mmkp ssum
 kp: kp2zpl kp-rand kp-bt kp-info kp-des
 kp-info:

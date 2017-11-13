@@ -10,13 +10,16 @@
 #include "../models/mokp/mokp.h"
 #include "../models/mokp/order.h"
 #include "../models/mokp/bazgan.h"
+#include "../metahrs/sfl.h"
 
 #define DYNPROG_OPT "dynprog"
-#define RAND_OPT "rand"
-#define MKP2_OPT "mkp2"
-#define BAZGAN_OPT "bazgan"
-#define BATCH_OPT "batch"
+#define RAND_OPT    "rand"
+#define MKP2_OPT    "mkp2"
+#define BAZGAN_OPT  "bazgan"
+#define BATCH_OPT   "batch"
 #define CONVERT_OPT "convert"
+#define SCE_OPT     "sce"
+#define MOFPA_OPT   "mofpa"
 
 int print_usage_convert(int argc, char **argv){
     printf("Convert instance.\n\n");
@@ -474,6 +477,89 @@ int execute_dynprog(int argc, char **argv){
 }
 
 
+
+/*******************************************************************************
+*    Multi-Objective Shuffled Complex Evolution
+*******************************************************************************/
+int print_usage_sce(int argc, char **argv){
+    printf("Solve Multiobjective Knapsack Problem using SCE.\n\n");
+    printf("  usage: %s %s [input file] [niter] [ncomp] [compsize] [nsubcomp] [nsubiter]\n", argv[0], SCE_OPT);
+    printf("    input file: - to read from stdin\n");
+    printf("\n  Output:\n");
+    printf("    <n nodes>;<n comparison>;<time (s)>\n\n");
+}
+int execute_sce(int argc, char **argv){
+	MOKP *mokp;
+	FILE *input;
+	int niter, ncomp, compsize, nsubcomp, nsubiter;
+	SFL_Interface *sfli;
+	MOKPSol *sol;
+
+    input = stdin;
+	niter = 20;
+	ncomp = 20;
+	compsize = 20;
+	nsubcomp = 5;
+	nsubiter = 20;
+
+	if( argc < 3 ){
+		print_usage_sce(argc, argv);
+		return 1;
+	}
+
+    if( argc > 2 ){
+        if( strcmp(argv[2], "-") )
+            input = fopen(argv[2], "r");
+        if(!input){
+            fprintf(stderr, "could not open file %s.\n", argv[3]);
+            return 1;
+        }
+    }
+	if( argc > 3 )
+		niter = atoll(argv[3]);
+	if( argc > 4 )
+		ncomp = atoll(argv[4]);
+	if( argc > 5 )
+		compsize = atoll(argv[5]);
+	if( argc > 6 )
+		nsubcomp = atoll(argv[6]);
+	if( argc > 7 )
+		nsubiter = atoll(argv[7]);
+
+	int i;
+	mokp = mokp_read(input);
+	mokp_write(stdout, mokp);
+	for( i = 0 ; i < compsize*ncomp ; i++ ){
+		sol = mokpsol_new_random(mokp);
+		mokpsol_printf(sol);
+		mokpsol_free(sol);
+	}
+
+	mokp_free(mokp);
+	return 0;
+}
+
+/*******************************************************************************
+*    Multi-Objective Firefly+Particle Swarm for MOKP
+*    Implementado com base no Zouache2018
+*******************************************************************************/
+int print_usage_mofpa(int argc, char **argv){
+    printf("Solve Multiobjective Knapsack Problem using MOFPA.\n\n");
+    printf("  usage: %s %s [input file] [n iterations]\n", argv[0], MOFPA_OPT);
+    printf("    input file: - to read from stdin\n");
+    printf("\n  Output:\n");
+    printf("    <n nodes>;<n comparison>;<time (s)>\n\n");
+}
+
+int execute_mofpa(int argc, char **argv){
+	if( argc < 3 ){
+		print_usage_mofpa(argc, argv);
+		return 1;
+	}
+	return 0;
+}
+
+
 /*******************************************************************************
 *  Imprime uso da ferramenta MOKP
 *******************************************************************************/
@@ -484,6 +570,8 @@ void print_usage(int argc, char **argv){
     printf("  %s\t\tGenerate a random MOKP instance\n", RAND_OPT);
     printf("  %s\tSolve a MOKP using simple dynamic programming\n", DYNPROG_OPT);
     printf("  %s\tSolve a MOKP using Bazgan2009 algorithm\n", BAZGAN_OPT);
+    printf("  %s\t\tSolve a MOKP using SCE algorithm\n", MOFPA_OPT);
+    printf("  %s\t\tSolve a MOKP using Zouache2018s MOFPA algorithm\n", SCE_OPT);
     printf("  %s\t\tBatch test of bazgan MOKP algorithm.\n", BATCH_OPT);
     printf("  %s\t\tConvert a MKP instance in MOKP instance\n", MKP2_OPT);
     printf("  %s\tConvert a MOKP Bazgan instance.\n", CONVERT_OPT);
@@ -533,6 +621,14 @@ int main(int argc, char **argv){
     /***   Conversao das instancias ***/
     if(!strcmp(option, CONVERT_OPT))
         ret = execute_convert(argc, argv);
+
+    /***   Shuffled Complex Evolution ****/
+    if(!strcmp(option, SCE_OPT))
+        ret = execute_sce(argc, argv);
+
+    /***   Firefly Particle Swarm ***/
+    if(!strcmp(option, MOFPA_OPT))
+        ret = execute_mofpa(argc, argv);
 
     /***************************************************************
     *    IMPRESSÃO DA FORMA DE USO

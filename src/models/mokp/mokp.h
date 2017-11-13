@@ -4,6 +4,7 @@
 #include "../../utils/util.h"
 
 typedef int mokpnum;
+typedef unsigned char mokpval;
 int mokpnum_fscanf(FILE *in, mokpnum *a);
 void mokpnum_fprintf(FILE *out, mokpnum x);
 void mokpnum_printf(mokpnum x);
@@ -30,6 +31,23 @@ MOKP *mokp_new_reordered(MOKP *mokp, int *new_idx_order);
 MOKP *mokp_reord_by_type(MOKP *mokp, char ordering_type);
 int *mokp_get_item_order(MOKP *mokp, char ordering_type);
 void mokp_free(MOKP *mokp);
+
+
+/* Solution for the MOKP */
+typedef struct MOKPSol{
+	MOKP *mokp;
+	mokpval *x;
+	mokpnum *profit;
+	mokpnum b_left;
+}MOKPSol;
+
+MOKPSol *new_empty(MOKP*);
+MOKPSol *mokpsol_new_random(MOKP*);
+MOKPSol *mokpsol_insert_item(MOKPSol*, int);
+void mokpsol_free(MOKPSol*);
+void mokpsol_fprintf(FILE*, MOKPSol*);
+void mokpsol_printf(MOKPSol*);
+
 
 /* MOKP Node (for Dynamic Programming) */
 typedef struct MOKPNode{

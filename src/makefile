@@ -5,7 +5,8 @@ CC = gcc
 #CFLAGS=-g -DUSE_MEMPOOL
 #CFLAGS=-g -DDEBUG_LVL=1
 #CFLAGS=-g $(DEBFLAG) -pg
-CFLAGS=-O3
+CFLAGS=-g
+#CFLAGS=-O3
 DEST=../bin
 SOPLEX=-lsoplex -lz -lgmp -lm
 
