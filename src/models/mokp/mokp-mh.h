@@ -2,13 +2,15 @@
 #define MOKPMH 1
 
 #include "mokp.h"
-#include "../metahrs/sfl.h"
 
-SFL_Interface *mokp_new_sfl_interface(){
-	SFL_Interface *sfli;
-	sfli = (SFL_Interface*)malloc(sizeof(SFL_Interface));
-	sfli->cross = (sfl_cross_f)
-}
+typedef struct SceSol{
+	MOKPSol *sol;
+	int rank;
+}SceSol;
+SceSol *ssol_new(MOKP*);
+void ssol_free(SceSol*);
+
+MOKPSol *mokp_sce(MOKP *mokp);
 
 #endif
 

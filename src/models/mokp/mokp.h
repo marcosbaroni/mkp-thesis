@@ -43,7 +43,9 @@ typedef struct MOKPSol{
 
 MOKPSol *new_empty(MOKP*);
 MOKPSol *mokpsol_new_random(MOKP*);
+MOKPSol *mokpsol_copy(MOKPSol*);
 MOKPSol *mokpsol_insert_item(MOKPSol*, int);
+MOKPSol *mokpsol_rm_item(MOKPSol*, int);
 void mokpsol_free(MOKPSol*);
 void mokpsol_fprintf(FILE*, MOKPSol*);
 void mokpsol_printf(MOKPSol*);

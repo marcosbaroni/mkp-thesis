@@ -613,6 +613,59 @@ MOKPSol *mokpsol_new_random(MOKP *mokp){
 
 	return sol;
 }
+/* Copy a MOKP solution */
+MOKPSol *mokpsol_copy(MOKPSol *sol){
+	MOKPSol *new;
+	int i, n, np;
+
+	n = sol->mokp->n;
+	np = sol->mokp->np;
+
+	new= (MOKPSol*)malloc(sizeof(MOKPSol));
+	new->mokp = sol->mokp;
+	new->x = (mokpval*)malloc(n*sizeof(mokpval));
+	for( i = 0 ; i < n ; i++ )
+		new->x[i] = sol->x[i];
+	new->profit = (mokpnum*)malloc(np*sizeof(mokpnum));
+	for( i = 0 ; i < np ; i++ )
+		new->profit[i] = sol->profit[i];
+	new->b_left = sol->b_left;
+	
+	return new;
+}
+/* Remove an item from solution */
+MOKPSol *mokpsol_rm_item(MOKPSol *sol, int idx){
+	int i;
+	if( !sol->x[idx] )
+		return sol;
+
+	sol->x[idx] = 0;
+	sol->b_left += sol->mokp->b[idx];
+	for( i = 0 ; i < sol->mokp->np ; i++ )
+		sol->profit[i] -= sol->mokp->w[i][idx];
+
+	return sol;
+}
+MOKPSol *mokpsol_flip_item(MOKPSol *sol, int idx){
+	if( sol->x[idx] ) mokpsol_rm_item(sol, idx);
+	else mokpsol_insert_item(sol, idx);
+}
+/* cross two solutions */
+MOKPSol mokpsol_cross(MOKPSol *child, MOKPSol *father, int c, int *idxs){
+	int a, b, i, n, idx;
+
+	for( i = 0 ; i < c ; i++ ){
+		idx = idxs[i];
+		a = father->x[idx];
+		b = child->x[idx];
+		if( a != b )
+			sol = mokpsol_flip_item(child, idx);
+	}
+
+	/* repair, if not feasiable? */
+	//if( child->b_left < 0 )
+	//	child = mkpsol_greedy_repair(child);
+}
 
 
 /*******************************
