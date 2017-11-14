@@ -85,6 +85,8 @@ KDTree **population_rank(MOKPSol **pop, int n, int ndim, int *nranks){
 
 		(*nranks)++;
 	}
+	free(unrankeds);
+	free(unrankeds_);
 	return fronts;
 }
 
@@ -121,6 +123,7 @@ MOKPSol **mokp_sce(
 		kdtree_free(ranks[i]);
 	}
 	free(ranks);
+	free(pop);
 
 	return NULL;
 }
