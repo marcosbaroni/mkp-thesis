@@ -3,6 +3,11 @@
 
 #include "../../utils/util.h"
 
+#define SOL_DOMINATES 0
+#define SOL_EQUAL     1
+#define SOL_DOMINATED 2
+#define SOL_NOTHING   3
+
 typedef int mokpnum;
 typedef unsigned char mokpval;
 int mokpnum_fscanf(FILE *in, mokpnum *a);
@@ -49,6 +54,7 @@ MOKPSol *mokpsol_rm_item(MOKPSol*, int);
 void mokpsol_free(MOKPSol*);
 void mokpsol_fprintf(FILE*, MOKPSol*);
 void mokpsol_printf(MOKPSol*);
+int mokpsol_dom_cmp(MOKPSol*, MOKPSol*);
 
 
 /* MOKP Node (for Dynamic Programming) */

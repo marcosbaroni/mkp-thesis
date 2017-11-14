@@ -10,6 +10,7 @@
 #include "../models/mokp/mokp.h"
 #include "../models/mokp/order.h"
 #include "../models/mokp/bazgan.h"
+#include "../models/mokp/mokp-mh.h"
 #include "../metahrs/sfl.h"
 
 #define DYNPROG_OPT "dynprog"
@@ -496,11 +497,11 @@ int execute_sce(int argc, char **argv){
 	MOKPSol *sol;
 
     input = stdin;
-	niter = 20;
-	ncomp = 20;
-	compsize = 20;
-	nsubcomp = 5;
-	nsubiter = 20;
+	niter = 10;
+	ncomp = 4;
+	compsize = 5;
+	nsubcomp = 2;
+	nsubiter = 10;
 
 	if( argc < 3 ){
 		print_usage_sce(argc, argv);
@@ -529,13 +530,11 @@ int execute_sce(int argc, char **argv){
 	int i;
 	mokp = mokp_read(input);
 	mokp_write(stdout, mokp);
-	for( i = 0 ; i < compsize*ncomp ; i++ ){
-		sol = mokpsol_new_random(mokp);
-		mokpsol_printf(sol);
-		mokpsol_free(sol);
-	}
+
+	mokp_sce(mokp, ncomp, compsize, nsubcomp, niter, nsubiter, NULL);
 
 	mokp_free(mokp);
+
 	return 0;
 }
 

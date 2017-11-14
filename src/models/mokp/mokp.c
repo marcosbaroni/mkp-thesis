@@ -577,6 +577,29 @@ void mokpsol_printf(MOKPSol* sol){
 	return mokpsol_fprintf(stdout, sol);
 }
 
+/* Dominance comparison between two solutions */
+int mokpsol_dom_cmp(MOKPSol *a, MOKPSol *b){
+	int i, np;
+	int hasBetter = 0;
+	int hasWorse = 0;
+	np = a->mokp->np;
+	for( i = 0 ; i < np ; i++ )
+		if( a->profit[i] < b->profit[i] )
+			hasWorse = 1;
+		else if( a->profit[i] > b->profit[i] )
+			hasBetter = 1;
+	if( hasBetter )
+		if( hasWorse )
+			return SOL_NOTHING;
+		else
+			return SOL_DOMINATES;
+	else
+		if( hasWorse )
+			return SOL_DOMINATED;
+		else
+			return SOL_EQUAL;
+}
+
 /* Insert item (if not) */
 MOKPSol *mokpsol_insert_item(MOKPSol *sol, int idx){
 	int i;
@@ -593,7 +616,19 @@ MOKPSol *mokpsol_insert_item(MOKPSol *sol, int idx){
 
 	return sol;
 }
+/* Remove an item from solution */
+MOKPSol *mokpsol_rm_item(MOKPSol *sol, int idx){
+	int i;
+	if( !sol->x[idx] )
+		return sol;
 
+	sol->x[idx] = 0;
+	sol->b_left += sol->mokp->w[idx];
+	for( i = 0 ; i < sol->mokp->np ; i++ )
+		sol->profit[i] -= sol->mokp->p[i][idx];
+
+	return sol;
+}
 /* New random solution */
 MOKPSol *mokpsol_new_random(MOKP *mokp){
 	int i, n, *idxs;
@@ -633,19 +668,6 @@ MOKPSol *mokpsol_copy(MOKPSol *sol){
 	
 	return new;
 }
-/* Remove an item from solution */
-MOKPSol *mokpsol_rm_item(MOKPSol *sol, int idx){
-	int i;
-	if( !sol->x[idx] )
-		return sol;
-
-	sol->x[idx] = 0;
-	sol->b_left += sol->mokp->b[idx];
-	for( i = 0 ; i < sol->mokp->np ; i++ )
-		sol->profit[i] -= sol->mokp->w[i][idx];
-
-	return sol;
-}
 MOKPSol *mokpsol_flip_item(MOKPSol *sol, int idx){
 	if( sol->x[idx] ) mokpsol_rm_item(sol, idx);
 	else mokpsol_insert_item(sol, idx);
@@ -659,7 +681,7 @@ MOKPSol mokpsol_cross(MOKPSol *child, MOKPSol *father, int c, int *idxs){
 		a = father->x[idx];
 		b = child->x[idx];
 		if( a != b )
-			sol = mokpsol_flip_item(child, idx);
+			child = mokpsol_flip_item(child, idx);
 	}
 
 	/* repair, if not feasiable? */

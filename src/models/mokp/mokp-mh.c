@@ -1,40 +1,95 @@
 #include <stdlib.h>
+#include <string.h>
+#include <math.h>
 #include <stdio.h>
 #include "mokp-mh.h"
-#include "../metahrs/sfl.h"
+#include "../../metahrs/sfl.h"
 #include "../../utils/kdtree.h"
 
-/* new random sce solution */
-SceSol *ssol_new_random(MOKP *mokp){
-	SceSol *ssol;
 
-	ssol = (SceSol*)malloc(sizeof(SceSol));
-	ssol->sol = mokpsol_new_random(mokp);
-	ssol->rank = -1;
-
-	return ssol;
-}
-/* Free SCE solution*/
-void ssol_free(SceSol ssol{
-	mokpsol_free(ssol->sol);
-	free(ssol);
-}
-double ssol_axis_get(SceSol *ssol, int dim){
-	return (double)ssol->sol->profit[dim];
+int mokpsol_dominates_(MOKPSol *a, MOKPSol *b){
+	return (mokpsol_dom_cmp(a, b) == SOL_DOMINATES);
 }
 
-void population_rank(SceSol **pop, int n, int ndim){
-	KDTree *kdt;
-	int i;
+MOKPSol *mokpsol_find_dominant_kdtree(MOKPSol *sol, KDTree *kdt){
+	MOKPSol *dominant = NULL;
+	double *bounds;
+	int i, ndim;
 
-	kdt = kdtree_new(ndim, (kdtree_eval_f)ssol_axis_get);
-	for( i = 0 ; i < n ; i++ )
-		kdtree_insert(kdt, pop[i]);
-	/* TODO: keep ranking algorithm... */
+	ndim = kdt->ndim;
+	printf("  finding odminet for\n");
+	mokpsol_printf(sol);fflush(stdout);
+	bounds = (double*)malloc(2*ndim*sizeof(double));
+	for( i = 0 ; i < ndim ; i++ ){
+		bounds[2*i] = sol->profit[i];
+		bounds[2*i+1] = INFINITY;
+	}
+
+	dominant = kdtree_range_search_r(
+		kdt,
+		bounds,
+		(property_f_r)mokpsol_dominates_,
+		sol);
+
+	free(bounds);
+
+	return dominant;
+}
+
+double sol_axis_get(MOKPSol *sol, int dim){
+	return (double)sol->profit[dim];
+}
+
+KDTree **population_rank(MOKPSol **pop, int n, int ndim, int *nranks){
+	KDTree *kdt, **fronts;
+	MOKPSol *sol, *dominant;
+	MOKPSol **unrankeds, **unrankeds_, **uaux; /* dominateds*/
+	int nunrankeds, nunrankeds_;
+	int i, maxranks;
+
+	maxranks = 10;
+
+	fronts = (KDTree**)malloc(maxranks*sizeof(KDTree*));
+	unrankeds = (MOKPSol**)malloc(n*sizeof(MOKPSol*));
+	unrankeds_ = (MOKPSol**)malloc(n*sizeof(MOKPSol*));
+	memcpy(unrankeds, pop, n*sizeof(MOKPSol*));
+	nunrankeds = n;
+
+	/* while exists solutions to be ranked */
+	*nranks = 0;
+	while( nunrankeds ){
+		printf("Setting up rank: %d\n", *nranks);
+		nunrankeds_ = 0;
+
+		/* create kdtree of unranked */
+		kdt = kdtree_new(ndim, (kdtree_eval_f)sol_axis_get);
+		for( i = 0 ; i < nunrankeds ; i++ )
+			kdtree_insert(kdt, unrankeds[i]);
+
+		/* find i-ths rankeds */
+		fronts[*nranks] = kdtree_new(ndim, (kdtree_eval_f)sol_axis_get);
+		for( i = 0 ; i < nunrankeds ; i++ )
+			if( !mokpsol_find_dominant_kdtree(unrankeds[i], kdt) )
+				kdtree_insert(fronts[*nranks], unrankeds[i]);
+			else
+				unrankeds_[nunrankeds_++] = unrankeds[i];
+
+		/* swap unrankeds */
+		uaux = unrankeds;
+		unrankeds = unrankeds_;
+		unrankeds_ = uaux;
+		nunrankeds = nunrankeds_;
+
+		/* free kdftree of unranked */
+		kdtree_free(kdt);
+
+		(*nranks)++;
+	}
+	return fronts;
 }
 
 /* Shuffled Complex Evolution for MOKP */
-MOKPSol *mokp_sce(
+MOKPSol **mokp_sce(
 	MOKP *mokp,			 /* MOKP instance */
 	int nmeme,           /* number of memeplex */
 	int meme_size,       /* size of memeplex */
@@ -43,13 +98,30 @@ MOKPSol *mokp_sce(
 	int subniter,        /* number of iterations for each memeplex opt */
 	int *best_iter       /* to record the iteration that found the best */
 ){
-	SceSol **pop;
-	int i, npop;
+	MOKPSol **pop;
+	KDTree **ranks;
+	int i, nranks, npop;
 
 	npop = nmeme*meme_size;
-	pop = (SceSol**)malloc(sizeof(SceSol*));
+	pop = (MOKPSol**)malloc(npop*sizeof(MOKPSol*));
 	for( i = 0 ; i < npop ; i++ )
-		pop[i] = scesol_new_random(mokp);
+		pop[i] = mokpsol_new_random(mokp);
 
+	printf("ALL POPULATION\n");
+	for( i = 0 ; i < npop ; i++ )
+		mokpsol_printf(pop[i]);
+
+	ranks = population_rank(pop, npop, 3, &nranks);
+
+	printf("\n");
+	for( i = 0 ; i < nranks ; i++ ){
+		printf("RANK %d:\n", i);
+		kdtree_apply_to_all(ranks[i], (void(*)(void*))mokpsol_printf);
+		kdtree_apply_to_all(ranks[i], (void(*)(void*))mokpsol_free);
+		kdtree_free(ranks[i]);
+	}
+	free(ranks);
+
+	return NULL;
 }
 
