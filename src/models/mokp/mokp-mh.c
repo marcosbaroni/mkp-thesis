@@ -63,35 +63,24 @@ KDTree **population_rank(MOKPSol **pop, int n, int ndim, int *nranks){
 }
 
 /* Shuffled Complex Evolution for MOKP */
-MOKPSol **mokp_sce(
+MOKPSolIndexer *mokp_sce(
 	MOKP *mokp,			 /* MOKP instance */
 	int nmeme,           /* number of memeplex */
 	int meme_size,       /* size of memeplex */
 	int q,               /* size of submemeplex */
 	int niter,           /* number of iterations */
-	int subniter,        /* number of iterations for each memeplex opt */
-	int *best_iter       /* to record the iteration that found the best */
+	int subniter        /* number of iterations for each memeplex opt */
 ){
 	MOKPSol **pop;
 	KDTree **ranks;
+	MOKPSolIndexer *msi;
 	int i, nranks, npop;
 
 	npop = nmeme*meme_size;
-	pop = (MOKPSol**)malloc(npop*sizeof(MOKPSol*));
+	msi = msi_new(0);
 	for( i = 0 ; i < npop ; i++ )
-		pop[i] = mokpsol_new_random(mokp);
+		msi_insert(msi, mokpsol_new_random(mokp));
 
-	ranks = population_rank(pop, npop, 3, &nranks);
-
-	for( i = 0 ; i < nranks ; i++ ){
-		printf("RANK %d: %d\n", i, ranks[i]->n);
-		//kdtree_apply_to_all(ranks[i], (void(*)(void*))mokpsol_printf);
-		kdtree_apply_to_all(ranks[i], (void(*)(void*))mokpsol_free);
-		kdtree_free(ranks[i]);
-	}
-	free(ranks);
-	free(pop);
-
-	return NULL;
+	return msi;
 }
 

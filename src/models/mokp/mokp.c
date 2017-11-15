@@ -674,22 +674,30 @@ MOKPSolIndexer *msi_new(int ndim){
 	MOKPSolIndexer *msi;
 	msi = (MOKPSolIndexer*)malloc(sizeof(MOKPSolIndexer));
 	msi->ndim = ndim;
-	if( !ndim )
+	if( ndim == 0)
 		msi->tad.list = list_new();
-	else if( ndim == 1 )
+	if( ndim == 1 )
 		msi->tad.avl = new_avltree( (avl_cmp_f)mokpsol_profit1_cmp );
-	else
+	if( ndim  > 1 )
 		msi->tad.kdt = kdtree_new(ndim, (kdtree_eval_f)mokpsol_axis_get);
 	return msi;
 }
+MOKPSolIndexer *msi_insert(MOKPSolIndexer *msi, MOKPSol *sol){
+	if( msi->ndim == 0)
+		list_insert(msi->tad.list, sol);
+	if( msi->ndim == 1 )
+		avl_insert(msi->tad.avl, sol);
+	if( msi->ndim  > 1 )
+		kdtree_insert(msi->tad.kdt, sol);
+		
+	return msi;
+}
 void msi_free(MOKPSolIndexer* msi){
-	int ndim;
-	ndim = msi->ndim;
-	if( ndim == 0 )
+	if( msi->ndim == 0 )
 		list_free(msi->tad.list);
-	if( ndim == 1 )
+	if( msi->ndim == 1 )
 		avl_free(msi->tad.avl);
-	else
+	if( msi->ndim  > 1 )
 		kdtree_free(msi->tad.kdt);
 
 	free(msi);
@@ -715,6 +723,14 @@ MOKPSol **msi_get_all(MOKPSolIndexer *msi){
 	else
 		all = (MOKPSol**)kdtree_get_all(msi->tad.kdt);
 	return all;
+}
+void msi_apply_all(MOKPSolIndexer *msi, void(*f)(void*)){
+	if( msi->ndim == 0 )
+		list_apply(msi->tad.list, f);
+	if( msi->ndim == 1 )
+		avl_apply_to_all(msi->tad.avl, f);
+	if( msi->ndim  > 1 )
+		kdtree_apply_to_all(msi->tad.kdt, f);
 }
 double msi_set_coverage(MOKPSolIndexer *msi_a, MOKPSolIndexer *msi_b){
 	int ndominated_a;

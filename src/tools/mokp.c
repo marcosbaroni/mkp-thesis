@@ -492,9 +492,11 @@ int print_usage_sce(int argc, char **argv){
 int execute_sce(int argc, char **argv){
 	MOKP *mokp;
 	FILE *input;
+	int i;
 	int niter, ncomp, compsize, nsubcomp, nsubiter;
 	SFL_Interface *sfli;
 	MOKPSol *sol;
+	MOKPSolIndexer *sce1, *sce2;
 
     input = stdin;
 	niter = 10;
@@ -527,11 +529,15 @@ int execute_sce(int argc, char **argv){
 	if( argc > 7 )
 		nsubiter = atoll(argv[7]);
 
-	int i;
 	mokp = mokp_read(input);
 
-	mokp_sce(mokp, ncomp, compsize, nsubcomp, niter, nsubiter, NULL);
+	sce1 = mokp_sce(mokp, ncomp, compsize, nsubcomp, niter, nsubiter);
+	sce2 = mokp_sce(mokp, ncomp, compsize, nsubcomp, niter, nsubiter);
 
+	msi_apply_all(sce1, (void(*)(void*))mokpsol_free);
+	msi_apply_all(sce2, (void(*)(void*))mokpsol_free);
+	msi_free(sce1);
+	msi_free(sce2);
 	mokp_free(mokp);
 
 	return 0;

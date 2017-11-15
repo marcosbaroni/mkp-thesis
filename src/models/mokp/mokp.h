@@ -73,8 +73,10 @@ typedef struct MOKPSolIndexer{
 }MOKPSolIndexer;
 
 MOKPSolIndexer *msi_new(int);
+MOKPSolIndexer *msi_insert(MOKPSolIndexer*, MOKPSol*);
 int msi_get_n(MOKPSolIndexer*);
 void msi_free(MOKPSolIndexer*);
+void msi_apply_all(MOKPSolIndexer*, void(*)(void*));
 MOKPSol **msi_get_all(MOKPSolIndexer*);
 MOKPSol *msi_find_dominant(MOKPSolIndexer*, MOKPSol*);
 double msi_set_coverage(MOKPSolIndexer*, MOKPSolIndexer*);
