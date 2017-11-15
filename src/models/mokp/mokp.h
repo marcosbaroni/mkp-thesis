@@ -59,6 +59,7 @@ void mokpsol_free(MOKPSol*);
 void mokpsol_fprintf(FILE*, MOKPSol*);
 void mokpsol_printf(MOKPSol*);
 int mokpsol_dom_cmp(MOKPSol*, MOKPSol*);
+double mokpsol_spacing(MOKPSol*, MOKPSol*); /* IF same element THEN INFINITY */
 KDTree *mokpsol_new_kdtree(int);
 MOKPSol *mokpsol_find_dominant_kdtree(MOKPSol*, KDTree*);
 
@@ -79,7 +80,8 @@ void msi_free(MOKPSolIndexer*);
 void msi_apply_all(MOKPSolIndexer*, void(*)(void*));
 MOKPSol **msi_get_all(MOKPSolIndexer*);
 MOKPSol *msi_find_dominant(MOKPSolIndexer*, MOKPSol*);
-double msi_set_coverage(MOKPSolIndexer*, MOKPSolIndexer*);
+int msi_set_coverage(MOKPSolIndexer*, MOKPSolIndexer*);
+double msi_spacing(MOKPSolIndexer*);
 
 /* MOKP Solution Indexer Iterator */
 typedef struct MSIIter{

@@ -31,6 +31,7 @@ void kdtree_fprint_pretty(FILE*,KDTree*);
 void kdtree_free(KDTree*);
 void kdtree_balance(KDTree*);
 void **kdtree_get_all(KDTree*);
+void *kdtree_find_closest(KDTree*, double(*)(void*, void*));
 
 typedef struct KDTreeIter{
 	KDNode *node;

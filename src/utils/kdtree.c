@@ -201,6 +201,9 @@ void **kdtree_get_all(KDTree *kdtree){
 
 	return all;
 }
+void *kdtree_find_closest(KDTree* kdtree, double(*dist)(void*, void*)){
+	fprintf(stderr, "Not implemented yet.\n");
+}
 
 void kdtree_fprint_pretty(FILE *fout, KDTree *kdtree){
     if( kdtree->root )

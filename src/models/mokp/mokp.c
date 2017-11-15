@@ -601,6 +601,17 @@ int mokpsol_dom_cmp(MOKPSol *a, MOKPSol *b){
 		else
 			return SOL_EQUAL;
 }
+double mokpsol_spacing(MOKPSol *a, MOKPSol *b){
+	double spc = 0.0;
+	int i, np = a->mokp->np;
+	if( a == b )
+		return INFINITY;
+
+	for( i = 0 ; i < np ; i++ )
+		spc += fabs((double)(a->profit[i] - b->profit[i]));
+
+	return spc;
+}
 int mokpsol_dominates_(MOKPSol *a, MOKPSol *b){
 	return (mokpsol_dom_cmp(a, b) == SOL_DOMINATES);
 }
@@ -732,7 +743,7 @@ void msi_apply_all(MOKPSolIndexer *msi, void(*f)(void*)){
 	if( msi->ndim  > 1 )
 		kdtree_apply_to_all(msi->tad.kdt, f);
 }
-double msi_set_coverage(MOKPSolIndexer *msi_a, MOKPSolIndexer *msi_b){
+int msi_set_coverage(MOKPSolIndexer *msi_a, MOKPSolIndexer *msi_b){
 	int ndominated_a;
 	MSIIter *iter;
 	MOKPSol *sol;
@@ -745,6 +756,56 @@ double msi_set_coverage(MOKPSolIndexer *msi_a, MOKPSolIndexer *msi_b){
 	msiiter_free(iter);
 	return ndominated_a;
 }
+double msi_spacing(MOKPSolIndexer *msi){
+	MSIIter *iter1, *iter2;
+	MOKPSol *sol1, *sol2, *closest;
+	double closest_dist, sol2_dist;
+	int i, n, np;
+	double avg_dist;
+	double sum, res;
+	double *dists;
+
+	fprintf(stderr, "warning: %s implementation not performant yet.\n",
+		__PRETTY_FUNCTION__);
+	/* TODO: improve performance by using the TADs. */
+
+	n = msi_get_n(msi);
+	if( !n )
+		return INFINITY;
+
+	iter1 = msiiter_new(msi);
+	sol1 = msiiter_next(iter1);
+
+	np = sol1->mokp->np;
+	dists = (double*)malloc(n*sizeof(double));
+
+	avg_dist = 0.;
+	i = 0;
+	do{
+		closest_dist = INFINITY;
+		iter2 = msiiter_new(msi);
+		while( sol2 = msiiter_next(iter2) ){
+			sol2_dist = mokpsol_spacing(sol1, sol2);
+			if( sol2_dist < closest_dist )
+				closest_dist = sol2_dist;
+		}
+		msiiter_free(iter2);
+		dists[i++] = closest_dist;
+		avg_dist += closest_dist;
+	}while( sol1 = msiiter_next(iter1) );
+	msiiter_free(iter1);
+
+	avg_dist /= (double)n;
+	sum = 0.;
+	for( i = 0 ; i < n ; i++ )
+		sum += (avg_dist - dists[i])*(avg_dist - dists[i]);
+	res = sqrt(sum/(double)(n-1));
+	free(dists);
+
+	return res;
+}
+
+/* MOKP Solution Indexed Iterator */
 MSIIter *msiiter_new(MOKPSolIndexer *msi){
 	MSIIter *iter;
 	iter = (MSIIter*)malloc(sizeof(MSIIter));

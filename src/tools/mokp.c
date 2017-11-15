@@ -534,6 +534,10 @@ int execute_sce(int argc, char **argv){
 	sce1 = mokp_sce(mokp, ncomp, compsize, nsubcomp, niter, nsubiter);
 	sce2 = mokp_sce(mokp, ncomp, compsize, nsubcomp, niter, nsubiter);
 
+	printf("sce1 set coverage: %d\n", msi_set_coverage(sce1, sce2));
+	printf("sce2 set coverage: %d\n", msi_set_coverage(sce2, sce1));
+	printf("out of %d\n", msi_get_n(sce1));
+
 	msi_apply_all(sce1, (void(*)(void*))mokpsol_free);
 	msi_apply_all(sce2, (void(*)(void*))mokpsol_free);
 	msi_free(sce1);

@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 #include "list.h"
 
 List *list_new(){
@@ -94,6 +95,24 @@ void **list_get_all(List *list){
         node = node->next;
     }
 	return items;
+}
+void *list_find_closest(List *list, void *x, double(*f)(void*, void*)){
+	void *closer = NULL;
+	void *elem;
+	double elem_dist;
+	double closer_dist = INFINITY;
+	ListIter *iter;
+
+	iter = list_get_first(list);
+	while( (elem = listiter_forward(iter)) ){
+		elem_dist = f(elem, x);
+		if( elem_dist < closer_dist ){
+			closer = elem;
+			closer_dist = elem_dist;
+		}
+	}
+
+	return closer;
 }
 
 void list_apply(List *list, void(*f)(void *)){
