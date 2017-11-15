@@ -80,6 +80,22 @@ List *list_remove(List *list, ListIter *iter){
     return list;
 }
 
+void **list_get_all(List *list){
+    ListNode *node;
+	int i;
+	void **items; 
+
+	items = (void**)malloc(list->n*sizeof(void*));
+
+    node = list->first;
+	i = 0;
+    while( node ){
+        items[i++] = node->info;
+        node = node->next;
+    }
+	return items;
+}
+
 void list_apply(List *list, void(*f)(void *)){
     ListNode *node;
     node = list->first;

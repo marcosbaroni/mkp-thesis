@@ -5,51 +5,18 @@
 #include "mokp-mh.h"
 #include "../../metahrs/sfl.h"
 #include "../../utils/kdtree.h"
-
-
-int mokpsol_dominates_(MOKPSol *a, MOKPSol *b){
-	return (mokpsol_dom_cmp(a, b) == SOL_DOMINATES);
-}
-
-MOKPSol *mokpsol_find_dominant_kdtree(MOKPSol *sol, KDTree *kdt){
-	MOKPSol *dominant = NULL;
-	double *bounds;
-	int i, ndim;
-
-	ndim = kdt->ndim;
-	printf("  finding odminet for\n");
-	mokpsol_printf(sol);fflush(stdout);
-	bounds = (double*)malloc(2*ndim*sizeof(double));
-	for( i = 0 ; i < ndim ; i++ ){
-		bounds[2*i] = sol->profit[i];
-		bounds[2*i+1] = INFINITY;
-	}
-
-	dominant = kdtree_range_search_r(
-		kdt,
-		bounds,
-		(property_f_r)mokpsol_dominates_,
-		sol);
-
-	free(bounds);
-
-	return dominant;
-}
-
-double sol_axis_get(MOKPSol *sol, int dim){
-	return (double)sol->profit[dim];
-}
+#include "../../utils/list.h"
 
 KDTree **population_rank(MOKPSol **pop, int n, int ndim, int *nranks){
-	KDTree *kdt, **fronts;
+	KDTree *kdt, *front, **fronts;
+	List *front_list;
 	MOKPSol *sol, *dominant;
 	MOKPSol **unrankeds, **unrankeds_, **uaux; /* dominateds*/
 	int nunrankeds, nunrankeds_;
-	int i, maxranks;
+	int i;
 
-	maxranks = 10;
 
-	fronts = (KDTree**)malloc(maxranks*sizeof(KDTree*));
+	front_list = list_new();
 	unrankeds = (MOKPSol**)malloc(n*sizeof(MOKPSol*));
 	unrankeds_ = (MOKPSol**)malloc(n*sizeof(MOKPSol*));
 	memcpy(unrankeds, pop, n*sizeof(MOKPSol*));
@@ -58,21 +25,22 @@ KDTree **population_rank(MOKPSol **pop, int n, int ndim, int *nranks){
 	/* while exists solutions to be ranked */
 	*nranks = 0;
 	while( nunrankeds ){
-		printf("Setting up rank: %d\n", *nranks);
 		nunrankeds_ = 0;
 
 		/* create kdtree of unranked */
-		kdt = kdtree_new(ndim, (kdtree_eval_f)sol_axis_get);
+		kdt = mokpsol_new_kdtree(ndim);
 		for( i = 0 ; i < nunrankeds ; i++ )
 			kdtree_insert(kdt, unrankeds[i]);
 
 		/* find i-ths rankeds */
-		fronts[*nranks] = kdtree_new(ndim, (kdtree_eval_f)sol_axis_get);
+		front = mokpsol_new_kdtree(ndim);
 		for( i = 0 ; i < nunrankeds ; i++ )
-			if( !mokpsol_find_dominant_kdtree(unrankeds[i], kdt) )
-				kdtree_insert(fronts[*nranks], unrankeds[i]);
-			else
+			if( !mokpsol_find_dominant_kdtree(unrankeds[i], kdt) ){
+				unrankeds[i]->rank = *nranks;
+				kdtree_insert(front, unrankeds[i]);
+			}else{
 				unrankeds_[nunrankeds_++] = unrankeds[i];
+			}
 
 		/* swap unrankeds */
 		uaux = unrankeds;
@@ -80,13 +48,17 @@ KDTree **population_rank(MOKPSol **pop, int n, int ndim, int *nranks){
 		unrankeds_ = uaux;
 		nunrankeds = nunrankeds_;
 
-		/* free kdftree of unranked */
 		kdtree_free(kdt);
-
+		list_insert(front_list, front);
 		(*nranks)++;
 	}
+	fronts = (KDTree**)list_get_all(front_list);
+
+	/* freeing */
 	free(unrankeds);
 	free(unrankeds_);
+	list_free(front_list);
+
 	return fronts;
 }
 
@@ -109,16 +81,11 @@ MOKPSol **mokp_sce(
 	for( i = 0 ; i < npop ; i++ )
 		pop[i] = mokpsol_new_random(mokp);
 
-	printf("ALL POPULATION\n");
-	for( i = 0 ; i < npop ; i++ )
-		mokpsol_printf(pop[i]);
-
 	ranks = population_rank(pop, npop, 3, &nranks);
 
-	printf("\n");
 	for( i = 0 ; i < nranks ; i++ ){
-		printf("RANK %d:\n", i);
-		kdtree_apply_to_all(ranks[i], (void(*)(void*))mokpsol_printf);
+		printf("RANK %d: %d\n", i, ranks[i]->n);
+		//kdtree_apply_to_all(ranks[i], (void(*)(void*))mokpsol_printf);
 		kdtree_apply_to_all(ranks[i], (void(*)(void*))mokpsol_free);
 		kdtree_free(ranks[i]);
 	}

@@ -23,13 +23,21 @@ typedef struct KDTree{
 }KDTree;
 
 KDTree *kdtree_new( int ndim, kdtree_eval_f eval_f);
-KDTree *kdtree_insert( KDTree *kdtree, void *element);
-void *kdtree_range_search(KDTree *kdtree, double *bounds, property_f);
-void *kdtree_range_search_r(KDTree *kdtree, double *bounds, property_f_r prop_f, void *prop_arg); /* prop_arg will be second argument of prop_f */
-void kdtree_apply_to_all(KDTree *kdtree, void(*func)(void*) );
-void kdtree_fprint_pretty(FILE *fout, KDTree *kdtree);
-void kdtree_free(KDTree *kdtree);
-void kdtree_balance(KDTree *kdtree);
+KDTree *kdtree_insert( KDTree*, void*);
+void *kdtree_range_search(KDTree*, double*, property_f);
+void *kdtree_range_search_r(KDTree*, double*, property_f_r prop_f, void*); /* prop_arg will be second argument of prop_f */
+void kdtree_apply_to_all(KDTree*, void(*func)(void*) );
+void kdtree_fprint_pretty(FILE*,KDTree*);
+void kdtree_free(KDTree*);
+void kdtree_balance(KDTree*);
+void **kdtree_get_all(KDTree*);
+
+typedef struct KDTreeIter{
+	KDNode *node;
+}KDTreeIter;
+KDTreeIter *kdtiter_new(KDTree *kdtree);
+void *kdtiter_next(KDTreeIter*);
+void kdtiter_free(KDTreeIter*);
 
 #endif
 

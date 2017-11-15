@@ -21,6 +21,7 @@ List *list_new();
 List *list_insert(List *list, void *info);
 List *list_insert_here(List *list, void *info, ListIter *iter);
 List *list_remove(List *list, ListIter *iter);
+void **list_get_all(List *list);
 void list_apply(List *list, void(void *));
 void list_apply_r(List *list, void(void*, void*), void *arg);
 void list_dump(FILE *fout, List *list);

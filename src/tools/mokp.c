@@ -529,7 +529,6 @@ int execute_sce(int argc, char **argv){
 
 	int i;
 	mokp = mokp_read(input);
-	mokp_write(stdout, mokp);
 
 	mokp_sce(mokp, ncomp, compsize, nsubcomp, niter, nsubiter, NULL);
 

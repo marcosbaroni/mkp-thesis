@@ -2,6 +2,9 @@
 #define MOKP_H 1
 
 #include "../../utils/util.h"
+#include "../../utils/kdtree.h"
+#include "../../utils/list.h"
+#include "../../utils/avl.h"
 
 #define SOL_DOMINATES 0
 #define SOL_EQUAL     1
@@ -44,6 +47,7 @@ typedef struct MOKPSol{
 	mokpval *x;
 	mokpnum *profit;
 	mokpnum b_left;
+	int rank;
 }MOKPSol;
 
 MOKPSol *new_empty(MOKP*);
@@ -55,9 +59,44 @@ void mokpsol_free(MOKPSol*);
 void mokpsol_fprintf(FILE*, MOKPSol*);
 void mokpsol_printf(MOKPSol*);
 int mokpsol_dom_cmp(MOKPSol*, MOKPSol*);
+KDTree *mokpsol_new_kdtree(int);
+MOKPSol *mokpsol_find_dominant_kdtree(MOKPSol*, KDTree*);
 
 
-/* MOKP Node (for Dynamic Programming) */
+typedef struct MOKPSolIndexer{
+	int ndim;
+	union {
+		AVLTree *avl;
+		KDTree *kdt;
+		List *list;
+	}tad;
+}MOKPSolIndexer;
+
+MOKPSolIndexer *msi_new(int);
+int msi_get_n(MOKPSolIndexer*);
+void msi_free(MOKPSolIndexer*);
+MOKPSol **msi_get_all(MOKPSolIndexer*);
+MOKPSol *msi_find_dominant(MOKPSolIndexer*, MOKPSol*);
+double msi_set_coverage(MOKPSolIndexer*, MOKPSolIndexer*);
+
+/* MOKP Solution Indexer Iterator */
+typedef struct MSIIter{
+	MOKPSolIndexer *msi;
+	union {
+		ListIter *listi;
+		AVLIter *avli;
+		KDTreeIter *kdti;
+	}tad;
+}MSIIter;
+
+MSIIter *msiiter_new(MOKPSolIndexer*);
+MOKPSol *msiiter_next(MSIIter*);
+void msiiter_free(MSIIter*);
+
+/****************************
+*    DYNAMIC PROGRAMMING    *
+****************************/
+/* MOKP Node */
 typedef struct MOKPNode{
     struct MOKPTree *tree;
 	int idx;	      /* the index of item which was fixed */

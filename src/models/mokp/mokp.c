@@ -7,6 +7,8 @@
 
 #include "../../utils/util.h"
 #include "../../utils/kdtree.h"
+#include "../../utils/avl.h"
+#include "../../utils/list.h"
 
 #include "../mkp/mkp.h"
 //#include "mokp.h"
@@ -598,6 +600,163 @@ int mokpsol_dom_cmp(MOKPSol *a, MOKPSol *b){
 			return SOL_DOMINATED;
 		else
 			return SOL_EQUAL;
+}
+int mokpsol_dominates_(MOKPSol *a, MOKPSol *b){
+	return (mokpsol_dom_cmp(a, b) == SOL_DOMINATES);
+}
+double mokpsol_axis_get(MOKPSol *sol, int dim){
+	return (double)sol->profit[dim];
+}
+int mokpsol_profit1_cmp(MOKPSol *a, MOKPSol *b){
+	return ( a->profit[0] - b->profit[0] );
+}
+KDTree *mokpsol_new_kdtree(int ndim){
+	return kdtree_new(ndim, (kdtree_eval_f)mokpsol_axis_get);
+}
+MOKPSol *mokpsol_find_dominant_kdtree(MOKPSol *sol, KDTree *kdt){
+	MOKPSol *dominant = NULL;
+	double *bounds;
+	int i, ndim;
+
+	ndim = kdt->ndim;
+	bounds = (double*)malloc(2*ndim*sizeof(double));
+	for( i = 0 ; i < ndim ; i++ ){
+		bounds[2*i] = sol->profit[i];
+		bounds[2*i+1] = INFINITY;
+	}
+
+	dominant = kdtree_range_search_r(
+		kdt,
+		bounds,
+		(property_f_r)mokpsol_dominates_,
+		sol);
+
+	free(bounds);
+
+	return dominant;
+}
+MOKPSol *mokpsol_find_dominant_avl(MOKPSol *sol, AVLTree *avlt){
+	MOKPSol *dominant = NULL;
+	MOKPSol *sol2;
+	AVLIter *iter;
+
+    iter = avl_get_higher_lower_than(avlt, sol);
+	while( (sol2 = avliter_forward(iter)) && !dominant )
+		if( mokpsol_dominates_(sol2, sol) )
+			dominant = sol2;
+
+	avliter_forward(iter);
+
+	return dominant;
+}
+MOKPSol *mokpsol_find_dominant_list(MOKPSol *sol, List *list){
+	ListIter *iter;
+	MOKPSol *sol2, *dominant = NULL;
+
+	iter = list_get_first(list);
+	while( (sol2 = (MOKPSol*)listiter_forward(iter)) && !dominant )
+		if( mokpsol_dominates_(sol2, sol) )
+			dominant = sol2;
+
+	listiter_free(iter);
+
+	return dominant;
+}
+MOKPSol *msi_find_dominant(MOKPSolIndexer *msi, MOKPSol *sol){
+	if( msi->ndim == 0 )
+		return mokpsol_find_dominant_list(sol, msi->tad.list);
+	if( msi->ndim == 1 )
+		return mokpsol_find_dominant_avl(sol, msi->tad.avl);
+	return mokpsol_find_dominant_kdtree(sol, msi->tad.kdt);
+}
+
+MOKPSolIndexer *msi_new(int ndim){
+	MOKPSolIndexer *msi;
+	msi = (MOKPSolIndexer*)malloc(sizeof(MOKPSolIndexer));
+	msi->ndim = ndim;
+	if( !ndim )
+		msi->tad.list = list_new();
+	else if( ndim == 1 )
+		msi->tad.avl = new_avltree( (avl_cmp_f)mokpsol_profit1_cmp );
+	else
+		msi->tad.kdt = kdtree_new(ndim, (kdtree_eval_f)mokpsol_axis_get);
+	return msi;
+}
+void msi_free(MOKPSolIndexer* msi){
+	int ndim;
+	ndim = msi->ndim;
+	if( ndim == 0 )
+		list_free(msi->tad.list);
+	if( ndim == 1 )
+		avl_free(msi->tad.avl);
+	else
+		kdtree_free(msi->tad.kdt);
+
+	free(msi);
+
+	return;
+}
+int msi_get_n(MOKPSolIndexer *msi){
+	if( msi->ndim == 0 )
+		return msi->tad.list->n;
+	if( msi->ndim == 1 )
+		return msi->tad.avl->n;
+	return msi->tad.kdt->n;
+}
+MOKPSol **msi_get_all(MOKPSolIndexer *msi){
+	MOKPSol **all;
+	int n;
+
+	n = msi_get_n(msi);
+	if( msi->ndim == 0 )
+		all = (MOKPSol**)list_get_all(msi->tad.list);
+	if( msi->ndim == 1 )
+		all = (MOKPSol**)avl_to_array(msi->tad.avl);
+	else
+		all = (MOKPSol**)kdtree_get_all(msi->tad.kdt);
+	return all;
+}
+double msi_set_coverage(MOKPSolIndexer *msi_a, MOKPSolIndexer *msi_b){
+	int ndominated_a;
+	MSIIter *iter;
+	MOKPSol *sol;
+
+	ndominated_a = 0;
+	iter = msiiter_new(msi_a);
+	while( sol = msiiter_next(iter) )
+		if( msi_find_dominant(msi_b, sol) )
+			ndominated_a++;
+	msiiter_free(iter);
+	return ndominated_a;
+}
+MSIIter *msiiter_new(MOKPSolIndexer *msi){
+	MSIIter *iter;
+	iter = (MSIIter*)malloc(sizeof(MSIIter));
+	iter->msi = msi;
+	if( iter->msi->ndim == 0 )
+		iter->tad.listi = list_get_first(msi->tad.list);
+	if( iter->msi->ndim == 1 )
+		iter->tad.avli = avl_get_first(msi->tad.avl);
+	if( iter->msi->ndim  > 1 )
+		iter->tad.kdti = kdtiter_new(msi->tad.kdt);
+	return iter;
+}
+MOKPSol *msiiter_next(MSIIter *iter){
+	if( iter->msi->ndim == 0 )
+		return listiter_forward(iter->tad.listi);
+	if( iter->msi->ndim == 1 )
+		return avliter_forward(iter->tad.avli);
+	if( iter->msi->ndim  > 1 )
+		return kdtiter_next(iter->tad.kdti);
+}
+void msiiter_free(MSIIter *iter){
+	if( iter->msi->ndim == 0 )
+		listiter_free(iter->tad.listi);
+	if( iter->msi->ndim == 1 )
+		avliter_free(iter->tad.avli);
+	if( iter->msi->ndim  > 1 )
+		kdtiter_free(iter->tad.kdti);
+	free(iter);
 }
 
 /* Insert item (if not) */

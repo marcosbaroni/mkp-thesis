@@ -183,6 +183,25 @@ void kdtree_apply_to_all(KDTree *kdtree, void(*func)(void*) ){
         _sub_kdtree_apply_to_all(kdtree->root, func);
 }
 
+void _sub_kdtree_get_all(KDNode *node, void **all, int *n){
+	all[(*n)++] = node->info;
+	if( node->right )
+		_sub_kdtree_get_all(node->right, all, n);
+	if( node->left)
+		_sub_kdtree_get_all(node->left, all, n);
+	return;
+}
+void **kdtree_get_all(KDTree *kdtree){
+	void **all;
+	int n;
+	all = (void**)malloc(kdtree->n*sizeof(void*));
+	n = 0;
+	if( kdtree->root )
+		_sub_kdtree_get_all(kdtree->root, all, &n);
+
+	return all;
+}
+
 void kdtree_fprint_pretty(FILE *fout, KDTree *kdtree){
     if( kdtree->root )
         tree_pretty_printer(
@@ -205,6 +224,48 @@ void kdtree_free(KDTree *kdtree){
     free(kdtree);
 
     return;
+}
+int kdnode_is_right(KDNode *node){
+    if( node->up )
+        return node->up->right == node ;
+    return 0;
+}
+
+KDNode *kdnode_get_next(KDNode *node){
+    if( node->right ){
+        node = node->right;
+        while( node->left )
+            node = node->left;
+        return node;
+    }
+
+    while(kdnode_is_right(node))
+        node = node->up;
+    return node->up;
+}
+
+KDTreeIter *kdtiter_new(KDTree *kdtree){
+	KDTreeIter *kdti;
+	kdti = (KDTreeIter*)malloc(sizeof(KDTreeIter));
+	kdti->node = NULL;
+
+	if( kdtree->root )
+		kdti->node = kdtree->root;
+	while( kdti->node->left )
+		kdti->node = kdti->node->left;
+
+	return kdti;
+}
+void *kdtiter_next(KDTreeIter *kdti){
+	void *info = NULL;
+	if( kdti->node )
+		info = kdti->node->info;
+	kdti->node = kdnode_get_next(kdti->node);
+
+	return info;
+}
+void kdtiter_free(KDTreeIter *kdti){
+	free(kdti);
 }
 
 void _sub_kdtree_get_elems(KDNode *root, void **elems, int *k){
