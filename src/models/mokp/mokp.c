@@ -548,6 +548,7 @@ MOKPSol *mokpsol_new_empty(MOKP *mokp){
 	for( i = 0 ; i < np ; i++ )
 		sol->profit[i] = 0;
 	sol->b_left = mokp->b;
+	sol->rank = -1;
 	
 	return sol;
 }

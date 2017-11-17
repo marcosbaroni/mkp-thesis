@@ -484,7 +484,7 @@ int execute_dynprog(int argc, char **argv){
 *******************************************************************************/
 int print_usage_sce(int argc, char **argv){
     printf("Solve Multiobjective Knapsack Problem using SCE.\n\n");
-    printf("  usage: %s %s [input file] [niter] [ncomp] [compsize] [nsubcomp] [nsubiter]\n", argv[0], SCE_OPT);
+    printf("  usage: %s %s [input file] [niter] [ncomp] [compsize] [nsubcomp] [nsubiter] [archsize] [ndim]\n", argv[0], SCE_OPT);
     printf("    input file: - to read from stdin\n");
     printf("\n  Output:\n");
     printf("    <n nodes>;<n comparison>;<time (s)>\n\n");
@@ -492,8 +492,8 @@ int print_usage_sce(int argc, char **argv){
 int execute_sce(int argc, char **argv){
 	MOKP *mokp;
 	FILE *input;
-	int i;
-	int niter, ncomp, compsize, nsubcomp, nsubiter;
+	int i, ndim;
+	int archsize, niter, ncomp, compsize, nsubcomp, nsubiter;
 	SFL_Interface *sfli;
 	MOKPSol *sol;
 	MOKPSolIndexer *sce1, *sce2;
@@ -504,6 +504,8 @@ int execute_sce(int argc, char **argv){
 	compsize = 5;
 	nsubcomp = 2;
 	nsubiter = 10;
+	archsize = 100;
+	ndim = 0;
 
 	if( argc < 3 ){
 		print_usage_sce(argc, argv);
@@ -528,16 +530,32 @@ int execute_sce(int argc, char **argv){
 		nsubcomp = atoll(argv[6]);
 	if( argc > 7 )
 		nsubiter = atoll(argv[7]);
+	if( argc > 8 )
+		archsize = atoll(argv[8]);
+	if( argc > 9 )
+		ndim = atoll(argv[9]);
 
 	mokp = mokp_read(input);
 
-	sce1 = mokp_sce(mokp, ncomp, compsize, nsubcomp, niter, nsubiter);
-	sce2 = mokp_sce(mokp, ncomp, compsize, nsubcomp, niter, nsubiter);
+	sce1 = mokp_sce(mokp, ncomp, compsize, nsubcomp,
+		niter, nsubiter, archsize, ndim);
+	sce2 = mokp_sce(mokp, ncomp, compsize, nsubcomp,
+		niter, nsubiter, archsize, ndim);
 
-	printf("sce1 set coverage: %d\n", msi_set_coverage(sce1, sce2));
-	printf("sce2 set coverage: %d\n", msi_set_coverage(sce2, sce1));
-	printf("out of %d\n", msi_get_n(sce1));
-
+	/*
+	printf("sce1\n");
+  	printf(" - set coverage: %d/%d\n",
+		msi_set_coverage(sce1, sce2),
+		msi_get_n(sce1));
+  	printf(" - spacing: %.3f\n",
+		msi_spacing(sce1));
+	printf("sce2\n");
+  	printf(" - set coverage: %d/%d\n",
+		msi_set_coverage(sce2, sce1),
+		msi_get_n(sce2));
+  	printf(" - spacing: %.3f\n",
+		msi_spacing(sce2));
+*/
 	msi_apply_all(sce1, (void(*)(void*))mokpsol_free);
 	msi_apply_all(sce2, (void(*)(void*))mokpsol_free);
 	msi_free(sce1);

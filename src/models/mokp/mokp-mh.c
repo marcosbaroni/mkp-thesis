@@ -7,8 +7,8 @@
 #include "../../utils/kdtree.h"
 #include "../../utils/list.h"
 
-KDTree **population_rank(MOKPSol **pop, int n, int ndim, int *nranks){
-	KDTree *kdt, *front, **fronts;
+MOKPSolIndexer **rank_population(MOKPSol **pop, int n, int ndim, int *nranks){
+	MOKPSolIndexer *msi, *front, **fronts;
 	List *front_list;
 	MOKPSol *sol, *dominant;
 	MOKPSol **unrankeds, **unrankeds_, **uaux; /* dominateds*/
@@ -28,16 +28,16 @@ KDTree **population_rank(MOKPSol **pop, int n, int ndim, int *nranks){
 		nunrankeds_ = 0;
 
 		/* create kdtree of unranked */
-		kdt = mokpsol_new_kdtree(ndim);
+		msi = msi_new(ndim);
 		for( i = 0 ; i < nunrankeds ; i++ )
-			kdtree_insert(kdt, unrankeds[i]);
+			msi_insert(msi, unrankeds[i]);
 
 		/* find i-ths rankeds */
-		front = mokpsol_new_kdtree(ndim);
+		front = msi_new(ndim);
 		for( i = 0 ; i < nunrankeds ; i++ )
-			if( !mokpsol_find_dominant_kdtree(unrankeds[i], kdt) ){
+			if( !msi_find_dominant(msi, unrankeds[i]) ){
 				unrankeds[i]->rank = *nranks;
-				kdtree_insert(front, unrankeds[i]);
+				msi_insert(front, unrankeds[i]);
 			}else{
 				unrankeds_[nunrankeds_++] = unrankeds[i];
 			}
@@ -48,11 +48,11 @@ KDTree **population_rank(MOKPSol **pop, int n, int ndim, int *nranks){
 		unrankeds_ = uaux;
 		nunrankeds = nunrankeds_;
 
-		kdtree_free(kdt);
+		msi_free(msi);
 		list_insert(front_list, front);
 		(*nranks)++;
 	}
-	fronts = (KDTree**)list_get_all(front_list);
+	fronts = (MOKPSolIndexer**)list_get_all(front_list);
 
 	/* freeing */
 	free(unrankeds);
@@ -62,6 +62,35 @@ KDTree **population_rank(MOKPSol **pop, int n, int ndim, int *nranks){
 	return fronts;
 }
 
+MOKPSol **shuffle_memeplexes(
+	MOKPSolIndexer **ranks,
+	int nranks,
+	int ncomp,
+	int compsize
+){
+	MOKPSol **pop;
+	MOKPSol *sol;
+	MSIIter *iter;
+	int i, idx, rank, npop;
+
+	rank = 0;
+	npop = ncomp*ncompsize;
+	pop = (MOKPSol**)malloc(npop*sizeof(MOKPSol*));
+	iter = msiiter_new(ranks[0]);
+	for( i = 0 ; i < npop ; i++ ){
+		/* next best solution */
+		sol = msiiter_next(iter);
+		if( !sol ){
+			msiiter_free(iter);
+			iter = msiiter_new(ranks[++rank]);
+			sol = msiiter_next(iter);
+		}
+		idx = (i*compsize) + (i%compsize);
+		pop[idx] = sol;
+	}
+
+}
+
 /* Shuffled Complex Evolution for MOKP */
 MOKPSolIndexer *mokp_sce(
 	MOKP *mokp,			 /* MOKP instance */
@@ -69,18 +98,35 @@ MOKPSolIndexer *mokp_sce(
 	int meme_size,       /* size of memeplex */
 	int q,               /* size of submemeplex */
 	int niter,           /* number of iterations */
-	int subniter        /* number of iterations for each memeplex opt */
+	int subniter,        /* number of iterations for each memeplex opt */
+	int archsize,
+	int ndim
 ){
-	MOKPSol **pop;
-	KDTree **ranks;
+	MOKPSol **pop, **memeplexes;
+	MOKPSolIndexer **ranks;
 	MOKPSolIndexer *msi;
 	int i, nranks, npop;
 
 	npop = nmeme*meme_size;
-	msi = msi_new(0);
+	/* Initialize population */
+	pop = (MOKPSol**)malloc(npop*sizeof(MOKPSol*));
 	for( i = 0 ; i < npop ; i++ )
-		msi_insert(msi, mokpsol_new_random(mokp));
+		pop[i] = mokpsol_new_random(mokp);
+	
+	/* Rank population */
+	ranks = rank_population(pop, npop, ndim, &nranks);
+	free(pop);
 
+	pop = shuffle_memeplexes(ranks, nranks, ncomp, compsize);
+
+	/* Free */
+	for( i = 0 ; i < nranks ; i++ ){
+		msi_apply_all(ranks[i], (void(*)(void*))mokpsol_free);
+		msi_free(ranks[i]);
+	}
+	free(ranks);
+
+	msi = msi_new(0);
 	return msi;
 }
 

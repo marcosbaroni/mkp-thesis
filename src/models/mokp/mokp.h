@@ -48,6 +48,7 @@ typedef struct MOKPSol{
 	mokpnum *profit;
 	mokpnum b_left;
 	int rank;
+	mokpnum agg_profit;
 }MOKPSol;
 
 MOKPSol *new_empty(MOKP*);
