@@ -51,6 +51,9 @@ MOKP *mokp_alloc(int n, int np){
 
     mokp->n = n;
     mokp->np = np;
+	mokp->idxs = (int*)malloc(n*sizeof(int));
+	for( i = 0 ; i < n ; i++ )
+		mokp->idxs[i] = i;
     mokp->p = (mokpnum**)malloc(np*sizeof(mokpnum*));
     for( i = 0 ; i < np ; i++ )
         mokp->p[i] = (mokpnum*)malloc(n*sizeof(mokpnum));
@@ -362,9 +365,15 @@ void mokp_free(MOKP *mokp){
         free(mokp->p[i]);
     free(mokp->p);
     free(mokp->w);
+	free(mokp->idxs);
     free(mokp);
 
     return;
+}
+
+MOKP *mokp_shuffle_idxs(MOKP *mokp){
+	mokp->idxs = int_array_shuffle(mokp->idxs, mokp->n);
+	return mokp;
 }
 
 void mokp_write(FILE *out, MOKP *mokp){
@@ -616,6 +625,9 @@ double mokpsol_spacing(MOKPSol *a, MOKPSol *b){
 int mokpsol_dominates_(MOKPSol *a, MOKPSol *b){
 	return (mokpsol_dom_cmp(a, b) == SOL_DOMINATES);
 }
+int mokpsol_dominated_by_(MOKPSol *a, MOKPSol *b){
+	return (mokpsol_dom_cmp(a, b) == SOL_DOMINATED);
+}
 double mokpsol_axis_get(MOKPSol *sol, int dim){
 	return (double)sol->profit[dim];
 }
@@ -657,7 +669,7 @@ MOKPSol *mokpsol_find_dominant_avl(MOKPSol *sol, AVLTree *avlt){
 		if( mokpsol_dominates_(sol2, sol) )
 			dominant = sol2;
 
-	avliter_forward(iter);
+	avliter_free(iter);
 
 	return dominant;
 }
@@ -680,6 +692,63 @@ MOKPSol *msi_find_dominant(MOKPSolIndexer *msi, MOKPSol *sol){
 	if( msi->ndim == 1 )
 		return mokpsol_find_dominant_avl(sol, msi->tad.avl);
 	return mokpsol_find_dominant_kdtree(sol, msi->tad.kdt);
+}
+
+MOKPSol *mokpsol_find_dominanted_list(MOKPSol *sol, List *list){
+	ListIter *iter;
+	MOKPSol *sol2, *dominated = NULL;
+
+	iter = list_get_first(list);
+	while( (sol2 = (MOKPSol*)listiter_forward(iter)) && !dominated )
+		if( mokpsol_dominated_by_(sol2, sol) )
+			dominated = sol2;
+
+	listiter_free(iter);
+
+	return dominated;
+}
+MOKPSol *mokpsol_find_dominanted_avl(MOKPSol *sol, AVLTree *avl){
+	MOKPSol *dominated = NULL;
+	MOKPSol *sol2;
+	AVLIter *iter;
+
+    iter = avl_get_lower_higher_than(avl, sol);
+	while( (sol2 = avliter_backward(iter)) && !dominated )
+		if( mokpsol_dominates_(sol2, sol) )
+			dominated = sol2;
+
+	avliter_free(iter);
+
+	return dominated;
+}
+MOKPSol *mokpsol_find_dominanted_kdtree(MOKPSol *sol, KDTree *kdt){
+	MOKPSol *dominated = NULL;
+	double *bounds;
+	int i, ndim;
+
+	ndim = kdt->ndim;
+	bounds = (double*)malloc(2*ndim*sizeof(double));
+	for( i = 0 ; i < ndim ; i++ ){
+		bounds[2*i] = 0;
+		bounds[2*i+1] = sol->profit[i];
+	}
+
+	dominated = kdtree_range_search_r(
+		kdt,
+		bounds,
+		(property_f_r)mokpsol_dominated_by_,
+		sol);
+
+	free(bounds);
+
+	return dominated;
+}
+MOKPSol *msi_find_dominanted(MOKPSolIndexer *msi, MOKPSol *sol){
+	if( msi->ndim == 0 )
+		return mokpsol_find_dominanted_list(sol, msi->tad.list);
+	if( msi->ndim == 1 )
+		return mokpsol_find_dominanted_avl(sol, msi->tad.avl);
+	return mokpsol_find_dominanted_kdtree(sol, msi->tad.kdt);
 }
 
 MOKPSolIndexer *msi_new(int ndim){
@@ -837,6 +906,53 @@ void msiiter_free(MSIIter *iter){
 	free(iter);
 }
 
+Archive *archive_new(MOKP* mokp, int nmax, int ndim){
+	Archive *arch;
+	arch = (Archive*)malloc(sizeof(Archive));
+	arch->mokp = mokp;
+	arch->nmax = nmax;
+	arch->n = 0;
+	arch->pareto = msi_new(ndim);
+	arch->ecover = msi_new(ndim);
+}
+void archive_propose_sol(Archive *arch, MOKPSol *sol){
+	ListIter *liter;
+	MOKPSol *sol2;
+	int cmp_res;
+	int dominates, is_dominated;
+
+	if( arch->pareto->ndim > 0 ){
+		fprintf(stderr, "%s not yet implemented from ndim > 0.\n", __PRETTY_FUNCTION__);
+		return;
+	}
+
+	liter = list_get_first(arch->pareto->tad.list);
+	sol2 = listiter_get(liter);
+	dominates = 0;
+	is_dominated = 0;
+	while( sol2 && !is_dominated ){
+		cmp_res = mokpsol_dom_cmp(sol, sol2);
+		if( cmp_res == SOL_DOMINATED ){
+			is_dominated = 1;
+		}else if( cmp_res == SOL_DOMINATES ){
+			dominates = 1;
+			list_remove(liter);
+		}else{
+			sol2 = listiter_forward(liter);
+		}
+	}
+	/* TODO: melhorar os casos, aplicando a 3-dominance caso não
+	 *   tenha dominado ninguem */
+	if( dominates || !is_dominated )
+		msi_insert(arch->pareto, mokpsol_copy(sol));
+
+	return;
+}
+void archive_free(Archive *archive){
+	msi_free(archive->pareto);
+	free(archive);
+}
+
 /* Insert item (if not) */
 MOKPSol *mokpsol_insert_item(MOKPSol *sol, int idx){
 	int i;
@@ -893,7 +1009,7 @@ MOKPSol *mokpsol_copy(MOKPSol *sol){
 	n = sol->mokp->n;
 	np = sol->mokp->np;
 
-	new= (MOKPSol*)malloc(sizeof(MOKPSol));
+	new = (MOKPSol*)malloc(sizeof(MOKPSol));
 	new->mokp = sol->mokp;
 	new->x = (mokpval*)malloc(n*sizeof(mokpval));
 	for( i = 0 ; i < n ; i++ )
@@ -910,8 +1026,10 @@ MOKPSol *mokpsol_flip_item(MOKPSol *sol, int idx){
 	else mokpsol_insert_item(sol, idx);
 }
 /* cross two solutions */
-MOKPSol mokpsol_cross(MOKPSol *child, MOKPSol *father, int c, int *idxs){
+MOKPSol *mokpsol_cross(MOKPSol *child, MOKPSol *father, int c){
+	int *idxs;
 	int a, b, i, n, idx;
+	idxs = child->mokp->idxs;
 
 	for( i = 0 ; i < c ; i++ ){
 		idx = idxs[i];
@@ -924,6 +1042,7 @@ MOKPSol mokpsol_cross(MOKPSol *child, MOKPSol *father, int c, int *idxs){
 	/* repair, if not feasiable? */
 	//if( child->b_left < 0 )
 	//	child = mkpsol_greedy_repair(child);
+	return child;
 }
 
 

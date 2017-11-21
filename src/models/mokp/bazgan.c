@@ -734,14 +734,14 @@ BazganNode *_mantain_non_dom_list(
 
     if( !dominant ){
         avl_insert(c_avl, bnode);
-        list_insert_here(m_list, bnode, m_iter);
+        list_insert_here(bnode, m_iter);
 
         listiter_forward(m_iter);
         m_bnode = listiter_get(m_iter);
         /* removing any possible dominated from checking pool */
         while( m_bnode ){
             if( bnode_profit_dominates(bnode, m_bnode) ){
-                list_remove(m_list, m_iter);
+                list_remove(m_iter);
                 m_bnode = listiter_get(m_iter);
             }else{
                 m_bnode = listiter_forward(m_iter);

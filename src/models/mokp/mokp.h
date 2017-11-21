@@ -22,9 +22,10 @@ void mokpnum_array_write(FILE *out, mokpnum *array, int n);
 typedef struct MOKP{
     int n;              /* number of itens */
     int np;             /* number of objectives */
-    mokpnum **p;         /* the profits [np x n] */
-    mokpnum *w;          /* the weight [n] */
+    mokpnum **p;        /* the profits [np x n] */
+    mokpnum *w;         /* the weight [n] */
     mokpnum b;
+	int *idxs;           /* int array for random index operations */
 }MOKP;
 
 MOKP *mokp_alloc(int n, int np);
@@ -39,6 +40,7 @@ MOKP *mokp_new_reordered(MOKP *mokp, int *new_idx_order);
 MOKP *mokp_reord_by_type(MOKP *mokp, char ordering_type);
 int *mokp_get_item_order(MOKP *mokp, char ordering_type);
 void mokp_free(MOKP *mokp);
+MOKP *mokp_shuffle_idxs(MOKP *mokp);
 
 
 /* Solution for the MOKP */
@@ -54,6 +56,8 @@ typedef struct MOKPSol{
 MOKPSol *new_empty(MOKP*);
 MOKPSol *mokpsol_new_random(MOKP*);
 MOKPSol *mokpsol_copy(MOKPSol*);
+MOKPSol *mokpsol_flip_item(MOKPSol*, int);
+MOKPSol *mokpsol_cross(MOKPSol*, MOKPSol*, int);
 MOKPSol *mokpsol_insert_item(MOKPSol*, int);
 MOKPSol *mokpsol_rm_item(MOKPSol*, int);
 void mokpsol_free(MOKPSol*);
@@ -65,6 +69,7 @@ KDTree *mokpsol_new_kdtree(int);
 MOKPSol *mokpsol_find_dominant_kdtree(MOKPSol*, KDTree*);
 
 
+/* MOKP Solution Indexer */
 typedef struct MOKPSolIndexer{
 	int ndim;
 	union {
@@ -81,8 +86,10 @@ void msi_free(MOKPSolIndexer*);
 void msi_apply_all(MOKPSolIndexer*, void(*)(void*));
 MOKPSol **msi_get_all(MOKPSolIndexer*);
 MOKPSol *msi_find_dominant(MOKPSolIndexer*, MOKPSol*);
+MOKPSol *msi_find_dominanted(MOKPSolIndexer*, MOKPSol*);
 int msi_set_coverage(MOKPSolIndexer*, MOKPSolIndexer*);
 double msi_spacing(MOKPSolIndexer*);
+
 
 /* MOKP Solution Indexer Iterator */
 typedef struct MSIIter{
@@ -97,6 +104,18 @@ typedef struct MSIIter{
 MSIIter *msiiter_new(MOKPSolIndexer*);
 MOKPSol *msiiter_next(MSIIter*);
 void msiiter_free(MSIIter*);
+
+
+/* MOKP Solution Archive */
+typedef struct Archive{
+	int nmax;
+	int n;
+	MOKP *mokp;
+	MOKPSolIndexer *pareto;
+}Archive;
+Archive *archive_new(MOKP* mokp, int nmax, int ndim);
+void archive_propose_sol(Archive*, MOKPSol*);
+void archive_free(Archive*);
 
 /****************************
 *    DYNAMIC PROGRAMMING    *

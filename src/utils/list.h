@@ -14,13 +14,14 @@ typedef struct List{
 }List;
 
 typedef struct ListIter{
+	List *list;
     ListNode *node;
 }ListIter;
 
 List *list_new();
 List *list_insert(List *list, void *info);
-List *list_insert_here(List *list, void *info, ListIter *iter);
-List *list_remove(List *list, ListIter *iter);
+List *list_insert_here(void *info, ListIter *iter);
+List *list_remove(ListIter *iter);
 void **list_get_all(List *list);
 void *list_find_closest(List *list, void*, double(*)(void*, void*));
 void list_apply(List *list, void(void *));

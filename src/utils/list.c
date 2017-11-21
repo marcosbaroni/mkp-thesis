@@ -31,9 +31,10 @@ List *list_insert(List *list, void *info){
     return list;
 }
 
-List *list_insert_here(List *list, void *info, ListIter *iter){
+List *list_insert_here(void *info, ListIter *iter){
     ListNode *node;
     ListNode *place;
+	List *list = iter->list;
 
     if( !iter->node )
         return(list_insert(list, info));
@@ -58,8 +59,9 @@ List *list_insert_here(List *list, void *info, ListIter *iter){
     return list;
 }
 
-List *list_remove(List *list, ListIter *iter){
+List *list_remove(ListIter *iter){
     ListNode *node;
+	List *list = iter->list;
 
     node = iter->node;
     iter->node = node->next;
@@ -171,6 +173,7 @@ ListIter *list_get_first(List *list){
     ListIter *iter;
 
     iter = (ListIter*)malloc(sizeof(ListIter));
+	iter->list = list;
     iter->node = list->first;
 
     return iter;
@@ -180,6 +183,7 @@ ListIter *list_get_last(List *list){
     ListIter *iter;
 
     iter = (ListIter*)malloc(sizeof(ListIter));
+	iter->list = list;
     iter->node = list->last;
 
     return iter;
