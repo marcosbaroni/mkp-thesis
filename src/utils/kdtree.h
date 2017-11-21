@@ -27,6 +27,7 @@ KDTree *kdtree_insert( KDTree*, void*);
 void *kdtree_range_search(KDTree*, double*, property_f);
 void *kdtree_range_search_r(KDTree*, double*, property_f_r prop_f, void*); /* prop_arg will be second argument of prop_f */
 void kdtree_apply_to_all(KDTree*, void(*func)(void*) );
+void kdtree_apply_to_all_r(KDTree*, void(*func)(void*, void*), void*);
 void kdtree_fprint_pretty(FILE*,KDTree*);
 void kdtree_free(KDTree*);
 void kdtree_balance(KDTree*);
@@ -34,10 +35,12 @@ void **kdtree_get_all(KDTree*);
 void *kdtree_find_closest(KDTree*, double(*)(void*, void*));
 
 typedef struct KDTreeIter{
+	KDTree *kdtree;
 	KDNode *node;
 }KDTreeIter;
 KDTreeIter *kdtiter_new(KDTree *kdtree);
-void *kdtiter_next(KDTreeIter*);
+void *kdtiter_forward(KDTreeIter*);
+void *kdtiter_get(KDTreeIter *kdti);
 void kdtiter_free(KDTreeIter*);
 
 #endif

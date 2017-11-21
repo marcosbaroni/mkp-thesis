@@ -188,23 +188,29 @@ ListIter *list_get_last(List *list){
 
     return iter;
 }
+ListIter *listiter_new(List *list){
+    ListIter *iter;
+
+    iter = (ListIter*)malloc(sizeof(ListIter));
+	iter->list = list;
+    iter->node = list->first;
+
+	return iter;
+}
 
 void *listiter_get(ListIter *liter){
-    if(liter->node)
+    if( liter->node )
         return liter->node->info;
     return NULL;
 }
 
 void *listiter_forward(ListIter *liter){
-    void *info;
-
-    info = NULL;
-    if( liter->node ){
-        info = liter->node->info;
+    if( liter->node )
         liter->node = liter->node->next;
-    }
+	if( liter->node )
+		return liter->node->info;
 
-    return info;
+    return NULL;
 }
 
 void *listiter_backward(ListIter *liter){

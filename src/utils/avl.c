@@ -976,15 +976,12 @@ void *avliter_backward(AVLIter *avliter){
 }
 
 void *avliter_forward(AVLIter *avliter){
-    void *info;
-
-    info = NULL;
-    if( avliter->node ){
-        info = avliter->node->info;
+    if( avliter->node )
         avliter->node = avlnode_get_next(avliter->node);
-    }
+	if( avliter->node )
+		return avliter->node->info;
 
-    return info;
+    return NULL;
 }
 
 void *avliter_get(AVLIter *avliter){
@@ -996,7 +993,6 @@ void *avliter_get(AVLIter *avliter){
 void* avliter_remove(AVLIter *avliter){
     void *info;
     AVLNode *next;
-    avl_fprint_pretty(stdout, avliter->tree);
 
     info = NULL;
     if( avliter->node ){

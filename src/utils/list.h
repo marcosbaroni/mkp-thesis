@@ -32,6 +32,7 @@ void list_free(List* list);
 int list_is_empty(List *list);
 ListIter *list_get_first(List *list);
 ListIter *list_get_last(List *list);
+ListIter *listiter_new(List *list);
 void *listiter_get(ListIter *liter);
 void *listiter_forward(ListIter *liter);
 void *listiter_backward(ListIter *liter);

@@ -182,6 +182,18 @@ void kdtree_apply_to_all(KDTree *kdtree, void(*func)(void*) ){
     if( kdtree->root )
         _sub_kdtree_apply_to_all(kdtree->root, func);
 }
+void _sub_kdtree_apply_to_all_r(KDNode *node, void(*func)(void*, void*), void *arg){
+	if( node->left )
+		_sub_kdtree_apply_to_all_r(node->left, func, arg);
+	func( node->info, arg);
+	if( node->right )
+		_sub_kdtree_apply_to_all_r(node->right, func, arg);
+}
+
+void kdtree_apply_to_all_r(KDTree *kdtree, void(*func)(void*,void*), void* arg){
+	if( kdtree->root )
+        _sub_kdtree_apply_to_all_r(kdtree->root, func, arg);
+}
 
 void _sub_kdtree_get_all(KDNode *node, void **all, int *n){
 	all[(*n)++] = node->info;
@@ -244,12 +256,15 @@ KDNode *kdnode_get_next(KDNode *node){
 
     while(kdnode_is_right(node))
         node = node->up;
-    return node->up;
+	if( node->up )
+		return node->up;
+    return NULL;
 }
 
 KDTreeIter *kdtiter_new(KDTree *kdtree){
 	KDTreeIter *kdti;
 	kdti = (KDTreeIter*)malloc(sizeof(KDTreeIter));
+	kdti->kdtree = kdtree;
 	kdti->node = NULL;
 
 	if( kdtree->root )
@@ -259,13 +274,16 @@ KDTreeIter *kdtiter_new(KDTree *kdtree){
 
 	return kdti;
 }
-void *kdtiter_next(KDTreeIter *kdti){
-	void *info = NULL;
+void *kdtiter_get(KDTreeIter *kdti){
 	if( kdti->node )
-		info = kdti->node->info;
+		return kdti->node->info;
+	return NULL;
+}
+void *kdtiter_forward(KDTreeIter *kdti){
 	kdti->node = kdnode_get_next(kdti->node);
-
-	return info;
+	if( kdti->node )
+		return kdti->node->info;
+	return NULL;
 }
 void kdtiter_free(KDTreeIter *kdti){
 	free(kdti);

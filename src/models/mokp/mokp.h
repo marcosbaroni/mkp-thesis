@@ -84,6 +84,7 @@ MOKPSolIndexer *msi_insert(MOKPSolIndexer*, MOKPSol*);
 int msi_get_n(MOKPSolIndexer*);
 void msi_free(MOKPSolIndexer*);
 void msi_apply_all(MOKPSolIndexer*, void(*)(void*));
+void msi_apply_all_r(MOKPSolIndexer*, void(*)(void*,void*), void*);
 MOKPSol **msi_get_all(MOKPSolIndexer*);
 MOKPSol *msi_find_dominant(MOKPSolIndexer*, MOKPSol*);
 MOKPSol *msi_find_dominanted(MOKPSolIndexer*, MOKPSol*);
@@ -102,20 +103,23 @@ typedef struct MSIIter{
 }MSIIter;
 
 MSIIter *msiiter_new(MOKPSolIndexer*);
-MOKPSol *msiiter_next(MSIIter*);
+MOKPSol *msiiter_get(MSIIter*);
+MOKPSol *msiiter_forward(MSIIter*);
 void msiiter_free(MSIIter*);
+void msi_remove(MSIIter*);
 
 
 /* MOKP Solution Archive */
 typedef struct Archive{
 	int nmax;
-	int n;
 	MOKP *mokp;
 	MOKPSolIndexer *pareto;
 }Archive;
 Archive *archive_new(MOKP* mokp, int nmax, int ndim);
+int archive_get_n(Archive *arch);
 void archive_propose_sol(Archive*, MOKPSol*);
-void archive_free(Archive*);
+MOKPSolIndexer *archive_free(Archive*);
+
 
 /****************************
 *    DYNAMIC PROGRAMMING    *

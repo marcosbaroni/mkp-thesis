@@ -813,6 +813,14 @@ void msi_apply_all(MOKPSolIndexer *msi, void(*f)(void*)){
 	if( msi->ndim  > 1 )
 		kdtree_apply_to_all(msi->tad.kdt, f);
 }
+void msi_apply_all_r(MOKPSolIndexer *msi, void(*f)(void*, void*), void *arg){
+	if( msi->ndim == 0 )
+		list_apply_r(msi->tad.list, f, arg);
+	if( msi->ndim == 1 )
+		avl_apply_to_all_r(msi->tad.avl, f, arg);
+	if( msi->ndim  > 1 )
+		kdtree_apply_to_all_r(msi->tad.kdt, f, arg);
+}
 int msi_set_coverage(MOKPSolIndexer *msi_a, MOKPSolIndexer *msi_b){
 	int ndominated_a;
 	MSIIter *iter;
@@ -820,7 +828,7 @@ int msi_set_coverage(MOKPSolIndexer *msi_a, MOKPSolIndexer *msi_b){
 
 	ndominated_a = 0;
 	iter = msiiter_new(msi_a);
-	while( sol = msiiter_next(iter) )
+	while( sol = msiiter_forward(iter) )
 		if( msi_find_dominant(msi_b, sol) )
 			ndominated_a++;
 	msiiter_free(iter);
@@ -843,26 +851,29 @@ double msi_spacing(MOKPSolIndexer *msi){
 	if( !n )
 		return INFINITY;
 
-	iter1 = msiiter_new(msi);
-	sol1 = msiiter_next(iter1);
 
 	np = sol1->mokp->np;
 	dists = (double*)malloc(n*sizeof(double));
-
 	avg_dist = 0.;
 	i = 0;
-	do{
+
+	iter1 = msiiter_new(msi);
+	sol1 = msiiter_get(iter1);
+	while( sol1 ){
 		closest_dist = INFINITY;
 		iter2 = msiiter_new(msi);
-		while( sol2 = msiiter_next(iter2) ){
+		sol2 = msiiter_get(iter2);
+		while( sol2 ){
 			sol2_dist = mokpsol_spacing(sol1, sol2);
 			if( sol2_dist < closest_dist )
 				closest_dist = sol2_dist;
+			sol2 = msiiter_forward(iter2);
 		}
 		msiiter_free(iter2);
 		dists[i++] = closest_dist;
 		avg_dist += closest_dist;
-	}while( sol1 = msiiter_next(iter1) );
+		sol1 = msiiter_forward(iter1);
+	}
 	msiiter_free(iter1);
 
 	avg_dist /= (double)n;
@@ -881,20 +892,28 @@ MSIIter *msiiter_new(MOKPSolIndexer *msi){
 	iter = (MSIIter*)malloc(sizeof(MSIIter));
 	iter->msi = msi;
 	if( iter->msi->ndim == 0 )
-		iter->tad.listi = list_get_first(msi->tad.list);
+		iter->tad.listi = listiter_new(msi->tad.list);
 	if( iter->msi->ndim == 1 )
 		iter->tad.avli = avl_get_first(msi->tad.avl);
 	if( iter->msi->ndim  > 1 )
 		iter->tad.kdti = kdtiter_new(msi->tad.kdt);
 	return iter;
 }
-MOKPSol *msiiter_next(MSIIter *iter){
+MOKPSol *msiiter_get(MSIIter *iter){
+	if( iter->msi->ndim == 0 )
+		return listiter_get(iter->tad.listi);
+	if( iter->msi->ndim == 1 )
+		return avliter_get(iter->tad.avli);
+	if( iter->msi->ndim  > 1 )
+		return kdtiter_get(iter->tad.kdti);
+}
+MOKPSol *msiiter_forward(MSIIter *iter){
 	if( iter->msi->ndim == 0 )
 		return listiter_forward(iter->tad.listi);
 	if( iter->msi->ndim == 1 )
 		return avliter_forward(iter->tad.avli);
 	if( iter->msi->ndim  > 1 )
-		return kdtiter_next(iter->tad.kdti);
+		return kdtiter_forward(iter->tad.kdti);
 }
 void msiiter_free(MSIIter *iter){
 	if( iter->msi->ndim == 0 )
@@ -905,40 +924,54 @@ void msiiter_free(MSIIter *iter){
 		kdtiter_free(iter->tad.kdti);
 	free(iter);
 }
+void msi_remove(MSIIter *iter){
+	if( iter->msi->ndim == 0 )
+		list_remove(iter->tad.listi);
+	if( iter->msi->ndim == 1 )
+		avliter_remove(iter->tad.avli);
+	if( iter->msi->ndim  > 1 )
+		fprintf(stderr, "%s nor implemented yet\n", __PRETTY_FUNCTION__);
+		//kdtiter_remove(iter->tad.kdti);
+}
 
 Archive *archive_new(MOKP* mokp, int nmax, int ndim){
 	Archive *arch;
 	arch = (Archive*)malloc(sizeof(Archive));
 	arch->mokp = mokp;
 	arch->nmax = nmax;
-	arch->n = 0;
 	arch->pareto = msi_new(ndim);
-	arch->ecover = msi_new(ndim);
+}
+int archive_get_n(Archive *arch){
+	return msi_get_n(arch->pareto);
 }
 void archive_propose_sol(Archive *arch, MOKPSol *sol){
-	ListIter *liter;
+	MSIIter *iter;
 	MOKPSol *sol2;
 	int cmp_res;
 	int dominates, is_dominated;
 
 	if( arch->pareto->ndim > 0 ){
-		fprintf(stderr, "%s not yet implemented from ndim > 0.\n", __PRETTY_FUNCTION__);
+		fprintf(stderr, "%s not yet implemented from ndim > 0.\n",
+			__PRETTY_FUNCTION__);
 		return;
 	}
 
-	liter = list_get_first(arch->pareto->tad.list);
-	sol2 = listiter_get(liter);
+	iter = msiiter_new(arch->pareto);
+	sol2 = msiiter_get(iter);
 	dominates = 0;
 	is_dominated = 0;
 	while( sol2 && !is_dominated ){
 		cmp_res = mokpsol_dom_cmp(sol, sol2);
 		if( cmp_res == SOL_DOMINATED ){
+			sol2 = msiiter_forward(iter);
 			is_dominated = 1;
 		}else if( cmp_res == SOL_DOMINATES ){
+			mokpsol_free(sol2);
 			dominates = 1;
-			list_remove(liter);
+			msi_remove(iter);
+			sol2 = msiiter_get(iter);
 		}else{
-			sol2 = listiter_forward(liter);
+			sol2 = msiiter_forward(iter);
 		}
 	}
 	/* TODO: melhorar os casos, aplicando a 3-dominance caso não
@@ -948,9 +981,11 @@ void archive_propose_sol(Archive *arch, MOKPSol *sol){
 
 	return;
 }
-void archive_free(Archive *archive){
-	msi_free(archive->pareto);
+MOKPSolIndexer *archive_free(Archive *archive){
+	MOKPSolIndexer *msi;
+	msi = archive->pareto;
 	free(archive);
+	return msi;
 }
 
 /* Insert item (if not) */
@@ -1025,6 +1060,19 @@ MOKPSol *mokpsol_flip_item(MOKPSol *sol, int idx){
 	if( sol->x[idx] ) mokpsol_rm_item(sol, idx);
 	else mokpsol_insert_item(sol, idx);
 }
+MOKPSol *mokpsol_repair(MOKPSol *sol){
+	int i, idx, *idxs;
+	i = 0;
+	idxs = sol->mokp->idxs;
+	idx = idxs[i];
+	while( sol->b_left < 0 ){
+		while( sol->x[idx] == 0)
+			idx = idxs[++i];
+		sol = mokpsol_rm_item(sol, idx);
+	}
+	return sol;
+}
+
 /* cross two solutions */
 MOKPSol *mokpsol_cross(MOKPSol *child, MOKPSol *father, int c){
 	int *idxs;
@@ -1040,11 +1088,12 @@ MOKPSol *mokpsol_cross(MOKPSol *child, MOKPSol *father, int c){
 	}
 
 	/* repair, if not feasiable? */
-	//if( child->b_left < 0 )
-	//	child = mkpsol_greedy_repair(child);
+	if( child->b_left < 0 ){
+		mokp_shuffle_idxs(child->mokp);
+		child = mokpsol_repair(child);
+	}
 	return child;
 }
-
 
 /*******************************
  *     MOKPNode (DynProg)      *

@@ -47,6 +47,7 @@ inline void SWAP_LONG_LONG(long long *array, int a, int b){
 * 6(1) 000000O
 * 
 * (n+1)n/2
+* obs.: highier number has hight probability.
 */
 int triang_raffle(int bound){
 	int lin, col;
