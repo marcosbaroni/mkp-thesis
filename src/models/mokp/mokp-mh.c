@@ -233,7 +233,7 @@ MOKPSol **select_population(
 
 	/* re-ranking population */
 	new_pop = realloc(new_pop, (nnew_pop + npop)*sizeof(MOKPSol*));
-	memcpy(&(new_pop[nnew_pop+1]), pop, npop*sizeof(MOKPSol*));
+	memcpy(&(new_pop[nnew_pop]), pop, npop*sizeof(MOKPSol*));
 	ranks = rank_population(new_pop, (nnew_pop+npop), ndim);
 
 	/* selecting population */
@@ -249,7 +249,7 @@ MOKPSol **select_population(
 			sol = msiiter_get(soliter);
 		}
 		if( i < npop ) pop[i] = sol;
-		else mokpsol_free(pop[i]);
+		else mokpsol_free(sol);
 		sol = msiiter_forward(soliter);
 	}
 	msiiter_free(soliter);
@@ -300,7 +300,6 @@ MOKPSolIndexer *mokp_sce(
 		printf(" ITERATION %d ", k+1);
 		/* Rank population */
 		ranks = rank_population(pop, npop, ndim);
-		//_ranks_printf(ranks);
 		free(pop);
 
 		/* Evolving */
@@ -312,7 +311,10 @@ MOKPSolIndexer *mokp_sce(
 			archive_propose_sol(arch, new_pop[i]);
 		printf("%d sols\n", msi_get_n(arch->pareto));
 
+		pop = select_population(pop, new_pop, npop, nnew_pop, ndim);
+
 		/* freeing old ranks */
+		//list_apply_r(ranks, (void(*)(void*,void*))msi_apply_all, (void*)mokpsol_free);
 		list_apply(ranks, (void(*)(void*))msi_free);
 		list_free(ranks);
 	}
@@ -320,8 +322,8 @@ MOKPSolIndexer *mokp_sce(
 		mokpsol_free(pop[i]);
 	free(pop);
 	msi = archive_free(arch);
-	printf("\nApproximate pareto:\n");
-	msi_apply_all(msi, (void(*)(void*))mokpsol_printf);
+	//printf("\nApproximate pareto:\n");
+	//msi_apply_all(msi, (void(*)(void*))mokpsol_printf);
 
 	return msi;
 }
