@@ -743,7 +743,7 @@ MOKPSol *mokpsol_find_dominanted_kdtree(MOKPSol *sol, KDTree *kdt){
 
 	return dominated;
 }
-MOKPSol *msi_find_dominanted(MOKPSolIndexer *msi, MOKPSol *sol){
+MOKPSol *msi_find_dominated(MOKPSolIndexer *msi, MOKPSol *sol){
 	if( msi->ndim == 0 )
 		return mokpsol_find_dominanted_list(sol, msi->tad.list);
 	if( msi->ndim == 1 )
@@ -820,6 +820,14 @@ void msi_apply_all_r(MOKPSolIndexer *msi, void(*f)(void*, void*), void *arg){
 		avl_apply_to_all_r(msi->tad.avl, f, arg);
 	if( msi->ndim  > 1 )
 		kdtree_apply_to_all_r(msi->tad.kdt, f, arg);
+}
+MOKPSol *msi_remove(MOKPSolIndexer *msi, void *x){
+	if( msi->ndim == 0 )
+		list_remove(msi->tad.list, x);
+	if( msi->ndim == 1 )
+		avl_remove(msi->tad.avl, x);
+	if( msi->ndim  > 1 )
+		kdtree_remove(msi->tad.kdt, x);
 }
 int msi_set_coverage(MOKPSolIndexer *msi_a, MOKPSolIndexer *msi_b){
 	int ndominated_a;
@@ -924,14 +932,13 @@ void msiiter_free(MSIIter *iter){
 		kdtiter_free(iter->tad.kdti);
 	free(iter);
 }
-void msi_remove(MSIIter *iter){
+void msiiter_remove(MSIIter *iter){
 	if( iter->msi->ndim == 0 )
-		list_remove(iter->tad.listi);
+		listiter_remove(iter->tad.listi);
 	if( iter->msi->ndim == 1 )
 		avliter_remove(iter->tad.avli);
 	if( iter->msi->ndim  > 1 )
-		fprintf(stderr, "%s nor implemented yet\n", __PRETTY_FUNCTION__);
-		//kdtiter_remove(iter->tad.kdti);
+		kdtiter_remove(iter->tad.kdti);
 }
 
 Archive *archive_new(MOKP* mokp, int nmax, int ndim){
@@ -944,40 +951,19 @@ Archive *archive_new(MOKP* mokp, int nmax, int ndim){
 int archive_get_n(Archive *arch){
 	return msi_get_n(arch->pareto);
 }
+
 void archive_propose_sol(Archive *arch, MOKPSol *sol){
 	MSIIter *iter;
-	MOKPSol *sol2;
+	MOKPSol *dominant, *dominated;
 	int cmp_res;
-	int dominates, is_dominated;
 
-	if( arch->pareto->ndim > 0 ){
-		fprintf(stderr, "%s not yet implemented from ndim > 0.\n",
-			__PRETTY_FUNCTION__);
+	dominant = msi_find_dominant( arch->pareto, sol );
+	if( dominant )
 		return;
-	}
+	while( dominated = msi_find_dominated( arch->pareto, sol ) )
+		msi_remove(arch->pareto, dominated );
 
-	iter = msiiter_new(arch->pareto);
-	sol2 = msiiter_get(iter);
-	dominates = 0;
-	is_dominated = 0;
-	while( sol2 && !is_dominated ){
-		cmp_res = mokpsol_dom_cmp(sol, sol2);
-		if( cmp_res == SOL_DOMINATED ){
-			sol2 = msiiter_forward(iter);
-			is_dominated = 1;
-		}else if( cmp_res == SOL_DOMINATES ){
-			mokpsol_free(sol2);
-			dominates = 1;
-			msi_remove(iter);
-			sol2 = msiiter_get(iter);
-		}else{
-			sol2 = msiiter_forward(iter);
-		}
-	}
-	/* TODO: melhorar os casos, aplicando a 3-dominance caso não
-	 *   tenha dominado ninguem */
-	if( dominates || !is_dominated )
-		msi_insert(arch->pareto, mokpsol_copy(sol));
+	msi_insert(arch->pareto, mokpsol_copy(sol));
 
 	return;
 }

@@ -59,13 +59,7 @@ List *list_insert_here(void *info, ListIter *iter){
     return list;
 }
 
-List *list_remove(ListIter *iter){
-    ListNode *node;
-	List *list = iter->list;
-
-    node = iter->node;
-    iter->node = node->next;
-
+void _listnode_remove(List *list, ListNode *node){
     if( node->prev )
         node->prev->next = node->next;
     else
@@ -79,6 +73,17 @@ List *list_remove(ListIter *iter){
     free(node);
 
     list->n--;
+
+	return;
+}
+
+List *listiter_remove(ListIter *iter){
+    ListNode *node;
+	List *list = iter->list;
+
+    node = iter->node;
+    iter->node = node->next;
+	_listnode_remove(list, node);
 
     return list;
 }
@@ -115,6 +120,19 @@ void *list_find_closest(List *list, void *x, double(*f)(void*, void*)){
 	}
 
 	return closer;
+}
+
+void list_remove(List *list, void *x){
+	ListNode *node;
+	node = list->first;
+	while( node ){
+		if( node->info == x ){
+			_listnode_remove(list, node);
+			return;
+		}
+		node = node->next;
+	}
+	return;
 }
 
 void list_apply(List *list, void(*f)(void *)){

@@ -21,9 +21,9 @@ typedef struct ListIter{
 List *list_new();
 List *list_insert(List *list, void *info);
 List *list_insert_here(void *info, ListIter *iter);
-List *list_remove(ListIter *iter);
 void **list_get_all(List *list);
 void *list_find_closest(List *list, void*, double(*)(void*, void*));
+void list_remove(List*, void*);
 void list_apply(List *list, void(void *));
 void list_apply_r(List *list, void(void*, void*), void *arg);
 void list_dump(FILE *fout, List *list);
@@ -36,6 +36,7 @@ ListIter *listiter_new(List *list);
 void *listiter_get(ListIter *liter);
 void *listiter_forward(ListIter *liter);
 void *listiter_backward(ListIter *liter);
+List *listiter_remove(ListIter *iter);
 void listiter_free(ListIter *liter);
 
 #endif

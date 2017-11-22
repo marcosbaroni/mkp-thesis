@@ -10,6 +10,7 @@ KDNode *kdnode_new(void *element){
     kdn = (KDNode*)malloc(sizeof(KDNode));
     kdn->info = element;
     kdn->up = kdn->right = kdn->left = NULL;
+	kdn->deleted = 0;
 
     return kdn;
 }
@@ -23,6 +24,7 @@ KDTree *kdtree_new( int ndim, kdtree_eval_f eval_f){
     kdtree->eval_f = eval_f;
     kdtree->root = NULL;
     kdtree->n = 0;
+    kdtree->ndeleted = 0;
     kdtree->ndim = ndim;
 
     return kdtree;
@@ -74,7 +76,7 @@ KDTree *kdtree_insert( KDTree *kdtree, void *element){
  *
  * obs.: Consider infinity bounds
  */
-void *_kdtree_range_search(
+KDNode *_kdtree_range_search(
     KDTree *kdtree,
     KDNode *root,
     double *bounds,
@@ -85,7 +87,7 @@ void *_kdtree_range_search(
     double val, lower, upper;
     int i, dim, ndim, meets;
     kdtree_eval_f eval_f;
-    void *ret;
+    KDNode *ret;
 
     ndim = kdtree->ndim;
     eval_f = kdtree->eval_f;
@@ -93,21 +95,23 @@ void *_kdtree_range_search(
 
     /* check if root is inside range */
     meets = 1;
-    for( i = 0 ; i < ndim && meets ; i++ ){
-        val = eval_f(root->info, i);
-        lower = bounds[i*2];
-        upper = bounds[i*2+1];
-        meets = (val >= lower) && (val <= upper);
-    }
-    /* if is inside, check if has desired property */
-    if( meets ){
-        if( prop_arg ) meets = ((property_f_r)prop_f)(root->info, prop_arg);
-        else meets = ((property_f)prop_f)(root->info);
-    }
+	if( !root->deleted ){
+    	for( i = 0 ; i < ndim && meets ; i++ ){
+        	val = eval_f(root->info, i);
+        	lower = bounds[i*2];
+        	upper = bounds[i*2+1];
+        	meets = (val >= lower) && (val <= upper);
+    	}
+    	/* if is inside, check if has desired property */
+    	if( meets ){
+        	if( prop_arg ) meets = ((property_f_r)prop_f)(root->info, prop_arg);
+        	else meets = ((property_f)prop_f)(root->info);
+    	}
 
-    /* if is inside and meets property, return */
-    if( meets )
-        return root->info;
+    	/* if is inside and meets property, return */
+    	if( meets )
+        	return root->info;
+	}
 
     /* root does not meet, continuing search throught children... */
     dim = h % kdtree->ndim; /* the dimention index to be used */
@@ -141,20 +145,24 @@ void *_kdtree_range_search(
  */
 int always_has_prop(void *a){ return 1; }
 void *kdtree_range_search(KDTree *kdtree, double *bounds, property_f prop_f){
+	KDNode *node;
     if( !kdtree->root )
         return NULL;
 
     if( !prop_f )
         prop_f = always_has_prop;
 
-    else return _kdtree_range_search(kdtree, kdtree->root, bounds, 0, prop_f, NULL);
+	node = _kdtree_range_search(kdtree, kdtree->root, bounds, 0, prop_f, NULL);
+    return node->info;
 }
 
 void *kdtree_range_search_r(KDTree *kdtree, double *bounds, property_f_r prop_f, void *prop_arg){
+	KDNode *node;
     if( !kdtree->root )
         return NULL;
 
-    return _kdtree_range_search(kdtree, kdtree->root, bounds, 0, prop_f, prop_arg);
+	node = _kdtree_range_search(kdtree, kdtree->root, bounds, 0, prop_f, prop_arg);
+    return node->info;
 }
 
 void _kdtree_node_print(FILE *fout, KDNode *node){
@@ -234,6 +242,29 @@ void _kdnode_free(KDNode *kdn){
     return;
 }
 
+int _equal_ptr(void *a, void *b){
+	return( a == b);
+}
+void kdtree_remove(KDTree *kdtree, void *x){
+	int ndim, i;
+	double *bounds, val;
+	KDNode *node;
+
+	ndim = kdtree->ndim;
+	for( i = 0 ; i < ndim ; i++ ){
+		val = kdtree->eval_f(x, i);
+		bounds[2*i] = val - 1;
+		bounds[2*i+1] = val + 1;
+	}
+    node = _kdtree_range_search(kdtree, kdtree->root, bounds, 0, _equal_ptr, x);
+	if( node ){
+		node->deleted = 1;
+		kdtree->ndeleted++;
+		kdtree->n--;
+	}
+	return;
+}
+
 void kdtree_free(KDTree *kdtree){
     _kdnode_free(kdtree->root);
     free(kdtree);
@@ -287,6 +318,16 @@ void *kdtiter_forward(KDTreeIter *kdti){
 }
 void kdtiter_free(KDTreeIter *kdti){
 	free(kdti);
+}
+void kdtiter_remove(KDTreeIter *iter){
+	if( iter->node ){
+		if( !iter->node->deleted ){
+			iter->node->deleted = 1;
+			iter->kdtree->ndeleted++;
+			iter->kdtree->n--;
+		}
+		iter->node = kdnode_get_next(iter->node);
+	}
 }
 
 void _sub_kdtree_get_elems(KDNode *root, void **elems, int *k){

@@ -741,7 +741,7 @@ BazganNode *_mantain_non_dom_list(
         /* removing any possible dominated from checking pool */
         while( m_bnode ){
             if( bnode_profit_dominates(bnode, m_bnode) ){
-                list_remove(m_iter);
+                listiter_remove(m_iter);
                 m_bnode = listiter_get(m_iter);
             }else{
                 m_bnode = listiter_forward(m_iter);

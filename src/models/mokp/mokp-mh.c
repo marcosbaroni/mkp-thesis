@@ -168,11 +168,9 @@ MOKPSol **memeplex_new_population(
 	nnew_pop = ncomp*nsubiter;
 	news = (MOKPSol**)malloc(nnew_pop*sizeof(MOKPSol*));
 	ranks_ = (MOKPSolIndexer**)list_get_all(ranks);
-	printf("\nTo evolve following complexes...\n");
-	_memeplexes_printf(pop, ncomp, compsize);
+	//_memeplexes_printf(pop, ncomp, compsize);
 
 	for( icomp = 0 ; icomp < ncomp ; icomp++ ){
-		printf(" Evolving comples %d\n", icomp+1);
 		for( subiter = 0 ; subiter < nsubiter ; subiter++ ){
 			isubworst = 0;
 			isubbest = 99999999;
@@ -257,6 +255,7 @@ MOKPSol **select_population(
 	msiiter_free(soliter);
 	listiter_free(rankiter);
 	list_apply(ranks, (void(*)(void*))msi_free);
+	list_free(ranks);
 	free(new_pop);
 
 	return pop;
@@ -290,18 +289,18 @@ MOKPSolIndexer *mokp_sce(
 	nnew_pop = ncomp*nsubiter;
 	/* Initialize population */
 	pop = (MOKPSol**)malloc(npop*sizeof(MOKPSol*));
-	printf("POP INICIALIZATION:\n");
+	//printf("POP INICIALIZATION:\n");
 	for( i = 0 ; i < npop ; i++ ){
 		pop[i] = mokpsol_new_random(mokp);
-		mokpsol_printf(pop[i]);
+		//mokpsol_printf(pop[i]);
 	}
 	
 	/* Iterate */
 	for( k = 0 ; k < niter ; k++ ){
-		printf(" ITERATION %d\n", k+1);
+		printf(" ITERATION %d ", k+1);
 		/* Rank population */
 		ranks = rank_population(pop, npop, ndim);
-		_ranks_printf(ranks);
+		//_ranks_printf(ranks);
 		free(pop);
 
 		/* Evolving */
@@ -311,12 +310,18 @@ MOKPSolIndexer *mokp_sce(
 		/* Updating archive */
 		for( i = 0 ; i < nnew_pop ; i++ )
 			archive_propose_sol(arch, new_pop[i]);
+		printf("%d sols\n", msi_get_n(arch->pareto));
 
 		/* freeing old ranks */
 		list_apply(ranks, (void(*)(void*))msi_free);
 		list_free(ranks);
 	}
+	for( i = 0 ; i < npop ; i++ )
+		mokpsol_free(pop[i]);
+	free(pop);
 	msi = archive_free(arch);
+	printf("\nApproximate pareto:\n");
+	msi_apply_all(msi, (void(*)(void*))mokpsol_printf);
 
 	return msi;
 }

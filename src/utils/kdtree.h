@@ -8,6 +8,7 @@ typedef double (*kdtree_eval_f)(void*, int dim);
 
 typedef struct KDNode{
     void *info;
+	unsigned char deleted;
     //double val;
 
     struct KDNode *up;
@@ -17,6 +18,7 @@ typedef struct KDNode{
 
 typedef struct KDTree{
     int n;
+	int ndeleted;
     int ndim;
     KDNode *root;
     kdtree_eval_f eval_f;
@@ -29,6 +31,7 @@ void *kdtree_range_search_r(KDTree*, double*, property_f_r prop_f, void*); /* pr
 void kdtree_apply_to_all(KDTree*, void(*func)(void*) );
 void kdtree_apply_to_all_r(KDTree*, void(*func)(void*, void*), void*);
 void kdtree_fprint_pretty(FILE*,KDTree*);
+void kdtree_remove(KDTree*, void*);
 void kdtree_free(KDTree*);
 void kdtree_balance(KDTree*);
 void **kdtree_get_all(KDTree*);
@@ -42,6 +45,7 @@ KDTreeIter *kdtiter_new(KDTree *kdtree);
 void *kdtiter_forward(KDTreeIter*);
 void *kdtiter_get(KDTreeIter *kdti);
 void kdtiter_free(KDTreeIter*);
+void kdtiter_remove(KDTreeIter*);
 
 #endif
 

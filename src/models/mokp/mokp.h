@@ -67,6 +67,7 @@ int mokpsol_dom_cmp(MOKPSol*, MOKPSol*);
 double mokpsol_spacing(MOKPSol*, MOKPSol*); /* IF same element THEN INFINITY */
 KDTree *mokpsol_new_kdtree(int);
 MOKPSol *mokpsol_find_dominant_kdtree(MOKPSol*, KDTree*);
+int mokpsol_e_dominates(MOKPSol*, MOKPSol*);
 
 
 /* MOKP Solution Indexer */
@@ -81,13 +82,14 @@ typedef struct MOKPSolIndexer{
 
 MOKPSolIndexer *msi_new(int);
 MOKPSolIndexer *msi_insert(MOKPSolIndexer*, MOKPSol*);
+MOKPSol *msi_remove(MOKPSolIndexer*, void*);
 int msi_get_n(MOKPSolIndexer*);
 void msi_free(MOKPSolIndexer*);
 void msi_apply_all(MOKPSolIndexer*, void(*)(void*));
 void msi_apply_all_r(MOKPSolIndexer*, void(*)(void*,void*), void*);
 MOKPSol **msi_get_all(MOKPSolIndexer*);
 MOKPSol *msi_find_dominant(MOKPSolIndexer*, MOKPSol*);
-MOKPSol *msi_find_dominanted(MOKPSolIndexer*, MOKPSol*);
+MOKPSol *msi_find_dominated(MOKPSolIndexer*, MOKPSol*);
 int msi_set_coverage(MOKPSolIndexer*, MOKPSolIndexer*);
 double msi_spacing(MOKPSolIndexer*);
 
@@ -106,7 +108,7 @@ MSIIter *msiiter_new(MOKPSolIndexer*);
 MOKPSol *msiiter_get(MSIIter*);
 MOKPSol *msiiter_forward(MSIIter*);
 void msiiter_free(MSIIter*);
-void msi_remove(MSIIter*);
+void msiiter_remove(MSIIter*);
 
 
 /* MOKP Solution Archive */

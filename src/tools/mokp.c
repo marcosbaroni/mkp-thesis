@@ -539,8 +539,6 @@ int execute_sce(int argc, char **argv){
 
 	sce1 = mokp_sce(mokp, ncomp, compsize, nsubcomp,
 		niter, nsubiter, archsize, ndim);
-	sce2 = mokp_sce(mokp, ncomp, compsize, nsubcomp,
-		niter, nsubiter, archsize, ndim);
 
 	/*
 	printf("sce1\n");
@@ -557,9 +555,7 @@ int execute_sce(int argc, char **argv){
 		msi_spacing(sce2));
 */
 	msi_apply_all(sce1, (void(*)(void*))mokpsol_free);
-	msi_apply_all(sce2, (void(*)(void*))mokpsol_free);
 	msi_free(sce1);
-	msi_free(sce2);
 	mokp_free(mokp);
 
 	return 0;
