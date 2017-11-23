@@ -960,8 +960,10 @@ void archive_propose_sol(Archive *arch, MOKPSol *sol){
 	dominant = msi_find_dominant( arch->pareto, sol );
 	if( dominant )
 		return;
-	while( dominated = msi_find_dominated( arch->pareto, sol ) )
+	while( dominated = msi_find_dominated( arch->pareto, sol ) ){
 		msi_remove(arch->pareto, dominated );
+		mokpsol_free(dominated);
+	}
 
 	msi_insert(arch->pareto, mokpsol_copy(sol));
 
@@ -1033,12 +1035,10 @@ MOKPSol *mokpsol_copy(MOKPSol *sol){
 	new = (MOKPSol*)malloc(sizeof(MOKPSol));
 	new->mokp = sol->mokp;
 	new->x = (mokpval*)malloc(n*sizeof(mokpval));
-	for( i = 0 ; i < n ; i++ )
-		new->x[i] = sol->x[i];
 	new->profit = (mokpnum*)malloc(np*sizeof(mokpnum));
-	for( i = 0 ; i < np ; i++ )
-		new->profit[i] = sol->profit[i];
 	new->b_left = sol->b_left;
+	memcpy(new->x, sol->x, n*sizeof(mokpval));
+	memcpy(new->profit, sol->profit, np*sizeof(mokpnum));
 	
 	return new;
 }
