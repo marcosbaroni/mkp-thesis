@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <time.h>
 #include <stdio.h>
 #include "mokp-mh.h"
 #include "../../metahrs/sfl.h"
@@ -70,6 +71,9 @@ List *rank_population(
 	unrankeds_ = (MOKPSol**)malloc(n*sizeof(MOKPSol*));
 	memcpy(unrankeds, pop, n*sizeof(MOKPSol*));
 	nunrankeds = n;
+
+	/* OVERSETTING ndim */
+	ndim = (3 > pop[0]->mokp->np) ? pop[0]->mokp->np : 3;
 
 	/* while exists solutions to be ranked */
 	nrank = 0;
@@ -274,7 +278,8 @@ MOKPSolIndexer *mokp_sce(
 	int niter,           /* number of iterations */
 	int nsubiter,        /* number of iterations for each memeplex opt */
 	int archsize,
-	int ndim
+	int ndim,
+	double *secs
 ){
 	MOKPSol *sol, **new_pop, **pop, **memeplexes;
 	MOKPSolIndexer **new_ranks;
@@ -283,6 +288,9 @@ MOKPSolIndexer *mokp_sce(
 	MSIIter *msiiter;
 	int i, k, irank, nranks, nnew_ranks, npop, nnew_pop;
 	Archive *arch;
+	time_t ping, pong;
+
+	ping = clock();
 
 	arch = archive_new(mokp, 100, 0);
 	npop = ncomp*compsize;
@@ -297,7 +305,7 @@ MOKPSolIndexer *mokp_sce(
 	
 	/* Iterate */
 	for( k = 0 ; k < niter ; k++ ){
-		printf(" ITERATION %d ", k+1);
+		printf("\r%d/%d", k+1, niter);
 		/* Rank population */
 		ranks = rank_population(pop, npop, ndim);
 		free(pop);
@@ -309,7 +317,6 @@ MOKPSolIndexer *mokp_sce(
 		/* Updating archive */
 		for( i = 0 ; i < nnew_pop ; i++ )
 			archive_propose_sol(arch, new_pop[i]);
-		printf("%d sols\n", msi_get_n(arch->pareto));
 
 		pop = select_population(pop, new_pop, npop, nnew_pop, ndim);
 
@@ -325,6 +332,11 @@ MOKPSolIndexer *mokp_sce(
 	//printf("\nApproximate pareto:\n");
 	//msi_apply_all(msi, (void(*)(void*))mokpsol_printf);
 
+	pong = clock();
+	if(secs)
+		*secs = (pong - ping)/(double)CLOCKS_PER_SEC;
+
+	printf("\n");
 	return msi;
 }
 

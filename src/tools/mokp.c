@@ -22,6 +22,17 @@
 #define SCE_OPT     "sce"
 #define MOFPA_OPT   "mofpa"
 
+void auto_seed(unsigned int seed){
+    struct timeval timeval_seeder;
+    if(!seed){
+        gettimeofday(&timeval_seeder, NULL);
+        seed = timeval_seeder.tv_sec*1000;
+        seed += timeval_seeder.tv_usec;
+    }
+    srand(seed);
+	return;
+}
+
 int print_usage_convert(int argc, char **argv){
     printf("Convert instance.\n\n");
     printf("  usage: %s %s <input-file> [output-file]\n", argv[0], CONVERT_OPT);
@@ -96,7 +107,6 @@ int execute_batch(int argc, char **argv){
     int n, np, ndim, i, seed, times, print_summary;
     int *inds;
     MOKP *mokp;
-    struct timeval timeval_seeder;
     Bazgan *bazgan;
     char ordering_type;
     struct BatchSummary bsummaries[3];
@@ -117,12 +127,7 @@ int execute_batch(int argc, char **argv){
     seed = 0;
     if( argc > 4 )
         seed = atoll(argv[4]);
-    if(!seed){
-        gettimeofday(&timeval_seeder, NULL);
-        seed = timeval_seeder.tv_sec*1000;
-        seed += timeval_seeder.tv_usec;
-    }
-    srand(seed);
+	auto_seed(seed);
 
     /* setting times */
     times = 10;
@@ -347,7 +352,6 @@ int execute_rand(int argc, char **argv){
 	char classe;
     unsigned int seed;
     MOKP *mokp;
-    struct timeval timeval_seeder;
 
     if( argc < 4 ){
         printf("usage: %s %s <n> <np> [classe] [seed] [outfile] \n", argv[0], RAND_OPT);
@@ -376,12 +380,7 @@ int execute_rand(int argc, char **argv){
     seed = 0;
     if( argc > 5 )
         seed = atoll(argv[5]);
-    if(!seed){
-        gettimeofday(&timeval_seeder, NULL);
-        seed = timeval_seeder.tv_sec*1000;
-        seed += timeval_seeder.tv_usec;
-    }
-    srand(seed);
+	auto_seed(seed);
 
     /* setting output file */
     mokp = mokp_random(n, np, classe);
@@ -484,7 +483,7 @@ int execute_dynprog(int argc, char **argv){
 *******************************************************************************/
 int print_usage_sce(int argc, char **argv){
     printf("Solve Multiobjective Knapsack Problem using SCE.\n\n");
-    printf("  usage: %s %s [input file] [niter] [ncomp] [compsize] [nsubcomp] [nsubiter] [archsize] [ndim]\n", argv[0], SCE_OPT);
+    printf("  usage: %s %s [input file] [niter] [ncomp] [compsize] [nsubcomp] [nsubiter] [archsize] [ndim] [seed]\n", argv[0], SCE_OPT);
     printf("    input file: - to read from stdin\n");
     printf("\n  Output:\n");
     printf("    <n nodes>;<n comparison>;<time (s)>\n\n");
@@ -493,10 +492,11 @@ int execute_sce(int argc, char **argv){
 	MOKP *mokp;
 	FILE *input;
 	int i, ndim;
-	int archsize, niter, ncomp, compsize, nsubcomp, nsubiter;
+	int archsize, niter, ncomp, compsize, nsubcomp, nsubiter, seed;
 	SFL_Interface *sfli;
 	MOKPSol *sol;
 	MOKPSolIndexer *sce1, *sce2;
+	double secs;
 
     input = stdin;
 	niter = 10;
@@ -506,6 +506,7 @@ int execute_sce(int argc, char **argv){
 	nsubiter = 10;
 	archsize = 100;
 	ndim = 0;
+	seed = 0;
 
 	if( argc < 3 ){
 		print_usage_sce(argc, argv);
@@ -534,26 +535,18 @@ int execute_sce(int argc, char **argv){
 		archsize = atoll(argv[8]);
 	if( argc > 9 )
 		ndim = atoll(argv[9]);
+	if( argc > 10 )
+		seed = atoll(argv[10]);
+
+	auto_seed(seed);
 
 	mokp = mokp_read(input);
 
 	sce1 = mokp_sce(mokp, ncomp, compsize, nsubcomp,
-		niter, nsubiter, archsize, ndim);
+		niter, nsubiter, archsize, ndim, &secs);
 
-	/*
-	printf("sce1\n");
-  	printf(" - set coverage: %d/%d\n",
-		msi_set_coverage(sce1, sce2),
-		msi_get_n(sce1));
-  	printf(" - spacing: %.3f\n",
-		msi_spacing(sce1));
-	printf("sce2\n");
-  	printf(" - set coverage: %d/%d\n",
-		msi_set_coverage(sce2, sce1),
-		msi_get_n(sce2));
-  	printf(" - spacing: %.3f\n",
-		msi_spacing(sce2));
-*/
+	printf("%.3lf;%.0lf\n", secs, msi_hvolume(sce1));
+
 	msi_apply_all(sce1, (void(*)(void*))mokpsol_free);
 	msi_free(sce1);
 	mokp_free(mokp);

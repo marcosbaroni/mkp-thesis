@@ -9,6 +9,7 @@
 #include "../../utils/kdtree.h"
 #include "../../utils/avl.h"
 #include "../../utils/list.h"
+#include "../../hv-2.0/hv.h"
 
 #include "../mkp/mkp.h"
 //#include "mokp.h"
@@ -801,7 +802,7 @@ MOKPSol **msi_get_all(MOKPSolIndexer *msi){
 		all = (MOKPSol**)list_get_all(msi->tad.list);
 	if( msi->ndim == 1 )
 		all = (MOKPSol**)avl_to_array(msi->tad.avl);
-	else
+	if( msi->ndim  > 1 )
 		all = (MOKPSol**)kdtree_get_all(msi->tad.kdt);
 	return all;
 }
@@ -892,6 +893,34 @@ double msi_spacing(MOKPSolIndexer *msi){
 	free(dists);
 
 	return res;
+}
+double msi_hvolume(MOKPSolIndexer *msi){
+	MOKPSol **sols;
+	int i, j, n, np;
+	double *data, *ref, hvol;
+
+	sols = msi_get_all(msi);
+	np = sols[0]->mokp->np;
+	n = msi_get_n(msi);
+	data = (double*)malloc((n*np)*sizeof(double));
+	ref = (double*)malloc(np*sizeof(double));
+
+	/* reference */
+	for( j = 0 ; j < np ; j++ )
+		ref[j] = 0.0;
+
+	/* data */
+	for( i = 0 ; i < n ; i++ )
+		for( j = 0 ; j < np ; j++ )
+			data[i*np + j] = -sols[i]->profit[j];
+
+	hvol = fpli_hv(data, np, n, ref);
+
+	free(sols);
+	free(data);
+	free(ref);
+
+	return hvol;
 }
 
 /* MOKP Solution Indexed Iterator */

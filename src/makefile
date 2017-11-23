@@ -4,7 +4,8 @@
 CC = gcc
 #CFLAGS=-g -DUSE_MEMPOOL
 #CFLAGS=-g -DDEBUG_LVL=1
-#CFLAGS=-g $(DEBFLAG) -pg
+#CFLAGS=-g $(DEBFLAG) -pg 
+PROFFLAGS=-pg --no-pie -fPIC
 CFLAGS=-g
 #CFLAGS=-O3
 DEST=../bin
@@ -38,9 +39,9 @@ ppm.o:
 	gcc $(CFLAGS) -c utils/ppm.c -lm
 
 mkp.o:
-	gcc -c models/mkp/mkp.c
+	gcc $(CFLAGS) -c models/mkp/mkp.c
 domset.o:
-	gcc -c models/mkp/domset.c
+	gcc $(CFLAGS) -c models/mkp/domset.c
 
 mem.o:
 	gcc $(CFLAGS) -c utils/mem.c
@@ -64,7 +65,7 @@ test: util.o avl.o heap.o
 mkp.o: utils/util.c
 mokp: mokp.o tmokp.o util.o lp.o order.o kdtree.o avl.o heap.o bazgan.o list.o mokp-mh.o
 	#g++ $(CFLAGS) -o mokp tmokp.o mokp.o mkp.o util.o lp.o mkp-soputils.o order.o bazgan.o kdtree.o avl.o heap.o list.o -lm $(SOPLEX)
-	gcc $(CFLAGS) -o mokp tmokp.o mokp.o util.o mokp-mh.o lp.o order.o bazgan.o kdtree.o avl.o heap.o list.o -lm #$(SOPLEX)
+	gcc  $(CFLAGS) -o mokp tmokp.o mokp.o util.o mokp-mh.o lp.o order.o bazgan.o kdtree.o avl.o heap.o list.o fpli_hv.a -lm #$(SOPLEX)
 	mv mokp $(DEST)
 mokp.o:
 	gcc $(CFLAGS) -c models/mokp/mokp.c

@@ -162,7 +162,9 @@ void *kdtree_range_search_r(KDTree *kdtree, double *bounds, property_f_r prop_f,
         return NULL;
 
 	node = _kdtree_range_search(kdtree, kdtree->root, bounds, 0, prop_f, prop_arg);
-    return node->info;
+	if( node )
+		return node->info;
+    return NULL;
 }
 
 void _kdtree_node_print(FILE *fout, KDNode *node){
@@ -204,7 +206,8 @@ void kdtree_apply_to_all_r(KDTree *kdtree, void(*func)(void*,void*), void* arg){
 }
 
 void _sub_kdtree_get_all(KDNode *node, void **all, int *n){
-	all[(*n)++] = node->info;
+	if( !node->deleted )
+		all[(*n)++] = node->info;
 	if( node->right )
 		_sub_kdtree_get_all(node->right, all, n);
 	if( node->left)
@@ -212,6 +215,7 @@ void _sub_kdtree_get_all(KDNode *node, void **all, int *n){
 	return;
 }
 void **kdtree_get_all(KDTree *kdtree){
+	printf("get_all %d\n", kdtree->n);
 	void **all;
 	int n;
 	all = (void**)malloc(kdtree->n*sizeof(void*));

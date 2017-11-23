@@ -92,6 +92,7 @@ MOKPSol *msi_find_dominant(MOKPSolIndexer*, MOKPSol*);
 MOKPSol *msi_find_dominated(MOKPSolIndexer*, MOKPSol*);
 int msi_set_coverage(MOKPSolIndexer*, MOKPSolIndexer*);
 double msi_spacing(MOKPSolIndexer*);
+double msi_hvolume(MOKPSolIndexer*);
 
 
 /* MOKP Solution Indexer Iterator */
