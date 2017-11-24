@@ -182,7 +182,7 @@ MOKPSol **memeplex_new_population(
 			/* sorting sub memeplext (select a best and a worst among nsubcomp) */
 			for( i = 0 ; i < nsubcomp || isubworst == isubbest ; i++ ){
 				//isub = lrand(nsubcomp-1);
-				isub = (icomp*ncomp) + compsize - triang_raffle(compsize-1) - 1;
+				isub = (icomp*compsize) + compsize - triang_raffle(compsize-1) - 1;
 				if( isub > isubworst )
 					isubworst = isub;
 				if( isub < isubbest )
@@ -305,7 +305,7 @@ MOKPSolIndexer *mokp_sce(
 	
 	/* Iterate */
 	for( k = 0 ; k < niter ; k++ ){
-		printf("\r%d/%d", k+1, niter);
+		//printf("%d/%d\n", k+1, niter);
 		/* Rank population */
 		ranks = rank_population(pop, npop, ndim);
 		free(pop);
@@ -329,14 +329,11 @@ MOKPSolIndexer *mokp_sce(
 		mokpsol_free(pop[i]);
 	free(pop);
 	msi = archive_free(arch);
-	//printf("\nApproximate pareto:\n");
-	//msi_apply_all(msi, (void(*)(void*))mokpsol_printf);
 
 	pong = clock();
 	if(secs)
 		*secs = (pong - ping)/(double)CLOCKS_PER_SEC;
 
-	printf("\n");
 	return msi;
 }
 

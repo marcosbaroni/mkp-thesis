@@ -215,7 +215,6 @@ void _sub_kdtree_get_all(KDNode *node, void **all, int *n){
 	return;
 }
 void **kdtree_get_all(KDTree *kdtree){
-	printf("get_all %d\n", kdtree->n);
 	void **all;
 	int n;
 	all = (void**)malloc(kdtree->n*sizeof(void*));
@@ -270,7 +269,8 @@ void kdtree_remove(KDTree *kdtree, void *x){
 }
 
 void kdtree_free(KDTree *kdtree){
-    _kdnode_free(kdtree->root);
+	if(kdtree->root)
+    	_kdnode_free(kdtree->root);
     free(kdtree);
 
     return;

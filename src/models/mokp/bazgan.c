@@ -326,9 +326,12 @@ BazganNode *bnode_list_find_dominator(
 
     dominator = NULL;
     liter = list_get_first(list);
-    while( (candidate = (BazganNode*)listiter_forward(liter)) && !dominator )
+	candidate = listiter_get(liter);
+    while( candidate && !dominator ){
         if( dom_checker( candidate, bnode ) )
             dominator = candidate;
+		candidate = listiter_forward(liter);
+	}
     listiter_free(liter);
 
     return dominator;
@@ -343,9 +346,12 @@ BazganNode *bnode_avl_find_dominator(
 
     dominator = NULL;
     iter = avl_get_lower_higher_than(avl_pool, upper);
-    while( (bnode = avliter_forward(iter)) && !dominator )
+	bnode = avliter_get(iter);
+    while( bnode && !dominator ){
         if( bnode_profit_dominates(bnode, upper) )
             dominator = bnode;
+		bnode = avliter_forward(iter);
+	}
 
     avliter_free(iter);
     return dominator;
@@ -473,9 +479,9 @@ void bazgan_ub_filter(
     /* Initilaizing lowerbound pool structure */
     if( !ndim )
         lower_bounds_list = list_new();
-    else if( ndim == 1 )
+    if( ndim == 1 )
         lower_bounds_avl = new_avltree((avl_cmp_f)bnode_profit1_cmp);
-    else
+    if( ndim  > 1 )
         lower_bounds_kdtree = kdtree_new(ndim, (kdtree_eval_f)bnode_profit_val);
 
     /* preparing ARRAY of available items */
@@ -496,7 +502,8 @@ void bazgan_ub_filter(
     /***************************************************************************
     * Computing lower-bound pool
     ***************************************************************************/
-    while( bnode = avliter_forward(nodes_iter) ){
+	bnode = avliter_get(nodes_iter);
+    while( bnode ){
         /* Lower-bound using SUM_ */
         lower = bnode_get_lower_bound(bnode, idxs_sum_, n-fst_idx);
         /* Inserting lower-bounds node */
@@ -515,6 +522,7 @@ void bazgan_ub_filter(
             avl_insert(lower_bounds_avl, lower);
         else
             kdtree_insert(lower_bounds_kdtree, lower);
+    	bnode = avliter_forward(nodes_iter);
     }
     free(idxs_sum_);
     free(idxs_max_);
@@ -895,7 +903,7 @@ Bazgan *_bazgan_iter(Bazgan *bazgan, int idx, int ndim){
     * DOM 1
     * Finding the first with "min_b_left_needed" (i.e., not D-r-Dominated) 
     **********************************************************************/
-    j_node = avliter_forward(j_iter);
+	j_node = avliter_get(j_iter);
     while( j_node ){
         if( j_node->b_left <= max_b_left_needed )
             break;
@@ -906,7 +914,7 @@ Bazgan *_bazgan_iter(Bazgan *bazgan, int idx, int ndim){
     * DOM 2
     * Generating children, following lexographic order
     **********************************************************************/
-    i_node = avliter_forward(i_iter);
+	i_node = avliter_get(i_iter);
     while( i_node ){
         /* Stops when fathers start to generate unfeasible nodes */
         if( i_node->b_left < min_b_left_feasible )
@@ -982,9 +990,11 @@ void bazgan_fprint_nodes(FILE *out, Bazgan *bazgan){
     fprintf(out, "  Nodes: %d\n", bazgan->avl_lex->n);
     avliter = avl_get_first(bazgan->avl_lex);
     i = 0;
-    while( bnode = avliter_forward(avliter) ){
+	bnode = avliter_get(avliter);
+    while( bnode ){
         fprintf(out, "    %d: ", ++i);
         bnode_fprintf(out, bnode);
+		bnode = avliter_forward(avliter);
     }
     fprintf(out, "\n");
     avliter_free(avliter);
@@ -1043,18 +1053,23 @@ List *bnodes_list_filter(List *bnodes, int just_profits){
     to_free = list_new();
     new_bnodes = list_new();
     liter = list_get_first(bnodes);
-    while( bnode = listiter_forward(liter) ){
+	bnode = listiter_get(liter);
+    while( bnode ){
         dominant = NULL;
         /* Looking for a dominant */
         liter2 = list_get_first(bnodes);
-        while( (bnode2 = listiter_forward(liter2)) && !dominant )
+		bnode2 = listiter_get(liter2);
+        while( bnode2 && !dominant ){
             if( comp_f(bnode2, bnode) )
                 dominant = bnode2;
+			bnode2 = listiter_forward(liter2);
+		}
         if( !dominant && bnode->b_left >= 0.0 )
             list_insert(new_bnodes, bnode);
         else
             list_insert(to_free, bnode);
         listiter_free(liter2);
+		bnode = listiter_forward(liter);
     }
     /* Freeing */
     listiter_free(liter);
@@ -1092,11 +1107,13 @@ Bazgan *bazgan_brute(MOKP *mokp, int k){
 
         /* Generating */
         liter = list_get_first(bnodes);
-        while( bnode = listiter_forward(liter) ){
+		bnode = listiter_get(liter);
+        while( bnode ){
             list_insert(new_bnodes, bnode);
             new_bnode = bnode_copy(bnode);
             bnode_insert_item(new_bnode, i);
             list_insert(new_bnodes, new_bnode);
+			bnode = listiter_forward(liter);
         }
         listiter_free(liter);
         list_free(bnodes);
@@ -1113,8 +1130,11 @@ Bazgan *bazgan_brute(MOKP *mokp, int k){
 
     /* Outputing */
     liter = list_get_first(bnodes);
-    while( bnode = listiter_forward(liter) )
+	bnode = listiter_get(liter);
+    while( bnode ){
         avl_insert(bazgan->avl_lex, bnode);
+		bnode = listiter_forward(liter);
+	}
     listiter_free(liter);
     list_free(bnodes);
     bazgan_pong(bazgan);

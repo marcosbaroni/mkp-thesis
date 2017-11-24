@@ -53,7 +53,7 @@ typedef struct MOKPSol{
 	mokpnum agg_profit;
 }MOKPSol;
 
-MOKPSol *new_empty(MOKP*);
+MOKPSol *mokpsol_new_empty(MOKP*);
 MOKPSol *mokpsol_new_random(MOKP*);
 MOKPSol *mokpsol_copy(MOKPSol*);
 MOKPSol *mokpsol_flip_item(MOKPSol*, int);
