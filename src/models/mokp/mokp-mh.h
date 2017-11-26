@@ -15,6 +15,13 @@ MOKPSolIndexer *mokp_sce(
 	double *secs         /* execution time (seconds) */
 );
 
+MOKPSolIndexer *mofpa(
+	MOKP *mokp,
+	int niter,
+	int popsize,
+	int archsize
+);
+
 #endif
 
 

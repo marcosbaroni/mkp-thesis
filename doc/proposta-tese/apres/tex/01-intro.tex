@@ -1,0 +1,87 @@
+
+% MO problems
+\begin{frame}
+\frametitle{Multi-objective problems}
+\textbf{Multi-objective problems} are optimization problems involving optimizing multiple criteria.
+\pause
+\begin{itemize}
+  \item{ Usually conflicting criterias; }\pause
+  \item{ A set of \textit{optimal} (non-dominated) solutions; } \pause
+  \item{ Models many real applications. }
+\end{itemize}
+\vfill
+\end{frame}
+
+% MOKP
+\begin{frame}
+\frametitle{The multi-dimensional knapsack problem}
+The \textbf{multi-dimensional knapsack problem} (MOKP)
+is one of the most important multi-objective problems.
+\pause
+\begin{itemize}
+  \item{ Is a generalization of the $0-1$ knapsack problem (\nphard); }\pause
+  \item{ Models project selection, capital budgeting, cargo loading, flow shop scheduling and others;} \pause
+  \item{ Models many real applications; }
+\end{itemize}
+\end{frame}
+
+% Motivation
+\begin{frame}
+\frametitle{Motivation}
+Several exact approaches have been proposed in the literature for
+solving the MOKP. \\ \pause
+\vfill
+However no effective exact method for large MOKP, expecially with
+more than two objectives. \\ \pause
+\vfill
+Even for the bi-objective case, some medium sized instances
+has shown to be hard to solve exactly. \\ \pause
+\vfill
+This reason motivates the development of heuristic methods.
+\vfill
+\end{frame}
+
+% The Proposal
+\begin{frame}
+\frametitle{Proposal}
+This work proposes the development of a heuristic for the MOKP
+based on an evolutionary algorithm called shuffled complex evolution (SCE).
+\\ \medskip \pause
+As a performance improvement for the approach,
+a multi-dimensional indexing strategy
+will be used for handling the large amount of solutions.
+\\ \medskip \pause
+The SCE has been successfully used for solving optimization problems, among then,
+the multi-dimensional knapsack problem (MKP) (also a contribution of this work).
+\end{frame}
+
+% Contributions and Publications
+\begin{frame}
+\frametitle{Contributions and Publications}\pause
+\begin{enumerate}
+\item{
+\textbf{Efficient indexing strategy for MOKP solutions:} \pause
+\begin{itemize}
+ \item[{\tiny$\bullet$}] { BARONI, M. D. V; VAREJ\~AO, F. M. Multi-dimensional indexing on dynamic programming for multi-objective knapsack problem. \textit{International Transactions in Operational Research}, Wiley Online Library, 2017, Submitted. }
+\end{itemize}
+} \pause
+\medskip
+\item{
+\textbf{A SCE algorithm for the MKP:} \pause
+\begin{itemize}
+  \item[{\tiny$\bullet$}] { BARONI, M. D. V; VAREJ\~AO, F. M. A shuffled complex evolution algorithm
+  for the multidimensional knapsack problem. In: \textit{Progress in Pattern Recognition, Image Analysis, Computer Vision, and Applications.} [S.l.]: Springer, 2015. p. 768-775. }
+  \pause
+ \item[{\tiny$\bullet$}] { BARONI, M. D. V; VAREJ\~AO, F. M. A shuffled complex evolution algorithm
+  for the multidimensional knapsack problem using core concept. In: IEEE. \textit{Evolutionary Computation (CEC), 2016 IEEE Congress on.} [S.l.], 2016 p. 2718-2723. }
+\end{itemize}
+} \pause
+\medskip
+\item{
+\textbf{Hybrid heuristic for MOKP:} \pause
+\begin{itemize}
+ \item[{\tiny$\bullet$}] { BARONI, M. D. V; VAREJ\~AO, F. M. An efficient shuffled complex evolution algorithm for the multi-objective knapsack problem. In: IEEE \textit{Evolutionary Computation (CEC), 2018 IEEE Congress on.} [S.l.], 2018, In Preparation }
+\end{itemize}
+}
+\end{enumerate}
+\end{frame}

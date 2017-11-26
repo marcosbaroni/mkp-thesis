@@ -8,6 +8,10 @@
 #include "../../utils/kdtree.h"
 #include "../../utils/list.h"
 
+
+/************************************
+ *    SHUFFLED COMPLEX EVOLUTION    *
+ ************************************/
 void _memeplexes_printf(
 	MOKPSol **pop,
 	int ncomp,
@@ -269,7 +273,7 @@ void archive_propose_sol_(MOKPSol *sol, Archive *arch){
 	archive_propose_sol(arch, sol);
 }
 
-/* Shuffled Complex Evolution for MOKP */
+/***   Shuffled Complex Evolution for MOKP   ***/
 MOKPSolIndexer *mokp_sce(
 	MOKP *mokp,			 /* MOKP instance */
 	int ncomp,           /* number of memeplex */
@@ -333,6 +337,50 @@ MOKPSolIndexer *mokp_sce(
 	pong = clock();
 	if(secs)
 		*secs = (pong - ping)/(double)CLOCKS_PER_SEC;
+
+	return msi;
+}
+
+
+/*********************************
+*    FIREFLY PARTICLE SWARM     *
+********************************/
+
+void safeguard_non_dominated(MOKPSolIndexer *archive, MOKPSol **pop, int popsize){
+	int i, j;
+	MOKPSol *candidate, *sol, *dominant;
+
+	for( i = 0 ; i < popsize ; i++ ){
+		candidate = pop[i];
+		dominant = NULL;
+		for( j = 0 ; !dominant && j < popsize ; i++ )
+			if( mokpsol_dom_cmp(pop[j], candidate) == SOL_DOMINATES )
+				dominant = pop[j];
+		if( !dominant )
+			msi_insert(archive, candidate);
+	}
+
+	return;
+}
+
+/*  Firefly Particle Swarm  */
+MOKPSolIndexer *mofpa(
+	MOKP *mokp,
+	int niter,
+	int popsize,
+	int archsize
+){
+	MOKPSolIndexer *msi, *archive;
+	MOKPSol **pop;
+	int i, j, k;
+
+	/* Inicialization */
+	archive = msi_new(0);
+	pop = (MOKPSol**)malloc(popsize*sizeof(MOKPSol*));
+	for( i = 0 ; i < popsize ; i++ )
+		pop[i] = mokpsol_new_random(mokp);
+
+	/* Frees */
 
 	return msi;
 }

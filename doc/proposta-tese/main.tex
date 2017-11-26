@@ -4,7 +4,7 @@
 	%openright,			% capítulos começam em pág ímpar (insere página vazia caso preciso)
 	%openany,
 	twoside,			% para impressão em verso e anverso. Oposto a oneside
-	a4paper,			% tamanho do papel. 
+	a4paper,			% tamanho do papel.
 	% -- opções da classe abntex2 --
 	%chapter=TITLE,		% títulos de capítulos convertidos em letras maiúsculas
 	%section=TITLE,		% títulos de seções convertidos em letras maiúsculas
@@ -16,7 +16,7 @@
 	]{abntex2}
 
 \usepackage{cmap}				% Mapear caracteres especiais no PDF
-\usepackage{lmodern}			% Usa a fonte Latin Modern			
+\usepackage{lmodern}			% Usa a fonte Latin Modern
 
 \usepackage[T1]{fontenc}		% Selecao de codigos de fonte.
 \usepackage[utf8]{inputenc}		% Codificacao do documento (conversão automática dos acentos)
@@ -50,7 +50,7 @@
 \hypersetup{
     colorlinks=true,
     linkcolor=mylinkcolor,
-    filecolor=mylinkcolor,      
+    filecolor=mylinkcolor,
     urlcolor=mylinkcolor,
     citecolor=mylinkcolor
 }
@@ -67,10 +67,12 @@
 }
 
 \input{predefs.tex}
-\newcommand{\scecore}{SCEcr }
+\renewcommand{\ord}{\mathcal{O}}
 \renewcommand{\bf}{\textbf}
 %\newcommand{\fvar}[1]{ {\tiny(#1)}}
 \newcommand{\fvar}[1]{}
+
+\newcolumntype{C}[1]{>{\centering\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
 
 % ---
 \titulo{A Hybrid Heuristic for the Multi-objective Knapsack Problem}
@@ -86,8 +88,8 @@
   \par
   Programa de Pós-Graduação em Informática}
 \tipotrabalho{Tese (Doutorado)}
-% O preambulo deve conter o tipo do trabalho, o objetivo, 
-% o nome da instituição e a área de concentração 
+% O preambulo deve conter o tipo do trabalho, o objetivo,
+% o nome da instituição e a área de concentração
 \preambulo{Doctoral Thesis Proposal presented according
 to the regiment of the Programa de Pós-graduação
 em Informática of the Universidade

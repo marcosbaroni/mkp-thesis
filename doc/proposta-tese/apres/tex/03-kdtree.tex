@@ -1,0 +1,229 @@
+
+%
+\begin{frame}
+\frametitle{}
+\begin{center}
+  \textbf{\Large Multi-dimensional Indexing of MOKP solutions}
+\end{center}
+\end{frame}
+
+%
+\begin{frame}
+\frametitle{Dominance check operation}
+During the process of solving a MOKP or other multi-objective problems
+one of the main general operation is to check if a solution is dominated
+by another. \\
+\pause \bigskip
+An algorithm usually requires selecting all non-dominated solutions
+from a large set of partial solutions. \\
+\pause \bigskip
+This may demand quadratic effort on total number of solution if implemented
+as pairwise comparison. \\
+\pause \bigskip
+However, if solutions are mapped into points in a multi-dimensional space,
+this operation corresponds on checking whether a point exists in a certain region.
+\end{frame}
+
+%
+\begin{frame}
+\frametitle{Dominance check operation}
+Formally:
+\begin{align*}
+    \text{ if } \; &\domk{y}{x} \; \text{ then } \; \pnt{y} \in R(\sol{x}) \\
+  \text{where} \phantom{mmmmm} \\
+    \pnt{x} &= \big(\obj{1}{x}, \ldots, \obj{\np}{x}, \weight{x}\big) \\
+    R(\sol{x}) &= \left\{ a \in \mathbb{R}^{\np+1} \;\middle|\;
+      a_{\np+1} \leq \weight{x}
+      \, \text{ and } \,
+      a_i \geq \obj{i}{x}, \; i \in \{1, \ldots, \np\}
+      \right\}
+\end{align*} \pause
+\begin{figure}
+  \centering
+  \includegraphics[scale=0.8]{img/kdt/dom}
+\end{figure}
+\end{frame}
+
+%
+\begin{frame}
+\frametitle{Multidimensional solution indexing}
+The problem of determining whether a point exists in a certain region
+of space is known as \emph{range search}.
+\\ \bigskip \pause
+For efficiency reason range search operations is usually executed with the
+assistance of a \kdtree{}.
+\\ \bigskip \pause
+The \kdtree{} is a type of binary search tree for indexing multi-dimensional
+data with simple construction and low space usage.
+\end{frame}
+
+%
+\begin{frame}
+\frametitle{Multidimensional solution indexing}
+Unlike a standard binary tree, that uses only one key for all levels of the tree,
+the \kdtree{} uses $k$ keys and cycles through these keys for successive levels
+of the tree.
+\begin{figure}
+  \centering
+  \includegraphics[scale=3]{img/kdt/dom-kd}
+  \caption{Example of points indexed in a \kdtree{}.}
+\end{figure}
+\end{frame}
+
+%
+\begin{frame}
+\frametitle{Multidimensional solution indexing}
+Example of dominance check operation using \kdtree{}:
+\begin{figure}
+  \centering
+  \includegraphics[scale=1.0]{img/kdt/query}
+\end{figure}
+\pause
+The efficiency of this pruning action grows
+with the amount of points.
+\end{frame}
+
+
+%
+\begin{frame}
+\frametitle{}
+\begin{center}
+  \textbf{\Large Multi-dimensional Indexing of MOKP solutions}
+  \\ \bigskip \bigskip
+  {\large Use case on an exact method}
+\end{center}
+\end{frame}
+
+%
+\begin{frame}
+\frametitle{Nemhauser and Ullmann's algorithm}
+As an application of the indexing proposal we will use the \kdtree{}
+in an \textit{state-of-art} exact dynamic programming algorithm for the MOKP.
+\\ \bigskip \pause
+The algorithm can be seen as a MOKP specialization of the classical
+Nemhauser and Ullmann's algorithm for generically solving knapsack problems.
+\\ \bigskip \pause
+\begin{algorithmic}[1] % The number tells where the line numbering should start
+    \Function{DP}{$\bsym{p}, \bsym{w}, W$} \pause
+    \State $S^0 = \big\{\emptyset\big\}$ \pause
+    \For{$k \gets 1, n$}
+      \State $S_*^k = S^{k-1} \cup \{\sol{x} \cup k \:|\: \sol{x} \in S^{k-1}\}$
+        \Comment{solutions extension} \pause
+      \State $S^k = \{\sol{x} \:|\: \nexists \sol{a} \in S_*^k: \domk{a}{x} \}$
+        \Comment{partial dominance filter}
+    \EndFor \pause
+  \State $P = \{\sol{x} \:|\: \nexists \sol{a} \in S^n: \dom{a}{x} \;|\; \weight{x} \leq W \}$
+    \Comment{dominance/feasibility} \pause
+  \State \Return $P$
+  \EndFunction
+\end{algorithmic}
+\end{frame}
+
+%
+\begin{frame}
+\frametitle{Bazgan's dynamic programming algorithm}
+\begin{center}
+\only<2>{\alert{Item reordering}}
+\only<4>{\alert{Feasible extension}}
+\only<5>{\alert{Defficiency avoidance}}
+\only<6>{\alert{Unpromising elimination}}
+\end{center}
+
+\begin{algorithmic}[1]
+  \Function{BazDP}{$\bsym{p}, \bsym{w}, W$}
+    \State $\solSet^0 = \big\{\emptyset\big\}$ \pause
+    \State $o_1, \ldots, o_n = \ord^{max}$ \pause
+    \For{$k \gets 1, n$} \pause
+      % Extension
+      \State $\solSett^k = \big\{\sol{x} \cup \{o_k\} \;\big|\; \sol{x}
+        \in \solSet^{k-1} \logicAnd \weight{x} + w_{o_k} \leq W \big\}$ \pause
+      % Extension (cont.)
+      \State $\phantom{\solSett^k = } \cup \big\{ \sol{x} \;\big|\; \sol{x} \in \solSet^{k-1} \logicAnd
+        \weight{x} + w_{o_k} + \ldots + w_{o_n} > W \big\}$ \pause
+      % Dominance filter
+      \State $\solSet^k = \left\{\sol{x} \in \solSett^k \;\middle|\;
+        (\nexists \sol{a} \in \solSett^k)\big[\domk{a}{x}
+          \logicOr dom\big(lb(\sol{a}), ub(\sol{x})\big)\big] \right\}$ \pause
+    \EndFor
+    \State \Return $\solSet^n$
+  \EndFunction
+\end{algorithmic}
+\end{frame}
+% slide copy...
+\begin{frame}
+\frametitle{Bazgan's dynamic programming algorithm}
+\begin{center}
+\alert{Dominance check operation}
+\end{center}
+\begin{algorithmic}[1]
+  \Function{BazDP}{$\bsym{p}, \bsym{w}, W$}
+    \State $\solSet^0 = \big\{\emptyset\big\}$
+    \State $o_1, \ldots, o_n = \ord^{max}$
+    \For{$k \gets 1, n$}
+      % Extension
+      \State $\solSett^k = \big\{\sol{x} \cup \{o_k\} \;\big|\; \sol{x}
+        \in \solSet^{k-1} \logicAnd \weight{x} + w_{o_k} \leq W \big\}$
+      % Extension (cont.)
+      \State $\phantom{\solSett^k = } \cup \big\{ \sol{x} \;\big|\; \sol{x} \in \solSet^{k-1} \logicAnd
+        \weight{x} + w_{o_k} + \ldots + w_{o_n} > W \big\}$
+      % Dominance filter
+      \State $\solSet^k = \left\{\sol{x} \in \solSett^k \;\middle|\;
+        (\nexists \sol{a} \in \solSett^k)\big[\alert{\underline{dom_k}}(\sol{a}, \sol{x})
+          \logicOr \alert{\underline{dom}}\big(lb(\sol{a}), ub(\sol{x})\big)\big] \right\}$
+    \EndFor
+    \State \Return $\solSet^n$
+  \EndFunction
+\end{algorithmic}
+\end{frame}
+
+%
+\begin{frame}
+\frametitle{Computational Experiments}
+Computational experiments on bi-dimensional instances:
+\begin{enumerate}
+  \item[A)]{ Random instances:\\
+    $p^j_i \in [1, 1000]$,\\
+    $w_i \in [1,1000]$.} \medskip
+  \item[B)]{ Unconflicting instances: \\
+    $p^1_i \in [111, 1000],$ \\
+    $p^2_i \in [p^1_i - 100, p^1_i + 100],$ \\
+    $w_i \in [1,1000]$.} \medskip
+  \item[C)]{ Conflicting instances: \\
+    $p^1_i \in [1, 1000],$ \\
+    $p^2_i \in [max\{900-p^1_i;1\}, min\{1100-p^1_i, 1000\}],$ \\
+    $w_i \in [1,1000]$.} \medskip
+  \item[D)]{ Conflicting instances with correlated weight: \\
+    $p^1_i \in [1, 1000],$ \\
+    $p^2_i \in [max\{900-p^1_i;1\}, min\{1100-p^1_i, 1000\}],$ \\
+    $w_i \in [p^1_i+p^2_i-200, p^1_i+p^2_i+200]$.}
+\end{enumerate}
+\end{frame}
+
+%
+\begin{frame}
+\frametitle{Computational Experiments}
+\begin{table}[]
+  \renewcommand*{\arraystretch}{0.9}
+  \centering
+  \input{tab/cpu2dim.tex}
+  \caption{Average CPU-time for bi-objective instances.}
+\end{table}
+\end{frame}
+
+
+%
+\begin{frame}
+\frametitle{Computational Experiments}
+Computational experiments on bi-dimensional instances:
+\begin{figure}
+  \input{tab/cmp3dim.tex}
+  \caption{Average number of solution evaluations for 3-objective instances.}
+\end{figure}
+\end{frame}
+
+
+%
+\begin{frame}
+\frametitle{}
+123
+\end{frame}

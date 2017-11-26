@@ -1,0 +1,64 @@
+\documentclass[8pt]{beamer}
+
+\usepackage[T1]{fontenc}		% Selecao de codigos de fonte.
+\usepackage[utf8]{inputenc}
+
+\usepackage{lmodern}			% Usa a fonte Latin Modern
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{bm}
+\usepackage{pgfplots} % graficos
+\usepackage{algpseudocode}
+\usepackage{algorithm}
+\usepackage{multirow}
+\usepackage{subcaption}
+\usepackage{ulem}
+\ULforem
+
+\input{predefs.tex}
+\newcommand{\ord}{\mathcal{O}}
+
+% bullet do itemize
+\setbeamertemplate{itemize items}[circle]
+% estilo do título
+\setbeamertemplate{frametitle}{\bigskip \color{black}\bfseries\insertframetitle}
+
+\title{A Hybrid Heuristic for the Multi-objective Knapsack Problem}
+\subtitle{Doctoral thesis proposal}
+\author{Marcos Daniel V. Baroni}
+\institute[UFES - DI - PPGI]{
+  Universidade Federal do Espírito Santo \\
+  Departamento de Informática \\
+  Programa de Pós-graduação em Informática}
+\date{27 de novembro de 2017}
+
+\usetheme{Szeged}
+\usecolortheme{seahorse}
+
+\begin{document}
+
+% Title Page
+\frame{\titlepage}
+
+% Sumário
+\begin{frame}
+\frametitle{Table of Contents}
+\tableofcontents
+\end{frame}
+
+% Introdução
+\section{A Hybrid Heuristic for the Multi-objective Knapsack Problem}
+\subsection{Introduction}
+\input{apres/tex/01-intro.tex}
+
+% Introdução
+%\section{A Hybrid Heuristic for the Multi-objective Knapsack Problem}
+\subsection{The Multi-objective Knapsack Problem}
+\input{apres/tex/02-mokp.tex}
+
+%\section{A Hybrid Heuristic for the Multi-objective Knapsack Problem}
+\subsection{The Multi-dimensional Indexing}
+\input{apres/tex/03-kdtree.tex}
+
+\end{document}
