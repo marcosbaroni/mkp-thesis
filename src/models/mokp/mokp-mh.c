@@ -309,7 +309,7 @@ MOKPSolIndexer *mokp_sce(
 	
 	/* Iterate */
 	for( k = 0 ; k < niter ; k++ ){
-		//printf("%d/%d\n", k+1, niter);
+		printf("%d/%d ", k+1, niter);
 		/* Rank population */
 		ranks = rank_population(pop, npop, ndim);
 		free(pop);

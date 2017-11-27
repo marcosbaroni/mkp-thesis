@@ -253,6 +253,20 @@ void bnode_fprintf(FILE *fout, BazganNode *node){
 void bnode_printf(BazganNode *bnode){
     bnode_fprintf(stdout, bnode);
 }
+void bnode_pareto_write(FILE *fout, BazganNode *bnode){
+	int i, np;
+	printf("bnode=%x\n", bnode);fflush(stdout);
+	np = bnode->bazgan->mokp->np;
+	mokpnum_fprintf(fout, bnode->profit[0]);
+	for( i = 1 ; i < np ; i++ ){
+		fprintf(fout, " ");
+		mokpnum_fprintf(fout, bnode->profit[i]);
+	}
+	fprintf(fout, "\n");
+}
+void bnode_pareto_write2(BazganNode *bnode, FILE *fout){
+	bnode_pareto_write(fout, bnode);
+}
 
 void bnode_fprintf2(BazganNode *node, FILE *fout){
     bnode_fprintf(fout, node);
@@ -1162,6 +1176,14 @@ void bazgan_fprint_nodes_lex(FILE *out, Bazgan *bazgan){
 
 void bazgan_print_nodes_lex(Bazgan *bazgan){
     return bazgan_fprint_nodes_lex(stdout, bazgan);
+}
+
+void bazgan_print_pareto(Bazgan *bazgan){
+    avl_apply_to_all_r(
+		bazgan->avl_lex,
+		(void(*)(void*, void*))bnode_pareto_write2,
+		stdout
+	);
 }
 
 void bazgan_fprint_summary(FILE *out, Bazgan *bazgan){

@@ -63,6 +63,7 @@ MOKPSol *mokpsol_rm_item(MOKPSol*, int);
 void mokpsol_free(MOKPSol*);
 void mokpsol_fprintf(FILE*, MOKPSol*);
 void mokpsol_printf(MOKPSol*);
+void mokpsol_profit_write(MOKPSol* sol);
 int mokpsol_dom_cmp(MOKPSol*, MOKPSol*);
 double mokpsol_spacing(MOKPSol*, MOKPSol*); /* IF same element THEN INFINITY */
 KDTree *mokpsol_new_kdtree(int);

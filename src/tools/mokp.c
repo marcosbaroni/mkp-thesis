@@ -243,9 +243,33 @@ int execute_batch(int argc, char **argv){
     return 0;
 }
 
+/*********************************************************
+ *  Bazgan's algorithm
+ ********************************************************/
+MOKPSolIndexer *bazgan2msi(Bazgan *bazgan){
+	BazganNode **nodes;
+	MOKPSolIndexer *msi;
+	MOKPSol *sol;
+	int n, i, j, np;
+
+	n = bazgan->avl_lex->n;
+	np = bazgan->mokp->np;
+	nodes = (BazganNode**)avl_to_array(bazgan->avl_lex);
+
+	msi = msi_new(2);
+	for( i = 0 ; i < n ; i++ ){
+		sol = mokpsol_new_empty(bazgan->mokp);
+		for ( j = 0 ; j < np ; j++ )
+			sol->profit[j] = nodes[i]->profit[j];
+		sol->b_left = nodes[i]->b_left;
+		msi_insert(msi, sol);
+	}
+	free(nodes);
+	return msi;
+}
 int print_usage_bazgan(int argc, char **argv){
     printf("Solve Multiobjective Knapsack Problem using Bazgan 2009 Algorithm.\n\n");
-    printf("  usage: %s %s <ndim> [input file] [n iterations] [order option]\n", argv[0], BAZGAN_OPT);
+    printf("  usage: %s %s <ndim> [input file] [n iterations] [order option=s] [print pareto=0]\n", argv[0], BAZGAN_OPT);
     printf("  ...\n");
     printf("\n  Output:\n");
     printf("    <n nodes>;<n comparison>;<time (s)>;<max nd>\n\n");
@@ -260,6 +284,8 @@ int execute_bazgan(int argc, char **argv){
     MOKP *mokp;
     List *list;
     Bazgan *bazgan;
+	char print_pareto = 0;
+	MOKPSolIndexer *msi;
 
     finput = stdin;
     order_opt = 's';
@@ -279,6 +305,9 @@ int execute_bazgan(int argc, char **argv){
     if( argc > 4 )
         kmax = atoll(argv[4]);
 
+    if( argc > 6 )
+        print_pareto = atoll(argv[6]);
+
     if( kmax < 0 || kmax > mokp->n ){
         kmax = mokp->n;
         fprintf(stderr, "Error: inconsistent kmax value. kmax=%d will be considered.\n", mokp->n);
@@ -292,6 +321,13 @@ int execute_bazgan(int argc, char **argv){
 
     /* Outputing */
     //bazgan_print_nodes_lex(bazgan);
+	if( print_pareto ){
+		msi = bazgan2msi(bazgan);
+		//bazgan_print_pareto(bazgan);
+		msi_apply_all(msi, (void(*)(void*))mokpsol_profit_write);
+		msi_apply_all(msi, (void(*)(void*))mokpsol_free);
+		msi_free(msi);
+	}
     bazgan_print_summary(bazgan);
     printf("\n");
 
@@ -483,33 +519,12 @@ int execute_dynprog(int argc, char **argv){
 /*******************************************************************************
 *    Multi-Objective Shuffled Complex Evolution
 *******************************************************************************/
-MOKPSolIndexer *bazgan2msi(Bazgan *bazgan){
-	BazganNode **nodes;
-	MOKPSolIndexer *msi;
-	MOKPSol *sol;
-	int n, i, j, np;
-
-	n = bazgan->avl_lex->n;
-	np = bazgan->mokp->np;
-	nodes = (BazganNode**)avl_to_array(bazgan->avl_lex);
-
-	msi = msi_new(2);
-	for( i = 0 ; i < n ; i++ ){
-		sol = mokpsol_new_empty(bazgan->mokp);
-		for ( j = 0 ; j < np ; j++ )
-			sol->profit[j] = nodes[i]->profit[j];
-		sol->b_left = nodes[i]->b_left;
-		msi_insert(msi, sol);
-	}
-	free(nodes);
-	return msi;
-}
 int print_usage_sce(int argc, char **argv){
     printf("Solve Multiobjective Knapsack Problem using SCE.\n\n");
     printf("  usage: %s %s [input file] [niter] [ncomp] [compsize] [nsubcomp] [nsubiter] [archsize] [ndim] [seed]\n", argv[0], SCE_OPT);
     printf("    input file: - to read from stdin\n");
     printf("\n  Output:\n");
-    printf("    <n nodes>;<n comparison>;<time (s)>\n\n");
+    printf("    <time (s)>;<hypervolume>\n\n");
 }
 int execute_sce(int argc, char **argv){
 	MOKP *mokp;
@@ -566,18 +581,21 @@ int execute_sce(int argc, char **argv){
 
 	mokp = mokp_read(input);
 
+	if( !ndim )
+		ndim = mokp->np > 3 ? 3 : mokp->np;
+
 	sce = mokp_sce(mokp, ncomp, compsize, nsubcomp,
 		niter, nsubiter, archsize, ndim, &secs);
-	bazgan = bazgan_exec(mokp, mokp->n, 2);
-	baz = bazgan2msi(bazgan);
+	//bazgan = bazgan_exec(mokp, mokp->n, 2);
+	//baz = bazgan2msi(bazgan);
 
-	printf("%.3lf;%.0lf;\n", secs, msi_hvolume(sce));fflush(stdout);
-	printf("%.3lf;%.0lf;\n", bazgan_get_seconds(bazgan), msi_hvolume(baz));
+	printf("%.3lf;%.0lf;\n", secs, msi_hvolume(sce));
+	//printf("%.3lf;%.0lf;\n", bazgan_get_seconds(bazgan), msi_hvolume(baz));
 
 	msi_apply_all(sce, (void(*)(void*))mokpsol_free);
 	msi_free(sce);
-	msi_free(baz);
-	bazgan_free(bazgan);
+	//msi_free(baz);
+	//bazgan_free(bazgan);
 	mokp_free(mokp);
 
 	return 0;

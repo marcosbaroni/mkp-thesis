@@ -65,6 +65,7 @@ void bazgan_fprint_nodes(FILE *out, Bazgan *bazgan);
 void bazgan_print_nodes( Bazgan *bazgan);
 void bazgan_fprint_nodes_lex(FILE *out, Bazgan *bazgan);
 void bazgan_print_nodes_lex(Bazgan *bazgan);
+void bazgan_print_pareto(Bazgan *bazgan);
 
 List *bazgan_exec_simple(MOKP *mokp, int k);
 Bazgan *bazgan_exec(MOKP *mokp, int kmax, int ndim);

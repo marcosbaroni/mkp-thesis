@@ -589,6 +589,17 @@ void mokpsol_fprintf(FILE* out, MOKPSol* sol){
 void mokpsol_printf(MOKPSol* sol){
 	return mokpsol_fprintf(stdout, sol);
 }
+void mokpsol_profit_write(MOKPSol* sol){
+	int i, np;
+	np = sol->mokp->np;
+	mokpnum_fprintf(stdout, sol->profit[0]);
+	for( i = 1 ; i < np ; i++ ){
+		printf(" ");
+		mokpnum_fprintf(stdout, sol->profit[i]);
+	}
+	printf("\n");
+}
+
 
 /* Dominance comparison between two solutions */
 int mokpsol_dom_cmp(MOKPSol *a, MOKPSol *b){
