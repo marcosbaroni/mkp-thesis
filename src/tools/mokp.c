@@ -21,6 +21,7 @@
 #define CONVERT_OPT "convert"
 #define SCE_OPT     "sce"
 #define MOFPA_OPT   "mofpa"
+#define HVOL_OPT    "hvol"
 
 void auto_seed(unsigned int seed){
     struct timeval timeval_seeder;
@@ -522,11 +523,11 @@ int execute_sce(int argc, char **argv){
     Bazgan *bazgan;
 
     input = stdin;
-	niter = 10;
-	ncomp = 4;
-	compsize = 5;
-	nsubcomp = 2;
-	nsubiter = 10;
+	niter = 300;
+	ncomp = 20;
+	compsize = 20;
+	nsubcomp = 5;
+	nsubiter = 20;
 	archsize = 100;
 	ndim = 0;
 	seed = 0;
@@ -540,7 +541,7 @@ int execute_sce(int argc, char **argv){
         if( strcmp(argv[2], "-") )
             input = fopen(argv[2], "r");
         if(!input){
-            fprintf(stderr, "could not open file %s.\n", argv[3]);
+            fprintf(stderr, "could not open file %s.\n", argv[2]);
             return 1;
         }
     }
@@ -601,6 +602,61 @@ int execute_mofpa(int argc, char **argv){
 	}
 	return 0;
 }
+/*******************************************************************************
+*    Compute Hypervolume of pareto
+*******************************************************************************/
+int print_usage_hvol(int argc, char **argv){
+    printf("Compute Hypervolum of pareto.\n\n");
+    printf("  usage: %s %s [input file]\n", argv[0], HVOL_OPT);
+    printf("    input file: - to read from stdin\n");
+    printf("\n  Output:\n");
+    printf("    <hypervolume>\n\n");
+}
+int execute_hvol(int argc, char **argv){
+	FILE *input;
+	MOKPSolIndexer *msi;
+	MOKPSol *sol;
+	MOKP *mokp;
+	char cbuffer[1000];
+	mokpnum profit;
+	int i, np;
+	double hvol;
+
+	if( argc < 3 ){
+		print_usage_hvol(argc, argv);
+		return 1;
+	}
+
+	input = stdin;
+    if( argc > 2 ){
+        if( strcmp(argv[2], "-") )
+            input = fopen(argv[2], "r");
+        if(!input){
+            fprintf(stderr, "could not open file %s.\n", argv[2]);
+            return 1;
+        }
+    }
+
+	msi = msi_new(0);
+	fscanf(input, "%d", &np);
+	mokp = mokp_alloc(10, np);
+	while( !feof(input) ){
+		sol = mokpsol_new_empty(mokp);
+		for( i = 0 ; i < np ; i++ ){
+			mokpnum_fscanf(input, &profit);
+			sol->profit[i] = profit;
+		}
+		msi_insert(msi, sol);
+	}
+	if( input != stdin )
+		fclose(input);
+	hvol = msi_hvolume(msi);
+	printf("%.3f\n", hvol);
+	msi_apply_all(msi, (void(*)(void*))mokpsol_free);
+	msi_free(msi);
+	mokp_free(mokp);
+	return 0;
+}
 
 
 /*******************************************************************************
@@ -615,6 +671,7 @@ void print_usage(int argc, char **argv){
     printf("  %s\tSolve a MOKP using Bazgan2009 algorithm\n", BAZGAN_OPT);
     printf("  %s\t\tSolve a MOKP using SCE algorithm\n", MOFPA_OPT);
     printf("  %s\t\tSolve a MOKP using Zouache2018s MOFPA algorithm\n", SCE_OPT);
+    printf("  %s\t\tCompute hypervolume of a given pareto\n", HVOL_OPT);
     printf("  %s\t\tBatch test of bazgan MOKP algorithm.\n", BATCH_OPT);
     printf("  %s\t\tConvert a MKP instance in MOKP instance\n", MKP2_OPT);
     printf("  %s\tConvert a MOKP Bazgan instance.\n", CONVERT_OPT);
@@ -672,6 +729,10 @@ int main(int argc, char **argv){
     /***   Firefly Particle Swarm ***/
     if(!strcmp(option, MOFPA_OPT))
         ret = execute_mofpa(argc, argv);
+
+    /***   Compute Hypervolume ***/
+    if(!strcmp(option, HVOL_OPT))
+        ret = execute_hvol(argc, argv);
 
     /***************************************************************
     *    IMPRESSÃO DA FORMA DE USO
