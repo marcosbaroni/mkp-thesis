@@ -202,11 +202,11 @@ Computational experiments on bi-dimensional instances:
 %
 \begin{frame}
 \frametitle{Computational Experiments}
+Average CPU-time for bi-objective instances:
 \begin{table}[]
   \renewcommand*{\arraystretch}{0.9}
   \centering
   \input{tab/cpu2dim.tex}
-  \caption{Average CPU-time for bi-objective instances.}
 \end{table}
 \end{frame}
 
@@ -214,16 +214,49 @@ Computational experiments on bi-dimensional instances:
 %
 \begin{frame}
 \frametitle{Computational Experiments}
-Computational experiments on bi-dimensional instances:
+Average number of solution evaluations for bi-objective instances:
+\begin{figure}
+  \input{tab/cmp2dim.tex}
+\end{figure}
+\end{frame}
+
+%
+\begin{frame}
+\frametitle{Computational Experiments}
+Average CPU-time for 3-objective instances:
+\begin{table}[]
+  \renewcommand*{\arraystretch}{0.9}
+  \centering
+  \input{tab/cpu3dim.tex}
+\end{table}
+\end{frame}
+
+
+%
+\begin{frame}
+\frametitle{Computational Experiments}
+Average number of solution evaluations for 3-objective instances:
 \begin{figure}
   \input{tab/cmp3dim.tex}
-  \caption{Average number of solution evaluations for 3-objective instances.}
 \end{figure}
 \end{frame}
 
 
 %
 \begin{frame}
-\frametitle{}
-123
+\frametitle{Conclusions}
+The multi-dimensional indexing is applicable to the problem requiring
+considerably less solution evaluations, especially on hard instances.
+\\ \medskip \pause
+Algorithm speedup $2.3$ for bi-dimensional
+cases and up to $15.5$ on 3-dimensional cases.
+\\ \medskip \pause
+The multi-dimensional indexing was not efficient on \textit{easy} instances
+for which the set of solutions is relatively small.
+\\ \medskip \pause
+Several instances are still intractable due
+the large number of intermediate solutions.
+\\ \medskip \pause
+For this reason this work proposes to use the indexing strategy
+in conjunction with an evolutionary metaheuristic.
 \end{frame}
