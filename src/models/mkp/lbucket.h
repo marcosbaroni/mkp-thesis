@@ -1,3 +1,12 @@
+/******************************************************************************
+ *  Author: Marcos Daniel Valadão Baroni
+ *  E-mail: marcosdaniel.baroni@gmail.com
+ *  Date: december, 2017
+ *
+ *  This program must not be used, modified or shared without the express
+ *     permission of the author.
+ *
+ *****************************************************************************/
 #ifndef LBUCKET_H
 #define LBUCKET_H 1
 
