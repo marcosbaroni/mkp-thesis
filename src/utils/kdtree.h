@@ -1,3 +1,12 @@
+/******************************************************************************
+ *  Author: Marcos Daniel Valadão Baroni
+ *  E-mail: marcosdaniel.baroni@gmail.com
+ *  Date: june, 2017
+ *
+ *  This program must not be used, modified or shared without the express
+ *     permission of the author.
+ *
+ *****************************************************************************/
 #ifndef KDTREE_H
 #define KDTREE_H 1
 

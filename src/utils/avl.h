@@ -1,7 +1,12 @@
-/*******************************************************************************
- * Author: Marcos Daniel Baroni
- * Date:  Dom Abr 19 23:53:27 BRT 2015
-*******************************************************************************/
+/******************************************************************************
+ *  Author: Marcos Daniel Valadão Baroni
+ *  E-mail: marcosdaniel.baroni@gmail.com
+ *  Date: june, 2017
+ *
+ *  This program must not be used, modified or shared without the express
+ *     permission of the author.
+ *
+ *****************************************************************************/
 
 #ifndef AVL_H
 #define AVL_H 1

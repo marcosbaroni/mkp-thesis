@@ -1,3 +1,12 @@
+/******************************************************************************
+ *  Author: Marcos Daniel Valadão Baroni
+ *  E-mail: marcosdaniel.baroni@gmail.com
+ *  Date: november, 2016
+ *
+ *  This program must not be used, modified or shared without the express
+ *     permission of the author.
+ *
+ *****************************************************************************/
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -616,10 +625,12 @@ int print_usage_mofpa(int argc, char **argv){
 int execute_mofpa(int argc, char **argv){
 	if( argc < 3 ){
 		print_usage_mofpa(argc, argv);
+		fprintf(stderr, "Not implemented yet.\n");
 		return 1;
 	}
 	return 0;
 }
+
 /*******************************************************************************
 *    Compute Hypervolume of pareto
 *******************************************************************************/
@@ -716,11 +727,11 @@ int main(int argc, char **argv){
     /***************************************************************
     *        EXECUÇÃO DOS ALGORITMOS
     ***************************************************************/
-    /*** Geração de instâncias   ***/
+    /*** Geração de instâncias    ***/
     if(!strcmp(option, RAND_OPT))
         ret = execute_rand(argc, argv);
 
-    /***   Algoritmo de Prog. Dinamica   ***/
+    /*** Algoritmo de Prog. Dinamica   ***/
     if(!strcmp(option, DYNPROG_OPT))
         ret = execute_dynprog(argc, argv);
 
@@ -732,23 +743,23 @@ int main(int argc, char **argv){
     if(!strcmp(option, BAZGAN_OPT))
         ret = execute_bazgan(argc, argv);
 
-    /***   Execução Batch do algoritmo Bazgan ***/
+    /***   Execução Batch do algoritmo Bazgan   ***/
     if(!strcmp(option, BATCH_OPT))
         ret = execute_batch(argc, argv);
 
-    /***   Conversao das instancias ***/
+    /***   Conversao das instancias    ***/
     if(!strcmp(option, CONVERT_OPT))
         ret = execute_convert(argc, argv);
 
-    /***   Shuffled Complex Evolution ****/
+    /***   Shuffled Complex Evolution    ****/
     if(!strcmp(option, SCE_OPT))
         ret = execute_sce(argc, argv);
 
-    /***   Firefly Particle Swarm ***/
+    /***   Firefly Particle Swarm    ***/
     if(!strcmp(option, MOFPA_OPT))
         ret = execute_mofpa(argc, argv);
 
-    /***   Compute Hypervolume ***/
+    /***   Compute Hypervolume ()    ***/
     if(!strcmp(option, HVOL_OPT))
         ret = execute_hvol(argc, argv);
 

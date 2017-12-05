@@ -1,3 +1,12 @@
+/******************************************************************************
+ *  Author: Marcos Daniel Valadão Baroni
+ *  E-mail: marcosdaniel.baroni@gmail.com
+ *  Date: november, 2016
+ *
+ *  This program must not be used, modified or shared without the express
+ *     permission of the author.
+ *
+ *****************************************************************************/
 #ifndef SUBSETSUM_H
 #define SUBSETSUM_H 1
 
