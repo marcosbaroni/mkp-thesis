@@ -409,6 +409,34 @@ void mokp_write(FILE *out, MOKP *mokp){
     return;
 }
 
+/* Writes an instance on Zitzler format */
+void mokp_write_zitzler(FILE *fout, MOKP *mokp){
+	int i, j, n, np;
+	n = mokp->n;
+	np = mokp->np;
+
+	/* first knapsack */
+	for( j = 0 ; j < np ; j++ ){
+		if( j > 0 ) fprintf(fout, "=\nknapsack %d:\n", j+1);
+		fprintf(fout, " capacity: ");
+		if( j == 0 ) mokpnum_fprintf(fout, mokp->b);
+		else fprintf(fout, "%d", n);
+		fprintf(fout, "\n");
+		for( i = 0 ; i < n ; i++ ){
+			fprintf(fout, " item %d:\n", i+1);
+			fprintf(fout, "  weight: ");
+			if( j == 0 ) mokpnum_fprintf(fout, mokp->w[i]);
+			else fprintf(fout, "1");
+			fprintf(fout, "\n");
+			fprintf(fout, "  profit: ");
+			mokpnum_fprintf(fout, mokp->p[j][i]);
+			fprintf(fout, "\n");
+		}
+	}
+
+	return;
+}
+
 /*  Reads a MOKP instance from a given file */
 MOKP *mokp_read(FILE *fin){
     int n, np;
@@ -569,6 +597,7 @@ MOKPSol *mokpsol_new_empty(MOKP *mokp){
 		sol->profit[i] = 0;
 	sol->b_left = mokp->b;
 	sol->rank = -1;
+	sol->msi = NULL;
 	
 	return sol;
 }
@@ -616,7 +645,14 @@ int mokpsol_dom_cmp(MOKPSol *a, MOKPSol *b){
 	int i, np;
 	int hasBetter = 0;
 	int hasWorse = 0;
+
+#ifdef COUNT_MSI_COMP
+	if( a->msi ) a->msi->ncomp_++;
+	else if( b->msi ) b->msi->ncomp_++;
+#endif
+
 	np = a->mokp->np;
+
 	for( i = 0 ; i < np ; i++ )
 		if( a->profit[i] < b->profit[i] )
 			hasWorse = 1;
@@ -651,9 +687,18 @@ int mokpsol_dominated_by_(MOKPSol *a, MOKPSol *b){
 	return (mokpsol_dom_cmp(a, b) == SOL_DOMINATED);
 }
 double mokpsol_axis_get(MOKPSol *sol, int dim){
+#ifdef COUNT_MSI_COMP
+	/* TODO: FIXME: aqui, se ambas solucoes estiverem em um MSI, será contado
+	 *   valor dobrado no caso de utilizacao da KDTree. */
+	if( sol->msi ) sol->msi->ncomp_++;
+#endif
 	return (double)sol->profit[dim];
 }
 int mokpsol_profit1_cmp(MOKPSol *a, MOKPSol *b){
+#ifdef COUNT_MSI_COMP
+	if( a->msi ) a->msi->ncomp_++;
+	else if( b->msi ) b->msi->ncomp_++;
+#endif
 	return ( a->profit[0] - b->profit[0] );
 }
 KDTree *mokpsol_new_kdtree(int ndim){
@@ -783,6 +828,7 @@ MOKPSolIndexer *msi_new(int ndim){
 		msi->tad.avl = new_avltree( (avl_cmp_f)mokpsol_profit1_cmp );
 	if( ndim  > 1 )
 		msi->tad.kdt = kdtree_new(ndim, (kdtree_eval_f)mokpsol_axis_get);
+	msi->ncomp_ = 0;
 	return msi;
 }
 MOKPSolIndexer *msi_insert(MOKPSolIndexer *msi, MOKPSol *sol){
@@ -792,6 +838,7 @@ MOKPSolIndexer *msi_insert(MOKPSolIndexer *msi, MOKPSol *sol){
 		avl_insert(msi->tad.avl, sol);
 	if( msi->ndim  > 1 )
 		kdtree_insert(msi->tad.kdt, sol);
+	sol->msi = msi;
 		
 	return msi;
 }
@@ -1089,6 +1136,7 @@ MOKPSol *mokpsol_copy(MOKPSol *sol){
 	new->b_left = sol->b_left;
 	memcpy(new->x, sol->x, n*sizeof(mokpval));
 	memcpy(new->profit, sol->profit, np*sizeof(mokpnum));
+	new->msi = NULL;
 	
 	return new;
 }

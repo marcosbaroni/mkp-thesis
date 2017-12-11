@@ -34,7 +34,7 @@
 
 void auto_seed(unsigned int seed){
     struct timeval timeval_seeder;
-    if(!seed){
+    if( !seed ){
         gettimeofday(&timeval_seeder, NULL);
         seed = timeval_seeder.tv_sec*1000;
         seed += timeval_seeder.tv_usec;
@@ -44,35 +44,68 @@ void auto_seed(unsigned int seed){
 }
 
 int print_usage_convert(int argc, char **argv){
-    printf("Convert instance.\n\n");
-    printf("  usage: %s %s <input-file> [output-file]\n", argv[0], CONVERT_OPT);
-    printf("\n  input-file: '-' for stdin\n");
-    printf("  output-file: if not given, user stdout\n");
+    printf("Convert a MOKP instance.\n\n");
+    printf("  usage: %s %s <in format> <out format> <input-file> [output-file]\n", argv[0], CONVERT_OPT);
+    printf("  - in/out formats are:\n");
+    printf("      d: default\n");
+    printf("      b: bazgan\n");
+    printf("      z: zitzler\n");
+    printf("  - input-file: '-' for stdin\n");
+    printf("  - output-file: if not given, uses stdout\n");
 
     return 1;
 }
 
 int execute_convert(int argc, char **argv){
-    MOKP *mokp;
+    MOKP *mokp = NULL;
+	char in_format, out_format;
     FILE *fin, *fout;
 
-    if( argc < 3 )
+    if( argc < 5 )
         return print_usage_convert(argc, argv);
 
+	/* Reading inputs */
+	in_format = argv[2][0];
+	out_format = argv[3][0];
+
     fin = stdin;
-    if( strcmp(argv[2], "-") )
-        fin = fopen(argv[2], "r");
+    if( strcmp(argv[4], "-") )
+        fin = fopen(argv[4], "r");
 
     fout = stdout;
-    if( argc > 3 ){
-        printf("FILE TO OPEN: %s\n", argv[3]);
+    if( argc > 5 )
         fout = fopen(argv[3], "w");
-    }
-    
-    mokp = mokp_read_bazgan_format(fin);
-    fclose(fin);
 
-    mokp_write(fout, mokp);
+	/* Reading instance */
+	switch( in_format ){
+		case 'd':
+			mokp = mokp_read(fin);
+			break;
+		case 'b':
+			mokp = mokp_read_bazgan_format(fin);
+			break;
+		case 'z':
+			/* TODO: todo? */
+		default:
+			fprintf(stderr, "input format not implemented.\n");
+			exit(1);
+	}
+
+	/* Writing instance */
+	switch( out_format ){
+		case 'd':
+			mokp_write(fout, mokp);
+			break;
+		case 'z':
+			mokp_write_zitzler(fout, mokp);
+			break;
+		case 'b':
+		default:
+			fprintf(stderr, "output format not implemented.\n");
+			exit(1);
+	}
+    fclose(fin);
+    fclose(fout);
 
     mokp_free(mokp);
 
@@ -530,16 +563,16 @@ int execute_dynprog(int argc, char **argv){
 *******************************************************************************/
 int print_usage_sce(int argc, char **argv){
     printf("Solve Multiobjective Knapsack Problem using SCE.\n\n");
-    printf("  usage: %s %s [input file] [niter] [ncomp] [compsize] [nsubcomp] [nsubiter] [archsize] [ndim] [seed]\n", argv[0], SCE_OPT);
+    printf("  usage: %s %s <input file> <ndim> [seed=0] [niter=300] [ncomp=20] [compsize=20] [nsubcomp=5] [nsubiter=20]\n", argv[0], SCE_OPT);
     printf("    input file: - to read from stdin\n");
     printf("\n  Output:\n");
-    printf("    <time (s)>;<hypervolume>\n\n");
+    printf("    <time (s)>;<n sols>;<hypervolume>\n\n");
 }
 int execute_sce(int argc, char **argv){
 	MOKP *mokp;
 	FILE *input;
 	int i, ndim;
-	int archsize, niter, ncomp, compsize, nsubcomp, nsubiter, seed;
+	int niter, ncomp, compsize, nsubcomp, nsubiter, seed;
 	SFL_Interface *sfli;
 	MOKPSol *sol;
 	MOKPSolIndexer *sce, *baz;
@@ -552,11 +585,10 @@ int execute_sce(int argc, char **argv){
 	compsize = 20;
 	nsubcomp = 5;
 	nsubiter = 20;
-	archsize = 100;
 	ndim = 0;
 	seed = 0;
 
-	if( argc < 3 ){
+	if( argc < 4 ){
 		print_usage_sce(argc, argv);
 		return 1;
 	}
@@ -570,35 +602,33 @@ int execute_sce(int argc, char **argv){
         }
     }
 	if( argc > 3 )
-		niter = atoll(argv[3]);
+		ndim = atoll(argv[3]);
 	if( argc > 4 )
-		ncomp = atoll(argv[4]);
+		seed = atoll(argv[4]);
 	if( argc > 5 )
-		compsize = atoll(argv[5]);
+		niter = atoll(argv[5]);
 	if( argc > 6 )
-		nsubcomp = atoll(argv[6]);
+		ncomp = atoll(argv[6]);
 	if( argc > 7 )
-		nsubiter = atoll(argv[7]);
+		compsize = atoll(argv[7]);
 	if( argc > 8 )
-		archsize = atoll(argv[8]);
+		nsubcomp = atoll(argv[8]);
 	if( argc > 9 )
-		ndim = atoll(argv[9]);
-	if( argc > 10 )
-		seed = atoll(argv[10]);
+		nsubiter = atoll(argv[9]);
 
 	auto_seed(seed);
 
 	mokp = mokp_read(input);
 
-	if( !ndim )
-		ndim = mokp->np > 3 ? 3 : mokp->np;
+	if( ndim > mokp->np )
+		ndim = mokp->np;
 
 	sce = mokp_sce(mokp, ncomp, compsize, nsubcomp,
-		niter, nsubiter, archsize, ndim, &secs);
+		niter, nsubiter, ndim, &secs);
 	//bazgan = bazgan_exec(mokp, mokp->n, 2);
 	//baz = bazgan2msi(bazgan);
 
-	printf("%.3lf;%.0lf;\n", secs, msi_hvolume(sce));
+	printf("%.3lf;%d;%.0lf;\n", secs, msi_get_n(sce), msi_hvolume(sce));
 	//printf("%.3lf;%.0lf;\n", bazgan_get_seconds(bazgan), msi_hvolume(baz));
 
 	msi_apply_all(sce, (void(*)(void*))mokpsol_free);

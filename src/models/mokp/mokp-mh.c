@@ -290,7 +290,6 @@ MOKPSolIndexer *mokp_sce(
 	int nsubcomp,        /* size of submemeplex */
 	int niter,           /* number of iterations */
 	int nsubiter,        /* number of iterations for each memeplex opt */
-	int archsize,
 	int ndim,
 	double *secs
 ){
@@ -318,7 +317,10 @@ MOKPSolIndexer *mokp_sce(
 	
 	/* Iterate */
 	for( k = 0 ; k < niter ; k++ ){
-		printf("%d/%d ", k+1, niter);
+		if( !(k % 10) ){
+			printf("%d/%d ", k+1, niter);
+			fflush(stdout);
+		}
 		/* Rank population */
 		ranks = rank_population(pop, npop, ndim);
 		free(pop);
@@ -338,6 +340,7 @@ MOKPSolIndexer *mokp_sce(
 		list_apply(ranks, (void(*)(void*))msi_free);
 		list_free(ranks);
 	}
+	printf("\n");
 	for( i = 0 ; i < npop ; i++ )
 		mokpsol_free(pop[i]);
 	free(pop);
@@ -376,8 +379,7 @@ void safeguard_non_dominated(MOKPSolIndexer *archive, MOKPSol **pop, int popsize
 MOKPSolIndexer *mofpa(
 	MOKP *mokp,
 	int niter,
-	int popsize,
-	int archsize
+	int popsize
 ){
 	MOKPSolIndexer *msi, *archive;
 	MOKPSol **pop;

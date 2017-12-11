@@ -10,6 +10,8 @@
 #ifndef MOKP_H
 #define MOKP_H 1
 
+#define COUNT_MSI_COMP 1
+
 #include "../../utils/util.h"
 #include "../../utils/kdtree.h"
 #include "../../utils/list.h"
@@ -41,6 +43,7 @@ MOKP *mokp_alloc(int n, int np);
 MOKP *mokp_random(int n, int np, char option);
 //MOKP *mokp_from_mkp(MKP *mkp);
 void mokp_write(FILE *out, MOKP *mokp);
+void mokp_write_zitzler(FILE *fout, MOKP *mokp);
 MOKP *mokp_read(FILE *fin);
 MOKP *mokp_read_bazgan_format(FILE *fin);
 void mokp_save(char *filename, MOKP *mokp);
@@ -60,6 +63,7 @@ typedef struct MOKPSol{
 	mokpnum b_left;
 	int rank;
 	mokpnum agg_profit;
+	struct MOKPSolIndexer *msi;
 }MOKPSol;
 
 MOKPSol *mokpsol_new_empty(MOKP*);
@@ -88,6 +92,7 @@ typedef struct MOKPSolIndexer{
 		KDTree *kdt;
 		List *list;
 	}tad;
+	unsigned long long ncomp_;
 }MOKPSolIndexer;
 
 MOKPSolIndexer *msi_new(int);

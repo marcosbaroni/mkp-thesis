@@ -19,7 +19,6 @@ MOKPSolIndexer *mokp_sce(
 	int nsubcomp,       /* size of submemeplex */
 	int niter,          /* number of iterations */
 	int nsubiter,       /* number of iterations for each memeplex opt */
-	int archsize,       /* size of archive */
 	int ndim,           /* dimension to be used on solution indexing */
 	double *secs         /* execution time (seconds) */
 );
@@ -27,8 +26,7 @@ MOKPSolIndexer *mokp_sce(
 MOKPSolIndexer *mofpa(
 	MOKP *mokp,
 	int niter,
-	int popsize,
-	int archsize
+	int popsize
 );
 
 #endif
