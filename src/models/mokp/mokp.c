@@ -25,6 +25,10 @@
 //#include "mokp.h"
 #include "order.h"
 
+#ifdef COUNT_COMPARISON
+extern unsigned long long ncomp_;
+#endif
+
 /*******************************************************************************
 *       MOKPNUM
 *******************************************************************************/
@@ -646,9 +650,8 @@ int mokpsol_dom_cmp(MOKPSol *a, MOKPSol *b){
 	int hasBetter = 0;
 	int hasWorse = 0;
 
-#ifdef COUNT_MSI_COMP
-	if( a->msi ) a->msi->ncomp_++;
-	else if( b->msi ) b->msi->ncomp_++;
+#ifdef COUNT_COMPARISON
+	ncomp_++;
 #endif
 
 	np = a->mokp->np;
@@ -687,17 +690,11 @@ int mokpsol_dominated_by_(MOKPSol *a, MOKPSol *b){
 	return (mokpsol_dom_cmp(a, b) == SOL_DOMINATED);
 }
 double mokpsol_axis_get(MOKPSol *sol, int dim){
-#ifdef COUNT_MSI_COMP
-	/* TODO: FIXME: aqui, se ambas solucoes estiverem em um MSI, será contado
-	 *   valor dobrado no caso de utilizacao da KDTree. */
-	if( sol->msi ) sol->msi->ncomp_++;
-#endif
 	return (double)sol->profit[dim];
 }
 int mokpsol_profit1_cmp(MOKPSol *a, MOKPSol *b){
-#ifdef COUNT_MSI_COMP
-	if( a->msi ) a->msi->ncomp_++;
-	else if( b->msi ) b->msi->ncomp_++;
+#ifdef COUNT_COMPARISON
+	ncomp_++;
 #endif
 	return ( a->profit[0] - b->profit[0] );
 }
@@ -828,7 +825,6 @@ MOKPSolIndexer *msi_new(int ndim){
 		msi->tad.avl = new_avltree( (avl_cmp_f)mokpsol_profit1_cmp );
 	if( ndim  > 1 )
 		msi->tad.kdt = kdtree_new(ndim, (kdtree_eval_f)mokpsol_axis_get);
-	msi->ncomp_ = 0;
 	return msi;
 }
 MOKPSolIndexer *msi_insert(MOKPSolIndexer *msi, MOKPSol *sol){

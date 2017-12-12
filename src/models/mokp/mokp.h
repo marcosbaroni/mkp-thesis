@@ -10,8 +10,6 @@
 #ifndef MOKP_H
 #define MOKP_H 1
 
-#define COUNT_MSI_COMP 1
-
 #include "../../utils/util.h"
 #include "../../utils/kdtree.h"
 #include "../../utils/list.h"
@@ -92,7 +90,6 @@ typedef struct MOKPSolIndexer{
 		KDTree *kdt;
 		List *list;
 	}tad;
-	unsigned long long ncomp_;
 }MOKPSolIndexer;
 
 MOKPSolIndexer *msi_new(int);

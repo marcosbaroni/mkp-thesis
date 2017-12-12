@@ -22,6 +22,10 @@
 #include "../models/mokp/mokp-mh.h"
 #include "../metahrs/sfl.h"
 
+#ifdef COUNT_COMPARISON
+unsigned long long ncomp_ = 0;
+#endif
+
 #define DYNPROG_OPT "dynprog"
 #define RAND_OPT    "rand"
 #define MKP2_OPT    "mkp2"
@@ -628,8 +632,12 @@ int execute_sce(int argc, char **argv){
 	//bazgan = bazgan_exec(mokp, mokp->n, 2);
 	//baz = bazgan2msi(bazgan);
 
-	printf("%.3lf;%d;%.0lf;\n", secs, msi_get_n(sce), msi_hvolume(sce));
+	printf("%.3lf;%d;%.0lf;", secs, msi_get_n(sce), msi_hvolume(sce));
 	//printf("%.3lf;%.0lf;\n", bazgan_get_seconds(bazgan), msi_hvolume(baz));
+#ifdef COUNT_COMPARISON
+	printf("%lld;", ncomp_);
+#endif
+	printf("\n");
 
 	msi_apply_all(sce, (void(*)(void*))mokpsol_free);
 	msi_free(sce);

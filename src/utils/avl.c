@@ -13,6 +13,10 @@
 #include "avl.h"
 #include "mem.h"
 
+#ifdef COUNT_COMPARISON
+extern unsigned long long ncomp_;
+#endif
+
 int node_is_right(AVLNode *node){
     if( node->parent )
         return node->parent->right == node ;
@@ -1014,6 +1018,7 @@ void* avliter_remove(AVLIter *avliter){
 AVLIter* avl_get_higher_lower_than(AVLTree *avl, void *a){
     AVLNode *node, *scout;
     avl_cmp_f cmp;
+	int cmp_res;
 
     cmp = avl->cmp;
     node = avl->root;
@@ -1022,19 +1027,28 @@ AVLIter* avl_get_higher_lower_than(AVLTree *avl, void *a){
         return avliter_new(avl, NULL);
 
     /* Finding a "lower than" candidate */
-    while( cmp(node->info, a) >= 0 )
+	cmp_res = cmp(node->info, a);
+#ifdef COUNT_COMPARISON
+	ncomp_++;
+#endif
+    while( cmp_res >= 0 )
         if( !(node = node->left) )
             return avliter_new(avl, NULL);
 
     /* Searchnig for highers */
     scout = node->right;
-    while( scout )
-        if( cmp(scout->info, a) < 0 ){
+    while( scout ){
+		cmp_res = cmp(node->info, a);
+#ifdef COUNT_COMPARISON
+		ncomp_++;
+#endif
+        if( cmp_res < 0 ){
             node = scout;
             scout = scout->right;
         }else{
             scout = scout->left;
         }
+	}
 
     return avliter_new(avl, node);
 }
@@ -1042,6 +1056,7 @@ AVLIter* avl_get_higher_lower_than(AVLTree *avl, void *a){
 AVLIter* avl_get_lower_higher_than(AVLTree *avl, void *a){
     AVLNode *node, *scout;
     avl_cmp_f cmp;
+	int cmp_res;
 
     cmp = avl->cmp;
     node = avl->root;
@@ -1050,7 +1065,11 @@ AVLIter* avl_get_lower_higher_than(AVLTree *avl, void *a){
         return avliter_new(avl, NULL);
 
     /* Finding a "higher than" candidate */
-    while( cmp(node->info, a) <= 0 ){
+	cmp_res = cmp(node->info, a);
+#ifdef COUNT_COMPARISON
+	ncomp_++;
+#endif
+    while( cmp_res <= 0 ){
         node = node->right;
         if( !node )
             return avliter_new(avl, NULL);
@@ -1059,7 +1078,11 @@ AVLIter* avl_get_lower_higher_than(AVLTree *avl, void *a){
     /* Search for a lowers */
     scout = node->left;
     while( scout ){
-        if( cmp(scout->info, a) > 0 ){
+		cmp_res = cmp(node->info, a);
+#ifdef COUNT_COMPARISON
+		ncomp_++;
+#endif
+        if( cmp_res > 0 ){
             node = scout;
             scout = scout->left;
         }else{

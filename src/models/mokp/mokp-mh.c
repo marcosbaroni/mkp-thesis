@@ -85,9 +85,6 @@ List *rank_population(
 	memcpy(unrankeds, pop, n*sizeof(MOKPSol*));
 	nunrankeds = n;
 
-	/* OVERSETTING ndim */
-	ndim = (3 > pop[0]->mokp->np) ? pop[0]->mokp->np : 3;
-
 	/* while exists solutions to be ranked */
 	nrank = 0;
 	while( nunrankeds ){

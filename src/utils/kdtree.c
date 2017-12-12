@@ -15,6 +15,10 @@
 #include "heap.h"
 #include "kdtree.h"
 
+#ifdef COUNT_COMPARISON
+extern unsigned long long ncomp_;
+#endif
+
 KDNode *kdnode_new(void *element){
     KDNode *kdn;
     kdn = (KDNode*)malloc(sizeof(KDNode));
@@ -110,6 +114,9 @@ KDNode *_kdtree_range_search(
         	val = eval_f(root->info, i);
         	lower = bounds[i*2];
         	upper = bounds[i*2+1];
+#ifdef COUNT_COMPARISON
+			ncomp_++;
+#endif
         	meets = (val >= lower) && (val <= upper);
     	}
     	/* if is inside, check if has desired property */
