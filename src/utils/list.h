@@ -19,6 +19,7 @@ typedef struct ListIter{
 }ListIter;
 
 List *list_new();
+List *list_new_from_array(void **, int n);
 List *list_insert(List *list, void *info);
 List *list_insert_here(void *info, ListIter *iter);
 void **list_get_all(List *list);

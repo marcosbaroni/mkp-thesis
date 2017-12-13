@@ -94,7 +94,8 @@ typedef struct MOKPSolIndexer{
 
 MOKPSolIndexer *msi_new(int);
 MOKPSolIndexer *msi_insert(MOKPSolIndexer*, MOKPSol*);
-MOKPSol *msi_remove(MOKPSolIndexer*, void*);
+int msi_pareto_update(MOKPSolIndexer *msi, MOKPSol*);
+void msi_remove(MOKPSolIndexer*, MOKPSol*);
 int msi_get_n(MOKPSolIndexer*);
 void msi_free(MOKPSolIndexer*);
 void msi_apply_all(MOKPSolIndexer*, void(*)(void*));

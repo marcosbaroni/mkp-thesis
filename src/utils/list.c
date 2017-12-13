@@ -20,6 +20,16 @@ List *list_new(){
 
     return list;
 }
+List *list_new_from_array(void **array, int n){
+	List *list;
+	int i;
+
+	list = list_new();
+	for( i = 0 ; i < n ; i++ )
+		list_insert(list, array[i]);
+
+	return list;
+}
 
 List *list_insert(List *list, void *info){
     ListNode *node;
