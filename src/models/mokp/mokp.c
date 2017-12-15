@@ -850,8 +850,7 @@ int msi_pareto_update(MOKPSolIndexer *msi, MOKPSol *sol){
 		msi_remove(msi, dominated);
 		mokpsol_free(dominated);
 	}
-
-	msi_insert(msi, sol);
+	msi_insert(msi, mokpsol_copy(sol));
 
 	return 1;
 }

@@ -48,9 +48,6 @@ List *rank_population(
 	int nranked, *isranked;
 	int i;
 
-	/* FIXME: remove! */
-	ndim = 1;
-
 	ranks = list_new();
 	pop = msi_new(ndim);
 	for( i = 0 ; i < n ; i++ )
@@ -69,12 +66,8 @@ List *rank_population(
 			printf(" Checking for ");
 			mokpsol_printf(sol);
 			if( !(dominant = msi_find_dominant(pop, sol)) ){
-				printf(" * not found \n");
+				sol->rank = ranks->n;
 				msi_insert(front, sol);
-			}else{
-				printf(" * dominant found: ");
-				mokpsol_printf(dominant);
-				printf("\n");
 			}
 			msiiter_forward(pop_iter);
 		}
@@ -86,6 +79,7 @@ List *rank_population(
 			msi_remove(pop, sol);
 			msiiter_forward(front_iter);
 		}
+		msiiter_free(front_iter);
 
 		list_insert(ranks, front);
 	}
@@ -106,28 +100,29 @@ MOKPSol **shuffle_memeplexes(
 	MOKPSol *sol;
 	ListIter *rankiter;
 	MOKPSolIndexer *rank;
-	MSIIter *soliter;
-	int i, idx, npop;
+	MSIIter *msiiter;
+	int i, j, idx, npop;
 
 	npop = ncomp*compsize;
 	pop = (MOKPSol**)malloc(npop*sizeof(MOKPSol*));
 
 	rankiter = listiter_new(ranks);
 	rank = listiter_get(rankiter);
-	soliter = msiiter_new(rank);
-	sol = msiiter_get(soliter);
+	msiiter = msiiter_new(rank);
+	sol = msiiter_get(msiiter);
 	for( i = 0 ; i < npop ; i++ ){
 		if( !sol ){
-			msiiter_free(soliter);
+			msiiter_free(msiiter);
 			rank = listiter_forward(rankiter);
-			soliter = msiiter_new(rank);
-			sol = msiiter_get(soliter);
+			msiiter = msiiter_new(rank);
+			sol = msiiter_get(msiiter);
 		}
-		idx = (i/compsize) + (i%compsize)*ncomp;
+		idx = (i % ncomp)*compsize + (i / ncomp);
 		pop[idx] = sol;
-		sol = msiiter_forward(soliter);
+		msiiter_forward(msiiter);
+		sol = msiiter_get(msiiter);
 	}
-	msiiter_free(soliter);
+	msiiter_free(msiiter);
 	listiter_free(rankiter);
 	return pop;
 }
@@ -261,6 +256,7 @@ void _print_ranks(List *ranks){
 
 	iter = list_get_first(ranks);
 	msi = listiter_get(iter);
+	printf(" RANKED POPULATION\n");
 	while( msi = listiter_get(iter) ){
 		printf(" Rank %d (%d)\n", r++, msi_get_n(msi));
 		msi_apply_all(msi, (void(*)(void*))mokpsol_printf);
@@ -285,7 +281,7 @@ MOKPSolIndexer *mokp_sce(
 	MOKPSolIndexer *msi;
 	List *ranks;
 	MSIIter *msiiter;
-	int i, k, irank, nranks, nnew_ranks, npop, nnew_pop;
+	int i, j, k, irank, nranks, nnew_ranks, npop, nnew_pop;
 	time_t ping, pong;
 
 	ping = clock();
@@ -312,6 +308,14 @@ MOKPSolIndexer *mokp_sce(
 
 		/* Evolving */
 		pop = shuffle_memeplexes(ranks, nranks, ncomp, compsize);
+		printf(" SHUFFLED MEMEPLEXES\n");
+		for( i = 0 ; i < ncomp; i++ ){
+			printf("   comp %d\n", i);
+			for( j = 0 ; j < compsize; j++ ){
+				printf("%d ", j+1);
+				mokpsol_printf(pop[i*compsize+j]);
+			}
+		}
 		new_pop = memeplex_new_population(ranks, pop, ncomp, compsize,
 														nsubcomp, nsubiter);
 		/* Updating archive */
