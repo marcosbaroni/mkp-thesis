@@ -68,6 +68,10 @@ List *rank_population(
 			if( !(dominant = msi_find_dominant(pop, sol)) ){
 				sol->rank = ranks->n;
 				msi_insert(front, sol);
+				printf("   not found\n");
+			}else{
+				printf(" found: ");
+				mokpsol_printf(dominant);
 			}
 			msiiter_forward(pop_iter);
 		}

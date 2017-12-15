@@ -729,9 +729,20 @@ MOKPSol *mokpsol_find_dominant_avl(MOKPSol *sol, AVLTree *avlt){
 	AVLIter *iter;
 
     iter = avl_get_higher_lower_than(avlt, sol);
-	while( (sol2 = avliter_backward(iter)) && !dominant )
-		if( mokpsol_dominates_(sol2, sol) )
+	// FIXME:
+	sol2 = avliter_get(iter);
+	while( sol2 && !dominant ){
+		printf("   is? ");
+		mokpsol_printf(sol2);
+		if( mokpsol_dominates_(sol2, sol) ){
+			printf(" yes\n");
 			dominant = sol2;
+		}else{
+			printf(" yes\n");
+		}
+		avliter_forward(iter);
+		sol2 = avliter_get(iter);
+	}
 
 	avliter_free(iter);
 
