@@ -370,8 +370,8 @@ int execute_bazgan(int argc, char **argv){
 	if( print_pareto ){
 		msi = bazgan2msi(bazgan);
 		//bazgan_print_pareto(bazgan);
-		msi_apply_all(msi, (void(*)(void*))mokpsol_profit_write);
-		msi_apply_all(msi, (void(*)(void*))mokpsol_free);
+		msi_apply_all(msi, mokpsol_profit_write);
+		msi_apply_all(msi, mokpsol_free);
 		msi_free(msi);
 	}
     bazgan_print_summary(bazgan);
@@ -567,7 +567,7 @@ int execute_dynprog(int argc, char **argv){
 *******************************************************************************/
 int print_usage_sce(int argc, char **argv){
     printf("Solve Multiobjective Knapsack Problem using SCE.\n\n");
-    printf("  usage: %s %s <input file> <ndim> [seed=0] [niter=300] [ncomp=20] [compsize=20] [nsubcomp=5] [nsubiter=20]\n", argv[0], SCE_OPT);
+    printf("  usage: %s %s <input file> <ndim> [seed=0] [niter=300] [ncomp=20] [compsize=20] [nsubcomp=5] [nsubiter=20] [cross_ratio]\n", argv[0], SCE_OPT);
     printf("    input file: - to read from stdin\n");
     printf("\n  Output:\n");
     printf("    <time (s)>;<n sols>;<hypervolume>");
@@ -580,7 +580,8 @@ int execute_sce(int argc, char **argv){
 	MOKP *mokp;
 	FILE *input;
 	int i, ndim;
-	int niter, ncomp, compsize, nsubcomp, nsubiter, seed;
+	int niter, ncomp, compsize, nsubcomp, nsubiter, seed, ncross;
+	double cross_ratio;
 	SFL_Interface *sfli;
 	MOKPSol *sol;
 	MOKPSolIndexer *sce, *baz;
@@ -595,6 +596,7 @@ int execute_sce(int argc, char **argv){
 	nsubiter = 20;
 	ndim = 0;
 	seed = 0;
+	cross_ratio = 0.2;
 
 	if( argc < 4 ){
 		print_usage_sce(argc, argv);
@@ -623,16 +625,19 @@ int execute_sce(int argc, char **argv){
 		nsubcomp = atoll(argv[8]);
 	if( argc > 9 )
 		nsubiter = atoll(argv[9]);
+	if( argc > 10 )
+		sscanf(argv[10], "%lf", &cross_ratio);
 
 	auto_seed(seed);
 
 	mokp = mokp_read(input);
+	ncross = (int)floor(cross_ratio*mokp->n);
 
 	if( ndim > mokp->np )
 		ndim = mokp->np;
 
 	sce = mokp_sce(mokp, ncomp, compsize, nsubcomp,
-		niter, nsubiter, ndim, &secs);
+		niter, nsubiter, ndim, ncross, &secs);
 	//bazgan = bazgan_exec(mokp, mokp->n, 2);
 	//baz = bazgan2msi(bazgan);
 
@@ -643,7 +648,7 @@ int execute_sce(int argc, char **argv){
 #endif
 	printf("\n");
 
-	msi_apply_all(sce, (void(*)(void*))mokpsol_free);
+	msi_apply_all(sce, mokpsol_free);
 	msi_free(sce);
 	//msi_free(baz);
 	//bazgan_free(bazgan);
@@ -723,7 +728,7 @@ int execute_hvol(int argc, char **argv){
 		fclose(input);
 	hvol = msi_hvolume(msi);
 	printf("%.3f\n", hvol);
-	msi_apply_all(msi, (void(*)(void*))mokpsol_free);
+	msi_apply_all(msi, mokpsol_free);
 	msi_free(msi);
 	mokp_free(mokp);
 	return 0;

@@ -20,6 +20,7 @@ MOKPSolIndexer *mokp_sce(
 	int niter,          /* number of iterations */
 	int nsubiter,       /* number of iterations for each memeplex opt */
 	int ndim,           /* dimension to be used on solution indexing */
+	int ncross,         /* number of genes crossed */
 	double *secs        /* execution time (seconds) */
 );
 

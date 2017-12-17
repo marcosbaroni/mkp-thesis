@@ -1075,7 +1075,7 @@ AVLIter* avl_get_lower_higher_than(AVLTree *avl, void *a){
     /* Search for a lowers */
     scout = node->left;
     while( scout ){
-		cmp_res = cmp(node->info, a);
+		cmp_res = cmp(scout->info, a);
 #ifdef COUNT_COMPARISON
 		ncomp_++;
 #endif

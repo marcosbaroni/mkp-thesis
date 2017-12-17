@@ -743,21 +743,14 @@ MOKPSol *mokpsol_find_dominant_avl(MOKPSol *sol, AVLTree *avlt, int accept_equal
 
     iter = avl_get_higher_lower_than(avlt, sol);
 	sol2 = avliter_get(iter);
-	printf(" finding dominant (acc_eq=%d) for: ", accept_equal);
-	mokpsol_printf(sol);
 	if( !sol2 ){
 		avliter_free(iter);
 		iter = avl_get_first(avlt);
 		sol2 = avliter_get(iter);
 	}
 	while( sol2 && !dominant ){
-		printf("  testing: ");
-		mokpsol_printf(sol2);
 		if( func(sol2, sol) ){
 			dominant = sol2;
-			printf("   found!\n");
-		}else{
-			printf("   no..\n");
 		}
 		avliter_forward(iter);
 		sol2 = avliter_get(iter);
@@ -796,20 +789,26 @@ MOKPSol *msi_find_dominant(MOKPSolIndexer *msi, MOKPSol *sol, int accept_equal){
 	return mokpsol_find_dominant_kdtree(sol, msi->tad.kdt, accept_equal);
 }
 
-MOKPSol *mokpsol_find_dominanted_list(MOKPSol *sol, List *list){
+MOKPSol *mokpsol_find_dominated_list(MOKPSol *sol, List *list){
 	ListIter *iter;
 	MOKPSol *sol2, *dominated = NULL;
+	int res;
 
 	iter = list_get_first(list);
-	while( (sol2 = (MOKPSol*)listiter_forward(iter)) && !dominated )
-		if( mokpsol_dominated_by_(sol2, sol) )
+	sol2 = listiter_get(iter);
+	while( sol2 && !dominated ){
+		res = mokpsol_dom_cmp(sol2, sol);
+		if( res == SOL_DOMINATED )
 			dominated = sol2;
+		listiter_forward(iter);
+		sol2 = listiter_get(iter);
+	}
 
 	listiter_free(iter);
 
 	return dominated;
 }
-MOKPSol *mokpsol_find_dominanted_avl(MOKPSol *sol, AVLTree *avl){
+MOKPSol *mokpsol_find_dominated_avl(MOKPSol *sol, AVLTree *avl){
 	MOKPSol *dominated = NULL;
 	MOKPSol *sol2;
 	AVLIter *iter;
@@ -823,7 +822,7 @@ MOKPSol *mokpsol_find_dominanted_avl(MOKPSol *sol, AVLTree *avl){
 
 	return dominated;
 }
-MOKPSol *mokpsol_find_dominanted_kdtree(MOKPSol *sol, KDTree *kdt){
+MOKPSol *mokpsol_find_dominated_kdtree(MOKPSol *sol, KDTree *kdt){
 	MOKPSol *dominated = NULL;
 	double *bounds;
 	int i, ndim;
@@ -847,10 +846,36 @@ MOKPSol *mokpsol_find_dominanted_kdtree(MOKPSol *sol, KDTree *kdt){
 }
 MOKPSol *msi_find_dominated(MOKPSolIndexer *msi, MOKPSol *sol){
 	if( msi->ndim == 0 )
-		return mokpsol_find_dominanted_list(sol, msi->tad.list);
+		return mokpsol_find_dominated_list(sol, msi->tad.list);
 	if( msi->ndim == 1 )
-		return mokpsol_find_dominanted_avl(sol, msi->tad.avl);
-	return mokpsol_find_dominanted_kdtree(sol, msi->tad.kdt);
+		return mokpsol_find_dominated_avl(sol, msi->tad.avl);
+	return mokpsol_find_dominated_kdtree(sol, msi->tad.kdt);
+}
+void msi_remove_dominated_list(List *list, MOKPSol *sol){
+	MOKPSol *sol2;
+	ListIter *listiter;
+
+	listiter = listiter_new(list);
+	sol2 = listiter_get(listiter);
+	while( sol2 ){
+		if( mokpsol_dom_cmp(sol2, sol) == SOL_DOMINATED ){
+			listiter_remove(listiter);
+			mokpsol_free(sol2);
+		}else{
+			listiter_forward(listiter);
+		}
+		sol2 = listiter_get(listiter);
+	}
+
+	listiter_free(listiter);
+}
+void msi_remove_dominated(MOKPSolIndexer *msi, MOKPSol *sol){
+	if( msi->ndim == 0 )
+		return msi_remove_dominated_list(msi->tad.list, sol);
+	if( msi->ndim == 1 )
+		fprintf(stderr, "%s not impl. 4 ndim = 1\n", __PRETTY_FUNCTION__);
+	if( msi->ndim  > 1 )
+		fprintf(stderr, "%s not impl. 4 ndim > 1\n", __PRETTY_FUNCTION__);
 }
 
 MOKPSolIndexer *msi_new(int ndim){
@@ -880,16 +905,11 @@ int msi_pareto_update(MOKPSolIndexer *msi, MOKPSol *sol){
 	MOKPSol *dominant = NULL;
 	MOKPSol *dominated = NULL;
 
-	printf(" pareto update for: ");
-	mokpsol_printf(sol);
 	dominant = msi_find_dominant(msi, sol, 1);
 	if( dominant )
 		return 0;
 
-	while( dominated = msi_find_dominated(msi, sol) ){
-		msi_remove(msi, dominated);
-		mokpsol_free(dominated);
-	}
+	msi_remove_dominated(msi, sol);
 	msi_insert(msi, mokpsol_copy(sol));
 
 	return 1;
@@ -926,21 +946,21 @@ MOKPSol **msi_get_all(MOKPSolIndexer *msi){
 		all = (MOKPSol**)kdtree_get_all(msi->tad.kdt);
 	return all;
 }
-void msi_apply_all(MOKPSolIndexer *msi, void(*f)(void*)){
+void msi_apply_all(MOKPSolIndexer *msi, void(*f)(MOKPSol*)){
 	if( msi->ndim == 0 )
-		list_apply(msi->tad.list, f);
+		list_apply(msi->tad.list, (void(*)(void*))f);
 	if( msi->ndim == 1 )
-		avl_apply_to_all(msi->tad.avl, f);
+		avl_apply_to_all(msi->tad.avl, (void(*)(void*))f);
 	if( msi->ndim  > 1 )
-		kdtree_apply_to_all(msi->tad.kdt, f);
+		kdtree_apply_to_all(msi->tad.kdt, (void(*)(void*))f);
 }
-void msi_apply_all_r(MOKPSolIndexer *msi, void(*f)(void*, void*), void *arg){
+void msi_apply_all_r(MOKPSolIndexer *msi, void(*f)(MOKPSol*, void*), void *arg){
 	if( msi->ndim == 0 )
-		list_apply_r(msi->tad.list, f, arg);
+		list_apply_r(msi->tad.list, (void(*)(void*,void*))f, arg);
 	if( msi->ndim == 1 )
-		avl_apply_to_all_r(msi->tad.avl, f, arg);
+		avl_apply_to_all_r(msi->tad.avl, (void(*)(void*,void*))f, arg);
 	if( msi->ndim  > 1 )
-		kdtree_apply_to_all_r(msi->tad.kdt, f, arg);
+		kdtree_apply_to_all_r(msi->tad.kdt, (void(*)(void*,void*))f, arg);
 }
 void msi_remove(MOKPSolIndexer *msi, MOKPSol *sol){
 	if( msi->ndim == 0 )

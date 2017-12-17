@@ -130,19 +130,17 @@ MOKPSol **memeplex_new_population(
 	int ncomp,
 	int compsize,
 	int nsubcomp,
-	int nsubiter
+	int nsubiter,
+	int ncross
 ){
 	MOKP *mokp;
 	MOKPSolIndexer *rank, **ranks_;
 	ListIter *liter;
 	MOKPSol *dominant, *new, *worst, **news;
 	int i, isub, isubworst, isubbest;
-	int c, npop, nnew_pop, icomp, subiter;
-	float cross_rate;
+	int npop, nnew_pop, icomp, subiter;
 
 	mokp = pop[0]->mokp;
-	cross_rate = 0.2;
-	c = ceil(mokp->n*cross_rate);
 	npop = ncomp*compsize;
 	nnew_pop = ncomp*nsubiter;
 	news = (MOKPSol**)malloc(nnew_pop*sizeof(MOKPSol*));
@@ -168,20 +166,20 @@ MOKPSol **memeplex_new_population(
 
 			/* cross with best from submemeplex */
 			mokp_shuffle_idxs(mokp);
-			new = mokpsol_cross(mokpsol_copy(worst), pop[isubbest], c);
+			new = mokpsol_cross(mokpsol_copy(worst), pop[isubbest], ncross);
 			dominant = msi_find_dominant(rank, new, 1);
 			/* cross with best from memeplex */
 			if( dominant ){
 				mokpsol_free(new);
 				mokp_shuffle_idxs(mokp);
-				new = mokpsol_cross(mokpsol_copy(worst), pop[icomp*compsize], c);
+				new = mokpsol_cross(mokpsol_copy(worst), pop[icomp*compsize], ncross);
 				dominant = msi_find_dominant(rank, new, 1);
 			}
 			/* cross with best from population */
 			if( dominant ){
 				mokpsol_free(new);
 				mokp_shuffle_idxs(mokp);
-				new = mokpsol_cross(mokpsol_copy(worst), pop[0], c);
+				new = mokpsol_cross(mokpsol_copy(worst), pop[0], ncross);
 				dominant = msi_find_dominant(rank, new, 1);
 			}
 			/* generate new random */
@@ -256,7 +254,7 @@ void _print_ranks(List *ranks){
 	printf(" RANKED POPULATION\n");
 	while( msi = listiter_get(iter) ){
 		printf(" Rank %d (%d)\n", r++, msi_get_n(msi));
-		msi_apply_all(msi, (void(*)(void*))mokpsol_printf);
+		msi_apply_all(msi, mokpsol_printf);
 		listiter_forward(iter);
 	}
 	listiter_free(iter);
@@ -275,6 +273,7 @@ MOKPSolIndexer *mokp_sce(
 	int niter,           /* number of iterations */
 	int nsubiter,        /* number of iterations for each memeplex opt */
 	int ndim,
+	int ncross,          /* number of genes crossed */
 	double *secs
 ){
 	MOKPSol *sol, **new_pop, **pop, **memeplexes;
@@ -299,26 +298,22 @@ MOKPSolIndexer *mokp_sce(
 	msi = msi_new(ndim);
 	msi_apply_all_r(
 		list_get_head(ranks),
-		(void(*)(void*,void*))msi_pareto_update_,
+		(void(*)(MOKPSol*,void*))msi_pareto_update_,
 		msi
 	);
 	
 	/* Iterate */
 	for( k = 0 ; k < niter ; k++ ){
-		printf("%d/%d\n", k+1, niter); fflush(stdout);
+		//printf("%d/%d\n", k+1, niter); fflush(stdout);
 
 		/* Evolving */
 		free(pop);
 		pop = shuffle_memeplexes(ranks, nranks, ncomp, compsize);
-		new_pop = memeplex_new_population(ranks, pop, ncomp, compsize,
-														nsubcomp, nsubiter);
+		new_pop = memeplex_new_population(
+			ranks, pop, ncomp, compsize, nsubcomp, nsubiter, ncross);
 		/* Updating archive */
 		// TODO: just try to update individuals from first front
-		printf("\nCURRENT PARETO (%d)\n", msi_get_n(msi));
-		msi_apply_all( msi, (void(*)(void*))mokpsol_printf);
-		printf("\nNEW CANDIDATES (%d)\n", nnew_pop);
 		for( i = 0 ; i < nnew_pop ; i++ ){
-			mokpsol_printf(new_pop[i]);
 			msi_pareto_update(msi, new_pop[i]);
 		}
 
@@ -341,6 +336,8 @@ MOKPSolIndexer *mokp_sce(
 	pong = clock();
 	if(secs)
 		*secs = (pong - ping)/(double)CLOCKS_PER_SEC;
+
+	msi_apply_all(msi, mokpsol_printf);
 
 	return msi;
 }
