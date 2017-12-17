@@ -851,7 +851,7 @@ void avl_apply_to_all(AVLTree *avlt, void(*func)(void*) ){
 void sub_avl_apply_to_all_r(AVLNode *node, void(*func)(void*, void*), void *arg){
 	if( node->left )
         sub_avl_apply_to_all_r( node->left, func, arg );
-    func( arg, node->info );
+    func( node->info, arg );
 	if( node->right )
         sub_avl_apply_to_all_r( node->right, func, arg );
 }

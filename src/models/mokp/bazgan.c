@@ -1165,16 +1165,12 @@ Bazgan *bazgan_brute(MOKP *mokp, int k){
     return bazgan;
 }
 
-void _avl_insert( AVLTree *avl, BazganNode *n1){
-    avl_insert(avl, n1);
-}
-
 void bazgan_fprint_nodes_lex(FILE *out, Bazgan *bazgan){
     BazganNode **nodes;
     AVLTree *avl;
 
     avl = new_avltree( (avl_cmp_f)bnode_profit_lex_cmp );
-    avl_apply_to_all_r( bazgan->avl_lex, (void(*)(void*,void*))_avl_insert, avl);
+    avl_apply_to_all_r( bazgan->avl_lex, (void(*)(void*,void*))avl_insert, avl);
     avl_apply_to_all( avl, (void(*)(void*))bnode_printf);
     printf("\n");
 

@@ -122,6 +122,11 @@ void **list_get_all(List *list){
     }
 	return items;
 }
+void *list_get_head(List *list){
+	if( list->first )
+		return list->first->info;
+	return NULL;
+}
 void *list_find_closest(List *list, void *x, double(*f)(void*, void*)){
 	void *closer = NULL;
 	void *elem;

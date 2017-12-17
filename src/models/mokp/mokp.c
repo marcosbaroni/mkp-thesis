@@ -686,6 +686,10 @@ double mokpsol_spacing(MOKPSol *a, MOKPSol *b){
 int mokpsol_dominates_(MOKPSol *a, MOKPSol *b){
 	return (mokpsol_dom_cmp(a, b) == SOL_DOMINATES);
 }
+int mokpsol_dominates_or_is_equal_(MOKPSol *a, MOKPSol *b){
+	int res = mokpsol_dom_cmp(a, b);
+	return ( (res == SOL_DOMINATES) || (res == SOL_EQUAL) );
+}
 int mokpsol_dominated_by_(MOKPSol *a, MOKPSol *b){
 	return (mokpsol_dom_cmp(a, b) == SOL_DOMINATED);
 }
@@ -701,10 +705,11 @@ int mokpsol_profit1_cmp(MOKPSol *a, MOKPSol *b){
 KDTree *mokpsol_new_kdtree(int ndim){
 	return kdtree_new(ndim, (kdtree_eval_f)mokpsol_axis_get);
 }
-MOKPSol *mokpsol_find_dominant_kdtree(MOKPSol *sol, KDTree *kdt){
+MOKPSol *mokpsol_find_dominant_kdtree(MOKPSol *sol, KDTree *kdt, int accept_equal){
 	MOKPSol *dominant = NULL;
 	double *bounds;
 	int i, ndim;
+	property_f_r func;
 
 	ndim = kdt->ndim;
 	bounds = (double*)malloc(2*ndim*sizeof(double));
@@ -713,20 +718,28 @@ MOKPSol *mokpsol_find_dominant_kdtree(MOKPSol *sol, KDTree *kdt){
 		bounds[2*i+1] = INFINITY;
 	}
 
+	func = (property_f_r)mokpsol_dominates_;
+	if( accept_equal )
+		func = (property_f_r)mokpsol_dominates_or_is_equal_;
 	dominant = kdtree_range_search_r(
 		kdt,
 		bounds,
-		(property_f_r)mokpsol_dominates_,
+		func,
 		sol);
 
 	free(bounds);
 
 	return dominant;
 }
-MOKPSol *mokpsol_find_dominant_avl(MOKPSol *sol, AVLTree *avlt){
+MOKPSol *mokpsol_find_dominant_avl(MOKPSol *sol, AVLTree *avlt, int accept_equal){
 	MOKPSol *sol2;
 	MOKPSol *dominant = NULL;
 	AVLIter *iter;
+	property_f_r func;
+
+	func = (property_f_r)mokpsol_dominates_;
+	if( accept_equal )
+		func = (property_f_r)mokpsol_dominates_or_is_equal_;
 
     iter = avl_get_higher_lower_than(avlt, sol);
 	sol2 = avliter_get(iter);
@@ -736,7 +749,7 @@ MOKPSol *mokpsol_find_dominant_avl(MOKPSol *sol, AVLTree *avlt){
 		sol2 = avliter_get(iter);
 	}
 	while( sol2 && !dominant ){
-		if( mokpsol_dominates_(sol2, sol) ){
+		if( func(sol2, sol) ){
 			dominant = sol2;
 		}
 		avliter_forward(iter);
@@ -746,14 +759,19 @@ MOKPSol *mokpsol_find_dominant_avl(MOKPSol *sol, AVLTree *avlt){
 
 	return dominant;
 }
-MOKPSol *mokpsol_find_dominant_list(MOKPSol *sol, List *list){
+MOKPSol *mokpsol_find_dominant_list(MOKPSol *sol, List *list, int accept_equal){
 	ListIter *iter;
 	MOKPSol *sol2, *dominant = NULL;
+	property_f_r func;
+
+	func = (property_f_r)mokpsol_dominates_;
+	if( accept_equal )
+		func = (property_f_r)mokpsol_dominates_or_is_equal_;
 
 	iter = list_get_first(list);
 	sol2 = listiter_get(iter);
 	while( sol2 && !dominant ){
-		if( mokpsol_dominates_(sol2, sol) )
+		if( func(sol2, sol) )
 			dominant = sol2;
 		listiter_forward(iter);
 		sol2 = listiter_get(iter);
@@ -763,12 +781,12 @@ MOKPSol *mokpsol_find_dominant_list(MOKPSol *sol, List *list){
 
 	return dominant;
 }
-MOKPSol *msi_find_dominant(MOKPSolIndexer *msi, MOKPSol *sol){
+MOKPSol *msi_find_dominant(MOKPSolIndexer *msi, MOKPSol *sol, int accept_equal){
 	if( msi->ndim == 0 )
-		return mokpsol_find_dominant_list(sol, msi->tad.list);
+		return mokpsol_find_dominant_list(sol, msi->tad.list, accept_equal);
 	if( msi->ndim == 1 )
-		return mokpsol_find_dominant_avl(sol, msi->tad.avl);
-	return mokpsol_find_dominant_kdtree(sol, msi->tad.kdt);
+		return mokpsol_find_dominant_avl(sol, msi->tad.avl, accept_equal);
+	return mokpsol_find_dominant_kdtree(sol, msi->tad.kdt, accept_equal);
 }
 
 MOKPSol *mokpsol_find_dominanted_list(MOKPSol *sol, List *list){
@@ -855,7 +873,7 @@ int msi_pareto_update(MOKPSolIndexer *msi, MOKPSol *sol){
 	MOKPSol *dominant = NULL;
 	MOKPSol *dominated = NULL;
 
-	dominant = msi_find_dominant(msi, sol);
+	dominant = msi_find_dominant(msi, sol, 1);
 	if( dominant )
 		return 0;
 
@@ -931,7 +949,7 @@ int msi_set_coverage(MOKPSolIndexer *msi_a, MOKPSolIndexer *msi_b){
 	ndominated_a = 0;
 	iter = msiiter_new(msi_a);
 	while( sol = msiiter_forward(iter) )
-		if( msi_find_dominant(msi_b, sol) )
+		if( !msi_find_dominant(msi_b, sol, 1) )
 			ndominated_a++;
 	msiiter_free(iter);
 	return ndominated_a;
@@ -1079,7 +1097,7 @@ void archive_propose_sol(Archive *arch, MOKPSol *sol){
 	MOKPSol *dominant, *dominated;
 	int cmp_res;
 
-	dominant = msi_find_dominant( arch->pareto, sol );
+	dominant = msi_find_dominant( arch->pareto, sol, 1);
 	if( dominant )
 		return;
 	while( dominated = msi_find_dominated( arch->pareto, sol ) ){

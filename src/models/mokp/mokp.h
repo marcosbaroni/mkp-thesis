@@ -78,7 +78,7 @@ void mokpsol_profit_write(MOKPSol* sol);
 int mokpsol_dom_cmp(MOKPSol*, MOKPSol*);
 double mokpsol_spacing(MOKPSol*, MOKPSol*); /* IF same element THEN INFINITY */
 KDTree *mokpsol_new_kdtree(int);
-MOKPSol *mokpsol_find_dominant_kdtree(MOKPSol*, KDTree*);
+MOKPSol *mokpsol_find_dominant_kdtree(MOKPSol*, KDTree*, int accept_equal);
 int mokpsol_e_dominates(MOKPSol*, MOKPSol*);
 
 
@@ -101,7 +101,7 @@ void msi_free(MOKPSolIndexer*);
 void msi_apply_all(MOKPSolIndexer*, void(*)(void*));
 void msi_apply_all_r(MOKPSolIndexer*, void(*)(void*,void*), void*);
 MOKPSol **msi_get_all(MOKPSolIndexer*);
-MOKPSol *msi_find_dominant(MOKPSolIndexer*, MOKPSol*);
+MOKPSol *msi_find_dominant(MOKPSolIndexer*, MOKPSol*, int accept_equal);
 MOKPSol *msi_find_dominated(MOKPSolIndexer*, MOKPSol*);
 int msi_set_coverage(MOKPSolIndexer*, MOKPSolIndexer*);
 double msi_spacing(MOKPSolIndexer*);

@@ -570,7 +570,11 @@ int print_usage_sce(int argc, char **argv){
     printf("  usage: %s %s <input file> <ndim> [seed=0] [niter=300] [ncomp=20] [compsize=20] [nsubcomp=5] [nsubiter=20]\n", argv[0], SCE_OPT);
     printf("    input file: - to read from stdin\n");
     printf("\n  Output:\n");
-    printf("    <time (s)>;<n sols>;<hypervolume>\n\n");
+    printf("    <time (s)>;<n sols>;<hypervolume>");
+#ifdef COUNT_COMPARISON
+    printf(";<n comparisons>");
+#endif
+    printf("\n\n");
 }
 int execute_sce(int argc, char **argv){
 	MOKP *mokp;
