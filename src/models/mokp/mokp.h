@@ -34,7 +34,7 @@ typedef struct MOKP{
     mokpnum **p;        /* the profits [np x n] */
     mokpnum *w;         /* the weight [n] */
     mokpnum b;
-	int *idxs;           /* int array for random index operations */
+	int *idxs;          /* int array for random index operations */
 }MOKP;
 
 MOKP *mokp_alloc(int n, int np);

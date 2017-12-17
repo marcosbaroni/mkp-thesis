@@ -938,16 +938,13 @@ AVLIter* avl_get_first(AVLTree *avl){
     AVLIter *avl_iter;
     AVLNode *node;
 
-    avl_iter = (AVLIter*)malloc(sizeof(AVLIter));
-
     node = avl->root;
-    avl_iter->node = node;
-    avl_iter->tree = avl;
-    if( !node )
-        return avl_iter;
+	if( node )
+    	while( node->left )
+        	node = node->left;
 
-    while( node->left )
-        node = node->left;
+    avl_iter = (AVLIter*)malloc(sizeof(AVLIter));
+    avl_iter->tree = avl;
     avl_iter->node = node;
 
     return avl_iter;

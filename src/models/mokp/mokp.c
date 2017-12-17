@@ -581,8 +581,8 @@ MOKP *mokp_open(char *filename){
 
 
 /*************************
- *     MOKP Solution     *
- ************************/
+*     MOKP Solution      *
+*************************/
 /* New MOKP empty solution */
 MOKPSol *mokpsol_new_empty(MOKP *mokp){
 	MOKPSol *sol;
@@ -724,26 +724,24 @@ MOKPSol *mokpsol_find_dominant_kdtree(MOKPSol *sol, KDTree *kdt){
 	return dominant;
 }
 MOKPSol *mokpsol_find_dominant_avl(MOKPSol *sol, AVLTree *avlt){
-	MOKPSol *dominant = NULL;
 	MOKPSol *sol2;
+	MOKPSol *dominant = NULL;
 	AVLIter *iter;
 
     iter = avl_get_higher_lower_than(avlt, sol);
-	// FIXME:
 	sol2 = avliter_get(iter);
+	if( !sol2 ){
+		avliter_free(iter);
+		iter = avl_get_first(avlt);
+		sol2 = avliter_get(iter);
+	}
 	while( sol2 && !dominant ){
-		printf("   is? ");
-		mokpsol_printf(sol2);
 		if( mokpsol_dominates_(sol2, sol) ){
-			printf(" yes\n");
 			dominant = sol2;
-		}else{
-			printf(" yes\n");
 		}
 		avliter_forward(iter);
 		sol2 = avliter_get(iter);
 	}
-
 	avliter_free(iter);
 
 	return dominant;
@@ -753,9 +751,13 @@ MOKPSol *mokpsol_find_dominant_list(MOKPSol *sol, List *list){
 	MOKPSol *sol2, *dominant = NULL;
 
 	iter = list_get_first(list);
-	while( (sol2 = (MOKPSol*)listiter_forward(iter)) && !dominant )
+	sol2 = listiter_get(iter);
+	while( sol2 && !dominant ){
 		if( mokpsol_dominates_(sol2, sol) )
 			dominant = sol2;
+		listiter_forward(iter);
+		sol2 = listiter_get(iter);
+	}
 
 	listiter_free(iter);
 
