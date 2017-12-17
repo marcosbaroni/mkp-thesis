@@ -743,14 +743,21 @@ MOKPSol *mokpsol_find_dominant_avl(MOKPSol *sol, AVLTree *avlt, int accept_equal
 
     iter = avl_get_higher_lower_than(avlt, sol);
 	sol2 = avliter_get(iter);
+	printf(" finding dominant (acc_eq=%d) for: ", accept_equal);
+	mokpsol_printf(sol);
 	if( !sol2 ){
 		avliter_free(iter);
 		iter = avl_get_first(avlt);
 		sol2 = avliter_get(iter);
 	}
 	while( sol2 && !dominant ){
+		printf("  testing: ");
+		mokpsol_printf(sol2);
 		if( func(sol2, sol) ){
 			dominant = sol2;
+			printf("   found!\n");
+		}else{
+			printf("   no..\n");
 		}
 		avliter_forward(iter);
 		sol2 = avliter_get(iter);
@@ -873,6 +880,8 @@ int msi_pareto_update(MOKPSolIndexer *msi, MOKPSol *sol){
 	MOKPSol *dominant = NULL;
 	MOKPSol *dominated = NULL;
 
+	printf(" pareto update for: ");
+	mokpsol_printf(sol);
 	dominant = msi_find_dominant(msi, sol, 1);
 	if( dominant )
 		return 0;

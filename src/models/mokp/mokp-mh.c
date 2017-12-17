@@ -263,7 +263,7 @@ void _print_ranks(List *ranks){
 }
 
 int msi_pareto_update_(MOKPSol *sol, MOKPSolIndexer *msi){
-	return  msi_pareto_update(msi, sol);
+	return msi_pareto_update(msi, sol);
 }
 
 /***   Shuffled Complex Evolution for MOKP   ***/

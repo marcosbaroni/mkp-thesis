@@ -1032,10 +1032,10 @@ AVLIter* avl_get_higher_lower_than(AVLTree *avl, void *a){
         if( !(node = node->left) )
             return avliter_new(avl, NULL);
 
-    /* Searchnig for highers */
+    /* Searching for highers */
     scout = node->right;
     while( scout ){
-		cmp_res = cmp(node->info, a);
+		cmp_res = cmp(scout->info, a);
 #ifdef COUNT_COMPARISON
 		ncomp_++;
 #endif
