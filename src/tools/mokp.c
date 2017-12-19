@@ -318,7 +318,7 @@ int print_usage_bazgan(int argc, char **argv){
     printf("  usage: %s %s <ndim> [input file] [n iterations] [order option=s] [print pareto=0]\n", argv[0], BAZGAN_OPT);
     printf("  ...\n");
     printf("\n  Output:\n");
-    printf("    <n nodes>;<n comparison>;<time (s)>;<max nd>\n\n");
+    printf("    <n nodes>;<n comparison>;<time (s)>;<max nd>;<hyper volume>\n\n");
 
     return 1;
 }
@@ -332,6 +332,7 @@ int execute_bazgan(int argc, char **argv){
     Bazgan *bazgan;
 	char print_pareto = 0;
 	MOKPSolIndexer *msi;
+	double hvol;
 
     finput = stdin;
     order_opt = 's';
@@ -367,14 +368,14 @@ int execute_bazgan(int argc, char **argv){
 
     /* Outputing */
     //bazgan_print_nodes_lex(bazgan);
-	if( print_pareto ){
-		msi = bazgan2msi(bazgan);
-		//bazgan_print_pareto(bazgan);
+	msi = bazgan2msi(bazgan);
+	hvol = msi_hvolume(msi);
+	if( print_pareto )
 		msi_apply_all(msi, mokpsol_profit_write);
-		msi_apply_all(msi, mokpsol_free);
-		msi_free(msi);
-	}
+	msi_apply_all(msi, mokpsol_free);
+	msi_free(msi);
     bazgan_print_summary(bazgan);
+	printf(";%.3e", hvol);
     printf("\n");
 
     /* Free */
@@ -641,7 +642,7 @@ int execute_sce(int argc, char **argv){
 	//bazgan = bazgan_exec(mokp, mokp->n, 2);
 	//baz = bazgan2msi(bazgan);
 
-	printf("%.3lf;%d;%.0lf;", secs, msi_get_n(sce), msi_hvolume(sce));
+	printf("%.3lf;%d;%.3e;", secs, msi_get_n(sce), msi_hvolume(sce));
 	//printf("%.3lf;%.0lf;\n", bazgan_get_seconds(bazgan), msi_hvolume(baz));
 #ifdef COUNT_COMPARISON
 	printf("%lld;", ncomp_);
