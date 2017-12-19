@@ -86,7 +86,7 @@ int execute_convert(int argc, char **argv){
 			mokp = mokp_read(fin);
 			break;
 		case 'b':
-			mokp = mokp_read_bazgan_format(fin);
+			mokp = mokp_read_bazgan(fin);
 			break;
 		case 'z':
 			/* TODO: todo? */
@@ -105,7 +105,7 @@ int execute_convert(int argc, char **argv){
 			break;
 		case 'b':
 		default:
-			fprintf(stderr, "output format not implemented.\n");
+			mokp_write_bazgan(fout, mokp);
 			exit(1);
 	}
     fclose(fin);

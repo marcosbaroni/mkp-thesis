@@ -48,8 +48,12 @@ this->n_instance << "_new.eff";
  * profits and weight, and the max weight allowed
  */
 
-bool IOHandler::readInstance(list<RankingItem*> & points, long & cumulativeWeights,
-			multiset<RankingItem*, ComparerProfit0> & Order0, multiset<RankingItem*, ComparerProfit1> & Order1) {
+bool IOHandler::readInstance(
+		list<RankingItem*> & points,
+		long & cumulativeWeights,
+		multiset<RankingItem*, ComparerProfit0> & Order0,
+		multiset<RankingItem*, ComparerProfit1> & Order1)
+{
 
 	string line;
 		vector<string> tokens;

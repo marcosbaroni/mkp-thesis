@@ -500,7 +500,7 @@ void _read_new_item_from_bazgan_line(char *cbuffer, MOKP *mokp, int _n){
     }
 }
 
-MOKP *mokp_read_bazgan_format(FILE *fin){
+MOKP *mokp_read_bazgan(FILE *fin){
     MOKP *mokp;
     int i, j, it, n, _n, np, b;
     char *cbuffer, cbuffer_[1000], c;
@@ -544,6 +544,27 @@ MOKP *mokp_read_bazgan_format(FILE *fin){
     }
 
     return mokp;
+}
+
+void mokp_write_bazgan(FILE *fout, MOKP *mokp){
+	int i, j;
+
+	fprintf(fout, "n %d\n", mokp->n);
+	fprintf(fout, "W ");
+	mokpnum_fprintf(fout, mokp->b);
+	fprintf(fout, "\n");
+	for( i = 0 ; i < mokp->n ; i++ ){
+		fprintf(fout, "i ");
+		mokpnum_fprintf(fout, mokp->w[i]);
+		fprintf(fout, " ");
+		mokpnum_fprintf(fout, mokp->p[0][i]);
+		for( j = 1 ; j < mokp->np ; j++ ){
+			fprintf(fout, " ");
+			mokpnum_fprintf(fout, mokp->p[j][i]);
+		}
+		fprintf(fout, "\n");
+	}
+	return;
 }
 
 /*  Writes a MOKP instance into a file */
