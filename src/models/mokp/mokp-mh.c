@@ -337,7 +337,7 @@ MOKPSolIndexer *mokp_sce(
 	if(secs)
 		*secs = (pong - ping)/(double)CLOCKS_PER_SEC;
 
-	msi_apply_all(msi, mokpsol_printf);
+	//msi_apply_all(msi, mokpsol_printf);
 
 	return msi;
 }

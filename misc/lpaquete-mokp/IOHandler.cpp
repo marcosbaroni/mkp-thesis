@@ -29,6 +29,10 @@ void IOHandler::setParameters(int n_items, int n_instance, string type) {
 	formatPaths();
 }
 
+void IOHandler::saveInputFileName(string fileName){
+	strcpy( this->input, fileName.c_str() );
+}
+
 void IOHandler::formatPaths() {
 	ostringstream in;
 	in << "../../INSTANCES/Type_" << this->type << "/" << this->n_items << "_items/2KP" << this->n_items << "-T"<< type <<"-" << 
@@ -62,6 +66,8 @@ bool IOHandler::readInstance(
 
 		int orderNum = 0;
 
+	    this->n_items = 0;
+
 		if (instanceFile.is_open())
 		{
 			RankingItem * point = NULL;
@@ -75,6 +81,7 @@ bool IOHandler::readInstance(
 
 				if (identifier.compare("i") == 0)
 				{
+	    			this->n_items++;
 					int w, p1, p2;
 					ss >> w >> p1 >> p2;
 
@@ -119,12 +126,16 @@ bool IOHandler::readInstance(
 
 void IOHandler::writeOutput(list<Solution*> * solutionSet, int maxK, double time) {
 
-	ofstream output(this->output);
+	ofstream output("out.txt");
 
 
 	output << "|ND|: " << solutionSet->size()<< "; max|Ck|: " << maxK << "; Execution time: " << time << "s" << endl;
-	for (list<Solution*>::iterator it = solutionSet->begin(); it != solutionSet->end(); it++)
+	for(list<Solution*>::iterator it = solutionSet->begin();
+		it != solutionSet->end();
+		it++
+	){
 		output << (*it)->toString() << endl;
+	}
 
 
 }

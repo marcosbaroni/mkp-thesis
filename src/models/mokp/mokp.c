@@ -890,6 +890,8 @@ void msi_remove_dominated_list(List *list, MOKPSol *sol){
 
 	listiter_free(listiter);
 }
+void msi_remove_dominated_avl(AVLTree *avl, MOKPSol *sol){
+}
 void msi_remove_dominated(MOKPSolIndexer *msi, MOKPSol *sol){
 	if( msi->ndim == 0 )
 		return msi_remove_dominated_list(msi->tad.list, sol);

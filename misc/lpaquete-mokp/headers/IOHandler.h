@@ -35,6 +35,7 @@ public:
         IOHandler(int n_items, int n_instance, int alfa,int nruns,
                   int version,string &type);
 	void setParameters(int n_items, int n_instance, string type);
+	void saveInputFileName(string fileName);
 	bool readInstance(list<RankingItem*> & points, long & cumulativeWeights,
 			 multiset<RankingItem*, ComparerProfit0> & Order0, multiset<RankingItem*, ComparerProfit1> & Order1);
 

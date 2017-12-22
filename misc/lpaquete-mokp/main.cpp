@@ -26,6 +26,7 @@
 #include "headers/IOHandler.h"
 #include "headers/Figueira.h"
 
+#include "../../src/hv-2.0/hv.h"
 
 using namespace std;
 
@@ -37,6 +38,29 @@ long cumulativeWeights = 0;
 list<RankingItem*>::iterator pointIt;
 
 int* pointsRemoved;
+
+double computeHVol(list<Solution*> *sols){
+	list<Solution*>::iterator sols_it = sols->begin();
+	list<Solution*>::iterator sols_end= sols->end();
+
+	double hvol;
+	double data[2*sols->size()];
+	double ref[2];
+	int i;
+
+	ref[0] = 0.0;
+	ref[1] = 0.0;
+
+	i = 0;
+	for( ; sols_it != sols_end ; sols_it++ ){
+		data[i++] = -(*sols_it)->profits[0];
+		data[i++] = -(*sols_it)->profits[1];
+	}
+
+	hvol = fpli_hv(data, 2, sols->size(), ref);
+
+	return hvol;
+}
 
 //time stuff
 //TODO: use better profiler
@@ -405,7 +429,7 @@ list<Solution*> * knapsackAlgorithSet(list<Solution*> * Cprev, int k)
 
 int main(int argc, char** argv)
 {
-	printf("KNAPSACK_FIGUEIRA\n");
+	//printf("KNAPSACK_FIGUEIRA\n");
 	if (argc < 4)
 	{
 		printf("USAGE: type size id\n");
@@ -418,11 +442,12 @@ int main(int argc, char** argv)
 	unsigned int maxK = 0;
 
 
-	ioHandler.setParameters(atoi(argv[2]), atoi(argv[3]), argv[1]);
+	//ioHandler.setParameters(atoi(argv[2]), atoi(argv[3]), argv[1]);
 	maxK = 0;
 
 	reset();
 
+	ioHandler.saveInputFileName(argv[1]);
 	ioHandler.readInstance( points, cumulativeWeights, Order0, Order1 );
 
 	pointsRemoved = new int[GlobalData::NUM_POINTS];
@@ -457,19 +482,27 @@ int main(int argc, char** argv)
 	}
 
 	double end=getCpuTime();
+	double hvol = computeHVol(solutionSet);
 
-	printf("%s;%d;%d;%d;%d;%lf;", ioHandler.type.c_str(), ioHandler.n_items,
-			ioHandler.n_instance, (int)solutionSet->size(), maxK, end-begin);
+	printf("%d;%d;%d;%d;%lf;%.3e\n",
+		//ioHandler.type.c_str(),
+		ioHandler.n_items,
+		ioHandler.n_instance,
+		(int)solutionSet->size(),
+		maxK,
+		end-begin,
+		hvol
+	);
 
 	ioHandler.writeOutput(solutionSet, maxK, end-begin);
 
 	//for (list<Solution*>::iterator it = solutionSet->begin(); it != solutionSet->end(); it++)
 	//	(*it)->print();
 	
-	cout << "# removed:;" << pointsRemoved << ";# F initial:;" << initial_size << ";# F final: " << F.size() << endl;
-	for (int i=0; i < GlobalData::NUM_POINTS; i++)
-		cout << pointsRemoved[i] << ';';
-	cout << endl;
+	//cout << "# removed:;" << pointsRemoved << ";# F initial:;" << initial_size << ";# F final: " << F.size() << endl;
+	//for (int i=0; i < GlobalData::NUM_POINTS; i++)
+	//	cout << pointsRemoved[i] << ';';
+	//cout << endl;
 	
 	return 0;
 }
