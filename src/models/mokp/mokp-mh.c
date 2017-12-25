@@ -296,6 +296,8 @@ MOKPSolIndexer *mokp_sce(
 	ranks = rank_population(pop, npop, ndim);
 	/* initializing initial pareto */
 	msi = msi_new(ndim);
+	printf(" Current pareto (initial)\n");
+	msi_apply_all(msi, mokpsol_printf);
 	msi_apply_all_r(
 		list_get_head(ranks),
 		(void(*)(MOKPSol*,void*))msi_pareto_update_,
@@ -304,7 +306,7 @@ MOKPSolIndexer *mokp_sce(
 	
 	/* Iterate */
 	for( k = 0 ; k < niter ; k++ ){
-		//printf("%d/%d\n", k+1, niter); fflush(stdout);
+		printf("%d/%d\n", k+1, niter); fflush(stdout);
 
 		/* Evolving */
 		free(pop);
@@ -313,9 +315,10 @@ MOKPSolIndexer *mokp_sce(
 			ranks, pop, ncomp, compsize, nsubcomp, nsubiter, ncross);
 		/* Updating archive */
 		// TODO: just try to update individuals from first front
-		for( i = 0 ; i < nnew_pop ; i++ ){
+		printf(" Current pareto (%d/%d)\n", k+1, niter);
+		msi_apply_all(msi, mokpsol_printf);
+		for( i = 0 ; i < nnew_pop ; i++ )
 			msi_pareto_update(msi, new_pop[i]);
-		}
 
 		pop = select_population(pop, new_pop, npop, nnew_pop, ndim);
 

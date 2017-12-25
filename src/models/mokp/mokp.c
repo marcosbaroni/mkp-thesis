@@ -876,13 +876,20 @@ void msi_remove_dominated_list(List *list, MOKPSol *sol){
 	MOKPSol *sol2;
 	ListIter *listiter;
 
+	printf("   * removing(l) dominated by: ");
+	mokpsol_printf(sol);
+
 	listiter = listiter_new(list);
 	sol2 = listiter_get(listiter);
 	while( sol2 ){
+		printf("     - checking: ");
+		mokpsol_printf(sol2);
 		if( mokpsol_dom_cmp(sol2, sol) == SOL_DOMINATED ){
+			printf("       dominated. removing.\n");
 			listiter_remove(listiter);
 			mokpsol_free(sol2);
 		}else{
+			printf("       not dominated.\n");
 			listiter_forward(listiter);
 		}
 		sol2 = listiter_get(listiter);
@@ -891,12 +898,36 @@ void msi_remove_dominated_list(List *list, MOKPSol *sol){
 	listiter_free(listiter);
 }
 void msi_remove_dominated_avl(AVLTree *avl, MOKPSol *sol){
+	AVLIter *avliter;
+	MOKPSol *sol2;
+	int res;
+
+	printf("   * removing(a) dominated by: ");
+	mokpsol_printf(sol);
+
+	avliter = avl_get_higher_lower_than(avl, sol);
+	sol2 = avliter_get(avliter);
+	while( sol2 = avliter_get(avliter) ){
+		printf("     - checking: ");
+		mokpsol_printf(sol2);
+		res = mokpsol_dom_cmp(sol, sol2);
+		if( res == SOL_DOMINATES || res == SOL_EQUAL ){
+			printf("       dominated. removing.\n");
+			avliter_remove(avliter);
+		}else{
+			printf("       not dominated.\n");
+			avliter_backward(avliter);
+		}
+	}
+	avliter_free(avliter);
+
+	return;
 }
 void msi_remove_dominated(MOKPSolIndexer *msi, MOKPSol *sol){
 	if( msi->ndim == 0 )
 		return msi_remove_dominated_list(msi->tad.list, sol);
 	if( msi->ndim == 1 )
-		fprintf(stderr, "%s not impl. 4 ndim = 1\n", __PRETTY_FUNCTION__);
+		return msi_remove_dominated_avl(msi->tad.avl, sol);
 	if( msi->ndim  > 1 )
 		fprintf(stderr, "%s not impl. 4 ndim > 1\n", __PRETTY_FUNCTION__);
 }
@@ -928,7 +959,15 @@ int msi_pareto_update(MOKPSolIndexer *msi, MOKPSol *sol){
 	MOKPSol *dominant = NULL;
 	MOKPSol *dominated = NULL;
 
+	printf(" * msi_parero_update for: ");
+	mokpsol_printf(sol);
 	dominant = msi_find_dominant(msi, sol, 1);
+	if( dominant ){
+		printf("   - dominant found: ");
+		mokpsol_printf(dominant);
+	}else{
+		printf("   - no dominant found!\n");
+	}
 	if( dominant )
 		return 0;
 
