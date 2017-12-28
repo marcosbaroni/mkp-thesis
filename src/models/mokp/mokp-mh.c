@@ -159,18 +159,14 @@ MOKPSol **sort_ranks_pop(List *ranks, int npop){
 			sol = msiiter_get(msiiter);
 		}
 		//pop[i] = sol;
-		pop[ (i*23) % npop ] = sol;
+		pop[i] = sol;
 		msiiter_forward(msiiter);
 		sol = msiiter_get(msiiter);
 	}
 
 	msiiter_free(msiiter);
 	listiter_free(rankiter);
-	printf(" BEFORE SORT\n");
-	pop_printf(pop, npop);
 	qsort(pop, npop, sizeof(MOKPSol*), _sort_ranks_pop_cmp);
-	printf(" AFTER SORT\n");
-	pop_printf(pop, npop);
 
 	return pop;
 }
@@ -190,8 +186,9 @@ MOKPSol **shuffle_memeplexes(
 
 	for( i = 0 ; i < npop ; i++ ){
 		idx = ( i % ncomp)*compsize + ( i / ncomp);
-		pop_shuffled[idx] = pop_sorted[i];
+		pop_shuffled[( i % ncomp)*compsize + ( i / ncomp)] = pop_sorted[i];
 	}
+	free(pop_sorted);
 
 	return pop_shuffled;
 }
@@ -368,8 +365,8 @@ MOKPSolIndexer *mokp_sce(
 	ranks = rank_population(pop, npop, ndim);
 	/* initializing initial pareto */
 	msi = msi_new(ndim);
-	printf(" Current pareto (initial)\n");
-	msi_apply_all(msi, mokpsol_printf);
+	//printf(" Current pareto (initial)\n");
+	//msi_apply_all(msi, mokpsol_printf);
 	msi_apply_all_r(
 		list_get_head(ranks),
 		(void(*)(MOKPSol*,void*))msi_pareto_update_,
@@ -378,7 +375,7 @@ MOKPSolIndexer *mokp_sce(
 	
 	/* Iterate */
 	for( k = 0 ; k < niter ; k++ ){
-		printf("%d/%d\n", k+1, niter); fflush(stdout);
+		//printf("%d/%d\n", k+1, niter); fflush(stdout);
 
 		/* Evolving */
 		free(pop);
@@ -387,8 +384,8 @@ MOKPSolIndexer *mokp_sce(
 			ranks, pop, ncomp, compsize, nsubcomp, nsubiter, ncross);
 		/* Updating archive */
 		// TODO: just try to update individuals from first front
-		printf(" Current pareto (%d/%d)\n", k+1, niter);
-		msi_apply_all(msi, mokpsol_printf);
+		//printf(" Current pareto (%d/%d)\n", k+1, niter);
+		//msi_apply_all(msi, mokpsol_printf);
 		for( i = 0 ; i < nnew_pop ; i++ )
 			msi_pareto_update(msi, new_pop[i]);
 
@@ -401,7 +398,7 @@ MOKPSolIndexer *mokp_sce(
 		/* Rank population */
 		ranks = rank_population(pop, npop, ndim);
 	}
-	printf("\n");
+	//printf("\n");
 	list_apply(ranks, (void(*)(void*))msi_free);
 	list_free(ranks);
 	for( i = 0 ; i < npop ; i++ )

@@ -876,20 +876,20 @@ void msi_remove_dominated_list(List *list, MOKPSol *sol){
 	MOKPSol *sol2;
 	ListIter *listiter;
 
-	printf("   * removing(l) dominated by: ");
-	mokpsol_printf(sol);
+	//printf("   * removing(l) dominated by: ");
+	//mokpsol_printf(sol);
 
 	listiter = listiter_new(list);
 	sol2 = listiter_get(listiter);
 	while( sol2 ){
-		printf("     - checking: ");
-		mokpsol_printf(sol2);
+		//printf("     - checking: ");
+		//mokpsol_printf(sol2);
 		if( mokpsol_dom_cmp(sol2, sol) == SOL_DOMINATED ){
-			printf("       dominated. removing.\n");
+			//printf("       dominated. removing.\n");
 			listiter_remove(listiter);
 			mokpsol_free(sol2);
 		}else{
-			printf("       not dominated.\n");
+			//printf("       not dominated.\n");
 			listiter_forward(listiter);
 		}
 		sol2 = listiter_get(listiter);
@@ -959,14 +959,14 @@ int msi_pareto_update(MOKPSolIndexer *msi, MOKPSol *sol){
 	MOKPSol *dominant = NULL;
 	MOKPSol *dominated = NULL;
 
-	printf(" * msi_parero_update for: ");
-	mokpsol_printf(sol);
+	//printf(" * msi_parero_update for: ");
+	//mokpsol_printf(sol);
 	dominant = msi_find_dominant(msi, sol, 1);
 	if( dominant ){
-		printf("   - dominant found: ");
-		mokpsol_printf(dominant);
+		//printf("   - dominant found: ");
+		//mokpsol_printf(dominant);
 	}else{
-		printf("   - no dominant found!\n");
+		//printf("   - no dominant found!\n");
 	}
 	if( dominant )
 		return 0;
