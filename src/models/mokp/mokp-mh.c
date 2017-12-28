@@ -36,6 +36,24 @@ void _memeplexes_printf(
 	return;
 }
 
+void pop_printf(MOKPSol **pop, int npop){
+	int i, j, np;
+	unsigned long long prod;
+
+	np = pop[0]->mokp->np;
+
+	for( i = 0 ; i < npop ; i++ ){
+		printf("%d: [%d] (", i+1, pop[i]->rank);
+		prod = 1;
+		for( j = 0 ; j < np ; j++ ){
+			prod *= pop[i]->profit[j];
+			printf("%s%d", !j ? "" : ",", pop[i]->profit[j]);
+		}
+		printf(") %lld\n", prod);
+	}
+	return;
+}
+
 List *rank_population(
 	MOKPSol **_pop,
 	int n,
@@ -87,26 +105,52 @@ List *rank_population(
 	return ranks;
 }
 
-MOKPSol **shuffle_memeplexes(
-	List *ranks,
-	int nranks,
-	int ncomp,
-	int compsize
-){
+int _sort_ranks_pop_cmp( const void *a, const void *b){
+	MOKPSol *sol_a, *sol_b;
+	int rank_res, profit_res;
+	unsigned long long prod_a, prod_b, prod_res;
+	int j, np;
+
+	sol_a = *((MOKPSol**)a);
+	sol_b = *((MOKPSol**)b);
+	np = sol_a->mokp->np;
+
+	rank_res = sol_a->rank - sol_b->rank;
+	if( rank_res )
+		return rank_res;
+
+	prod_a = 1;
+	prod_b = 1;
+	for( j = 0 ; j < np ; j++ ){
+		prod_a *= sol_a->profit[j];
+		prod_b *= sol_b->profit[j];
+	}
+	prod_res = prod_a - prod_b;
+	if( prod_res )
+		return -prod_res;
+
+	for( j = 0 ; j < np ; j++ )
+		if( profit_res = sol_a->profit[j] - sol_b->profit[j] )
+			return -profit_res;
+
+	return 0;
+}
+
+MOKPSol **sort_ranks_pop(List *ranks, int npop){
 	MOKPSol **pop;
-	MOKPSol *sol;
 	ListIter *rankiter;
 	MOKPSolIndexer *rank;
 	MSIIter *msiiter;
-	int i, j, idx, npop;
+	MOKPSol *sol;
+	int i, j;
 
-	npop = ncomp*compsize;
 	pop = (MOKPSol**)malloc(npop*sizeof(MOKPSol*));
 
 	rankiter = listiter_new(ranks);
 	rank = listiter_get(rankiter);
 	msiiter = msiiter_new(rank);
 	sol = msiiter_get(msiiter);
+
 	for( i = 0 ; i < npop ; i++ ){
 		if( !sol ){
 			msiiter_free(msiiter);
@@ -114,14 +158,42 @@ MOKPSol **shuffle_memeplexes(
 			msiiter = msiiter_new(rank);
 			sol = msiiter_get(msiiter);
 		}
-		idx = (i % ncomp)*compsize + (i / ncomp);
-		pop[idx] = sol;
+		//pop[i] = sol;
+		pop[ (i*23) % npop ] = sol;
 		msiiter_forward(msiiter);
 		sol = msiiter_get(msiiter);
 	}
+
 	msiiter_free(msiiter);
 	listiter_free(rankiter);
+	printf(" BEFORE SORT\n");
+	pop_printf(pop, npop);
+	qsort(pop, npop, sizeof(MOKPSol*), _sort_ranks_pop_cmp);
+	printf(" AFTER SORT\n");
+	pop_printf(pop, npop);
+
 	return pop;
+}
+
+MOKPSol **shuffle_memeplexes(
+	List *ranks,
+	int nranks,
+	int ncomp,
+	int compsize
+){
+	MOKPSol **pop_shuffled, **pop_sorted;
+	int i, idx, npop;
+
+	npop = ncomp*compsize;
+	pop_sorted = sort_ranks_pop(ranks, npop);
+	pop_shuffled = (MOKPSol**)malloc(npop*sizeof(MOKPSol*));
+
+	for( i = 0 ; i < npop ; i++ ){
+		idx = ( i % ncomp)*compsize + ( i / ncomp);
+		pop_shuffled[idx] = pop_sorted[i];
+	}
+
+	return pop_shuffled;
 }
 
 MOKPSol **memeplex_new_population(
