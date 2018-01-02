@@ -39,6 +39,17 @@ list<RankingItem*>::iterator pointIt;
 
 int* pointsRemoved;
 
+void printSols(list<Solution*> *sols){
+	list<Solution*>::iterator sols_it = sols->begin();
+	list<Solution*>::iterator sols_end= sols->end();
+
+	for( ; sols_it != sols_end ; sols_it++ ){
+		printf("%d %d\n", (*sols_it)->profits[0], (*sols_it)->profits[1]);
+	}
+
+	return;
+}
+
 double computeHVol(list<Solution*> *sols){
 	list<Solution*>::iterator sols_it = sols->begin();
 	list<Solution*>::iterator sols_end= sols->end();
@@ -53,8 +64,8 @@ double computeHVol(list<Solution*> *sols){
 
 	i = 0;
 	for( ; sols_it != sols_end ; sols_it++ ){
-		data[i++] = -(*sols_it)->profits[0];
-		data[i++] = -(*sols_it)->profits[1];
+		data[i++] = (double)-(*sols_it)->profits[0];
+		data[i++] = (double)-(*sols_it)->profits[1];
 	}
 
 	hvol = fpli_hv(data, 2, sols->size(), ref);
@@ -430,9 +441,16 @@ list<Solution*> * knapsackAlgorithSet(list<Solution*> * Cprev, int k)
 int main(int argc, char** argv)
 {
 	//printf("KNAPSACK_FIGUEIRA\n");
-	if (argc < 4)
+	if (argc < 2)
 	{
-		printf("USAGE: type size id\n");
+		//printf("USAGE: type size id\n");
+		printf("USAGE: <input file>\n");
+		printf("OUTPUT:\n");
+		printf("<profit1[1]> <profit2[1]>\n");
+		printf("<profit1[2]> <profit2[2]>\n");
+		printf("...\n");
+		printf("<profit1[<nsol>]> <profit2[<nsol>]>\n");
+		printf("<nsol>;<max k>;<time (s)>;<h vol.>\n");
 		return 0;
 	}
 
@@ -481,13 +499,14 @@ int main(int argc, char** argv)
 			maxK = solutionSet->size();
 	}
 
-	double end=getCpuTime();
+	double end = getCpuTime();
 	double hvol = computeHVol(solutionSet);
+	printSols(solutionSet);
 
-	printf("%d;%d;%d;%d;%lf;%.3e\n",
+	printf("%d;%d;%lf;%.3e\n",
 		//ioHandler.type.c_str(),
-		ioHandler.n_items,
-		ioHandler.n_instance,
+		//ioHandler.n_items,
+		//ioHandler.n_instance,
 		(int)solutionSet->size(),
 		maxK,
 		end-begin,
