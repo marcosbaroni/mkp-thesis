@@ -8,6 +8,7 @@ fi
 
 python <<!
 from sys import argv
+from subprocess import Popen, PIPE
 #niter = 300;                                                                
 niters = [200, 300, 400];
 
@@ -50,11 +51,17 @@ def build_args():
 	return args
 
 if __name__ == '__main__':
-	instdir="/home/mbaroni/Computacao/phd/dmkp/doc/pubs/SCE-MOKP0-2018/results/insts/bazgan/"
-	args = build_args()
+	rootdir = "/home/mbaroni/Computacao/phd/dmkp/"
+	instdir = rootdir + "doc/pubs/SCE-MOKP0-2018/results/insts/bazgan/"
+	binfile = rootdir + "bin/mokp"
+
+	arg_list = build_args()
 	if( $idx == 'len'):
-		print(len(args))
+		print(len(arg_list))
 	else:
 		idx=(int($idx)-1)
-		print(instdir + "%s 0 %s %s %s %s %s %s %s" % (args[idx]))
+		args = instdir + ("%s 0 %s %s %s %s %s %s %s" % (arg_list[idx]))
+		res = Popen(binfile + " sce " + args, shell=True, stdout=PIPE).stdout.read()
+		out = ("%s;%s;%s;%s;%s;%s;%s;%s;" + res.decode("utf-8")) % arg_list[idx]
+		print(out.strip())
 !
