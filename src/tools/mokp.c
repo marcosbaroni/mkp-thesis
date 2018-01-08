@@ -683,11 +683,35 @@ int execute_mofpa(int argc, char **argv){
 *    Compute Hypervolume of pareto
 *******************************************************************************/
 int print_usage_hvol(int argc, char **argv){
-    printf("Compute Hypervolum of pareto.\n\n");
+    printf("Compute Hypervolume of a given pareto.\n\n");
     printf("  usage: %s %s [input file]\n", argv[0], HVOL_OPT);
-    printf("    input file: - to read from stdin\n");
-    printf("\n  Output:\n");
+    printf("  input file: - to read from stdin\n");
+    printf("\nOutput:\n");
     printf("    <hypervolume>\n\n");
+    printf("  input format:\n");
+    printf("    <p1[0]> <p2[0]> ... <pm[0]>\n");
+    printf("    <p1[1]> <p2[1]> ... <pm[1]>\n");
+    printf("    ...\n");
+    printf("    <p1[n]> <p2[n]> ... <pm[n]>\n");
+}
+int fcount_numbers_first_line(FILE *in){
+	char line[200];
+	size_t len = 0;
+	int i = 0;
+	int nint = 0;
+	fgets(line, 200, in);
+	rewind(in);
+
+    while( line[i] ){
+        if( ISNUM(line[i]) ){
+            nint++;
+            while( ISNUM(line[i]) )
+                i++;
+        }else{
+        	i++;
+		}
+    }
+	return nint;
 }
 int execute_hvol(int argc, char **argv){
 	FILE *input;
@@ -715,7 +739,7 @@ int execute_hvol(int argc, char **argv){
     }
 
 	msi = msi_new(0);
-	fscanf(input, "%d", &np);
+	np = fcount_numbers_first_line(input);
 	mokp = mokp_alloc(10, np);
 	while( !feof(input) ){
 		sol = mokpsol_new_empty(mokp);
