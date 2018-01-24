@@ -6,8 +6,8 @@ CC = gcc
 #CFLAGS=-g -DDEBUG_LVL=1
 #CFLAGS=-g $(DEBFLAG) -pg 
 PROFFLAGS=-pg --no-pie -fPIC
-CFLAGS=-g -D COUNT_COMPARISON
-#CFLAGS=-O3
+#CFLAGS=-g -D COUNT_COMPARISON
+CFLAGS=-O3
 DEST=../bin
 SOPLEX=-lsoplex -lz -lgmp -lm
 

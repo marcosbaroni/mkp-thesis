@@ -1,0 +1,6 @@
+niter=400
+ncomp=30
+compsize=30
+nsubcomp=5
+nsubiter=30
+cross_ratio=0.05
