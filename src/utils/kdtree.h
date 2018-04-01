@@ -41,6 +41,7 @@ void kdtree_apply_to_all(KDTree*, void(*func)(void*) );
 void kdtree_apply_to_all_r(KDTree*, void(*func)(void*, void*), void*);
 void kdtree_fprint_pretty(FILE*,KDTree*);
 void kdtree_remove(KDTree*, void*);
+void kdtree_rebuild(KDTree *kdtree, void(*)(void*));
 void kdtree_free(KDTree*);
 void kdtree_balance(KDTree*);
 void **kdtree_get_all(KDTree*);

@@ -107,6 +107,9 @@ KDNode *_kdtree_range_search(
     eval_f = kdtree->eval_f;
     ret = NULL;
 
+	if( !root )
+		return ret;
+
     /* check if root is inside range */
     meets = 1;
 	if( !root->deleted ){
@@ -127,7 +130,7 @@ KDNode *_kdtree_range_search(
 
     	/* if is inside and meets property, return */
     	if( meets )
-        	return root->info;
+        	return root;
 	}
 
     /* root does not meet, continuing search throught children... */
@@ -244,6 +247,20 @@ void **kdtree_get_all(KDTree *kdtree){
 void *kdtree_find_closest(KDTree* kdtree, double(*dist)(void*, void*)){
 	fprintf(stderr, "Not implemented yet.\n");
 }
+int _kdtree_count(KDNode *node, int *n){
+	if( !node->deleted )
+		(*n)++;
+	if( node->right )
+		_kdtree_count(node->right, n);
+	if( node->left )
+		_kdtree_count(node->left , n);
+}
+int kdtree_count(KDTree *kdtree){
+	int n = 0;
+	if(kdtree->root)
+		_kdtree_count(kdtree->root, &n);
+	return n;
+}
 
 void kdtree_fprint_pretty(FILE *fout, KDTree *kdtree){
     if( kdtree->root )
@@ -265,12 +282,14 @@ void _kdnode_free(KDNode *kdn){
 int _equal_ptr(void *a, void *b){
 	return( a == b);
 }
+
 void kdtree_remove(KDTree *kdtree, void *x){
 	int ndim, i;
 	double *bounds, val;
 	KDNode *node;
 
 	ndim = kdtree->ndim;
+	bounds = (double*)malloc(2*ndim*sizeof(double));
 	for( i = 0 ; i < ndim ; i++ ){
 		val = kdtree->eval_f(x, i);
 		bounds[2*i] = val - 1;
@@ -282,6 +301,38 @@ void kdtree_remove(KDTree *kdtree, void *x){
 		kdtree->ndeleted++;
 		kdtree->n--;
 	}
+
+	free(bounds);
+	return;
+}
+
+void _kdtree_clean(KDNode *node, void(*f)(void *)){
+	if( node->deleted )
+		f(node->info);
+	if( node->left )
+		_kdtree_clean(node->left, f);
+	if( node->right )
+		_kdtree_clean(node->right, f);
+}
+void kdtree_rebuild(KDTree *kdtree, void(*f)(void *)){
+	int n, i;
+	void **elems;
+
+	if( kdtree->root )
+		_kdtree_clean(kdtree->root, f);
+
+	n = kdtree->n;
+	elems = kdtree_get_all(kdtree);
+    _kdnode_free(kdtree->root);
+	kdtree->n = 0;
+	kdtree->ndeleted = 0;
+	kdtree->root = NULL;
+
+
+	for( i = 0 ; i < n ; i++ )
+		kdtree_insert(kdtree, elems[i]);
+	free(elems);
+
 	return;
 }
 
@@ -298,7 +349,7 @@ int kdnode_is_right(KDNode *node){
     return 0;
 }
 
-KDNode *kdnode_get_next(KDNode *node){
+KDNode *_kdnode_get_next(KDNode *node){
     if( node->right ){
         node = node->right;
         while( node->left )
@@ -312,6 +363,16 @@ KDNode *kdnode_get_next(KDNode *node){
 		return node->up;
     return NULL;
 }
+KDNode *kdnode_get_next(KDNode *node){
+	int deleted = 0;
+	do{
+		deleted = 0;
+		node = _kdnode_get_next(node);
+		if( node )
+			deleted = node->deleted;
+	}while( deleted );
+	return node;
+}
 
 KDTreeIter *kdtiter_new(KDTree *kdtree){
 	KDTreeIter *kdti;
@@ -321,8 +382,17 @@ KDTreeIter *kdtiter_new(KDTree *kdtree){
 
 	if( kdtree->root )
 		kdti->node = kdtree->root;
-	while( kdti->node->left )
-		kdti->node = kdti->node->left;
+	if( kdti->node ){
+		while( kdti->node->left )
+			kdti->node = kdti->node->left;
+		while( kdti->node->deleted ){
+			kdti->node = _kdnode_get_next(kdti->node);
+			if( !kdti->node )
+				break;
+		}
+	}
+	
+
 
 	return kdti;
 }
@@ -332,7 +402,13 @@ void *kdtiter_get(KDTreeIter *kdti){
 	return NULL;
 }
 void *kdtiter_forward(KDTreeIter *kdti){
-	kdti->node = kdnode_get_next(kdti->node);
+	int deleted = 0;
+	do{
+		deleted = 0;
+		kdti->node = kdnode_get_next(kdti->node);
+		if( kdti->node )
+			deleted = kdti->node->deleted;
+	}while( deleted );
 	if( kdti->node )
 		return kdti->node->info;
 	return NULL;
