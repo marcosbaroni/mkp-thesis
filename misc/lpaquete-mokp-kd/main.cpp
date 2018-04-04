@@ -25,6 +25,7 @@
 #include "headers/Bounds.h"
 #include "headers/IOHandler.h"
 #include "headers/Figueira.h"
+#include "../../src/utils/kdtree.h"
 
 #include "../../src/hv-2.0/hv.h"
 
@@ -155,21 +156,21 @@ void removeDominatedF(Item * s, F_set * F, F_iterator it)
 }
 
 
-/*
- * This function receives a solution and two solution sets,
- * and tries to insert the solution in the sets
- *
- */
-void mantainNonDominatedSet(Solution *sIN, list<Solution*> * C, multiset<Solution*, ComparerM> * M)
-{
+void mantainNonDominatedSet2(Solution *sIN, list<Solution*> *C, KDTree *M){
 	Solution * s = sIN->clone();
+	Solution *sol;
+	KDTreeIter *it;
 
-	M_iterator itEnd = M->end();
-	M_iterator itBegin = M->begin();
+	it = kdtiter_new(M);
+	sol = (Solution*)kdtiter_get(it);
 
-	if ( itEnd == itBegin )
+	//M_iterator itEnd = M->end();
+	//M_iterator itBegin = M->begin();
+
+	if ( !sol )
 	{
-		M->insert(s);
+		//M->insert(s);
+		kdtree_insert(M, sol);
 		C->push_back(s);
 		return;
 	}
@@ -187,6 +188,70 @@ void mantainNonDominatedSet(Solution *sIN, list<Solution*> * C, multiset<Solutio
 	else
 	{
 		--it;
+		if ( (*it)->profits[1] < s->profits[1])
+		{
+			if( (*it)->profits[0] == s->profits[0] )
+			{
+				tmp = it;
+				it++;
+				M->erase(tmp);
+				it = M->insert(it, s);
+				removeDominatedM(s,M,it);
+				C->push_back(s);
+			}
+			else
+			{
+				it = M->insert(it, s);
+				removeDominatedM(s,M,it);
+				C->push_back(s);
+			}
+		}
+		else
+			delete(s);
+	}
+}
+
+/*
+ * This function receives a solution and two solution sets,
+ * and tries to insert the solution in the sets
+ *
+ */
+void mantainNonDominatedSet(Solution *sIN, list<Solution*> * C, M_set *M)
+{
+	Solution * s = sIN->clone();
+
+	M_iterator itEnd = M->end();
+	M_iterator itBegin = M->begin();
+
+	/* If set M is empty */
+	if ( itEnd == itBegin )
+	{
+		M->insert(s);
+		C->push_back(s);
+		return;
+	}
+
+
+	/* Find the one with lesser profit[0]
+	 * GREATER than s->profit[0] (i.e. the one immediately "above") */
+	M_iterator it = M->upper_bound(s), tmp;
+
+
+	/* If the first on is already above s... */
+	if ( it == itBegin )
+	{
+		/* Insert it */
+		it = M->insert(it,s);
+		/* Update M (non-dominateds) ... */
+		removeDominatedM(s,M,it);
+		/* Insert on C list */
+		C->push_back(s);
+	}
+	else
+	{
+		/* Go back one (this one exists) */
+		--it;
+		/* If second profit is lower then s's... */
 		if ( (*it)->profits[1] < s->profits[1])
 		{
 			if( (*it)->profits[0] == s->profits[0] )
@@ -333,7 +398,7 @@ list<Solution*> * knapsackAlgorithSet(list<Solution*> * Cprev, int k)
 {
 
 	list<Solution*> * C = new list<Solution*>();
-	multiset<Solution*, ComparerM> * M = new multiset<Solution*, ComparerM>();
+	M_set * M = new M_set();
 
 	list<Solution*>::iterator i = Cprev->begin(), j = Cprev->begin();
 	list<Solution*>::iterator CprevEnd = Cprev->end();

@@ -23,8 +23,13 @@
 #define KDTREE_STATS 0
 #endif
 
+#ifndef MAX
 #define MAX(x, y) (x > y ? x : y)
+#endif
+
+#ifndef MIN
 #define MIN(x, y) (x < y ? x : y)
+#endif
 
 #define ISNUM(c) ( (c > 47) && (c < 58) )
 

@@ -3,6 +3,18 @@
 #include "Item.h"
 #include "RankingItem.h"
 
+
+double itemProfitGetter(void *it_, int dim){
+	Item *it = (Item*)it_;
+	return it->profits[dim];
+}
+double itemAxisGetter(void *it_, int dim){
+	Item *it = (Item*)it_;
+	if( !ndim )
+		return it->weigth;
+	return it->profits[dim-1];
+}
+
 class ComparerM {
   public:
     ComparerM() { }
