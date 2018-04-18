@@ -1,0 +1,27 @@
+O algoritmo de Nemhauser e Ullmann é um algorimto de programação dinâmica
+que resolve problemas da mochila de forma genérica aplicando o conceito de
+dominância da mochila para remover soluções parciais que não resultarão em
+soluções eficientes, ou seja, soluções que irão compor o \paretoset (conjunto solução).
+
+\begin{algorithm}
+  \caption{O algoritmo de Nemhauser e Ullmann para o \mokp.}
+  \label{alg:nemull}
+  \input{alg/dp1.tex}
+\end{algorithm}
+
+O algoritmo inicia definindo uma solução inicial $S^0$ contendo apenas a solução
+vazia (linha 2).
+Na $k$-ésimo iteração o algoritmo recebe um conjunto $S^{k-1}$ contendo
+soluções exclusivamente compostas pelos primeiros ${k-1}$ itens,
+ou seja, $\forall\sol{x} \in S^{k-1}, \sol{x} \subseteq \{1, \ldots, k-1\}$.
+O conjunto $S^{k-1}$ é então expandido adicionando-se uma cópia de cada uma
+das suas soluções mas desta vez incluindo o $k$-ésimo item (linha 4),
+formando o conjunto $S^k_*$, o qual possui o dobro da cardinalidade de $S^{k-1}$.
+O conjunto $S^k_*$..
+
+Apesar de sua simplicidade o Algoritmo~\ref{alg:nemull} é consideravelmente poderoso.
+Contudo o potencial crescimento exponencial do \paretoset para o \mokp
+compromete severamente o seu desempenho.
+Uma forma de atacar este problema é tentar reduzir ainda mais a quantidade de
+soluções parciais manuseadas durante as iterações do algoritmo.
+Três propostas...

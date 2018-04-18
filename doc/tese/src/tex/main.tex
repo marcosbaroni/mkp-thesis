@@ -1,0 +1,113 @@
+\documentclass[
+% -- opções da classe memoir --
+12pt,				% tamanho da fonte
+%openright,			% capítulos começam em pág ímpar (insere página vazia caso preciso)
+%openany,
+twoside,			% para impressão em verso e anverso. Oposto a oneside
+a4paper,			% tamanho do papel.
+% -- opções da classe abntex2 --
+%chapter=TITLE,		% títulos de capítulos convertidos em letras maiúsculas
+%section=TITLE,		% títulos de seções convertidos em letras maiúsculas
+%subsection=TITLE,	% títulos de subseções convertidos em letras maiúsculas
+%subsubsection=TITLE,% títulos de subsubseções convertidos em letras maiúsculas
+% -- opções do pacote babel --
+english,			% idioma adicional para hifenização
+brazil,				% o último idioma é o principal do documento
+]{abntex2}
+
+\usepackage[alf]{abntex2cite}	% Citações padrão ABNT
+
+\usepackage{cmap}				% Mapear caracteres especiais no PDF
+\usepackage{lmodern}			% Usa a fonte Latin Modern
+
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{algpseudocode}
+\usepackage{algorithm}
+
+\usepackage{graphicx}			% Inclusão de gráficos
+
+\usepackage[T1]{fontenc}		% Selecao de codigos de fonte.
+\usepackage[utf8]{inputenc}		% Codificacao do documento (conversão automática dos acentos)
+
+\addto\captionsbrazil{%
+\def\bibname{References}%
+}
+
+\addto\captionsbrazil{
+  \renewcommand{\contentsname}%
+    {Contents}%
+}
+
+\titulo{A Hybrid Heuristic for the Multi-objective Knapsack Problem}
+\autor{Marcos Daniel V. Baroni}
+\local{Vitória - Espírito Santo - Brasil}
+\data{November 27, 2017}
+\orientador[Advisor:]{Dr. Flávio Miguel Varejão}
+%\coorientador{Equipe \abnTeX}
+\instituicao{%
+  Universidade Feredal do Espírito Santo -- UFES
+  \par
+  Departamento de Informática
+  \par
+  Programa de Pós-Graduação em Informática}
+\tipotrabalho{Tese (Doutorado)}
+% O preambulo deve conter o tipo do trabalho, o objetivo,
+% o nome da instituição e a área de concentração
+\preambulo{Tese de Doutorado apresentada de acordo
+com o regimento do Programa de Pós-graduação
+em Informática da Universidade
+Federal do Espírito Santo.}
+
+\makeindex
+
+\begin{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+% Folhas               %
+%%%%%%%%%%%%%%%%%%%%%%%%
+\imprimircapa
+\imprimirfolhaderosto*
+
+\input{tex/predefs.tex}
+\input{tex/folha-aprovacao.tex}
+\input{tex/abstract.tex}
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+%  Sumário             %
+%%%%%%%%%%%%%%%%%%%%%%%%
+\pdfbookmark[0]{\contentsname}{toc}
+\tableofcontents*
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+%  Texto               %
+%%%%%%%%%%%%%%%%%%%%%%%%
+% Introdução
+\chapter{Introdução}
+\input{tex/01-intro.tex}
+
+% Multi-objective Knapsack Problem
+\chapter{O Problema da Mochila Multi-objetivo}
+\input{tex/02-mokp.tex}
+\section{O Problema da Mochila Multi-objetivo Uni-dimensional}
+\input{tex/02a-mokp-uni.tex}
+
+% KD-tree
+\chapter{A k-d tree}
+\input{tex/03-kdtree.tex}
+
+% Experimentos
+\chapter{Experimentos}
+\input{tex/04-experimentos.tex}
+
+% Conclusão
+\chapter{Conclusão}
+\input{tex/05-conclusao.tex}
+
+
+\postextual
+
+\bibliography{references}
+
+\end{document}

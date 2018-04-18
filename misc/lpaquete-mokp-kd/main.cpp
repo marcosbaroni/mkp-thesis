@@ -530,6 +530,7 @@ int main(int argc, char** argv)
 
 	reset();
 
+	/* INITIALIZATION */
 	ioHandler.saveInputFileName(argv[1]);
 	ioHandler.readInstance( points, cumulativeWeights, Order0, Order1 );
 

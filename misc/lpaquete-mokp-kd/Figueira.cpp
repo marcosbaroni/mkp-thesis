@@ -220,8 +220,12 @@ Extension * negative_bidimensional_improvement1(multiset<RankingItem*, ComparerP
 }
 
 
-void Figueira::generateExtensions(list<RankingItem*> & points, multiset<RankingItem*, ComparerProfit0> & Order0
-		, multiset<RankingItem*, ComparerProfit1> & Order1, multiset<Extension*, ComparerM> & F) {
+void Figueira::generateExtensions(
+	list<RankingItem*> & points,
+	multiset<RankingItem*, ComparerProfit0> & Order0,
+	multiset<RankingItem*, ComparerProfit1> & Order1,
+	multiset<Extension*, ComparerM> & F)
+{
 	double a[GlobalData::NUM_POINTS];
 	multiset<RankingItem*, ComparerProfit0> ::iterator oit = Order0.begin(), oitend = Order0.end(), oit2;
 	int i = 0, k = 0, cumulative_weight = 0, remain_capacity = 0;
