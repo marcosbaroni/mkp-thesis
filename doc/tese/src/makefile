@@ -1,3 +1,4 @@
 all: pdflatex
 pdflatex:
-	pdflatex tex/main.tex
+	pdflatex -halt-on-error tex/main.tex
+

@@ -35,6 +35,8 @@ brazil,				% o último idioma é o principal do documento
 \def\bibname{References}%
 }
 
+\newtheorem{mydef}{Definição}
+
 \addto\captionsbrazil{
   \renewcommand{\contentsname}%
     {Contents}%
@@ -61,6 +63,25 @@ em Informática da Universidade
 Federal do Espírito Santo.}
 
 \makeindex
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+% 1. Introdução:
+%  (???) Motivação EDP
+% 2. MOKP
+%   2a. Algoritmos Exatos
+%     - Bibliografia
+%     - Bazgan's algoritmo
+%   2b. Algoritmos Heurísticos
+% 3. KDTree
+%   3a. Use no Exato
+%   3b. Uso no Heurístico
+% 4. Experimentos
+%   4a. KDT no Exato
+%   4b. KDT no Heurístico
+% 5. Conclusão
+% A. Anexos: Experimentos EDP
+%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{document}
 
@@ -90,8 +111,10 @@ Federal do Espírito Santo.}
 % Multi-objective Knapsack Problem
 \chapter{O Problema da Mochila Multi-objetivo}
 \input{tex/02-mokp.tex}
-\section{O Problema da Mochila Multi-objetivo Uni-dimensional}
-\input{tex/02a-mokp-uni.tex}
+\section{Métodos Exatos}
+\input{tex/02a-mokp-exato.tex}
+\section{Métodos Heurísticos}
+\input{tex/02b-mokp-heuristico.tex}
 
 % KD-tree
 \chapter{A k-d tree}
@@ -108,6 +131,6 @@ Federal do Espírito Santo.}
 
 \postextual
 
-\bibliography{references}
+\bibliography{tex/references}
 
 \end{document}
