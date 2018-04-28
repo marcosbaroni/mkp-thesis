@@ -52,6 +52,8 @@ Portanto, temos $S_k = S_{k-1} \cup \{(s^1_{k-1}+p^1_k)\}$
 \missing{Comentar sobre as estratégias de redução dos conjuntos
 de estados, motivando as definições a seguir.}
 
+\missing{ Definir conjunto cobertura, conjunto independente, etc.}
+
 \begin{mydef}[Extensão, Restrição e Complemento]
 Considere o Algoritmo~\ref{alg:nemull} e qualquer estado $s_k \in S_K (k < n)$.
 Um \emph{complemento} de $s_k$ é qualquer subconjunto  $J \subseteq \{k+1, \ldots, n\}$
@@ -65,7 +67,53 @@ Um estado $s_k \in S_k (k \leq n)$ é uma \emph{restrição} do estado $s_n \in 
 se, e somente se, $s_n$ é uma extenão de $s_k$.
 \end{mydef}
 
+\missing{Introdução às relações de dominância?}
+
 \begin{mydef}[Relação de dominância entre soluções]
+Uma relação $\relk$ sobre $S_k, k = i,\ ldots, n$, é uma relação de dominância
+se, e somente se, para todo $s_k, s_{k'} \in S_k$,
+\begin{equation}
+  \relkargs{s_k}{s_{\til{k}}} \Rightarrow \forall s_{\til{n}} \in Ext(s_{\til{n}}),
+    \exists s_n \in Ext(s_k), \dom{s_n}{s_{\til{n}}}
+\end{equation}
 \end{mydef}
 
-\subsection{}
+Apesar das relações de dominância não serem transitivas por definição,
+costumam ser transitivas por construção, como é o caso
+das três relações de dominância da Seção~\ref{sec:domrel}.
+Vale notar que se $\relk^i, \; i = 1, \ldots, \nrel$ são relações de dominância
+então $\relk = \bigcup^{\nrel}_{i = 1} \relk^i$ é também uma relação
+de dominância, geralmente não transitiva mesmo se $\relk^i, \; i = 1, \ldots, \nrel$
+forem transitivas.
+
+Para se ter uma implementação eficiência do algoritmo de programação dinâmica
+é recomendável utilizar múltiplas relações de dominância
+$\relk^1, \ldots, \relk^\nrel (\nrel \leq 1)$ a cada execução da $k$-ésima iteração
+$k = 1, \ldots, n$ uma vez que cada relação $\relk^i$ explora características
+específicas.
+
+\begin{algorithm}
+  \caption{Algoritmo de programação dinâmica utilizando múltiplas relações de dominância.}
+  \label{alg:baz1}
+  \input{alg/baz-alg1.tex}
+\end{algorithm}
+
+\begin{myprop}
+  Para quaisquer relações de dominância $\relk^1, \ldots, \relk^\nrel (\nrel \leq 1)$
+  sobre $S_k$, o conjunto $C_k^\nrel$ obtido pelo Algoritmo~\ref{alg:baz1}
+  em cada iteração é uma cobertura de $C_k^0$ com respeito a
+  $\relk = \bigcup_{i=1}^\nrel \relk^i \; (k = 1, \ldots, n)$.
+\end{myprop}
+
+\begin{proof}
+Considere $s_k \in C_k^0\backslash C_k^\nrel$, este foi removido quando
+selecionado um conjunto cobertura na iteração da linha 6.
+Seja $i_1 \in \{1, \ldots, \nrel \}$ a iteração da linha 6, tal que
+$s_k \in C_k^{i_1 - 1}\backslash C_k^{i_1}$.
+Uma vez que $C_k^{i_1}$ é um conjunto cobertura de $C_k^{i_1-1}$ com respeito
+a $\relk^{i-1}$, existe $s_\til{k}^{(1)} \in C_k^{i_1}$ tal que...
+\end{proof}
+
+\subsection{As relações de dominância}
+\missing{Relações de dominância}
+\label{sec:domrel}

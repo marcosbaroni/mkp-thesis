@@ -16,8 +16,6 @@
 \newcommand{\weight}[1]{w(\sol{#1})}
 \newcommand{\obj}[2]{f_{#1}(\sol{#2})}
 \newcommand{\bigweight}[1]{w\big(\sol{#1}\big)}
-\newcommand{\dom}[2]{dom(\sol{#1}, \sol{#2})}
-\newcommand{\domk}[2]{dom_k(\sol{#1}, \sol{#2})}
 \newcommand{\setIN}{\{1, \ldots, n\}}
 \newcommand{\ext}[2]{ext(\sol{#1}, \sol{#2})}
 \newcommand{\domLess}[2]{ \sol{#1} \prec \sol{#2} }
@@ -44,6 +42,16 @@
 \newcommand{\paretoset}{conjunto Pareto}
 \newcommand{\paretosetII}{conjunto Pareto-ótimo}
 \newcommand{\knapsackdominates}{domina segundo a mochila}
+
+%%% Other Papers Defs Auxiliars %%%
+\newcommand{\dom}[2]{dom(#1, #2)}
+\newcommand{\domk}[2]{dom_k(#1, #2)}
+\newcommand{\domkr}[3]{dom_k^{#1}(#2, #3)}
+\newcommand{\til}[1]{{#1'}}
+\newcommand{\rel}{R}
+\newcommand{\relk}{\rel_k}
+\newcommand{\relkargs}[2]{\relk(#1, #2)}
+\newcommand{\nrel}{p}
 
 % big bullet
 \newcommand{\bbt}{\,\begin{picture}(-1,1)(-1,-2)\circle*{5}\end{picture}\ }
