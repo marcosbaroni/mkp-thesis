@@ -1,7 +1,11 @@
+\missing{Comentar sobre background de propostas de métodos exatos.}
+
+\missing{Comentar sobre o método da Bazgan como sendo considerado o melhor, citar melhorias propostas.}
+
 O algoritmo de Nemhauser e Ullmann é um algorimto de programação dinâmica
 que resolve problemas da mochila de forma genérica aplicando o conceito de
 dominância da mochila para remover soluções parciais que não resultarão em
-soluções eficientes, ou seja, soluções que irão compor o \paretoset (conjunto solução).
+soluções eficientes, ou seja, soluções que irão compor o \paretoset{} (conjunto solução).
 
 \begin{algorithm}
   \caption{O algoritmo de Nemhauser e Ullmann para o \mokp.}
@@ -17,11 +21,51 @@ ou seja, $\forall\sol{x} \in S^{k-1}, \sol{x} \subseteq \{1, \ldots, k-1\}$.
 O conjunto $S^{k-1}$ é então expandido adicionando-se uma cópia de cada uma
 das suas soluções mas desta vez incluindo o $k$-ésimo item (linha 4),
 formando o conjunto $S^k_*$, o qual possui o dobro da cardinalidade de $S^{k-1}$.
-O conjunto $S^k_*$..
+O conjunto $S^k_*$ é então reduzido, retirado-se todas as soluções que são dominadas
+(segundo a dominância da mochila) por alguma outra (linha 5).
+Após a conclusão das iterações um passo final remove as soluções inviáveis
+e também as dominadas por alguma outra, dessa vez porém, considerando apenas os
+valores de lucro (linha 7).
 
 Apesar de sua simplicidade o Algoritmo~\ref{alg:nemull} é consideravelmente poderoso.
-Contudo o potencial crescimento exponencial do \paretoset para o \mokp
+Contudo o potencial crescimento exponencial do \paretoset{} para o \mokp
 compromete severamente o seu desempenho.
 Uma forma de atacar este problema é tentar reduzir ainda mais a quantidade de
 soluções parciais manuseadas durante as iterações do algoritmo.
-Três propostas...
+\missing{ Falar sobre as 3 propostas de redução de número de soluções da bazgan
+e justificar as definições seguintes. }
+
+
+\missing{Explicar que o algoritmo Bazgan considera um conceito generalizado
+de dominância aplicado a cada iteração.}
+
+O processo sequencial executado pelo algoritmo de programação dinâmica
+consiste de $n$ iterações.
+A cada $k$-ésima iteração é gerado o conjunto de estados $S^k$,
+que representa todas as soluções viáveis compostas de itens exclusivamente
+pertencentes aos $k$ primeiros itens ($k = 1, \ldots, n$).
+Um estado $s_k = (s_k^1, \ldots, s_\np^k, s_{\np-1}^k) \in S_k$ represena uma solução
+viável que tem valor $s^i_k$ como $i$-ésimo objetivo ($i = 1, \ldots, \np$)
+e $s^{\np-1}_k$ de peso.
+Portanto, temos $S_k = S_{k-1} \cup \{(s^1_{k-1}+p^1_k)\}$
+
+\missing{Comentar sobre as estratégias de redução dos conjuntos
+de estados, motivando as definições a seguir.}
+
+\begin{mydef}[Extensão, Restrição e Complemento]
+Considere o Algoritmo~\ref{alg:nemull} e qualquer estado $s_k \in S_K (k < n)$.
+Um \emph{complemento} de $s_k$ é qualquer subconjunto  $J \subseteq \{k+1, \ldots, n\}$
+tal que $s_k^{\np+1} + \sum_{j \in J} w_j \leq W$.
+Assumiremos que qualquer estado $s_n \in S_n$ admite o conjunto vazio como único complemento.
+Um estado $s_n \in S_n$ é uma \emph{extensão} de $s_k \in s_k (k \leq n )$ se, e somente se,
+existe um complemento $J$ de $s_k$ tal que $s_n^i = s_k^i + \sum_{j \in J} p_j^i) para \; i = 1, \ldots, \np$
+e $s_n^{p+1} = s_k^{p+1} + \sum_{j \in J} w_j$.
+O conjunto de extenções de $s_k$ é denotado por $Ext(s_k) (k \leq n)$.
+Um estado $s_k \in S_k (k \leq n)$ é uma \emph{restrição} do estado $s_n \in S_n$
+se, e somente se, $s_n$ é uma extenão de $s_k$.
+\end{mydef}
+
+\begin{mydef}[Relação de dominância entre soluções]
+\end{mydef}
+
+\subsection{}
