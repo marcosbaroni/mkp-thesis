@@ -264,6 +264,7 @@ para distinguir itens com o mesmo rank máximo.
 ordenação para ser utilizada nas iterações do algoritmo.}
 
 \subsection{Relações de dominância}
+\label{sec:reldom}
 
 Cada relação de dominância exploca uma consideração específica.
 Por isto recomenda-se utilizar relações de dominância que sejam complementares.
@@ -324,6 +325,7 @@ e apresenta propriedades adicionais de $\rel_k^r$.
       Definição~\ref{def:domrel}. }
     \item[(b)]{Trivial.}
     \item[(c)]{Pela Proposição~\ref{prop:domorder}, uma vez que $\rel_k^r$ é transitiva.}
+    \qedhere
   \end{enumerate}
 \end{proof}
 
@@ -367,10 +369,9 @@ dominância e apresenta propriedades adicionais de $\rel_k^{\dom}$.
     \item[(a)]{ TODO.... }
     \item[(b)]{Trivial.}
     \item[(c)]{Pela Proposição~\ref{prop:domorder}, uma vez que $\rel_k^{\dom}$ é transitiva.}
-    \item[(d)]{Por definição.}
+    \item[(d)]{Por definição.} \qedhere
   \end{enumerate}
 \end{proof}
-
 A terceira relação de dominância é baseada na comparação entre extensões
 específicas de um estado e um limite superior de extensões de outros estados.
 Um limite superior de um estado é definido segundo no contexto a seguir.
@@ -463,6 +464,22 @@ e apresenta propriedades adicionais de $\rel_k^b$.
       $\tilde{u}_j \geq s_{\til{k}}^i + \sum_{j \in J_2} p^j_i (i = 1, \ldots, \np)$.
       Portanto temos que $s_k \rel_k^b s_{-k}$. }
     \item[(c)]{Pela Proposição~\ref{prop:domorder}, uma vez que $\rel_k^b$ é transitiva.}
-    \item[(d)]{Por definição.}
+    \item[(d)]{Por definição.} \qedhere
   \end{enumerate}
 \end{proof}
+A relação $\rel_k^b$ é mais difícil de ser verificada do que as relações
+$\rel_k^r$ e $\rel_k^{\dom}$ uma vez que requer uma maior quantidade de
+comparações e informações sobre outros estados.
+
+Obviamente, a relação $\rel_k^b$ seria mais forte se utizados complementos
+adicionais (de acordo com outras ordenações) para $s_k$ e computado,
+ao invés de apenas um limite superior $u$, um conjunto de limites superiores,
+como por exemplo, a proposta apresentada em \cite{ehrgott2007bound}.
+Porém, no contexto em questão, uma vez que temos que verificar $\rel_k^b$
+para muitos estados, enriquecer $\rel_k^b$ dessa forma demandaria um
+esforço computacional alto demais.
+
+\subsection{Utilizando multiplas relações de dominância}
+
+Para se ter uma implementação eficiente, são utilizadas as três relações de
+dominância apresentadas na Seção~\ref{sec:reldom} em cada iteração.
