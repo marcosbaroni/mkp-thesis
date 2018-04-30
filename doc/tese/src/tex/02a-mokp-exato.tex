@@ -36,11 +36,11 @@ Um \emph{complemento} de $s_k$ é qualquer subconjunto  $J \subseteq \{k+1, \ldo
 tal que $s_k^{\np+1} + \sum_{j \in J} w_j \leq W$.
 Assumiremos que qualquer estado $s_n \in S_n$ admite o conjunto vazio como único complemento.
 Um estado $s_n \in S_n$ é uma \emph{extensão} de $s_k \in s_k (k \leq n )$ se, e somente se,
-existe um complemento $J$ de $s_k$ tal que $s_n^i = s_k^i + \sum_{j \in J} p_j^i) para \; i = 1, \ldots, \np$
-e $s_n^{p+1} = s_k^{p+1} + \sum_{j \in J} w_j$.
+existe um complemento $I$ de $s_k$ tal que $s_n^j = s_k^j + \sum_{i \in I} p_i^j) para \; j = 1, \ldots, \np$
+e $s_n^{p+1} = s_k^{p+1} + \sum_{i \in I} w_i$.
 O conjunto de extenções de $s_k$ é denotado por $Ext(s_k) (k \leq n)$.
 Um estado $s_k \in S_k (k \leq n)$ é uma \emph{restrição} do estado $s_n \in S_n$
-se, e somente se, $s_n$ é uma extenão de $s_k$.
+se, e somente se, $s_n$ é uma extensão de $s_k$.
 \end{mydef}
 
 \subsection{As relações de dominância}
@@ -280,7 +280,7 @@ A primeira relação de dominância se estabelece segundo a seguinte observaçã
 Quando a capacidade residual de uma solução associada a um estado $s_k$
 da iteração $k$ é maior ou igual a soma dos pesos dos itens restantes,
 i.e. itens $k+1, \ldots, n$, o único complemento de $s_k$ que pode resultar
-em uma solução eficiente é o complemento máximo $J = \{k+1, \ldots, n\}$.
+em uma solução eficiente é o complemento máximo $I = \{k+1, \ldots, n\}$.
 Portanto, neste contexto, não se faz necessário gerar as extensões de $s_k$
 que não contenham todos os itens restants.
 Define-se então a relação de dominância $\rel_k^r$ sobre $S^k$ para
@@ -315,7 +315,7 @@ e apresenta propriedades adicionais de $\rel_k^r$.
       Isto implica que $s_k \dom s_{\til{k}}$.
       Além disso, uma vez que
       $s_k^{\np+1} = s_{\til{k}^{\np+1}} + w_k \leq W - \sum_{i=k+1}^n w_i$,
-      qualquer subconjunto $J \subseteq \{k+1, \ldots, n\}$ é um complemento
+      qualquer subconjunto $I \subseteq \{k+1, \ldots, n\}$ é um complemento
       de $s_{\til{k}}$ e $s_k$.
       Portanto, para todo estado $s_{\til{n}} \in Ext(s_{\til{k}})$,
       existe $s_n \in Ext(s_k)$, baseado no mesmo complemento que $s_{\til{n}}$,
@@ -324,5 +324,145 @@ e apresenta propriedades adicionais de $\rel_k^r$.
       Definição~\ref{def:domrel}. }
     \item[(b)]{Trivial.}
     \item[(c)]{Pela Proposição~\ref{prop:domorder}, uma vez que $\rel_k^r$ é transitiva.}
+  \end{enumerate}
+\end{proof}
+
+Esta relação de dominância é um tanto fraca, uma vez que em cada $k$-ésima
+iteração ela pode apenas.......
+Apesar disso, é uma relação de dominância extremamente fácil de ser verificada,
+uma vez que, ao ser o valor de $W - \sum_{i=k}^n$ computado, a relação $\rel_k^r$
+requer apenas uma comparação para ser estabelecida entre dois estados.
+
+A relação de dominância seguinte é a generalização para o caso multi-objetivo
+da relação de dominância proposta por Weingartner e Ness~\cite{weingartner1967methods}
+e utilizada no clássico algoritmo de Nemhauser e Ulmann~\cite{nemhauser1969discrete}.
+Esta segunda relação de dominância é definida sobre $s_k$ para $k = 1, \ldots, n$ por:
+\begin{displaymath}
+  \forall s_k, s_{\til{k}} \in S_k, \; s_k \rel_k^{\dom} s_{\til{k}}
+    \Leftrightarrow
+    \begin{cases}
+      s_k \dom s_{\til{k}} \; & \text{e} \\
+      s_k^{\np+1} \leq s_{\til{k}}^{\np+1} \; & \text{se} \; k < n
+    \end{cases}
+\end{displaymath}
+Observe que a condição sobre os pesos $s_k^{\np+1}$ e $s_{\til{k}}^{\np+1}$
+garante que todo complemento de $s_{\til{k}}$ é também um complemento de
+$s_k$.
+A seguinte proposição mostra que $\rel_k^{\dom}$ é de fato uma relação de
+dominância e apresenta propriedades adicionais de $\rel_k^{\dom}$.
+
+\begin{myprop}[Relação $D_k^r$]
+  \noindent
+  \begin{enumerate}
+    \item[(a)] $D_k^{\dom}$ é uma relação de dominância
+    \item[(b)] $D_k^{\dom}$ é transitiva
+    \item[(c)] $D_k^{\dom}$ admite ordem de preservação de dominância
+    \item[(c)] $D_n^{\dom} = \dom$
+\end{enumerate}
+\end{myprop}
+
+\begin{proof}
+  \noindent
+  \begin{enumerate}
+    \item[(a)]{ TODO.... }
+    \item[(b)]{Trivial.}
+    \item[(c)]{Pela Proposição~\ref{prop:domorder}, uma vez que $\rel_k^{\dom}$ é transitiva.}
+    \item[(d)]{Por definição.}
+  \end{enumerate}
+\end{proof}
+
+A terceira relação de dominância é baseada na comparação entre extensões
+específicas de um estado e um limite superior de extensões de outros estados.
+Um limite superior de um estado é definido segundo no contexto a seguir.
+
+\begin{mydef}[Limite superior]
+  Um vetor objetivo $u = (u^1, \ldots, u^\np)$ é um limite superior
+  de um estado $s_k \in S_k$ se, e somente se, $\forall s_n \in Ext(s_k)$
+  tem-se que $u^i \geq s_n^i, i = 1, \ldots, \np$.
+\end{mydef}
+
+Um tipo geral de relação de dominância pode ser derivada da seguinte maneira:
+considere dois estados $s_k, s_{\til{k}} \in S_k$, se existe um complemento
+$I$ de $s_k$ e um limite superior $\tilde{u}$ de $s_{\til{k}}$ tal que
+$s_k^j + \sum_{i \in I} p_i^j \geq \tilde{u^j},\; j = 1, \ldots, \np$,
+então $s_k$ domina $s_{\til{k}}$.
+
+Este tipo de relação de dominância pode ser implementara apenas para
+complementos específicos e limites superiores.
+Na implementação do algoritmo em questão são apenas considerados
+dois complementos específicos $I'$ e $I''$ obtidos pelo simples algoritmo
+de preenchimento \emph{guloso} definido a seguir.
+Após rerotular os itens $k+1, \ldots, \np$ de acordo com a ordenação
+$\ord^{sum}$ (e $\ord^{max}$ respectivamente), o complemento $I'$
+(e $I''$ respectivamente) são obtidos através a inserção sequencial
+dos itens restantes na respectiva solução de forma que a restrição
+de capacidade é respeitada.
+
+Para computar $u$, utiliza-se o limite inferior proposto em
+\cite{martello1990knapsack} para cada valor de objetivo.
+Considere $\overline{W}(s_k) = W - s_k^{\np+1}$ a capacidade residual associada
+ao estado $s_k \in S_k$.
+Denota-se por
+$c_j = min\big\{l_j \in \{k_1, \ldots, n\} \; | \; \sum_{i=k+1}^{l_j} w_i > \overline{W}(s_k)\big\}$
+a posição do primeiro item que não pode ser adicionado ao estado $s_k \in S_k$
+quando os itens $k+1, \ldots, n$ são rerotulados de acordo com a ordenação $\ord^j$.
+Desde modo, segundo~\cite{martello1990knapsack}, quando os itens $k+1, \ldots, n$
+são rerotulados de acordo com a ordenação $\ord^j$, um limite inferior
+para o $j$-ésimo valor objetivo de $s_k \in S_k$ é para $j = 1, \ldots, \np$:
+\begin{equation}
+  u^j = s_k^j + \sum_{i=k+1}^{c_j-1} p_i^j +
+    max\left\{ \left\lfloor\overline{W}(s_k)\frac{p^j_{c_j+1}}{w_{c_j+1}} \right\rfloor ,
+     \left\lfloor p^j_{c_j} - \big(w_{c_j} - \overline{W}(s_k)\big).\frac{p^j_{c_{j-1}}}{w_{c_j-1}}
+     \right\rfloor \right\}
+  \label{eq:upperb}
+\end{equation}
+Finalmente definimos $\rel_k^b$ uma relação de dominância como caso particular
+do tipo geral para $k = 1, \ldots, n$ por:
+\begin{displaymath}
+  \forall s_k, s_{\til{k}} \in S_k, \; s_k \rel_k^b s_{\til{k}}
+    \Leftrightarrow
+    \begin{cases}
+      s_k^j + \sum_{i \in I'} p_i^j \geq \tilde{u^i}, & j = 1, \ldots, \np \\
+      \text{ou} \\
+      s_k^j + \sum_{i \in I''} p_i^j \geq \tilde{u^i}, & j = 1, \ldots, \np
+    \end{cases}
+\end{displaymath}
+onde $\tilde{u} = (\tilde{u}_1, \ldots, \tilde{u}_\np)$ é o limite superior
+para $s^{\til{k}}$ computado de acordo com a Equação~\ref{eq:upperb}.
+
+A seguinte proposição mostra que $\rel_k^b$ é de fato uma relação de dominância
+e apresenta propriedades adicionais de $\rel_k^b$.
+\begin{myprop}[Relação $D_k^b$]
+  \noindent
+  \begin{enumerate}
+    \item[(a)] $D_k^b$ é uma relação de dominância
+    \item[(b)] $D_k^b$ é transitiva
+    \item[(c)] $D_k^b$ admite ordem de preservação de dominância
+    \item[(c)] $D_n^b = \dom$
+\end{enumerate}
+\end{myprop}
+
+\begin{proof}
+  \noindent
+  \begin{enumerate}
+    \item[(a)]{ Considere os estados $s_k$ e $s_{\til{k}}$ tal que $s_k \rel_k^b s_{\til{k}}$.
+      Isto implica que existe $I \in {I', I''}$ que capaz de gerar um estado $s_n \in Ext(s_{\til{k}})$.
+      Além disso, uma vez que $\tilde{u}$ é um limite superior de $s_{\til{k}}$,
+      temos $\tilde{u} \dom s_{\til{n}}, \forall s_{\til{n}} \in Ext(s_{\til{n}})$.
+      Portanto, por transitividade de $\dom$, temos que $s_n \dom s_{\til{n}}$,
+      o que estabelece que $\rel_k^b$ satisfaz a condição da Equação~\ref{eq:domrel}
+      da Definição~\ref{def:domrel}.
+      }
+    \item[(b)]{ Considere os estados $s_k, s_{\til{k}}$ e $s_{-k}$ tal que
+      $s_k \rel_k^b s_{\til{k}}$ e $s_{\til{k}} \rel_k^b s_{-k}$.
+      Isto implica que, por um lado, existe $I_1 \in \{I', I''\}$ tal que
+      $s_k^j + \sum_{i \in I_1} p^j_i \geq \tilde{u}_j (j = 1, \ldots, \np)$
+      por outro lado, existe $I_2 \in \{I', I''\}$ tal que
+      $s_{\til{k}}^j + \sum_{i \in I_2} p^j_i \geq \bar{u}_j (j = 1, \ldots, \np)$
+      Uma vez que $\tilde{u}$ é um limite superior para $s_{\tilde{k}}$ temos que
+      $\tilde{u}_j \geq s_{\til{k}}^i + \sum_{j \in J_2} p^j_i (i = 1, \ldots, \np)$.
+      Portanto temos que $s_k \rel_k^b s_{-k}$. }
+    \item[(c)]{Pela Proposição~\ref{prop:domorder}, uma vez que $\rel_k^b$ é transitiva.}
+    \item[(d)]{Por definição.}
   \end{enumerate}
 \end{proof}
