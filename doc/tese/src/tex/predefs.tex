@@ -44,13 +44,16 @@
 \newcommand{\knapsackdominates}{domina segundo a mochila}
 
 %%% Other Papers Defs Auxiliars %%%
-\newcommand{\dom}[2]{dom(#1, #2)}
-\newcommand{\domk}[2]{dom_k(#1, #2)}
-\newcommand{\domkr}[3]{dom_k^{#1}(#2, #3)}
+%\newcommand{\dom}[2]{dom(#1, #2)}
+\newcommand{\dom}{\underline{\triangle}}
+\renewcommand{\ord}{\mathcal{O}}
+%\newcommand{\domk}[2]{dom_k(#1, #2)}
 \newcommand{\til}[1]{{#1'}}
-\newcommand{\rel}{R}
+\newcommand{\rel}{D}
 \newcommand{\relk}{\rel_k}
-\newcommand{\relkargs}[2]{\relk(#1, #2)}
+\newcommand{\relki}[1]{\rel_k^{#1}}
+\newcommand{\relkargs}[2]{\relk\big(#1, #2\big)}
+\newcommand{\relkargsi}[3]{\relki{#1}\big(#2, #3\big)}
 \newcommand{\nrel}{p}
 
 % big bullet

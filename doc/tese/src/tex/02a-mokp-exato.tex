@@ -2,42 +2,17 @@
 
 \missing{Comentar sobre o método da Bazgan como sendo considerado o melhor, citar melhorias propostas.}
 
-O algoritmo de Nemhauser e Ullmann é um algorimto de programação dinâmica
-que resolve problemas da mochila de forma genérica aplicando o conceito de
-dominância da mochila para remover soluções parciais que não resultarão em
-soluções eficientes, ou seja, soluções que irão compor o \paretoset{} (conjunto solução).
-
 \begin{algorithm}
   \caption{O algoritmo de Nemhauser e Ullmann para o \mokp.}
-  \label{alg:nemull}
+  \label{alg:dp1}
   \input{alg/dp1.tex}
 \end{algorithm}
 
-O algoritmo inicia definindo uma solução inicial $S^0$ contendo apenas a solução
-vazia (linha 2).
-Na $k$-ésimo iteração o algoritmo recebe um conjunto $S^{k-1}$ contendo
-soluções exclusivamente compostas pelos primeiros ${k-1}$ itens,
-ou seja, $\forall\sol{x} \in S^{k-1}, \sol{x} \subseteq \{1, \ldots, k-1\}$.
-O conjunto $S^{k-1}$ é então expandido adicionando-se uma cópia de cada uma
-das suas soluções mas desta vez incluindo o $k$-ésimo item (linha 4),
-formando o conjunto $S^k_*$, o qual possui o dobro da cardinalidade de $S^{k-1}$.
-O conjunto $S^k_*$ é então reduzido, retirado-se todas as soluções que são dominadas
-(segundo a dominância da mochila) por alguma outra (linha 5).
-Após a conclusão das iterações um passo final remove as soluções inviáveis
-e também as dominadas por alguma outra, dessa vez porém, considerando apenas os
-valores de lucro (linha 7).
-
-Apesar de sua simplicidade o Algoritmo~\ref{alg:nemull} é consideravelmente poderoso.
-Contudo o potencial crescimento exponencial do \paretoset{} para o \mokp
-compromete severamente o seu desempenho.
-Uma forma de atacar este problema é tentar reduzir ainda mais a quantidade de
-soluções parciais manuseadas durante as iterações do algoritmo.
-\missing{ Falar sobre as 3 propostas de redução de número de soluções da bazgan
-e justificar as definições seguintes. }
-
-
 \missing{Explicar que o algoritmo Bazgan considera um conceito generalizado
 de dominância aplicado a cada iteração.}
+
+\missing{Dizer que a explicação do desenvolvimento do algoritmo será reproduzido
+segundo o artigo original.}
 
 O processo sequencial executado pelo algoritmo de programação dinâmica
 consiste de $n$ iterações.
@@ -52,10 +27,11 @@ Portanto, temos $S_k = S_{k-1} \cup \{(s^1_{k-1}+p^1_k)\}$
 \missing{Comentar sobre as estratégias de redução dos conjuntos
 de estados, motivando as definições a seguir.}
 
-\missing{ Definir conjunto cobertura, conjunto independente, etc.}
+\missing{ Definir conjunto cobertura, conjunto independente,
+  conjunto eficiente reduzido, etc., definir parte simétrica/assimétrica de $\dom$?}
 
 \begin{mydef}[Extensão, Restrição e Complemento]
-Considere o Algoritmo~\ref{alg:nemull} e qualquer estado $s_k \in S_K (k < n)$.
+Considere o Algoritmo~\ref{alg:dp1} e qualquer estado $s_k \in S_K (k < n)$.
 Um \emph{complemento} de $s_k$ é qualquer subconjunto  $J \subseteq \{k+1, \ldots, n\}$
 tal que $s_k^{\np+1} + \sum_{j \in J} w_j \leq W$.
 Assumiremos que qualquer estado $s_n \in S_n$ admite o conjunto vazio como único complemento.
@@ -67,29 +43,34 @@ Um estado $s_k \in S_k (k \leq n)$ é uma \emph{restrição} do estado $s_n \in 
 se, e somente se, $s_n$ é uma extenão de $s_k$.
 \end{mydef}
 
+\subsection{As relações de dominância}
+\label{sec:domrel}
+
 \missing{Introdução às relações de dominância?}
 
 \begin{mydef}[Relação de dominância entre soluções]
-Uma relação $\relk$ sobre $S_k, k = i,\ ldots, n$, é uma relação de dominância
+Uma relação $\rel_k$ sobre $S_k, k = i,\ ldots, n$, é uma relação de dominância
 se, e somente se, para todo $s_k, s_{k'} \in S_k$,
 \begin{equation}
-  \relkargs{s_k}{s_{\til{k}}} \Rightarrow \forall s_{\til{n}} \in Ext(s_{\til{n}}),
-    \exists s_n \in Ext(s_k), \dom{s_n}{s_{\til{n}}}
+  s_k \rel_k s_{\til{k}} \Rightarrow \forall s_{\til{n}} \in Ext(s_{\til{n}}),
+    \exists s_n \in Ext(s_k), s_n \dom s_{\til{n}}
+  \label{eq:domrel}
 \end{equation}
+\label{def:domrel}
 \end{mydef}
 
 Apesar das relações de dominância não serem transitivas por definição,
 costumam ser transitivas por construção, como é o caso
 das três relações de dominância da Seção~\ref{sec:domrel}.
-Vale notar que se $\relk^i, \; i = 1, \ldots, \nrel$ são relações de dominância
-então $\relk = \bigcup^{\nrel}_{i = 1} \relk^i$ é também uma relação
-de dominância, geralmente não transitiva mesmo se $\relk^i, \; i = 1, \ldots, \nrel$
+Vale notar que se $\rel_k^i, \; i = 1, \ldots, \nrel$ são relações de dominância
+então $\rel_k = \bigcup^{\nrel}_{i = 1} \rel_k^i$ é também uma relação
+de dominância, geralmente não transitiva mesmo se $\rel_k^i, \; i = 1, \ldots, \nrel$
 forem transitivas.
 
 Para se ter uma implementação eficiência do algoritmo de programação dinâmica
 é recomendável utilizar múltiplas relações de dominância
-$\relk^1, \ldots, \relk^\nrel (\nrel \leq 1)$ a cada execução da $k$-ésima iteração
-$k = 1, \ldots, n$ uma vez que cada relação $\relk^i$ explora características
+$\rel_k^1, \ldots, \rel_k^\nrel (\nrel \leq 1)$ a cada execução da $k$-ésima iteração
+$k = 1, \ldots, n$ uma vez que cada relação $\rel_k^i$ explora características
 específicas.
 
 \begin{algorithm}
@@ -99,21 +80,249 @@ específicas.
 \end{algorithm}
 
 \begin{myprop}
-  Para quaisquer relações de dominância $\relk^1, \ldots, \relk^\nrel (\nrel \leq 1)$
+  Para quaisquer relações de dominância $\rel_k^1, \ldots, \rel_k^\nrel (\nrel \geq 1)$
   sobre $S_k$, o conjunto $C_k^\nrel$ obtido pelo Algoritmo~\ref{alg:baz1}
-  em cada iteração é uma cobertura de $C_k^0$ com respeito a
-  $\relk = \bigcup_{i=1}^\nrel \relk^i \; (k = 1, \ldots, n)$.
+  em cada iteração é um conjunto cobertura de $C_k^0$ com respeito a
+  $\rel_k = \bigcup_{i=1}^\nrel \rel_k^i \; (k = 1, \ldots, n)$.
+  \label{prop:coverset}
 \end{myprop}
 
 \begin{proof}
 Considere $s_k \in C_k^0\backslash C_k^\nrel$, este foi removido quando
-selecionado um conjunto cobertura na iteração da linha 6.
-Seja $i_1 \in \{1, \ldots, \nrel \}$ a iteração da linha 6, tal que
+selecionado um conjunto cobertura na iteração da linha 5.
+Seja $i_1 \in \{1, \ldots, \nrel \}$ a iteração da linha 5, tal que
 $s_k \in C_k^{i_1 - 1}\backslash C_k^{i_1}$.
 Uma vez que $C_k^{i_1}$ é um conjunto cobertura de $C_k^{i_1-1}$ com respeito
-a $\relk^{i-1}$, existe $s_\til{k}^{(1)} \in C_k^{i_1}$ tal que...
+a $\rel^{i_1}_{\til{k}}$, existe $s_{\til{k}}^{(1)} \in C_k^{i_1}$ tal que $ s_{\til{k}}^{(1)} \rel_k^{i_1} {s_k}$.
+Se $s_{\til{k}}^{(1)} \in C_k^m$ então as propriedades de cobertura são válidas,
+uma vez que $\rel_k^{i_1} \subseteq \rel_k$.
+Caso contrário, existe uma iteração $i_2 > i_1$, correspondente à iteração
+da linha 5 tal que $s_{\til{k}}^{(1)} \in C_k^{i_2-1}\backslash C_k^{i_2}$.
+Como anteriormente, estabelecemos que existe  $s_{\til{k}}^{(2)} \in C_k^{i_2}$
+tal que $s_{\til{k}}^{(2)} \rel_k^{i_2} s_{\til{k}}^{(1)}$.
+Uma vez que $\rel_k^{i_2} \subseteq \rel_k$ temos que
+$s_{\til{k}}^{(2)} \rel_k s_{\til{k}}^{(1)} \rel_k s_k$ e por transitividade de $\rel_k$
+garantimos que $s_{\til{k}}^{(2)} \rel_k s_k$.
+Pela repetição desde processo podemos garantir que a existência de um estado
+$s_{\til{k}} \in C_k^m$, tal que $s_{\til{k}} \rel_k s_k$.
+\qedhere
 \end{proof}
 
-\subsection{As relações de dominância}
-\missing{Relações de dominância}
-\label{sec:domrel}
+Temos agora condições para garantir que o Algoritmo~\ref{alg:baz1} gera o conjunto de
+vetores objetivos não dominados.
+
+\begin{myteo}
+  Para qualquer família de relações de dominância
+  $\rel_k^i (i = 1, \ldots, \nrel; k = 1, \ldots, n)$,
+  o Algoritmo~\ref{alg:baz1} retorna $C_n$ que é um conjunto cobertura de $S_n$
+  com respeito a $\dom$.
+  Além disso, se na iteração $n$ utilizarmos ao menos uma relação
+  $\rel_n^i = \dom$ e garantirmos que o conjunto cobertura $C_n^i$
+  é também independente com respeito a $\rel_n^i$ então $C_n$ representa
+  o conjunto $ND$ de vetores objetivos não dominados.
+\end{myteo}
+
+\begin{proof}
+  Considere $s_{\til{n}} \in S_n\backslash C_n$, todas as restrições
+  foram removidas ao reter-se o conjunto cobertura com respeito a
+  $\rel_k = \cup_{i=1}^m \rel_k^i$ durante as iterações $k \leq n$.
+  Seja $k_1$ a iteração mais alta em que $C_{k_1}^0$ ainda
+  contém restrições de $s_{\til{n}}$, as quais serão removidas
+  aplicando uma das relações $\rel_{k_1}^i (i = 1, \ldots, \nrel)$.
+  Considere alguma destas restrições, denotada por $s_{\til{k_1}}^{(n)}$.
+  Uma vez que $s_{\til{k_1}}^{n} \in C^0_{k_1}\backslash C_{k_1}$ sabemos,
+  pela Proposição~\ref{prop:coverset}, que existe $s_{k_1} \in C_{k_1}$
+  tak que $s_{k_1} \rel_{k_1} s_{\til{k_1}}^{(n)}$.
+  Pela Equação~\ref{eq:domrel}, uma vez que $\rel_{k}$ é uma relação de
+  dominância, temos que todas as extensões de $s_{k_1}^{(n)}$, e
+  particularmente para $s_{\til{n}}$, existe $s_{n_1} \in Ext(s_{k_1})$
+  tal que $s_{n_1} \dom s_{\til{n}}$.
+  Se $s_{n_1} \in C_n$, então a propriedade de cobertura é válida.
+  Caso contrário, existe uma iteração $k_2 > k_1$, correspondente
+  a iteração mais alta em que $C_0^{k_2}$ ainda contém restrições de $s_{n_1}$,
+  que serão removidas aplicando-se uma das relações $\rel_{k_2}^i (i = 1, \ldots, \nrel)$.
+  Considere uma destas restrições, denotada por $s_{k_2}^{(n_1)}$.
+  Como anteriormente, estabelecemos a existência de um estado $s_{k_2} \in C_{k_2}$
+  tal que existe $s_{n_2} \in Ext(s_{k_2})$ tal que $s_{n_2} \dom s_{n_1}$.
+  A transitividade de $\dom$ garante que $s_{n_2} \dom s_{\til{n}}$.
+  Pela repetição deste processo, estabelecemos a existência de um estado
+  $s_{k_2} \in C_{k_2}$ tal que existe $s_{n_2} \in Ext(s_{k_2})$
+  tal que $s_n \dom s_{\til{n}}$.
+
+  Além disso, selecionando-se um conjunto $C_n^i$ que é conjunto independente
+  com relação a $\rel_n^i = \dom$, esta propriedade se mantém válida para $C_n^\nrel$
+  o qual é subconjunto de $C_n^i$.
+  Dessa forma $C_n$, que corresponde ao conjunto eficiente reduzido,
+  representa o conjunto de vetores objetivos não dominados.
+  \qedhere
+\end{proof}
+
+O teorema anterior apenas querer que um dos $n . \nrel$ conjuntos coberturas
+seja independente com respeito a sua relação de dominância.
+Mesmo se todos os conjunto $C_k^i$....
+
+\subsection{Geração de conjuntos cobertura e independente}
+
+Apresentamos no Algoritmo~\ref{alg:baz2} uma maneira de produzir $C_k^i$ um
+conjunto cobertura e independente de $C_k^{i-1}$ com respeito a relação
+transitiva $\rel_k^i$ (linha ??? do Algoritmo~\ref{alg:baz1}).
+
+\begin{algorithm}
+  \caption{Computação do conjunto $C_k^i$ cobertura e independente do conjunto
+  $C_k^{i-1}$ com respeito a relação transitiva $\rel_k^i$.}
+  \label{alg:baz2}
+  \input{alg/baz-alg2.tex}
+\end{algorithm}
+
+\begin{myprop}
+  Para qualquer relação de dominância $\rel_k^i$ sobre $S_k$, o
+  Algoritmo~\ref{alg:baz2} retorna $C_k^i$ um conjunto cobertura e independente
+  de $C_k^{i-1}$ com respeito a $\rel_k^i (j = 1, \ldots, n; i = 1, \ldots, \nrel)$.
+\end{myprop}
+
+\begin{proof}
+  Claramente $C_k^i$ é independente com relação a $\rel_k^i$, uma vez que
+  inserimos o estado $s_k$ ao conjunto $C_k^i$ na linha ????
+  apenas se não for dominado por nenhum outro estado em $C_k^i$ (linha ???)
+  e todos os estados dominados por $s_k$ tenham sido removidos de $C_k^i$
+  (linha ??? e ???).
+
+  Mostramos agora que $C_k^i$ é um conjunto covertura de $C_k^{i-1}$
+  com respeito a $\rel_k^i$.
+  Considere $s_{\til{k}} \in C_k^{i-1} \backslash C_k^i$.
+  Isto ocorre tanto porque não passa no teste da linha ??? quanto porque
+  foi removido na linha ??? ou ???.
+  Isto é devido respectivamente a um estado $s_{-k}$ já existente em $C_k^i$
+  ou a ser incluído em $C_k^i$ (na linha ???) tal que $s_{-k}\rel_k^i s_{\til{k}}$.
+  Pode ser que $s_{-k}$ seja removido de $C_k^i$ em uma iteração posterior
+  da linha ??? se existir um novo estado $s^{\hat k} \in C_k^{i-1}$ a ser
+  incluído em $C_k^i$, tal que $s_{\hat k} \rel_k^i s_{-k}$.
+  Entretanto, a transitividade de $\rel_k^i$ garante a existência, ao fim da
+  iteração $k$, de um estado $s_k \in C_k^i$ tal que $s_k \rel_k^i s_{\til{k}}$.
+  \qedhere
+\end{proof}
+
+O Algoritmo~\ref{alg:baz2} pode ser aprimorado uma vez que geralmente é possível
+gerar estados de $C_k^{i-1} = \{s_{k(1)}, \ldots, s_{k(r)}\}$ conforme
+uma \emph{ordem de preservação de dominância} para $\rel_k^i$ de forma que
+todo $l < j (1 \leq l, j \leq r)$ temos tanto $s_{k(l)} \rel_k^i s_{k(j)}$
+ou $\neg (s_{k(j)} \rel_k^i s_{k(l)})$.
+A proposição seguinte provê a condição necessária e suficiente para estabelecer
+a existência da ordem de preservação de dominância para uma relação de dominância.
+
+\begin{myprop}
+  Seja $D_k$ uma relação de dominância sobre $S_k$.
+  Existe uma ordem de preservação de dominância para $D_k$ se, e somente se,
+  $\rel_k$ não admite ciclos em sua parte assimétrica.
+  \label{prop:domorder}
+\end{myprop}
+
+\begin{proof}
+  \noindent \\ $\Rightarrow$ A existência de um ciclo na parte assimétrica de $D^k$
+  implicaria na existência de dois estados consecutivos $s_{k(j)}$ e $s_{k(l)}$
+  neste ciclo sendo $j > l$, o que é uma contradição.\\
+  $\Leftarrow$ Qualquer ordem topológica baseada na parte assimétrica de $D_k$
+  é uma ordem de preservação de dominância para $D_k$.
+  \qedhere
+\end{proof}
+
+Na Seção seguinte é apresentado um exemplo de ordem de preservação de dominância.
+Se os estados em $C_k^{i-1}$ são gerados conforme uma ordem de preservação de
+dominância para $D_k^i$, a linha ??? e o laço ???-??? do Algoritmo~\ref{alg:baz2}
+podem ser omitidos.
+
+\section{Detalhes de implementação}
+
+Primeiramente é apresentada a ordem na qual serão considerados os itens no
+processo sequencial do algoritmo.
+Posteriormente são apresentados a três relações de dominância utilizadas
+no algoritmo ??? e a maneira com que serão utilizadas.
+
+\subsection{Ordem dos itens}
+
+A ordem na qual os itens são considerados é uma questão crucial na implementação
+do algoritmo.
+Sabe-se que no caso do problema da mochila unidimensional, para se
+obter uma boa solução, os itens devem ser geralmente considerados em
+ordem decrescente segundo a proporção
+$p_i/w_i$~\cite{ehrgott2013multicriteria, martello1990knapsack}.
+Porém, para o caso multi-objetivo não existe uma ordem natural.
+
+São introduzidas duas ordenações $\ord^{sum}$ e $\ord^{max}$
+derivadas da agregação das ordens $\ord^j$ inferidas pelas proporções
+$p_i^j/w_i$ para cada objetivo $(j = 1, \ldots, \np)$.
+Considere $r_i^l$ o rank (ou posição) do item $l$ na ordenação $\ord^j$.
+$\ord^{sum}$ denota uma ordenação segundo valores crescentes da soma dos
+ranks dos itens nas $\np$ ordenações $(i = 1, \ldots, \np)$.
+$\ord^{max}$ denota uma ordenação segundo valores crescentes de máximo ou
+piores ranks de itens nas $\np$ ordenações $\ord^j (j = 1, \ldots, \np)$,
+onde o pior rank do item $l$ nas $\np$ ordenações $\ord^j (j = 1, \ldots, \np)$
+é calculado como $max_{i=1}^{\np}\{r_l^i\} + \frac{1}{\np n} \sum_{i = 1}^{\np} r_l^i$
+para distinguir itens com o mesmo rank máximo.
+
+\missing{Dizer que o artigo original conclui atraves de testes qual é a melhor
+ordenação para ser utilizada nas iterações do algoritmo.}
+
+\subsection{Relações de dominância}
+
+Cada relação de dominância exploca uma consideração específica.
+Por isto recomenda-se utilizar relações de dominância que sejam complementares.
+Além disso, para se escolher uma relação de dominância é necessário considerar
+sua potencial capacidade de descarte de estados diante do
+custo computacional requerido.
+
+A seguir serão apresentas as três relações de dominância utilizadas no algoritmo.
+As primeiras duas relações são reazoavelmente triviais de se estabelecer sendo
+a última ainda considerada, mesmo sendo um tanto mais complexa, devido à sua
+complementaridade diantes das duas primeiras.
+
+A primeira relação de dominância se estabelece segundo a seguinte observação.
+Quando a capacidade residual de uma solução associada a um estado $s_k$
+da iteração $k$ é maior ou igual a soma dos pesos dos itens restantes,
+i.e. itens $k+1, \ldots, n$, o único complemento de $s_k$ que pode resultar
+em uma solução eficiente é o complemento máximo $J = \{k+1, \ldots, n\}$.
+Portanto, neste contexto, não se faz necessário gerar as extensões de $s_k$
+que não contenham todos os itens restants.
+Define-se então a relação de dominância $\rel_k^r$ sobre $S^k$ para
+$k = 1, \ldots, n$ como:
+\begin{displaymath}
+  \forall s_k, s_{\til{k}} \in S_k, \enskip
+  s_k \rel_k^r s_{\til{k}}
+    \Leftrightarrow
+    \begin{cases}
+      s_{\til{k}} \in S_{k-1}, \\
+      s_k = (s_{\til{k}}^1 + p_k^1, \ldots, s_{\til{k}}^\np + p_k^\np, s_{\til{k}}^{\np+1} + w_k), \; \text{e} \\
+      s_{\til{k}}^{\np+1} \leq W - \sum_{i=k}^n w_i
+    \end{cases}
+\end{displaymath}
+A seguinte proposição mostra que $\rel_k^r$ é de fato uma relação de dominância
+e apresenta propriedades adicionais de $\rel_k^r$.
+
+\begin{myprop}[Relação $D_k^r$]
+  \noindent
+  \begin{enumerate}
+    \item[(a)] $D_k^r$ é uma relação de dominância
+    \item[(b)] $D_k^r$ é transitiva
+    \item[(c)] $D_k^r$ admite ordem de preservação de dominância
+\end{enumerate}
+\end{myprop}
+
+\begin{proof}
+  \noindent
+  \begin{enumerate}
+    \item[(a)]{
+      Considere dois estados $s_k$ e $s_{\til{k}}$ tal que $s_k \rel_k^r s_{\til{k}}$.
+      Isto implica que $s_k \dom s_{\til{k}}$.
+      Além disso, uma vez que
+      $s_k^{\np+1} = s_{\til{k}^{\np+1}} + w_k \leq W - \sum_{i=k+1}^n w_i$,
+      qualquer subconjunto $J \subseteq \{k+1, \ldots, n\}$ é um complemento
+      de $s_{\til{k}}$ e $s_k$.
+      Portanto, para todo estado $s_{\til{n}} \in Ext(s_{\til{k}})$,
+      existe $s_n \in Ext(s_k)$, baseado no mesmo complemento que $s_{\til{n}}$,
+      tal que $s_n \dom s_{\til{n}}$.
+      Isto estabelece que $\rel_k^r$ satisfaz a Equação~\ref{eq:domrel} da
+      Definição~\ref{def:domrel}. }
+    \item[(b)]{Trivial.}
+    \item[(c)]{Pela Proposição~\ref{prop:domorder}, uma vez que $\rel_k^r$ é transitiva.}
+  \end{enumerate}
+\end{proof}

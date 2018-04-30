@@ -3,12 +3,9 @@
     \State $S^0 = \big\{\emptyset\big\}$
     \For{$k \gets 1, n$}
       \State $S_*^k = S^{k-1} \cup \{\sol{x} \cup k \:|\: \sol{x} \in S^{k-1}\}$
-        \Comment{extensão de soluções}
-      \State $S^k = \{\sol{x} \:|\: \nexists \sol{a} \in S_*^k: \domk{a}{x} \}$
-        \Comment{filtro de dominância parcial}
+      \State {TODO...}
     \EndFor
   \State $P = \{\sol{x} \:|\: \nexists \sol{a} \in S^n: \dom{a}{x} \;|\; \weight{x} \leq W \}$
-    \Comment{dominância/viabilidade}
   \State \Return $P$
   \EndFunction
 \end{algorithmic}
