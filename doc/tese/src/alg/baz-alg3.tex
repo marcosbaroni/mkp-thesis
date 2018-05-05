@@ -1,0 +1,50 @@
+\begin{algorithmic}[1] % The number tells where the line numbering should start
+    \Function{}{$C_{k-1} = \{ s_{k-1(1)}, \ldots, s_{k-1(r)}\}$
+      tal que $s_{k-1(i)} \geq_{lex} s_{k-1(j)} \; \forall i < j (1 \leq i, j \leq r)$}
+    \State $C_k \gets \emptyset; M_k \gets \emptyset; i \gets 1; j \gets 1;$
+    \While{$j \leq r$ \textbf{and} $s_{k-1(1)}^{\np+1} + \sum^n_{l=k}w_l \leq W$}
+      \State $j \gets j + 1$
+    \EndWhile
+    \While{$i \leq r$ \textbf{and} $s_{k-1(1)}^{\np+1} + w_k \leq W$}
+      \State $s_k \gets (s_{k-1(1)}^1 + p_k^1,
+        \ldots,
+        s_{k-1(1)}^{\np} + p_k^{\np},
+        s_{k-1}^{\np+1} + w_k);$
+      \While{$j \leq r$ \textbf{and} $s_{k-1(j)} \leq_{lex} s_k$}
+        \State \texttt{MantainNonDominated($s_{k-1(j)}, M_k, C_k$)}; $j \gets j + 1;$
+      \EndWhile
+      \State \texttt{MantainNonDominated($s_k, M_k, C_k$)}; $i \gets i + 1;$
+    \EndWhile
+    \While{$ j \leq r$}
+      \State \texttt{MantainNonDominated($s_{k-1(j)}, M_k, C_k$)}; $j \gets j + 1;$
+    \EndWhile
+    \If{ k = n }
+      \State $C_n \gets M_n$;
+    \Else
+      \State $F \gets \emptyset$;
+      \For{ ordenação $\ord \in \{\ord^{sum}, \ord^{max}\}$}
+        \For{$sw_k \in M_k$}
+          \State Rerotular itens $k+1, \ldots, n$ segundo ordenação $\ord$;
+          \For{$j \gets k + 1, \ldots, n$}
+            \If{$s_n^{\np+1} + w_j \leq W$}
+              \State $s_n \gets (s_n^1 + p_j^1, \ldots, s_n^{\np} + p_j^{\np}, s_n^{\np+1} + w_j);$
+            \EndIf
+          \EndFor
+          \State $F \gets \texttt{KeepNonDominated}(s_n, F)$;
+        \EndFor
+      \EndFor
+      \State $i \gets 1; remove \gets false$;
+    \EndIf
+    \While{$j \leq h$ \textbf{and} $s_{n(j)} \dom_{lex} u$ \textbf{and} $\neg remove$}
+      \If{$s_{n(j)} \dom u$}
+        \State $remove \gets true$;
+      \Else
+        \State $j \gets j + 1$;
+      \EndIf
+    \EndWhile
+    \If{$remove$}
+      \State $C_k \gets C_k\backslash \{s_{k(i)}\}; i \gets i + 1$;
+    \EndIf
+  \State \Return $C_k$
+  \EndFunction
+\end{algorithmic}
