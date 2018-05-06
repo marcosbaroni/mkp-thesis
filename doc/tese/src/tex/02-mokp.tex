@@ -28,13 +28,14 @@ Diz-se que uma solução $x \in X$
 se, e somente se, $x$ é ao menos tão boa quanto
 $y$ em todos os objetivos e melhor que $y$ em ao menos um dos objetivos.
 Formalmente:
-\begin{displaymath}
+\begin{equation}
     \text{dom}(x, y) = \left\{
       \begin{array}{l}
           \forall i \in \{1, 2, \ldots, \np\}: f_i(x) \geq f_i(y) ~\text{e}\\
           \exists j \in \{1, 2, \ldots, \np\}: f_j(x) > f_j(y)
   \end{array} \right.
-\end{displaymath}
+  \label{eq:dom}
+\end{equation}
 Uma solução $x \in X$ é dita \emph{eficiente}, denotado por $\text{eff}(x)$,
 se, e somente se, $x$ não é dominada por nenhuma outra solução pertencente a $X$.
 Formalmente:

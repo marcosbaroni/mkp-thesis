@@ -8,9 +8,10 @@
 \contentsline {section}{\numberline {2.2}Detalhes de implementa\IeC {\c c}\IeC {\~a}o}{16}{section.2.2}
 \contentsline {subsection}{\numberline {2.2.1}Ordem dos itens}{16}{subsection.2.2.1}
 \contentsline {subsection}{\numberline {2.2.2}Rela\IeC {\c c}\IeC {\~o}es de domin\IeC {\^a}ncia}{16}{subsection.2.2.2}
-\contentsline {subsection}{\numberline {2.2.3}Utilizando multiplas rela\IeC {\c c}\IeC {\~o}es de domin\IeC {\^a}ncia}{20}{subsection.2.2.3}
+\contentsline {subsection}{\numberline {2.2.3}Detalhes de implementa\IeC {\c c}\IeC {\~a}o}{20}{subsection.2.2.3}
 \contentsline {section}{\numberline {2.3}M\IeC {\'e}todos Heur\IeC {\'\i }sticos}{20}{section.2.3}
-\contentsline {chapter}{\chapternumberline {3}A k-d tree}{21}{chapter.3}
-\contentsline {chapter}{\chapternumberline {4}Experimentos}{23}{chapter.4}
-\contentsline {chapter}{\chapternumberline {5}Conclus\IeC {\~a}o}{25}{chapter.5}
-\contentsline {chapter}{References}{27}{section*.6}
+\contentsline {chapter}{\chapternumberline {3}A k-d tree}{23}{chapter.3}
+\contentsline {section}{\numberline {3.1}Verifica\IeC {\c c}\IeC {\~a}o de domin\IeC {\^a}ncia e a busca de faixa}{23}{section.3.1}
+\contentsline {chapter}{\chapternumberline {4}Experimentos}{27}{chapter.4}
+\contentsline {chapter}{\chapternumberline {5}Conclus\IeC {\~a}o}{29}{chapter.5}
+\contentsline {chapter}{References}{31}{section*.8}

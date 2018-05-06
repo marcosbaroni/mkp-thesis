@@ -284,11 +284,11 @@ i.e. itens $k+1, \ldots, n$, o único complemento de $s_k$ que pode resultar
 em uma solução eficiente é o complemento máximo $I = \{k+1, \ldots, n\}$.
 Portanto, neste contexto, não se faz necessário gerar as extensões de $s_k$
 que não contenham todos os itens restants.
-Define-se então a relação de dominância $\rel_k^r$ sobre $S^k$ para
+Define-se então a relação de dominância $\relI$ sobre $S^k$ para
 $k = 1, \ldots, n$ como:
 \begin{displaymath}
   \forall s_k, s_{\til{k}} \in S_k, \enskip
-  s_k \rel_k^r s_{\til{k}}
+  s_k \relI s_{\til{k}}
     \Leftrightarrow
     \begin{cases}
       s_{\til{k}} \in S_{k-1}, \\
@@ -296,8 +296,8 @@ $k = 1, \ldots, n$ como:
       s_{\til{k}}^{\np+1} \leq W - \sum_{i=k}^n w_i
     \end{cases}
 \end{displaymath}
-A seguinte proposição mostra que $\rel_k^r$ é de fato uma relação de dominância
-e apresenta propriedades adicionais de $\rel_k^r$.
+A seguinte proposição mostra que $\relI$ é de fato uma relação de dominância
+e apresenta propriedades adicionais de $\relI$.
 
 \begin{myprop}[Relação $D_k^r$]
   \noindent
@@ -312,7 +312,7 @@ e apresenta propriedades adicionais de $\rel_k^r$.
   \noindent
   \begin{enumerate}
     \item[(a)]{
-      Considere dois estados $s_k$ e $s_{\til{k}}$ tal que $s_k \rel_k^r s_{\til{k}}$.
+      Considere dois estados $s_k$ e $s_{\til{k}}$ tal que $s_k \relI s_{\til{k}}$.
       Isto implica que $s_k \dom s_{\til{k}}$.
       Além disso, uma vez que
       $s_k^{\np+1} = s_{\til{k}^{\np+1}} + w_k \leq W - \sum_{i=k+1}^n w_i$,
@@ -321,10 +321,10 @@ e apresenta propriedades adicionais de $\rel_k^r$.
       Portanto, para todo estado $s_{\til{n}} \in Ext(s_{\til{k}})$,
       existe $s_n \in Ext(s_k)$, baseado no mesmo complemento que $s_{\til{n}}$,
       tal que $s_n \dom s_{\til{n}}$.
-      Isto estabelece que $\rel_k^r$ satisfaz a Equação~\ref{eq:domrel} da
+      Isto estabelece que $\relI$ satisfaz a Equação~\ref{eq:domrel} da
       Definição~\ref{def:domrel}. }
     \item[(b)]{Trivial.}
-    \item[(c)]{Pela Proposição~\ref{prop:domorder}, uma vez que $\rel_k^r$ é transitiva.}
+    \item[(c)]{Pela Proposição~\ref{prop:domorder}, uma vez que $\relI$ é transitiva.}
     \qedhere
   \end{enumerate}
 \end{proof}
@@ -332,7 +332,7 @@ e apresenta propriedades adicionais de $\rel_k^r$.
 Esta relação de dominância é um tanto fraca, uma vez que em cada $k$-ésima
 iteração ela pode apenas.......
 Apesar disso, é uma relação de dominância extremamente fácil de ser verificada,
-uma vez que, ao ser o valor de $W - \sum_{i=k}^n$ computado, a relação $\rel_k^r$
+uma vez que, ao ser o valor de $W - \sum_{i=k}^n$ computado, a relação $\relI$
 requer apenas uma comparação para ser estabelecida entre dois estados.
 
 A relação de dominância seguinte é a generalização para o caso multi-objetivo
@@ -340,7 +340,7 @@ da relação de dominância proposta por Weingartner e Ness~\cite{weingartner196
 e utilizada no clássico algoritmo de Nemhauser e Ulmann~\cite{nemhauser1969discrete}.
 Esta segunda relação de dominância é definida sobre $s_k$ para $k = 1, \ldots, n$ por:
 \begin{displaymath}
-  \forall s_k, s_{\til{k}} \in S_k, \; s_k \rel_k^{\dom} s_{\til{k}}
+  \forall s_k, s_{\til{k}} \in S_k, \; s_k \relII s_{\til{k}}
     \Leftrightarrow
     \begin{cases}
       s_k \dom s_{\til{k}} \; & \text{e} \\
@@ -350,16 +350,16 @@ Esta segunda relação de dominância é definida sobre $s_k$ para $k = 1, \ldot
 Observe que a condição sobre os pesos $s_k^{\np+1}$ e $s_{\til{k}}^{\np+1}$
 garante que todo complemento de $s_{\til{k}}$ é também um complemento de
 $s_k$.
-A seguinte proposição mostra que $\rel_k^{\dom}$ é de fato uma relação de
-dominância e apresenta propriedades adicionais de $\rel_k^{\dom}$.
+A seguinte proposição mostra que $\relII$ é de fato uma relação de
+dominância e apresenta propriedades adicionais de $\relII$.
 
-\begin{myprop}[Relação $D_k^r$]
+\begin{myprop}[Relação $\relII$]
   \noindent
   \begin{enumerate}
-    \item[(a)] $D_k^{\dom}$ é uma relação de dominância
-    \item[(b)] $D_k^{\dom}$ é transitiva
-    \item[(c)] $D_k^{\dom}$ admite ordem de preservação de dominância
-    \item[(c)] $D_n^{\dom} = \dom$
+    \item[(a)] $\relII$ é uma relação de dominância
+    \item[(b)] $\relII$ é transitiva
+    \item[(c)] $\relII$ admite ordem de preservação de dominância
+    \item[(c)] $\relII = \dom$
 \end{enumerate}
 \end{myprop}
 
@@ -368,7 +368,7 @@ dominância e apresenta propriedades adicionais de $\rel_k^{\dom}$.
   \begin{enumerate}
     \item[(a)]{ TODO.... }
     \item[(b)]{Trivial.}
-    \item[(c)]{Pela Proposição~\ref{prop:domorder}, uma vez que $\rel_k^{\dom}$ é transitiva.}
+    \item[(c)]{Pela Proposição~\ref{prop:domorder}, uma vez que $\relII$ é transitiva.}
     \item[(d)]{Por definição.} \qedhere
   \end{enumerate}
 \end{proof}
@@ -417,10 +417,10 @@ para o $j$-ésimo valor objetivo de $s_k \in S_k$ é para $j = 1, \ldots, \np$:
      \right\rfloor \right\}
   \label{eq:upperb}
 \end{equation}
-Finalmente definimos $\rel_k^b$ uma relação de dominância como caso particular
+Finalmente definimos $\relIII$ uma relação de dominância como caso particular
 do tipo geral para $k = 1, \ldots, n$ por:
 \begin{displaymath}
-  \forall s_k, s_{\til{k}} \in S_k, \; s_k \rel_k^b s_{\til{k}}
+  \forall s_k, s_{\til{k}} \in S_k, \; s_k \relIII s_{\til{k}}
     \Leftrightarrow
     \begin{cases}
       s_k^j + \sum_{i \in I'} p_i^j \geq \tilde{u^i}, & j = 1, \ldots, \np \\
@@ -431,8 +431,8 @@ do tipo geral para $k = 1, \ldots, n$ por:
 onde $\tilde{u} = (\tilde{u}_1, \ldots, \tilde{u}_\np)$ é o limite superior
 para $s^{\til{k}}$ computado de acordo com a Equação~\ref{eq:upperb}.
 
-A seguinte proposição mostra que $\rel_k^b$ é de fato uma relação de dominância
-e apresenta propriedades adicionais de $\rel_k^b$.
+A seguinte proposição mostra que $\relIII$ é de fato uma relação de dominância
+e apresenta propriedades adicionais de $\relIII$.
 \begin{myprop}[Relação $D_k^b$]
   \noindent
   \begin{enumerate}
@@ -446,40 +446,72 @@ e apresenta propriedades adicionais de $\rel_k^b$.
 \begin{proof}
   \noindent
   \begin{enumerate}
-    \item[(a)]{ Considere os estados $s_k$ e $s_{\til{k}}$ tal que $s_k \rel_k^b s_{\til{k}}$.
+    \item[(a)]{ Considere os estados $s_k$ e $s_{\til{k}}$ tal que $s_k \relIII s_{\til{k}}$.
       Isto implica que existe $I \in {I', I''}$ que capaz de gerar um estado $s_n \in Ext(s_{\til{k}})$.
       Além disso, uma vez que $\tilde{u}$ é um limite superior de $s_{\til{k}}$,
       temos $\tilde{u} \dom s_{\til{n}}, \forall s_{\til{n}} \in Ext(s_{\til{n}})$.
       Portanto, por transitividade de $\dom$, temos que $s_n \dom s_{\til{n}}$,
-      o que estabelece que $\rel_k^b$ satisfaz a condição da Equação~\ref{eq:domrel}
+      o que estabelece que $\relIII$ satisfaz a condição da Equação~\ref{eq:domrel}
       da Definição~\ref{def:domrel}.
       }
     \item[(b)]{ Considere os estados $s_k, s_{\til{k}}$ e $s_{-k}$ tal que
-      $s_k \rel_k^b s_{\til{k}}$ e $s_{\til{k}} \rel_k^b s_{-k}$.
+      $s_k \relIII s_{\til{k}}$ e $s_{\til{k}} \relIII s_{-k}$.
       Isto implica que, por um lado, existe $I_1 \in \{I', I''\}$ tal que
       $s_k^j + \sum_{i \in I_1} p^j_i \geq \tilde{u}_j (j = 1, \ldots, \np)$
       por outro lado, existe $I_2 \in \{I', I''\}$ tal que
       $s_{\til{k}}^j + \sum_{i \in I_2} p^j_i \geq \bar{u}_j (j = 1, \ldots, \np)$
       Uma vez que $\tilde{u}$ é um limite superior para $s_{\tilde{k}}$ temos que
       $\tilde{u}_j \geq s_{\til{k}}^i + \sum_{j \in J_2} p^j_i (i = 1, \ldots, \np)$.
-      Portanto temos que $s_k \rel_k^b s_{-k}$. }
-    \item[(c)]{Pela Proposição~\ref{prop:domorder}, uma vez que $\rel_k^b$ é transitiva.}
+      Portanto temos que $s_k \relIII s_{-k}$. }
+    \item[(c)]{Pela Proposição~\ref{prop:domorder}, uma vez que $\relIII$ é transitiva.}
     \item[(d)]{Por definição.} \qedhere
   \end{enumerate}
 \end{proof}
-A relação $\rel_k^b$ é mais difícil de ser verificada do que as relações
-$\rel_k^r$ e $\rel_k^{\dom}$ uma vez que requer uma maior quantidade de
+A relação $\relIII$ é mais difícil de ser verificada do que as relações
+$\relI$ e $\relII$ uma vez que requer uma maior quantidade de
 comparações e informações sobre outros estados.
 
-Obviamente, a relação $\rel_k^b$ seria mais forte se utizados complementos
+Obviamente, a relação $\relIII$ seria mais forte se utizados complementos
 adicionais (de acordo com outras ordenações) para $s_k$ e computado,
 ao invés de apenas um limite superior $u$, um conjunto de limites superiores,
 como por exemplo, a proposta apresentada em \cite{ehrgott2007bound}.
-Porém, no contexto em questão, uma vez que temos que verificar $\rel_k^b$
-para muitos estados, enriquecer $\rel_k^b$ dessa forma demandaria um
+Porém, no contexto em questão, uma vez que temos que verificar $\relIII$
+para muitos estados, enriquecer $\relIII$ dessa forma demandaria um
 esforço computacional alto demais.
 
-\subsection{Utilizando multiplas relações de dominância}
+\subsection{Detalhes de implementação}
 
 Para se ter uma implementação eficiente, são utilizadas as três relações de
 dominância apresentadas na Seção~\ref{sec:reldom} em cada iteração.
+Como dito na Seção anterior uma relação de dominância demanda maior
+esforço computacional do que outra para ser vericada.
+Além disso, mesmo que sejam parcialmente complementares,
+é frequente mais de uma relação de dominância ser válida para o mesmo par de estados.
+Por esse motivo é natural aplicar primeiramente relações de dominância que
+podem ser verificadas facilmente (como $\relI$ e $\relII$)
+para então verificar num conjunto reduzido de estados uma relações mais
+custosas (como $\relIII$).
+
+A seguir será descrito os detalhes da implementação e amplicação
+das três relações de dominância.
+O Algoritmo~\ref{alg:baz3}, que computa, na $k$-ésima iteração, o subconjunto
+de estados candidatos $C_k$ a partir de um subconjunto
+$C_{k-1} (k = 1, \ldots, n)$, substitui as linhas ??? a ??? do Algoritmo~\ref{alg:baz2}.
+
+A utilização das dominâncias $\relI$ e $\relII$ é descrita nas linhas ???-???
+e a utilização da dominância $\relIII$ é descrita nas linhas ???-???.
+O algoritmo utiliza dois sub-procedimentos: \texttt{MantainNonDominated},
+que remove estados $\relII$-dominados, e procedimento \texttt{KeepNonDominated},
+que é utilizado durante a aplicação da relação $\relIII$.
+
+\begin{algorithm}
+  \caption{O algoritmo de Nemhauser e Ullmann para o \mokp.}
+  \label{alg:baz3}
+  \input{alg/baz-alg3.tex}
+\end{algorithm}
+
+
+
+
+
+

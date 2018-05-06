@@ -1,0 +1,55 @@
+Vários experimentos computacionais foram realizados com o objetivo de veirficar
+a eficiência da indexação multi-dimensional, especialmente em instâncias com
+mais de duas dimensões.
+
+
+\missing{Introduzir comentário sobre as instâncias da Bazgan.}
+Quatro tipos de instâncias bi-objetivo são consideradas:
+\begin{enumerate}
+  \item[A)] Aleatórias: $
+    p^j_i \in [1, 1000],
+    w_i \in [1,1000]$.
+  \item[B)] Não-conflitantes: $
+    p^1_i \in [111, 1000],\\
+    p^2_i \in [p^1_i - 100, p^1_i + 100],\\
+    w_i \in [1,1000]$.
+  \item[C)] Conflitantes: $
+    p^1_i \in [1, 1000],\\
+    p^2_i \in [max\{900-p^1_i;1\}, min\{1100-p^1_i, 1000\}],\\
+    w_i \in [1,1000]$.
+  \item[D)] Conflitantes com pesos correlacionados: $
+    p^1_i \in [1, 1000],\\
+    p^2_i \in [max\{900-p^1_i;1\}, min\{1100-p^1_i, 1000\}],\\
+    w_i \in [p^1_i+p^2_i-200, p^1_i+p^2_i+200]$.
+\end{enumerate}
+onde $\in [a,b]$ denota uma distribuição uniforme aleatória no intervalo
+$[\,b]$.
+
+Para os experimentos com $3$-objetivo considerou-se
+a generalização introduzida por~\cite{bazgan2009}
+para os tipos $A$ e $C$ e também duas propostas de generalização
+para os tipo $B$ e $D$:
+\begin{enumerate}
+  \item[A)] Aleatórias: $
+    p^j_i \in [1, 1000]\\
+    w_i \in [1,1000]$
+  \item[B)] Não-conflitantes: $
+    p^1_i \in [111, 1000],\\
+    p^2_i \in [p^1_i - 100, p^1_i + 100],\\
+    p^3_i \in [p^1_i - 100, p^1_i + 100],\\
+    w_i \in [1,1000]$.
+  \item[C)] Conflitantes: $
+    p^1_i \in [1, 1000], \;
+    p^2_i \in [1, 1001 - p^1_i] \\
+    p^3_i \in [max\{900-p^1_i-p^2_i;1\}, min\{1100-p^1_i-p^2_i, 1001-p^1_i\}]\\
+    w_i \in [1,1000]$.
+  \item[D)] Conflitantes com pesos correlacionados: $
+    p^1_i \in [1, 1000]\\
+    p^2_i \in [1, 1001 - p^1_i] \\
+    p^3_i \in [max\{900-p^1_i-p^2_i;1\}, min\{1100-p^1_i-p^2_i, 1001-p^1_i\}]\\
+    w_i \in [p^1_i+p^2_i+p^3_i-200, p^1_i+p^2_i+p^3_i+200]$.
+\end{enumerate}
+Instâncias do tipo $B$ são consideradas mais fáceis enquanto instâncias do
+tipo $D$ são consideradas as mais difíceis.
+Para todas as instâncias, atribui-se $W=\frac{1}{2}\floor{\sum^n_{k=1} w^k}$.
+Para cada tipo e valor de $n$ dez instâncias foram geradas.

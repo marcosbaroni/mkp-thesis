@@ -1,5 +1,107 @@
 % Falar sobre a utilização de estrutura de dados.
 
+\section{Verificação de dominância e a busca de faixa}
+
+Como dito anteriormente, solucionar um problema multi-objetivo significa
+apresentar o seu \paretoset{}, ou seja, o conjunto de soluções não dominadas.
+Geralmente o processo de solução compreende-se em contruir este conjunto de
+soluções de forma incremental.
+Por este motivo, um dos procedimentos mais executados durante o processo é
+verificar se uma determinada solução é dominada por alguma outra solução
+existente num conjunto candidato.
+Um algoritmo pode até mesmo necessitar de extrair um cojunto cobertura, ou seja,
+extrair todas as soluções não-dominadas de um grande conjuto de soluções.
+
+Esta operação deve demandar exforço quadrático sobre o número total de soluções
+se implementada como uma comparação par-a-par.
+Entretanto, se as soluções forem interpretadas como pontos em um espaço
+multi-dimensional, podemos deduzir da Equação~\ref{eq:dom} que esta operação
+corresponde em verificar a existência um ponto numa determinada região
+do espaço. O mesmo pode ser considerado no caso mais específico para a dominância
+da mochila, segundo a Equação~???.
+Formalmente:
+\begin{align*}
+    & x \dom y \; \Longleftrightarrow \; \pnt{y} \in R(\sol{x}) \\
+  \text{where} \phantom{mmmmm} \\
+    \pnt{x} &= \big(\obj{1}{x}, \ldots, \obj{\np}{x}, \weight{x}\big) \\
+    R(\sol{x}) &= \left\{ a \in \mathbb{R}^{\np+1} \;\middle|\;
+      a_{\np+1} \leq \weight{x}
+      \, \text{ and } \,
+      a_i \geq \obj{i}{x}, \; i \in \{1, \ldots, \np\}
+      \right\}
+\end{align*}
+
+\missing{Colocar referência para a equação de dominância da mochila (texto acima).}
+
+O problema de determinar a existência de um ponto numa determinada região do
+espaço é já bem conhecido da computação e chama-se problema da
+\emph{busca de baixa} (ou \emph{range search} em ingês)~\cite{agarwal1999geometric}.
+O problema de busca de faixa é largamente aplicado, por exemplo, na área da
+computação gráfica e jogos, onde é necessário se verificar a colisão entre pontos e polígonos.
+Para se ter uma solução eficiente deste problema evitando o esforço computacional
+quadrático, os pontos devem ser indexados multidimensional.....
+\missing{Melhorar parágrafo acima e conferir texto inicial do parágrafo abaixo.}
+
+Devido a sua simplicidade e eficiência, a estrutura de dados mais utilizada
+para o problema é a \emph{\kdtree}~\cite{preparata2012computational}.
+Proposta por Jon Louis Bentley em 1957~\cite{bentley1975}, a \kdtree{} é um tipo de
+árvore binária de construção simples e baixa utilização de memória.
+Apesar de sua simplicidade, além da operação de buca de faixa, a \kdtree{}
+suporta outras operações como busca de vizinho mais próximo.
+Por este motivo é também bastante utilizada em algoritmos de
+clasterização~\cite{kanungo2002efficient, indyk1998approximate}
+e renderização gráfica~\cite{owens2007survey}.
+
+Como uma árvore binária comum, a cada nível recursivo da árvore
+a \kdtree{} subdivide os dados em duas partes.
+Porém, diferentemente de uma árvore de busca binária comum, as quais utilizam
+apenas uma \emph{chave} em todos os níveis da árvore, a \kdtree{} utiliza um
+total de $k$ chaves fazendo um revezamento circular entre as chaves à medida
+que caminha nos níveis da árvore.
+
+A Figura~\ref{fig:kdom-kd} apresenta (a) um conjunto de pontos dispostos num
+espaço bi-dimensional e indexados por uma (b) \dtree{2}.
+O primeiro e terceiro nível da \dtree{2} indexa a componente $x$ dos pontos,
+enquanto o segundo nível indexa a componente $y$.
+Cada ponto indexado pela árvore subdivide o espaço em dois de acordo
+com o valor da componente que está sendo indexada.
+A subdivisão do espaço é representada na figura por uma linha mais grossa.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[scale=4.8]{img/kdt/dom-kd}
+  \caption{Exemplo de pontos indexados por uma \kdtree{}.}
+  \label{fig:kdom-kd}
+\end{figure}
+
+A Figura~\ref{fig:query} apresenta um exemplo de operação de verificação de
+dominância utilizando uma \dtree{2} como estrutura de indexação.
+A área acinzentada não tem intersecção com a área dominada pelo ponto $x$
+(área hachurada), portanto as soluções dentro da área acinzentada não são
+avaliadas.
+
+\missing{Propor passo-a-passo da operação.}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[scale=1.7]{img/kdt/query}
+  \caption{Exemplo de operação de verificação de dominância utilizando a \kdtree{}.}
+  \label{fig:query}
+\end{figure}
+
+Com relação à eficiência da \kdtree{} é importante considerar que não é
+recomendável escalar de forma arbitrária o número $k$ de dimensões
+indexadas pela \kdtree{}, esperando assim escalar também sua eficiência.
+Mesmo que o dado possua todas estas dimensões.
+Como regra geral considera-se que um \kdtree{} é adequada para indexar um
+conjunto com $n$ pontos se $n$ não for muito maior que $2^k$\cite{toth2004handbook},
+caso contrário, a performance da \kdtree{} se assemelhará a de uma busca
+linear exaustiva.
+
+Espera-se que a \kdtree{} auxilie as operações de verificação de dominância
+\emph{podando} uma grande quantidade de soluções, demandando um menor número
+de comparações entre soluções, melhorando assim a performance dos algoritmos.
+
 % Falar um pouco sobre arvore binária.
 
 % Definir a árvore kdtree
