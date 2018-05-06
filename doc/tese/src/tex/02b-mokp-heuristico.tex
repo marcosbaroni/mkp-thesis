@@ -1,0 +1,20 @@
+\section{Evolução estocástica por complexos}
+
+O Algoritmo de Evolução estocástica por complexos (EEC),
+\emph{Shuffled Complex Evolution} em inglês,
+é um algoritmo evolutivo populacional proposto por Duan~\cite{duan1992effective}
+e tem sido utilizado com sucesso em problemas de escalonamento
+\cite{zhao2015shuffled}, seleção de projetos~\cite{elbeltagi2007modified},
+problema da mochila $0-1$~\cite{bhattacharjee2014shuffled} e
+problema da mochila multi-dimensional~\cite{baroni2015shuffled,baroni2016shuffled}.
+
+O EEC é inspirado na evolução natural que ocorre de forma simultânea em
+comunidades independentes.
+O algoritmo trabalha com uma população particionada em $N$ comunidades,
+ou complexos, cada uma contendo $M$ indivíduos.
+Inicialmente a população de $N*M$ indivíduos é tomada aleatoriamente do espaço
+de soluções viáveis.
+Após esta inicialização a população é ordenada em ordem descrecente de aptidão
+e o melhor global é identificado.
+Toda a população é então particionada em $N$ complexos, cada um contendo $M$ indivíduos.
+Neste processo de....
