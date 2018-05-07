@@ -1,12 +1,12 @@
 \begin{algorithmic}[1] % The number tells where the line numbering should start
     \Function{}{$C_k^{i-1} = \{ s_{k(1)}, \ldots, s_{k(r)}\}$}
-    \State $C_k^i \gets \{s_{k(1)}\}$
+    \State $C_k^i \gets \{s_{k(1)}\}$;
     \For{$h \gets 2, r$}
-      \State {Seja $C_k^i = \{s_{\til{k}(1)}, \ldots, s_{\til{k}(l_h)}\}$}
+      \State $C_k^i = \{s_{\til{k}(1)}, \ldots, s_{\til{k}(l_h)}\}$;
       \State $dominated \gets false;$
       \State $dominates \gets false;$
       \State $j \gets 1;$
-      \While{$ j \leq l_h$ and $\neg dominated$ and $\neg dominates$}
+      \While{$ j \leq l_h$ \textbf{and} $\neg dominated$ \textbf{and} $\neg dominates$}
         \If{$s_{\til{k}(j)} \rel_k^i s_{k(h)}$}
           \State $dominated \gets true;$
         \ElsIf{$s_{k(h)} \rel_k^i s_{\til{k}(j)}$}

@@ -49,7 +49,7 @@ se, e somente se, $s_n$ é uma extensão de $s_k$.
 \missing{Introdução às relações de dominância?}
 
 \begin{mydef}[Relação de dominância entre soluções]
-Uma relação $\rel_k$ sobre $S_k, k = i,\ ldots, n$, é uma relação de dominância
+Uma relação $\rel_k$ sobre $S_k, k = i,\ ldots, n$, é uma \emph{relação de dominância}
 se, e somente se, para todo $s_k, s_{k'} \in S_k$,
 \begin{equation}
   s_k \rel_k s_{\til{k}} \Rightarrow \forall s_{\til{n}} \in Ext(s_{\til{n}}),
@@ -161,11 +161,13 @@ O teorema anterior apenas querer que um dos $n . \nrel$ conjuntos coberturas
 seja independente com respeito a sua relação de dominância.
 Mesmo se todos os conjunto $C_k^i$....
 
+\missing{...concluir parágrafo.}
+
 \subsection{Geração de conjuntos cobertura e independente}
 
 Apresentamos no Algoritmo~\ref{alg:baz2} uma maneira de produzir $C_k^i$ um
 conjunto cobertura e independente de $C_k^{i-1}$ com respeito a relação
-transitiva $\rel_k^i$ (linha ??? do Algoritmo~\ref{alg:baz1}).
+transitiva $\rel_k^i$ (linha 6 do Algoritmo~\ref{alg:baz1}).
 
 \begin{algorithm}
   \caption{Computação do conjunto $C_k^i$ cobertura e independente do conjunto
@@ -366,18 +368,33 @@ dominância e apresenta propriedades adicionais de $\relII$.
 \begin{proof}
   \noindent
   \begin{enumerate}
-    \item[(a)]{ TODO.... }
+    \item[(a)]{
+      Considere estados $s_k$ e $s_{\til{k}}$ tal que $s_k \relII s_{\til{k}}$.
+      Isto implica que $s_k \dom s_{\til{k}}$ Além disso, uma vez que
+      $s_k^{\np+1} \leq s_{\til{k}}^{\np+1}$, qualquer subconjunto
+      $J \cup \{k+1, \ldots, n\}$ complemento de $s_{\til{k}}$ é também complemento
+      de $s_k$.
+      Portanto, para todo $e_{\til{n}} \in Ext(s_{\til{n}})$, existe
+      $e_{n} \in Ext(s_{n})$, baseado no mesm complemento de $s_{\til{n}}$.
+      O que estabelece que $\relII$ satisfaz a Equação~\ref{eq:domrel}
+      da Definição~\ref{def:domrel}.
+    }
     \item[(b)]{Trivial.}
     \item[(c)]{Pela Proposição~\ref{prop:domorder}, uma vez que $\relII$ é transitiva.}
     \item[(d)]{Por definição.} \qedhere
   \end{enumerate}
 \end{proof}
+A relação $\relII$ é uma relação de dominância poderosa, uma vez que um estado
+pode possivelmente dominar todos os outros estados de maior peso.
+Esta relação requer no máximo $\np+1$ comparações para ser estabelecida entre
+dois estados.
+
 A terceira relação de dominância é baseada na comparação entre extensões
 específicas de um estado e um limite superior de extensões de outros estados.
 Um limite superior de um estado é definido segundo no contexto a seguir.
 
 \begin{mydef}[Limite superior]
-  Um vetor objetivo $u = (u^1, \ldots, u^\np)$ é um limite superior
+  Um vetor objetivo $u = (u^1, \ldots, u^\np)$ é um \emph{limite superior}
   de um estado $s_k \in S_k$ se, e somente se, $\forall s_n \in Ext(s_k)$
   tem-se que $u^i \geq s_n^i, i = 1, \ldots, \np$.
 \end{mydef}
