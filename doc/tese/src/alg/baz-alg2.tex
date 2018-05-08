@@ -1,30 +1,30 @@
-\begin{algorithmic}[1] % The number tells where the line numbering should start
-    \Function{}{$C_k^{i-1} = \{ s_{k(1)}, \ldots, s_{k(r)}\}$}
-    \State $C_k^i \gets \{s_{k(1)}\}$;
-    \For{$h \gets 2, r$}
-      \State $C_k^i = \{s_{\til{k}(1)}, \ldots, s_{\til{k}(l_h)}\}$;
-      \State $dominated \gets false;$
-      \State $dominates \gets false;$
-      \State $j \gets 1;$
-      \While{$ j \leq l_h$ \textbf{and} $\neg dominated$ \textbf{and} $\neg dominates$}
-        \If{$s_{\til{k}(j)} \rel_k^i s_{k(h)}$}
-          \State $dominated \gets true;$
-        \ElsIf{$s_{k(h)} \rel_k^i s_{\til{k}(j)}$}
-          \State $C_k^i \gets C_k^i\backslash\{s_{\til{k}(j)}\};$
-          \State $dominates \gets true;$
-        \EndIf
-        \State $j \gets j + 1;$
-      \EndWhile
-      \If{$\neg dominated$}
-        \While{$j \leq l_h$}
-          \If{$s_{k(h)} \rel_k^i s_{\til{k}(j)}$}
-            \State $C_k^i \gets C_k^i \backslash \{s_{\til{k}(j)}\};$
-          \EndIf
-          \State $j \gets j + 1;$
-        \EndWhile
-        \State $C_k^i \gets C_k^i \cup \{s_{k(h)}\};$
-      \EndIf
-    \EndFor
-  \State \Return $C_k$
-  \EndFunction
-\end{algorithmic}
+\Kw{$C_k^{i-1} = \{ s_{k(1)}, \ldots, s_{k(r)}\}$}
+\Begin{
+  $C_k^i \gets \{s_{k(1)}\}$\;
+  \For{$h \gets 2, r$}{
+    $C_k^i = \{s_{\til{k}(1)}, \ldots, s_{\til{k}(l_h)}\}$\;
+    $dominated \gets false$\;
+    $dominates \gets false$\;
+    $j \gets 1$\;
+    \While{$ j \leq l_h$ \textbf{and} $\neg dominated$ \textbf{and} $\neg dominates$}{
+      \uIf{$s_{\til{k}(j)} \rel_k^i s_{k(h)}$}{
+        $dominated \gets true$\;
+      }
+      \ElseIf{$s_{k(h)} \rel_k^i s_{\til{k}(j)}$}{
+        $C_k^i \gets C_k^i\backslash\{s_{\til{k}(j)}\}$\;
+        $dominates \gets true$\;
+      }
+      $j \gets j + 1$\;
+    }
+    \If{$\neg dominated$}{
+      \While{$j \leq l_h$}{
+        \If{$s_{k(h)} \rel_k^i s_{\til{k}(j)}$}{
+          $C_k^i \gets C_k^i \backslash \{s_{\til{k}(j)}\}$\;
+        }
+        $j \gets j + 1;$
+      }
+      $C_k^i \gets C_k^i \cup \{s_{k(h)}\};$
+    }
+  }
+  \textbf{return} $C_k$
+}

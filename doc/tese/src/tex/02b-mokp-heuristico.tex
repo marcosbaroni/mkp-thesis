@@ -80,19 +80,7 @@ Esses dois procedimentos para o MOKP são descritos no Algoritmo~\ref{alg:new}
 e Algoritmo~\ref{alg:cross}.
 
 \begin{algorithm}
-  \begin{algorithmic}[1]
-    \Procedure{Nova solução aleatória}{}
-      \State $v \leftarrow $ shuffle($1, 2, \ldots, n$);
-  	\State $s \leftarrow \vec{0}$; \Comment{solução vazia}
-      \For{$ i \leftarrow 1:n$ }
-  	  \State $s[v_i] \leftarrow 1$; \Comment{inserção de item}
-  	  \If{ $w(s) > W$ } \Comment{verificação de viabilidade}
-  	    \State $s[v_i] \leftarrow 0$;
-        \EndIf
-  	\EndFor
-    \State retorna $s$
-    \EndProcedure
-  \end{algorithmic}
+  %\input{alg/mokp-newsol.tex}
   \caption{Geração de uma nova solução para o MOKP.}
   \label{alg:new}
 \end{algorithm}
@@ -108,21 +96,9 @@ inviável (linha 6) ele é então retirado da solução (linha 7).
 Após testar a inserção de todos os itens a solução contruida é retornada.
 
 \begin{algorithm}
-\begin{algorithmic}[1]
-  \Procedure{Cruzamento}{$s:$ pior indivíduo, $b:$ melhor indivíduo, $c$}
-    \State $v \leftarrow $ shuffle($1, 2, \ldots, n$);
-    \For{$ i \leftarrow 1:c$ };
-	  \State $s[v_i] \leftarrow b[v_i]$; \Comment{carregamento do gene}
-	\EndFor
-	\If{$w(s) > W$}
-	  \State reparar $s$;
-	\EndIf
-	\State computar aptidão de $s$;
-  \State retornar $s$;
-  \EndProcedure
-\end{algorithmic}
-\caption{Procedimento de cruzamento de duas soluções para o MOKP.}
-\label{alg:cross}
+  \input{alg/mokp-cross.tex}
+  \caption{Procedimento de cruzamento de duas soluções para o MOKP.}
+  \label{alg:cross}
 \end{algorithm}
 
 O procedimento de cruzamento (Figura~\ref{alg:cross}) recebe como entrada

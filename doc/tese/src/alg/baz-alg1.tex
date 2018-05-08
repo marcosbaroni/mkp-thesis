@@ -1,15 +1,13 @@
-\begin{algorithmic}[1] % The number tells where the line numbering should start
-    \Function{DP}{}
-    \State $C^0 \gets \{(0, \ldots, 0)\}$;
-    \For{$k \gets 1, n$}
-      \State $C_k^0 \gets C_{k-1} \cup \big\{(s_{k-1}^1 + p_k^1, \ldots, s_{k-1}^\np + p_k^\np, s_{k-1}^{\np+1} + w_k)
-        \; | \; s_{k-1}^{\np+1} + w_k \leq W, s_{k-1} \in C_{k-1} \big\};$
-      \For{$i \gets 1, \nrel$}
-        \State {Determinar um conjunto $C_k^i$ cobertura do conjunto $C_{k-1}^i$
-          com respeito a $\relk^i$};
-      \EndFor
-      \State {$C_k \gets C_k^\nrel$};
-    \EndFor
-  \State \Return $C_n$;
-  \EndFunction
-\end{algorithmic}
+\Begin{
+  $C^0 \gets \{(0, \ldots, 0)\}$\;
+  \For{$k \gets 1, n$}{
+    $C_k^0 \gets C_{k-1} \cup \big\{(s_{k-1}^1 + p_k^1, \ldots, s_{k-1}^\np + p_k^\np, s_{k-1}^{\np+1} + w_k)
+      \; | \; s_{k-1}^{\np+1} + w_k \leq W, s_{k-1} \in C_{k-1} \big\}$\;
+    \For{$i \gets 1, \nrel$}{
+      Determinar um conjunto $C_k^i$ cobertura do conjunto $C_{k-1}^i$
+        com respeito a $\relk^i$\;
+    }
+    $C_k \gets C_k^\nrel$\;
+  }
+  \textbf{return} $C_n$\;
+}
