@@ -80,8 +80,8 @@ Esses dois procedimentos para o MOKP são descritos no Algoritmo~\ref{alg:new}
 e Algoritmo~\ref{alg:cross}.
 
 \begin{algorithm}
-  %\input{alg/mokp-newsol.tex}
-  \caption{Geração de uma nova solução para o MOKP.}
+  \input{alg/mokp-newsol.tex}
+  \caption{Contrução de solução aleatória para o MOKP.}
   \label{alg:new}
 \end{algorithm}
 
@@ -97,7 +97,7 @@ Após testar a inserção de todos os itens a solução contruida é retornada.
 
 \begin{algorithm}
   \input{alg/mokp-cross.tex}
-  \caption{Procedimento de cruzamento de duas soluções para o MOKP.}
+  \caption{Procedimento de cruzamento entre duas soluções do MOKP.}
   \label{alg:cross}
 \end{algorithm}
 
@@ -113,3 +113,5 @@ o pior indivíduo (linhas 3-5).
 Em seguida a viabilidade da solução é verificada (linha 6) e então reparada
 se necessário (linha 7).
 Finalmente a aptidão da solução gerada é atualizada (linha 9) e então retornada (linha 10).
+
+\missing{Explicar adaptação da heurística para caso multi-objetivo (uso de archive).}
