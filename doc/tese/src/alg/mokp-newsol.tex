@@ -1,0 +1,11 @@
+\Begin{
+  $v \leftarrow $ shuffle($1, 2, \ldots, n$)\;
+  $s \leftarrow \vec{0}$; \Comment{solução vazia}\\
+  \For{$ i \leftarrow 1:n$ }{
+    $s[v_i] \leftarrow 1$; \Comment{inserção de item}\\
+    \If{ $w(s) > W$ }{
+      $s[v_i] \leftarrow 0$; \Comment{verificação de viabilidade}\\
+    }
+  }
+  \textbf{retorna} $s$\;
+}

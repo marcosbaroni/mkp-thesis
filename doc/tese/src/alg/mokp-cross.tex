@@ -1,0 +1,12 @@
+\Kw{$s:$ pior indivíduo, $b:$ melhor indivíduo, $c$}
+\Begin{
+  $v \leftarrow $ shuffle($1, 2, \ldots, n$)\;
+  \For{$ i \leftarrow 1:c$ }{
+	  $s[v_i] \leftarrow b[v_i]$\;
+  }
+	\If{$w(s) > W$}{
+	  reparar $s$\;
+	}
+	Computar aptidão de $s$\;
+  \textbf{return} $s$\;
+}

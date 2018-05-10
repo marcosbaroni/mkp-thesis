@@ -11,7 +11,7 @@ a4paper,			% tamanho do papel.
 %subsection=TITLE,	% títulos de subseções convertidos em letras maiúsculas
 %subsubsection=TITLE,% títulos de subsubseções convertidos em letras maiúsculas
 % -- opções do pacote babel --
-english,			% idioma adicional para hifenização
+portugues,			% idioma adicional para hifenização
 brazil,				% o último idioma é o principal do documento
 ]{abntex2}
 
@@ -25,6 +25,7 @@ brazil,				% o último idioma é o principal do documento
 \usepackage{amsfonts}
 \usepackage{amssymb}
 \usepackage{algpseudocode}
+\usepackage{color}				% Controle das cores
 %\usepackage{algorithm}
 \usepackage[portuguese, ruled, vlined, linesnumbered]{algorithm2e}
 
@@ -36,9 +37,16 @@ brazil,				% o último idioma é o principal do documento
 \usepackage[T1]{fontenc}		% Selecao de codigos de fonte.
 \usepackage[utf8]{inputenc}		% Codificacao do documento (conversão automática dos acentos)
 
-\addto\captionsbrazil{%
-\def\bibname{References}%
+\definecolor{mylinkcolor}{rgb}{0.05, 0.20, 0.41}
+%\definecolor{mylinkcolor}{rgb}{0.04, 0.26, 0.51}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=mylinkcolor,
+    filecolor=mylinkcolor,
+    urlcolor=mylinkcolor,
+    citecolor=mylinkcolor
 }
+
 
 \newtheorem{mydef}{Definição}
 \newtheorem{myprop}{Proposição}
@@ -53,7 +61,7 @@ brazil,				% o último idioma é o principal do documento
 \autor{Marcos Daniel V. Baroni}
 \local{Vitória - Espírito Santo - Brasil}
 \data{November 27, 2017}
-\orientador[Advisor:]{Dr. Flávio Miguel Varejão}
+\orientador{Dr. Flávio Miguel Varejão}
 %\coorientador{Equipe \abnTeX}
 \instituicao{%
   Universidade Feredal do Espírito Santo -- UFES
@@ -116,7 +124,7 @@ Federal do Espírito Santo.}
 \input{tex/01-intro.tex}
 
 % Multi-objective Knapsack Problem
-\chapter{O Problema da Mochila Multi-objetivo}
+\chapter{Problema da Mochila Multi-objetivo}
 \input{tex/02-mokp.tex}
 \section{Métodos Exatos}
 \input{tex/02a-mokp-exato.tex}
