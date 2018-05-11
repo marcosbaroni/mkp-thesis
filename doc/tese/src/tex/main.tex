@@ -26,6 +26,7 @@ brazil,				% o último idioma é o principal do documento
 \usepackage{amssymb}
 \usepackage{algpseudocode}
 \usepackage{color}				% Controle das cores
+\usepackage{microtype}    % melhorias no micro-espaçamento de texto
 %\usepackage{algorithm}
 \usepackage[portuguese, ruled, vlined, linesnumbered]{algorithm2e}
 
@@ -52,17 +53,11 @@ brazil,				% o último idioma é o principal do documento
 \newtheorem{myprop}{Proposição}
 \newtheorem{myteo}{Teorema}
 
-\addto\captionsbrazil{
-  \renewcommand{\contentsname}%
-    {Contents}%
-}
-
 \titulo{A Hybrid Heuristic for the Multi-objective Knapsack Problem}
 \autor{Marcos Daniel V. Baroni}
 \local{Vitória - Espírito Santo - Brasil}
-\data{November 27, 2017}
+\data{29 de junho de 2018}
 \orientador{Dr. Flávio Miguel Varejão}
-%\coorientador{Equipe \abnTeX}
 \instituicao{%
   Universidade Feredal do Espírito Santo -- UFES
   \par
@@ -70,12 +65,11 @@ brazil,				% o último idioma é o principal do documento
   \par
   Programa de Pós-Graduação em Informática}
 \tipotrabalho{Tese (Doutorado)}
-% O preambulo deve conter o tipo do trabalho, o objetivo,
-% o nome da instituição e a área de concentração
 \preambulo{Tese de Doutorado apresentada de acordo
 com o regimento do Programa de Pós-graduação
 em Informática da Universidade
-Federal do Espírito Santo.}
+Federal do Espírito Santo, como requisito para obtenção
+do grau de Doutor em Ciência da Computação.}
 
 \makeindex
 
@@ -107,6 +101,7 @@ Federal do Espírito Santo.}
 \imprimirfolhaderosto*
 
 \input{tex/predefs.tex}
+\newpage \phantom{a}
 \input{tex/folha-aprovacao.tex}
 \input{tex/abstract.tex}
 

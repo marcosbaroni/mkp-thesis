@@ -1,12 +1,13 @@
-\Kw{$s:$ pior indivíduo, $b:$ melhor indivíduo, $c$}
+\Kw{$x:$ pior indivíduo, $y:$ melhor indivíduo, $c$: número de genes herdados}
 \Begin{
   $v \leftarrow $ shuffle($1, 2, \ldots, n$)\;
-  \For{$ i \leftarrow 1:c$ }{
-	  $s[v_i] \leftarrow b[v_i]$\;
+  $z \leftarrow \ord^{max}_{rev}$\;
+  \For{$i \leftarrow 1:c$ }{
+	  $x[v_i] \leftarrow y[v_i];$\ \Comment{herança de genes}
   }
-	\If{$w(s) > W$}{
-	  reparar $s$\;
-	}
-	Computar aptidão de $s$\;
-  \textbf{return} $s$\;
+  \For{$i \gets 1:n$ \textbf{and} $w(x) > W$}{
+    $x[z_i] \gets 0;$\ \Comment{reparo de solução}
+  }
+	Computar aptidão de $x$\;
+  \textbf{return} $x$\;
 }

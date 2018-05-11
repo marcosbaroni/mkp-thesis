@@ -83,7 +83,7 @@ e Algoritmo~\ref{alg:cross}.
 
 \begin{algorithm}
   \input{alg/mokp-newsol.tex}
-  \caption{Contrução de solução aleatória para o MOKP.}
+  \caption{Construção de solução aleatória para o MOKP.}
   \label{alg:new}
 \end{algorithm}
 
@@ -103,7 +103,6 @@ Após testar a inserção de todos os itens a solução contruida é retornada.
   \label{alg:cross}
 \end{algorithm}
 
-\missing{Explicar como é o repair.}
 
 O procedimento de cruzamento (Figura~\ref{alg:cross}) recebe como entrada
 $s$ o pior indivíduo vindo do subcomplexo selecionado, $b$ um indivíduo com
@@ -113,9 +112,8 @@ dado como entrada.
 Primeiramente os índices dos $n$ itens são permutados em uma ordem aleatória e armazenados numa lista
 (linha 2).
 Os $c$ genes escolhidos aleatoriamente é então carregado do melhor indivíduo para
-o pior indivíduo (linhas 3-5).
-Em seguida a viabilidade da solução é verificada (linha 6) e então reparada
-se necessário (linha 7).
-Finalmente a aptidão da solução gerada é atualizada (linha 9) e então retornada (linha 10).
+o pior indivíduo (linhas 4-6).
+Em seguida a solução é reparada se necessário (linha 6-8).
+Finalmente a aptidão da solução gerada é atualizada (linha 8) e então retornada (linha 9).
 
 \missing{Explicar adaptação da heurística para caso multi-objetivo (uso de archive).}
