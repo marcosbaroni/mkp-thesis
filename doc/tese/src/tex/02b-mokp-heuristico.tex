@@ -1,3 +1,32 @@
+Uma das principais dificuldades encontradas em problemas multi-objetivos
+é a grande cardinalidade do \paretoset o que tem motivado pesquisadores
+a desenvolver métodos que computam aproximações deste conjunto
+~\cite{bazgan2015approximate, vanderpooten2017covers}.
+Sabe-se de fato, grande parte dos problemas multi-objetivos são \emph{intratáveis}
+no sentido de possuir uma quantidade exponencial de soluções eficientes
+dado o tamanho da instância~\cite{ehrgott2013multicriteria}.
+
+A maioria das meta-heurísticas propostas para problemas multi-objetivo
+são adaptações de meta-heurísticas originalmente propostas para
+o caso uni-objetivo.
+Dentre esses métodos vale mencionar o algorithm de recozimento simulado
+~\cite{czyzzak1998pareto},
+o algoritmo de busac dispersa~\cite{da2006scatter,da2007integrating},
+algoritmo de busca tabu~\cite{gandibleux2000tabu},
+algoritmo imunológico artificial~\cite{gao2014quantum},
+algoritmo genético~\cite{abdelaziz1999hybrid}
+e um algoritmos de estimação de distribuição~\cite{martins2017hybrid}.
+
+Uma das heurísticas mais populares para o MOKP é o algoritmo genético
+de ordenação não-dominada (NSGA-II) proposto em~\cite{deb2002fast}.
+Esse algoritmo utiliza ordenações baseadas no conceito de dominância
+para obter a convergência para o \paretoset.
+O algoritmo ainda utiliza uma métrica de distância entre as soluções
+com o objetivo de manter a diversidade das soluções.
+
+Uma outra heurística popular é o algoritmo evolucionário de pareto robusto
+(SPEA-II), proposto em~\cite{zitzler1998multiobjective}...
+
 \section{Evolução estocástica por complexos}
 
 \missingt{Justificar o uso do SCE.}
