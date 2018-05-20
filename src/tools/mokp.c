@@ -371,7 +371,8 @@ int execute_bazgan(int argc, char **argv){
 	msi = bazgan2msi(bazgan);
 	hvol = msi_hvolume(msi);
 	if( print_pareto )
-		msi_apply_all(msi, mokpsol_profit_write);
+		msi_apply_all(msi, mokpsol_printf);
+		//msi_apply_all(msi, mokpsol_profit_write);
 	msi_apply_all(msi, mokpsol_free);
 	msi_free(msi);
     bazgan_print_summary(bazgan);

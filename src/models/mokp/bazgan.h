@@ -18,7 +18,7 @@
 #include "mokp.h"
 
 #ifndef SOL_ARRAY_ENABLED
-#define SOL_ARRAY_ENABLED 0
+#define SOL_ARRAY_ENABLED 1
 #endif
 
 typedef unsigned long long ulonglong;

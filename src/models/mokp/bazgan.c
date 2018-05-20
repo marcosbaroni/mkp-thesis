@@ -254,7 +254,7 @@ void bnode_fprintf(FILE *fout, BazganNode *node){
     ulonglongs_bits_fprintf(fout, node->sol, node->bazgan->mokp->n);
 #endif
     fprintf(fout, " [%x] ", node);
-    //fprintf(fout, "\n");
+    fprintf(fout, "\n");
 
     return;
 }
@@ -1015,7 +1015,6 @@ void bazgan_fprint_nodes(FILE *out, Bazgan *bazgan){
     i = 0;
 	bnode = avliter_get(avliter);
     while( bnode ){
-        fprintf(out, "    %d: ", ++i);
         bnode_fprintf(out, bnode);
 		bnode = avliter_forward(avliter);
     }
