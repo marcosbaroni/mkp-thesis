@@ -7,7 +7,8 @@ CC = gcc
 #CFLAGS=-g $(DEBFLAG) -pg 
 PROFFLAGS=-pg --no-pie -fPIC
 #CFLAGS=-g -D COUNT_COMPARISON
-CFLAGS=-O3
+CFLAGS=-g
+#CFLAGS=-O3
 DEST=../bin
 SOPLEX=-lsoplex -lz -lgmp -lm
 
@@ -61,6 +62,9 @@ list.o:
 test: util.o avl.o heap.o
 	gcc $(CFLAGS) -o test tools/test.c avl.o util.o heap.o -lm
 	mv test $(DEST)
+rbmark: avl.o heap.o kdtree.o util.o list.o
+	gcc $(CFLAGS) -o range-bmark tools/range-bmark.c avl.o util.o kdtree.o list.o heap.o -lm
+	mv range-bmark $(DEST)
 
 mkp.o: utils/util.c
 mokp: mokp.o tmokp.o util.o lp.o order.o kdtree.o avl.o heap.o bazgan.o list.o mokp-mh.o
