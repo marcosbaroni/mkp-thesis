@@ -119,7 +119,7 @@ int execute_convert(int argc, char **argv){
 int print_usage_batch(int argc, char **argv){
     printf("Batch test for the Bazgan MOKP algorithm using KDTree.\n\n");
     printf("   Uses random instance generation.\n\n");
-    printf("  usage: %s %s <n> <np> [seed] [times=10] [DKdim=3] [print_summary=0] [ordering=0] [algs=[0,3,10]]\n", argv[0], BAZGAN_OPT);
+    printf("  usage: %s %s <n> <np> [seed] [times=10] [DKdim=3] [print_summary=0] [ordering=0] [algs=[0,3,10]]\n", argv[0], BATCH_OPT);
     printf("\n  Output: list of results\n");
     printf("    <n nodes>;<n comparison>;<time (s)>\n\n");
 
