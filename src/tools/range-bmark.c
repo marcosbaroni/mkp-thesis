@@ -26,17 +26,23 @@ void print_usage(int argc, char **argv){
 
 typedef struct Point{
 	double *x;
-	int ndim;
+	int pdim;
 }Point;
 
-Point *pnt_new_random( int ndim ){
+Point *pnt_new( int pdim ){
+	Point *pt;
+	pt = (Point*)malloc(sizeof(Point));
+	pt->x = (double*)malloc(pdim*sizeof(double));
+	pt->pdim = pdim;
+	return pt;
+}
+
+Point *pnt_new_random( int pdim ){
 	Point *pt;
 	int i;
 
-	pt = (Point*)malloc(sizeof(Point));
-	pt->ndim = ndim;
-	pt->x = (double*)malloc(ndim*sizeof(double));
-	for( i = 0 ; i < ndim ; i++ )
+	pt = pnt_new(pdim);
+	for( i = 0 ; i < pdim ; i++ )
 		pt->x[i] = (MAX_COORD*rand()) / (float)RAND_MAX;
 	
 	return pt;
@@ -48,12 +54,12 @@ void pnt_free(Point *pt){
 }
 
 int pnt_is_inside(Point *pt, Point *l1, Point *l2){
-	int i, ndim;
-	ndim = pt->ndim;
+	int i, pdim;
+	pdim = pt->pdim;
 
 	ncomp++;
 
-	for( i = 0 ; i < ndim ; i++ )
+	for( i = 0 ; i < pdim ; i++ )
 		if( pt->x[i] < l1->x[i] || pt->x[i] > l2->x[i] )
 			return 0;
 	return 1;
@@ -115,7 +121,7 @@ Point *pidx_range_search_list(List *list, Point *l1, Point *l2){
 	pt = (Point*)listiter_get(liter);
 
 	while( pt ){
-		ndim = pt->ndim;
+		ndim = pt->pdim;
 		if( pnt_is_inside(pt, l1, l2) )
 			return pt;
 		liter = listiter_forward(liter);
@@ -218,16 +224,19 @@ void pidx_free(PointIndexer *pidx){
 }
 
 void pidx_random_searchs(PointIndexer *pidx, int nquery){
-	Point l1, l2;
+	Point *l1, *l2;
 	int n, pdim, i;
 	double avghvol, sides_hvol;
 	double sides[pidx->pdim];
 	pdim = pidx->pdim;
+
+	l1 = pnt_new(pdim);
+	l2 = pnt_new(pdim);
+
 	n = pidx_get_n(pidx);
 
 	avghvol = .5;
 	avghvol *= pow(MAX_COORD, pidx->pdim)/n;
-
 
 	while( nquery-- ){
 		sides_hvol = 1.;
@@ -235,11 +244,12 @@ void pidx_random_searchs(PointIndexer *pidx, int nquery){
 			sides[i] = rand()/(double)RAND_MAX;
 			sides_hvol *= sides[i];
 		}
-		printf("hvol: %lf\n", sides_hvol);
 		for( i = 0 ; i < pdim ; i++ ){
-			printf("%d: %.9lf\n", i+1, sides[i]);
 			sides[i] /= pow(sides_hvol/avghvol, 1.0/(double)pdim);
-			printf("%d: %.9lf\n", i+1, sides[i]);
+		}
+		for( i = 0 ; i < pdim ; i++ ){
+			l1->x[i] = (MAX_COORD-sides[i])*(rand()/(double)RAND_MAX);
+			l2->x[i] = l1->x[i] + sides[i];
 		}
 	
 		printf("\n");
