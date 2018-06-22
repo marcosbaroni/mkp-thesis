@@ -18,6 +18,17 @@
 int verbose = 0;
 int shell_gaps[8] = {1, 4, 10, 23, 57, 132, 301, 701};
 
+void auto_seed(unsigned int seed){
+    struct timeval timeval_seeder;
+    if( !seed ){
+        gettimeofday(&timeval_seeder, NULL);
+        seed = timeval_seeder.tv_sec*1000;
+        seed += timeval_seeder.tv_usec;
+    }
+    srand(seed);
+	return;
+}
+
 void findent(FILE *fout, int times, char c){
 	while( times-- )
 		fprintf(fout, "%c", c);

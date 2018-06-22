@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <time.h>
 
 #include "../utils/util.h"
 #include "../utils/avl.h"
@@ -42,8 +43,10 @@ Point *pnt_new_random( int pdim ){
 	int i;
 
 	pt = pnt_new(pdim);
-	for( i = 0 ; i < pdim ; i++ )
-		pt->x[i] = (MAX_COORD*rand()) / (float)RAND_MAX;
+	for( i = 0 ; i < pdim ; i++ ){
+		pt->x[i] = MAX_COORD*(rand()/(double)RAND_MAX);
+		printf("%lf\n", pt->x[i]);
+	}
 	
 	return pt;
 }
@@ -51,6 +54,14 @@ Point *pnt_new_random( int pdim ){
 void pnt_free(Point *pt){
 	free(pt->x);
 	free(pt);
+}
+
+void pnt_print(Point *pt){
+	int i;
+	printf("(");
+	for( i = 0 ; i < pt->pdim ; i++ )
+		printf("%s%lf", pt->x[i], i ? ", ": "");
+	printf(")\n");
 }
 
 int pnt_is_inside(Point *pt, Point *l1, Point *l2){
@@ -114,20 +125,22 @@ PointIndexer *pidx_insert(PointIndexer *pidx, Point *pt){
 }
 
 Point *pidx_range_search_list(List *list, Point *l1, Point *l2){
-	Point *pt;
+	Point *pt, *found;
 	int i, ndim, fits;
 
 	ListIter *liter = list_get_first(list);
 	pt = (Point*)listiter_get(liter);
+	found = NULL;
 
-	while( pt ){
+	while( pt && !found ){
 		ndim = pt->pdim;
 		if( pnt_is_inside(pt, l1, l2) )
-			return pt;
-		liter = listiter_forward(liter);
+			found = pt;
+		listiter_forward(liter);
 		pt = (Point*)listiter_get(liter);
 	}
-	return NULL;
+	listiter_free(liter);
+	return found;
 }
 
 Point *pidx_range_search_avl(AVLTree *avl, Point *l1, Point *l2){
@@ -223,8 +236,8 @@ void pidx_free(PointIndexer *pidx){
 	free(pidx);
 }
 
-void pidx_random_searchs(PointIndexer *pidx, int nquery){
-	Point *l1, *l2;
+void pidx_batch_random_searchs(PointIndexer *pidx, int nquery){
+	Point *l1, *l2, *found;
 	int n, pdim, i;
 	double avghvol, sides_hvol;
 	double sides[pidx->pdim];
@@ -252,8 +265,13 @@ void pidx_random_searchs(PointIndexer *pidx, int nquery){
 			l2->x[i] = l1->x[i] + sides[i];
 		}
 	
-		printf("\n");
+		found = pidx_range_search(pidx, l1, l2);
+		if( found )
+			ninside++;
 	}
+
+	pnt_free(l1);
+	pnt_free(l2);
 }
 
 int main(int argc, char **argv){
@@ -275,13 +293,19 @@ int main(int argc, char **argv){
 	int nquery = atol(argv[4]);
 	/* query vol */
 	double qratio = atof(argv[5]);
+	/* seed */
+	int seed = time(NULL);
+	if( argc > 6 )
+		seed = atoi(argv[6]);
+	auto_seed(seed);
 
 	pidx = pidx_new_populated(npts, pdim, ndim);
-	pidx_random_searchs(pidx, nquery);
+	pidx_apply_all(pidx, (void(*)(void*))pnt_print);
+	pidx_batch_random_searchs(pidx, nquery);
 	pidx_apply_all(pidx, (void(*)(void*))pnt_free);
 	pidx_free(pidx);
 
-	printf("%ld\n", ncomp);
+	printf("%lld;%.2f\n", ncomp, ninside/(float)nquery);
 	
 	return 0;
 }

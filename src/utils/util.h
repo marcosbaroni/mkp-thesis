@@ -38,6 +38,7 @@ extern int verbose;
 void SWAP_LONG(long *array, int a, int b);
 void SWAP_LONG_LONG(long long *array, int a, int b);
 
+void auto_seed(unsigned int seed);
 void findent(FILE *fout, int times, char c);
 
 /*******************************************************************************

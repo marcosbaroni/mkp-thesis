@@ -36,17 +36,6 @@ unsigned long long ncomp_ = 0;
 #define MOFPA_OPT   "mofpa"
 #define HVOL_OPT    "hvol"
 
-void auto_seed(unsigned int seed){
-    struct timeval timeval_seeder;
-    if( !seed ){
-        gettimeofday(&timeval_seeder, NULL);
-        seed = timeval_seeder.tv_sec*1000;
-        seed += timeval_seeder.tv_usec;
-    }
-    srand(seed);
-	return;
-}
-
 int print_usage_convert(int argc, char **argv){
     printf("Convert a MOKP instance.\n\n");
     printf("  usage: %s %s <in format> <out format> <input-file> [output-file]\n", argv[0], CONVERT_OPT);
