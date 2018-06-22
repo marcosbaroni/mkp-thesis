@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 #include "../utils/util.h"
 #include "../utils/avl.h"
@@ -7,13 +8,14 @@
 #include "../utils/list.h"
 #include "../models/mokp/mokp.h"
 
-#define MAXCOORD 1000000;
+#define MAX_COORD 1000
 
 long long ncomp = 0;
+long long ninside = 0;
 
 void print_usage(int argc, char **argv){
 	printf("%s <dim> <tad type> <n points> <n querys> <query hvol ratio>\n", argv[0]);
-	printf("  - dim     : number of point distances \n");
+	printf("  - dim     : number of point dimension\n");
 	printf("  - tad type  : 0: list / 1: avl / >1: kdtree\n");
 	printf("  - n points  : n. of holded points\n");
 	printf("  - n querys  : n. of query to be executed\n");
@@ -23,7 +25,7 @@ void print_usage(int argc, char **argv){
 }
 
 typedef struct Point{
-	int *x;
+	double *x;
 	int ndim;
 }Point;
 
@@ -33,11 +35,16 @@ Point *pnt_new_random( int ndim ){
 
 	pt = (Point*)malloc(sizeof(Point));
 	pt->ndim = ndim;
-	pt->x = (int*)malloc(ndim*sizeof(int));
+	pt->x = (double*)malloc(ndim*sizeof(double));
 	for( i = 0 ; i < ndim ; i++ )
-		pt->x[i] = rand() % MAXCOORD;
+		pt->x[i] = (MAX_COORD*rand()) / (float)RAND_MAX;
 	
 	return pt;
+}
+
+void pnt_free(Point *pt){
+	free(pt->x);
+	free(pt);
 }
 
 int pnt_is_inside(Point *pt, Point *l1, Point *l2){
@@ -59,11 +66,17 @@ double point_eval(Point *p, int dim){
 
 int point_cmp1(Point *p1, Point *p2){
 	ncomp++;
-	return (p1->x[0] - p2->x[0]);
+	if( p1->x[0] > p2->x[0] ){
+		return 1;
+	}else if( p1->x[0] < p2->x[0] ){
+		return -1;
+	}
+	return 0;
 }
 
 typedef struct PointIndexer{
 	int ndim;
+	int pdim;
 	union {
 		AVLTree *avl;
 		KDTree *kdt;
@@ -71,9 +84,10 @@ typedef struct PointIndexer{
 	}tad;
 }PointIndexer;
 
-PointIndexer *pidx_new(int ndim){
+PointIndexer *pidx_new(int pdim, int ndim){
 	PointIndexer *pidx;
 	pidx = (PointIndexer*)malloc(sizeof(PointIndexer));
+	pidx->pdim = pdim;
 	pidx->ndim = ndim;
 	if( !ndim )
 		pidx->tad.list = list_new();
@@ -128,6 +142,15 @@ Point *pidx_range_search_avl(AVLTree *avl, Point *l1, Point *l2){
 	return NULL;
 }
 
+void pidx_apply_all(PointIndexer *pidx, void(*f)(void*)){
+	if( pidx->ndim == 0 )
+		list_apply(pidx->tad.list, f);
+	if( pidx->ndim == 1 )
+		avl_apply_to_all(pidx->tad.avl, f);
+	if( pidx->ndim  > 1 )
+		kdtree_apply_to_all(pidx->tad.kdt, f);
+}
+
 int pnt_is_index_kdt(Point *pt, Point **pts){
 	return pnt_is_inside(pt, pts[0], pts[1]);
 }
@@ -155,6 +178,14 @@ Point *pidx_range_search_kdtree(KDTree *kdtree, Point *l1, Point *l2){
 	return pt;
 }
 
+int pidx_get_n(PointIndexer *pidx){
+	if( pidx->ndim == 0 )
+		return pidx->tad.list->n;
+	if( pidx->ndim == 1 )
+		return pidx->tad.avl->n;
+	return pidx->tad.kdt->n;
+}
+
 Point *pidx_range_search(PointIndexer *pidx, Point *l1, Point *l2){
 	if( !pidx->ndim )
 		return pidx_range_search_list(pidx->tad.list, l1, l2);
@@ -165,18 +196,58 @@ Point *pidx_range_search(PointIndexer *pidx, Point *l1, Point *l2){
 	return NULL;
 }
 
-PointIndexer *pidx_new_populated(int n, int dim, int ndim){
+PointIndexer *pidx_new_populated(int n, int pdim, int ndim){
 	Point *pt;
-	PointIndexer *pidx = pidx_new(ndim);
+	PointIndexer *pidx = pidx_new(pdim, ndim);
 	while( n-- ){
-		pt = pnt_new_random(dim);
+		pt = pnt_new_random(pdim);
 		pidx_insert(pidx, pt);
 	}
 	return pidx;
 }
 
+void pidx_free(PointIndexer *pidx){
+	if( pidx->ndim == 0 )
+		list_free(pidx->tad.list);
+	if( pidx->ndim == 1 )
+		avl_free(pidx->tad.avl);
+	if( pidx->ndim  > 1 )
+		kdtree_free(pidx->tad.kdt);
+
+	free(pidx);
+}
+
+void pidx_random_searchs(PointIndexer *pidx, int nquery){
+	Point l1, l2;
+	int n, pdim, i;
+	double avghvol, sides_hvol;
+	double sides[pidx->pdim];
+	pdim = pidx->pdim;
+	n = pidx_get_n(pidx);
+
+	avghvol = .5;
+	avghvol *= pow(MAX_COORD, pidx->pdim)/n;
+
+
+	while( nquery-- ){
+		sides_hvol = 1.;
+		for( i = 0 ; i < pdim ; i++ ){
+			sides[i] = rand()/(double)RAND_MAX;
+			sides_hvol *= sides[i];
+		}
+		printf("hvol: %lf\n", sides_hvol);
+		for( i = 0 ; i < pdim ; i++ ){
+			printf("%d: %.9lf\n", i+1, sides[i]);
+			sides[i] /= pow(sides_hvol/avghvol, 1.0/(double)pdim);
+			printf("%d: %.9lf\n", i+1, sides[i]);
+		}
+	
+		printf("\n");
+	}
+}
+
 int main(int argc, char **argv){
-	MOKPSolIndexer *msi;
+	PointIndexer *pidx;
 
 	if( argc < 6 ){
 		print_usage(argc, argv);
@@ -194,5 +265,13 @@ int main(int argc, char **argv){
 	int nquery = atol(argv[4]);
 	/* query vol */
 	double qratio = atof(argv[5]);
+
+	pidx = pidx_new_populated(npts, pdim, ndim);
+	pidx_random_searchs(pidx, nquery);
+	pidx_apply_all(pidx, (void(*)(void*))pnt_free);
+	pidx_free(pidx);
+
+	printf("%ld\n", ncomp);
 	
+	return 0;
 }
