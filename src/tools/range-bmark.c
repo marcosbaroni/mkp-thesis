@@ -15,12 +15,13 @@ long long ncomp = 0;
 long long ninside = 0;
 
 void print_usage(int argc, char **argv){
-	printf("%s <dim> <tad type> <n points> <n querys> <query hvol ratio>\n", argv[0]);
+	printf("%s <dim> <tad type> <n points> <n querys> <query hvol ratio> [seed]\n", argv[0]);
 	printf("  - dim     : number of point dimension\n");
 	printf("  - tad type  : 0: list / 1: avl / >1: kdtree\n");
 	printf("  - n points  : n. of holded points\n");
 	printf("  - n querys  : n. of query to be executed\n");
 	printf("  - query hvol: size of query (\?\?) \n");
+	printf("  - seed      : seed for random generation");
 	printf("\n");
 	return;
 }
@@ -43,10 +44,8 @@ Point *pnt_new_random( int pdim ){
 	int i;
 
 	pt = pnt_new(pdim);
-	for( i = 0 ; i < pdim ; i++ ){
+	for( i = 0 ; i < pdim ; i++ )
 		pt->x[i] = MAX_COORD*(rand()/(double)RAND_MAX);
-		printf("%lf\n", pt->x[i]);
-	}
 	
 	return pt;
 }
@@ -248,7 +247,7 @@ void pidx_batch_random_searchs(PointIndexer *pidx, int nquery){
 
 	n = pidx_get_n(pidx);
 
-	avghvol = .5;
+	avghvol = .7;
 	avghvol *= pow(MAX_COORD, pidx->pdim)/n;
 
 	while( nquery-- ){
@@ -294,18 +293,18 @@ int main(int argc, char **argv){
 	/* query vol */
 	double qratio = atof(argv[5]);
 	/* seed */
-	int seed = time(NULL);
+	int seed = 0;
 	if( argc > 6 )
 		seed = atoi(argv[6]);
 	auto_seed(seed);
 
 	pidx = pidx_new_populated(npts, pdim, ndim);
-	pidx_apply_all(pidx, (void(*)(void*))pnt_print);
+	//pidx_apply_all(pidx, (void(*)(void*))pnt_print);
 	pidx_batch_random_searchs(pidx, nquery);
 	pidx_apply_all(pidx, (void(*)(void*))pnt_free);
 	pidx_free(pidx);
 
-	printf("%lld;%.2f\n", ncomp, ninside/(float)nquery);
+	printf("%lld;%.8f\n", ncomp, ninside/(float)nquery);
 	
 	return 0;
 }
