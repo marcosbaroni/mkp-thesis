@@ -1,0 +1,12 @@
+\Kw{$x$: ponto de interesse, $L$: lista de pontos}
+\Begin{
+  $\texttt{node} \gets \texttt{L.head}$\;
+  \While{\texttt{node} $\neq null $}{
+    $y \gets \texttt{node.info}$\;
+    \If{$y \in R_d(x)$}{
+      \textbf{return} $y$\;
+    }
+    $\texttt{node} \gets \texttt{node.next}$
+  }
+  \textbf{return} null\;
+}

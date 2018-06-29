@@ -1,0 +1,62 @@
+\documentclass[crop,tikz]{standalone}
+
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage[utf8]{inputenc}
+
+\newcommand{\cmpW}{7cm}
+\newcommand{\cmpH}{4.0cm}
+\newcommand{\legX}{0.45}
+\newcommand{\legY}{-0.30}
+\newcommand{\dtree}[1]{$#1$-d~tree}
+\newcommand{\kdtree}{\dtree{k}}
+
+\begin{document}
+\begin{tikzpicture}
+\begin{axis}[
+	x tick label style={ /pgf/number format/1000 sep=},
+	xtick=data,
+	width=\cmpW, height=\cmpH,
+	ymin=10000000,
+	ymax=1000000000,
+	ylabel=Avaliações,
+	ymode=log,
+	grid = both,
+	grid style={line width=.1pt, draw=gray!10},
+	major grid style={line width=.2pt,draw=gray!50},
+	%xlabel=Number of items (n),
+	enlargelimits=0.15,
+	legend style={at={(\legX,\legY)},
+		anchor=north,legend columns=-1},
+	ybar=1.2pt,% configures `bar shift'
+	bar width=6pt,
+	point meta=y *10^-7, % the displayed number
+	cycle list = {black!80,black!50,black!30}
+]
+
+\addplot+[fill, text=black]
+  coordinates {
+    (250,214827448)
+    (500,214492280)
+    (750,216067028)
+  };
+  
+\addplot+[fill, text=black]
+  coordinates {
+    (250,118846027)
+    (500,127890296)
+    (750,133364440)
+  };
+  
+\addplot+[fill, text=black]
+  coordinates {
+    (250,46264291)
+    (500,46696808)
+    (750,46473469)
+  };
+
+\legend {Lista,\dtree{2}, \dtree{3}}
+\end{axis}
+\end{tikzpicture}
+
+\end{document}

@@ -1,0 +1,8 @@
+\Kw{$A:$ arquivo, $x:$ indivíduo }
+\Begin{
+  \If{$\nexists (y \in A, y \dom x)$}{
+    $A \gets A \cup \{x\}$; \mycomment[1.7cm]{Inclusão de $x$ no arquivo}
+    $A \gets A \backslash \{z \in A \;|\; x \dom z\}$; \mycomment{Remoção das soluções dominadas por $x$}
+  }
+  \textbf{return} $A$\;
+}

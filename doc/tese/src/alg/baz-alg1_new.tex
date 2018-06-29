@@ -1,0 +1,12 @@
+\Begin{
+  $C_0 \gets \{(0, \ldots, 0)\}$\;
+  \For{$k \gets 1, n$}{
+    $C_k^0 \gets C_{k-1} \cup \big\{(s^1 + p_k^1, \ldots, s^\np + p_k^\np, s^{\np+1} + w_k)
+      \; | \; s^{\np+1} + w_k \leq W, s \in C_{k-1} \big\}$\;
+    \For{$i \gets 1, \nrel$}{
+      $C_k^i \gets \big\{s \in C_k^{i-1} \big| \nexists(s' \in C_k^{i-1})[s' \relk^i s]\big\}$\;
+    }
+    $C_k \gets C_k^\nrel$\;
+  }
+  \textbf{return} $C_n$\;
+}

@@ -1,19 +1,12 @@
-\begin{algorithmic}[1]
-  \Function{BazDP2}{$\bsym{p}, \bsym{w}, W$}
-    \State $\solSet^0 = \big\{\emptyset\big\}$
-    \State $o_1, \ldots, o_n = \ord^{max}$
-    \For{$k \gets 1, n$}
-      % Extension
-      \State $\solSett^k = \big\{\sol{x} \cup \{o_k\} \;\big|\; \sol{x}
-        \in \solSet^{k-1} \logicAnd \weight{x} + w_{o_k} \leq W \big\}$
-      % Extension (cont.)
-      \State $\phantom{\solSett^k = } \cup \big\{ \sol{x} \;\big|\; \sol{x} \in \solSet^{k-1} \logicAnd
-        \weight{x} + w_{o_k} + \ldots + w_{o_n} > W \big\}$
-      % Dominance filter
-      \State $\solSet^k = \left\{\sol{x} \in \solSett^k \;\middle|\;
-        (\nexists \sol{a} \in \solSett^k)\big[\domk{a}{x}
-          \logicOr dom\big(lb(\sol{a}), ub(\sol{x})\big)\big] \right\}$
-    \EndFor
-    \State \Return $\solSet^n$
-  \EndFunction
-\end{algorithmic}
+\Kw{$\bsym{p}, \bsym{w}, W$}
+\Begin{
+  $S_0 \gets \big\{(0, \ldots, 0)\big\}$\;
+  $o_1, \ldots, o_n = \ord^{max}$\;
+  \For{$k \gets 1, n$}{
+    $S_k^{*} \gets \big\{ (s^1 + p_{o_k}^1, \ldots, s^\np + p_{o_k}^\np, s^{\np+1} + w_{o_k}) \;\big|\; s \in S_{k-1},s^{\np+1} + w_{o_k} \leq W \big\}$\par
+    $\phantom{S_k^{*}\gets}\cup \big\{ s \in S_{k-1} \;\big|\; s^{\np+1} + w_{o_k} + \ldots + w_{o_n} > W \big\}$\;
+    $S_k^{**} \gets \big\{s \in S_k^{*} \;\big|\; (\nexists u \in S_k^{*})\big[u \dom s\big] \big\}$\;
+    $S_k \gets \big\{s \in S_k^{**} \;\big|\; (\nexists u \in S_k^{**})\big[lb(\sol{u}) \dom ub(\sol{s})\big] \big\}$\;
+  }
+  \textbf{return} $S_n$\;
+}

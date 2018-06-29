@@ -1,23 +1,36 @@
-\newcommand{\dtree}[1]{$#1$-d~tree}
+\newcommand{\dtree}[1]{árvore $#1$-d}
 \newcommand{\kdtree}{\dtree{k}}
+\newcommand{\Dtree}[1]{Árvore $#1$-d}
+\newcommand{\Kdtree}{\Dtree{k}}
 \newcommand{\bsym}[1]{\boldsymbol{#1}}
 %\newcommand{\sol}[1]{\boldsymbol{#1}}
 \newcommand{\sol}[1]{#1}
-\newcommand{\pnt}[1]{pnt(\sol{#1})}
+%\newcommand{\pnt}[1]{pnt(\sol{#1})}
+\newcommand{\pnt}[1]{f(\sol{#1})}
 \newcommand{\fsol}[1]{f(\sol{#1})}
 \newcommand{\np}{m}
 \newcommand{\nphard}{$\mathcal{NP}$-Hard}
-\newcommand{\missingI}[1]{}
-\newcommand{\missing}[1]{
+
+\newcommand{\missing}[1]{}
+\newcommand{\missingt}[1]{}
+\newcommand{\missingf}[1]{}
+
+\newcommand{\missingII}[1]{
   \begin{framed}
-    {\scriptsize  #1}
+    {- Falta: \scriptsize  #1}
   \end{framed}
 }
-\newcommand{\missingt}[1]{
-  \missing{$\blacksquare$
-    #1
-  }
+\newcommand{\missingtII}[1]{
+  \begin{framed}
+    {\scriptsize $\blacksquare$ #1}
+  \end{framed}
 }
+\newcommand{\missingfII}[1]{
+  \begin{framed}
+    {\scriptsize $\triangleright$ #1}
+  \end{framed}
+}
+\newcommand{\resp}{\textbf{- Resposta: }}
 \newcommand{\weight}[1]{w(\sol{#1})}
 \newcommand{\obj}[2]{f_{#1}(\sol{#2})}
 \newcommand{\bigweight}[1]{w\big(\sol{#1}\big)}
@@ -36,6 +49,14 @@
 \renewcommand{\leq}{\leqslant}
 \renewcommand{\geq}{\geqslant}
 \newcommand{\floor}[1]{\left \lfloor{#1}\right \rfloor}
+%\newcommand{\bc}{\cellcolor{white}x } % "black" cell
+\newcommand{\bc}{x} % "black" cell
+
+
+\SetKwInput{Kw}{input}
+\SetKwInput{KwResult}{result}
+\SetKwComment{tcp}{ $\rhd$ }{}%
+\newcommand{\mycomment}[2][0pt]{\hspace{#1}\tcp{#2}}
 
 % bar graphs configs
 \newcommand{\cmpH}{4.0cm}
@@ -50,7 +71,8 @@
 
 %%% Other Papers Defs Auxiliars %%%
 %\newcommand{\dom}[2]{dom(#1, #2)}
-\newcommand{\dom}{\underline{\Delta}}
+%\newcommand{\dom}{\underline{\Delta}}
+\newcommand{\dom}{\Delta}
 \renewcommand{\ord}{\mathcal{O}}
 %\newcommand{\domk}[2]{dom_k(#1, #2)}
 \newcommand{\til}[1]{{#1'}}
@@ -64,6 +86,7 @@
 \newcommand{\relI}{\rel_k^r}
 \newcommand{\relII}{\rel_k^{\dom}}
 \newcommand{\relIII}{\rel_k^{b}}
+\newcommand{\ndcol}{|Par|}
 
 % big bullet
 \newcommand{\bbt}{\,\begin{picture}(-1,1)(-1,-2)\circle*{5}\end{picture}\ }

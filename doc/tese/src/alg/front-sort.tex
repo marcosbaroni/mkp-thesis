@@ -1,0 +1,26 @@
+\Kw{$A = (a_1, \ldots, a_q):$ conjunto de soluções }
+\KwResult{$(F_1, \ldots, F_k ):$ Lista de frontes de pareto }
+\Begin{
+  $n_1, \ldots, n_q \gets 0$;\\
+  $B_1, \ldots, B_q \gets \{\}$;\\
+  \For{ $i \gets 1 : q$ }{
+    \For{ $j \gets 1 : q$ }{
+      \If{$a_i \;\dom\; a_j$}{
+        $n_j \gets n_j + 1$;\ \mycomment[7.2mm]{ quantidade de soluções que dominam $a_j$ }
+        $B_i \gets B_i \cup \{a_j\}$;\ \mycomment[1.2mm]{ conjunto das soluções dominadas por $a_i$ }
+      }
+    }
+  }
+  $ k \gets 1$;\\
+  $F_1 \gets \{ a_i \in A \;|\; n_i = 0\}$;\ \mycomment[6.5mm]{ soluções não-dominadas (1º fronte) }
+  \While{$\exists i \in \{1, \ldots, q\} \;|\; n_i > 0$}{
+    $k \gets k + 1$\;
+    \For{$a_i \in F_{k-1}$}{
+      \For{$ a_j \in B_i$}{
+        $n_j \gets n_j - 1$;\ \mycomment[7.2mm]{atualizando contagem}
+      }
+    }
+    $F_k \gets \{ a_i \in A \;|\; n_i = 0\}$;\ \mycomment{formação do kº fronte}
+  }
+  \textbf{return} $(F_1, \ldots, F_k)$\;
+}

@@ -10,7 +10,8 @@ PROFFLAGS=-pg --no-pie -fPIC
 CFLAGS=-g
 #CFLAGS=-O3
 DEST=../bin
-SOPLEX=-lsoplex -lz -lgmp -lm
+#SOPLEX=-lsoplex -lz -lgmp -lm soplex/soplex-3.1.0/lib/libsoplex-3.1.0.linux.x86_64.gnu.opt.a
+SOPLEX=-lz -lgmp -lm soplex/soplex-3.1.0/lib/libsoplex-3.1.0.linux.x86_64.gnu.opt.a
 
 all: mokp
 mkp: mkp-nu mkp-rand mkp2zpl

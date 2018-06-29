@@ -1,16 +1,44 @@
-Vários experimentos computacionais foram realizados com o objetivo de veirficar
-a eficiência da indexação multi-dimensional, especialmente em instâncias com
-mais de duas dimensões.
+Experimentos computacionais foram realizados com o objetivo de avaliar a
+aplicação da proposta de indexação multidimensional ao MOKP,
+através da observação do número de avaliações de solução e do tempo computacional.
+Os testes foram divididos em dois grupos visando o contexto
+exato e o heurístico respectivamente.
+Em ambos os grupos a performance dos algoritmos utilizando a
+indexação proposta pela literatura foi comparada à performance utilizando a
+indexação multidimensional proposta por este trabalho.
 
-\missingt{
-  Explicar que são os mesmos tipo de instâncias, mas não o mesmo conjunto, pois
-  não foi disponibilizado pelos autores.\\
-  Dizer por que da métrica de comparação (hypervolume).\\
+Para o primeiro grupo, que visa analisar a aplicação da proposta no contexto exato,
+foi utilizado o algoritmo Bazgan, por ser considerado pela literatura atual como
+o algoritmo exato mais eficiente para o MOKP.
+As instâncias consideradas neste primeiro grupo foram baseadas nas mesmas
+utilizadas pela literatura em \emph{benchmarks} de algoritmos exatos~\cite{bazgan2009, figueira2013algorithmic, correia2018}.
+
+Para o segundo grupo de experimentos, visando analisar a aplicação da proposta
+no contexto heurístico, foi utilizada a implementação do SCE para o MOKP, proposta neste trabalho.
+Neste segundo grupo, foram consideradas as instâncias utilizadas
+pela literatura para \emph{benchmarks} de heurísticas para o MOKP~\cite{zitzler1998multiobjective,zitzler2001spea2, deb2002fast, zhang2007moea, zouache2018cooperative}.
+
+Ambos os conjuntos são compostos por instâncias de 2 e 3 objetivos.
+Ambos os algoritmos foram implementados na linguagem C e testados em
+máquinas Intel\textsuperscript{\textregistered} Core\textsuperscript{TM} i5-3570 3.40HGz
+com 4Gb de RAM com sistema operacional Linux versão 3.19.0 compilados utilizando
+GCC versão 7.3.1 com parâmetro de otimização -O3.
+
+\section{Contexto Exato - Algoritmo Bazgan}
+
+Para o contexto exato, este trabalho não utilizou exatamente as mesmas instâncias utilizadas
+pelos autores originais por estas não terem sido divulgadas.
+As instâncias foram então novamente geradas aleatoriamente seguindo as mesmas regras de
+distribuição definidas no trabalho original.
+
+\missingf{Retirei: "Os autores originais foram contactados em seus e-mail porém não houve resposta.". Não fica bem escrever isso 
+no texto. Se for questionado, fala oralmente na defesa.
+
+\resp Ok.
+
 }
 
-
-\missing{Introduzir comentário sobre as instâncias da Bazgan.}
-Quatro tipos de instâncias bi-objetivo são consideradas:
+As instâncias bi-objetivo são divididas em 4 tipos:
 \begin{enumerate}
   \item[A)] Aleatórias: $
     p^j_i \in [1, 1000],
@@ -28,12 +56,27 @@ Quatro tipos de instâncias bi-objetivo são consideradas:
     p^2_i \in [max\{900-p^1_i;1\}, min\{1100-p^1_i, 1000\}],\\
     w_i \in [p^1_i+p^2_i-200, p^1_i+p^2_i+200]$.
 \end{enumerate}
-onde $\in [a,b]$ denota uma distribuição uniforme aleatória no intervalo
-$[\,b]$.
+onde $\in [a,b]$ denota uma distribuição uniforme aleatória no intervalo $[a,b]$.
+Para todas as instâncias foi atribuído $W=\frac{1}{2}\floor{\sum^n_{k=1} w^k}$.
+Para cada tipo e valor de $n$ foram geradas dez instâncias.
+Os valores de $n$ utilizados em cada tipo estão descritos na Tabela~\ref{tab:cpu2dim}.
+O termo ``conflitante'' refere-se aos valores de $p^j_i$ em cada item:
+em instâncias conflitantes, itens com altos valores de $p^1$ tendem a ter
+baixos valores de $p^2$ enquanto que itens com baixos valores de $p^1$ tendem a ter
+altos valores de $p^2$.
+Por sua vez, instâncias não-conflitantes possuem itens cujos valores de $p^j_i$ não possuem
+relação com o peso $w_i$,
 
-\missingt{
-  Esclarecer os critérios de generalização dos tipos de instância.
-}
+Devido a este caráter não-conflitante, instâncias do tipo B
+tendem a possuir itens com valores de eficiência bastante discrepantes entre si.
+Essa discrepância acaba reduzindo a combinação de itens geradores de soluções eficientes,
+resultando em conjuntos Pareto de tamanho reduzido.
+Por este motivo, as instâncias do tipo B são consideradas mais fáceis.
+
+O aspecto conflitante das instâncias do tipo $D$, por sua vez, dificulta a decisão
+de quais itens são mais eficientes que outros, resultando em
+muitas boas combinações de solução e, consequentemente, em \paretoset{} aumentados.
+Diante disso, as instâncias do tipo $D$ são consideradas mais difíceis.
 
 Para os experimentos com $3$-objetivo considerou-se
 a generalização introduzida por~\cite{bazgan2009}
@@ -59,15 +102,323 @@ para os tipo $B$ e $D$:
     p^3_i \in [max\{900-p^1_i-p^2_i;1\}, min\{1100-p^1_i-p^2_i, 1001-p^1_i\}]\\
     w_i \in [p^1_i+p^2_i+p^3_i-200, p^1_i+p^2_i+p^3_i+200]$.
 \end{enumerate}
-Instâncias do tipo $B$ são consideradas mais fáceis enquanto instâncias do
-tipo $D$ são consideradas as mais difíceis.
-Para todas as instâncias, atribui-se $W=\frac{1}{2}\floor{\sum^n_{k=1} w^k}$.
-Para cada tipo e valor de $n$ dez instâncias foram geradas.
 
+\missingf{Corrigir: ``aplicando-se a regra utilizada no caso bi-objetivo para os ???????,
+ou seja,...''
 
-\missingt{Descrever mais as tabelas e resultados.}
+\resp Corrigi.}
 
-\missingt{
-Dizer que a seleção dos parametros para o SCE sãos os recomendados pelo autor.\\
-Dizer também que varição dos parametros não produzir melhorias consistentes.
+Para todas as instâncias foi atribuído $W=\frac{1}{2}\floor{\sum^n_{k=1} w^k}$.
+A generalização do tipo $B$ foi proposta definindo-se o valor de $p^3_i$ conforme
+a mesma distribuição utilizada para definir $p^2_i$,
+mantendo assim os valores de $p^j_i$ não-conflitantes.
+A generalização do tipo D foi proposta aplicando-se para $p^3_i$ a mesma regra de generalização
+aplicada no tipo C e, para os pesos, aplicando-se a regra utilizada no caso bi-objetivo para Tipo D,
+ou seja, $w_i$ tende a ser proporcional à soma dos valores de $p^j_i$.
+Para cada tipo e valor de $n$ foram geradas dez instâncias.
+Os valores de $n$ utilizados em cada tipo estão descritos na Tabela~\ref{tab:cpu3dim}.
+A utilização da \kdtree{} foi comparada à utilização da árvore AVL,
+por ser a estrutura de dados utilizada na proposta original para o algoritmo Bazgan.
+
+%Visto que o objetivo dos experimentos é comparar a proposta deste trabalho com
+%o que há proposto pela literatura,
+%a utilização da \kdtree{} será comparada à da árvore AVL no caso bi-objetivo.
+%Para o caso 3-objetivo a utilização da \kdtree{} será comparada principalmente à da lista,
+%que é estrutura proposta pelos autores do algoritmo para este caso.
+
+A Tabela~\ref{tab:cpu2dim} apresenta a média de tempo de execução em segundos
+do algoritmo Bazgan para as instâncias bi-objetivo nos casos de utilização da
+árvore AVL e \dtree{2}.
+Cada célula refere-se à média das 10 instâncias do respectivo caso.
+A coluna $n$ apresenta o número de itens na instância enquanto que a
+coluna $\ndcol$ apresenta a média de soluções contidas no conjunto Pareto
+das respectivas instâncias.
+A última coluna apresenta o \emph{speedup} da utilização da \dtree{2} em relação
+a utilização da árvore AVL.
+As células em destaque possuem os melhores valores de tempo.
+
+\begin{table}[h]
+  \centering
+  \input{tab/cpu2dim.tex}
+  \caption{Tempo computacional médio do algoritmo Bazgan para instâncias bi-objetivo.}
+  \label{tab:cpu2dim}
+\end{table}
+
+Segundo a Tabela~\ref{tab:cpu2dim} observa-se que a \dtree{2} já foi capaz de oferecer
+redução no tempo computacional, com speedup de até $2.3$.
+Exceto para as instâncias do Tipo B,
+cujos tempos foram 3 a 10 vezes maior que quando utilizando a árvore AVL.
+Isto se deve ao menor tamanho dos conjuntos Pareto para este tipo de instância,
+o que degrada a performance da \dtree{2} devido ao \emph{overhead} da estrutura.
+Vale rememorar que, neste algoritmo, o conjunto Pareto é construído de forma incremental
+durante a execução das iterações, portanto, a quantidade de soluções guardadas
+durante as primeiras iterações são ainda menores que $\ndcol$.
+Ainda é possível observar na Tabela~\ref{tab:cpu2dim} o reduzido tamanho do
+\paretoset{} para instâncias do tipo B, cuja média é de $3.1$ para o caso de $100$ itens,
+sendo esta mesma média no mínimo $180.4$ para os outros tipos de instâncias.
+
+\missingf{Lista??? AVL, certo? na frase ``... 3 a 10 vezes maior que quando utilizando a lista.'' Favor corrigir.
+
+\resp Corrigi.}
+
+A Figura~\ref{fig:cmp2dim} apresenta o número médio de avaliações de soluções
+demandado pelo algoritmo para as instâncias bi-objetivo quando
+utilizada a árvore AVL (coluna escura) e \dtree{2} (coluna clara).
+O eixo horizontal corresponde ao número de itens.
+O eixo vertical representa o número de avaliações em escala logarítmica.
+
+\begin{figure}[]
+  \input{tab/cmp2dim.tex}
+  \caption{Número de avaliações médio do algoritmo Bazgan para instâncias bi-objetivo.}
+  \label{fig:cmp2dim}
+\end{figure}
+
+É possível observar na Figura~\ref{fig:cmp2dim} que a utilização da \dtree{2}
+reduziu consideravelmente o
+número de avaliações de solução, com exceção apenas no caso com $300$ itens do tipo B.
+Pode-se notar que, nos casos em que se observou altos valores de speedup
+houve grande redução do número de avaliações; em alguns casos obteve-se
+uma redução de uma ordem de grandeza.
+Vale observar que houve alguma redução no número de avaliações
+para o Tipo B, porém não suficiente para reduzir o tempo computacional.
+Isto se deve ao reduzido tamanho de seus conjuntos Pareto, para os quais não
+se torna vantajoso o \emph{overhead} da \kdtree{}.
+
+A Tabela~\ref{tab:cpu3dim} apresenta a média de tempo de execução em segundos
+do algoritmo Bazgan para as instâncias 3-objetivo nos casos de utilização da
+árvore AVL, \dtree{2} e \dtree{3}.
+Cada célula se refere à média das 10 instâncias do respectivo caso.
+A coluna $n$ apresenta o número de itens na instância enquanto que a
+coluna $\ndcol$ apresenta a média de soluções contidas no conjunto Pareto
+das respectivas instâncias.
+As células em destaque possuem os melhores valores de tempo.
+
+\begin{table}[]
+  \centering
+  \input{tab/cpu3dim.tex}
+  \caption{Tempo computacional médio do algoritmo Bazgan para instâncias 3-objetivo.}
+  \label{tab:cpu3dim}
+\end{table}
+
+Conforme a Tabela~\ref{tab:cpu3dim}, assim como no caso bi-objetivo,
+a utilização da \kdtree{} resultou em melhoria
+nos tempos computacionais, exceto para as instâncias do Tipo B.
+Pode-se observar que o speedup proporcionado pela \dtree{2} para o caso
+3-objetivo foi comparável ao caso bi-objetivo.
+Porém o speedup resultante da utilização da \dtree{3} foi ainda maior,
+especialmente para instâncias difíceis, chegando a alcançar $15.5$.
+
+\missingf{Acho que vc deve explorar mais porque os resultados foram piores no tipo B tanto para bi quanto 3-objetivo.
+
+\resp Ok. Os resultados piores são decorrente do tamanho do conjunto pareto que é minúsculo no caso do tipo B.
+Para 100 itens, por exemplo, o tipo B tem tamanho 3, enquanto que nos outros tipo, o mínimo é 180. Comentei isso no texto também.
+
+Também fiz uma discussão sobre o porque do tamanho reduzido do tipo B após a definição das instâncias.
 }
+
+A Figura~\ref{fig:cmp3dim} apresenta o número médio de avaliações de soluções
+demandado pelo algoritmo para instâncias 3-objetivo quando
+utilizada a árvore AVL (coluna direita), \dtree{2} (coluna central)
+e \dtree{3} (coluna esquerda).
+O eixo horizontal corresponde ao número de itens.
+O eixo vertical representa o número de avaliações em escala logarítmica.
+É possível observar que a utilização da \dtree{3} reduziu consideravelmente o
+número de avaliações de solução, com exceção de um caso do tipo B.
+Pode-se notar que, nos casos em que se observou altos valores de speedup
+houve grande redução do número de avaliações; em alguns casos obteve-se
+uma redução de uma ordem de grandeza.
+
+\begin{figure}[]
+  \centering
+  \input{tab/cmp3dim.tex}
+  \caption{Número de avaliações médio do algoritmo Bazgan para instâncias 3-objetivo.}
+  \label{fig:cmp3dim}
+\end{figure}
+
+É possível notar, segundo a Figura~\ref{fig:cmp3dim}, uma
+leve redução no número de avaliações de solução na maioria dos casos quando
+utilizada a \dtree{2} e também uma drástica redução no número de avaliações
+quando utilizada a \dtree{3}, o que explica o speedup alcançado.
+O resultado se deve à capacidade de indexação da \dtree{3}, a qual
+indexa informação de todos os 3 valores de objetivo.
+O speedup foi também possível devido ao tamanho dos conjuntos Pareto,
+cuja média chegou a alcançar $8834$ (Tipo D).
+Assim como no caso bi-objetivo, a baixa performance da \kdtree{} para
+instâncias do tipo B, tanto no tempo computacional quanto no número de avaliações de solução,
+se dá pelo reduzido tamanho dos conjuntos Pareto, tornando não proveitosa
+a utilização da \kdtree{}.
+
+Convém observar que o tamanho das instâncias utilizadas nos testes
+é bem menor que a das instâncias reportadas pelo artigo original.
+Isto se deu pelo alto tempo computacional demandado pela implementação
+elaborada para este trabalho, cujo motivo ainda é desconhecido.
+O fato, porém, não afeta as conclusões quanto à aplicação da proposta,
+especialmente devido à análise do número de avaliações, sendo esta independente
+do tempo computacional demandado.
+
+\missingf{Retirei: 
+``A implementação utilizada no artigo original do algoritmo Bazgan foi solicitada
+aos autores, porém não houve resposta.''. Não cabe no texto da tese
+
+\resp Ok.}
+
+\section{Contexto Heurístico - Algoritmo SCE}
+
+Para o contexto heurístico foram utilizadas o conjunto de instâncias propostas
+e divulgadas por Zitzler e Thiele~\cite{zitzler1998multiobjective} e utilizadas desde então
+pela literatura para testar a performance de heurísticas para o MOKPP~\cite{zitzler2001spea2,deb2002fast, zhang2007moea, zouache2018cooperative}.
+O conjunto é composto por 6 instâncias com valores de $n$ sendo 250, 500 e 750 e
+$\np$ sendo 2 e 3, uma instância para cada caso.
+
+Com o objetivo inicial de verificar a qualidade da heurística SCE proposta para o MOKP,
+foi realizado um teste inicial, comparando a qualidade das soluções geradas pela heurística
+com a qualidade das soluções geradas por outros algoritmos da literatura.
+Os algoritmos utilizados na comparação foram o SPEA-II~\cite{zitzler2001spea2},
+NSGA-II~\cite{deb2002fast}, MOEA/D~\cite{zhang2007moea} e MOFPA~\cite{zouache2018cooperative}.
+As soluções geradas por estes algoritmo, bem como as instâncias, foram
+cedidas por Zouache via comunicação particular.
+Para cada instância, cada um dos algoritmos foi executado 30 vezes, cada uma utilizando
+uma sequência aleatória diferente, conforme praticado pela literatura.
+
+Os parâmetros utilizados no algoritmo SCE foram os propostos pelo autor da meta-heurística
+sendo apresentados na Tabela~\ref{tab:params}.
+Diferentes combinações de valores de parâmetros próximos aos sugeridos foram testados
+porém nenhum apresentou melhoria considerável.
+
+\begin{table}[]
+  \centering
+  \input{tab/sce/params.tex}
+  \caption{Valores de parâmetros utilizados no algoritmo SCE.}
+  \label{tab:params}
+\end{table}
+
+A métrica de qualidade utilizada neste caso foi o hiper-volume do conjunto Pareto
+aproximado~\cite{fonseca2006improved},
+por ser considerado pela literatura~\cite{schutze2016hypervolume,beume2007sms}
+a métrica mais representativa para a avaliar a qualidade do \paretoset{},
+uma vez que ``a velocidade de convergência da taxa de aproximação alcançada
+ao maximizar o hyper-volume é assintoticamente ótima''
+conforme apresentado por Bringmann e Friedrich em~\cite{bringmann2010maximum}.
+A métrica mede o hiper-volume da região contida pelos valores de objetivo das soluções.
+A Figura~\ref{img:hvol2} apresenta um conjunto Pareto com 3 soluções para um problema 
+bi-objetivo, cujo hiper-volume (unidades de área) é 18.
+No caso de um problema 3-objetivo, o hiper-volume seria unidades de volume e assim sucessivamente.
+Outras métricas como distância geracional invertida~\cite{van1998multiobjective},
+cobertura de conjunto~\cite{zitzler1998multiobjective}
+e espaçamento de solução~\cite{schott1995fault} são válidas para evidenciar
+aspectos específicos do \paretoset{}, o que não é o objetivo do presente trabalho.
+
+\missingf{A justificativa de  uso do hiper-volume quanto comparada as alternativas está meio fraco. Porque é bastante representativa e suficiente?
+Quais as evidencias quantitativas que tem para isso? Tem como melhorar?
+
+\resp O hyper-volume é a métrica ``padrão'' para medir qualidade de \paretoset{}.
+Como o objetivo do experimento é apenas validar a heurística diante das outras,
+não achei proveitoso apresentar as outras métricas.
+
+Reestruturei o texto, citando dois artigos que comentam a importância do hiper-volume e um trabalho que prova que o hiper-volume
+é a que melhor expressa a aproximação do \paretoset{} do valor ótimo.
+}
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.3\textwidth]{img/sce/hypervol2}
+  \caption{Exemplo de conjunto Pareto bi-objetivo possuindo 18 unidades hiper-volume (área).}
+  \label{img:hvol2}
+\end{figure}
+
+Visando validar a qualidade do algoritmo SCE, a Tabela~\ref{tab:zitzler} apresenta os
+resultados alcançados pelas heurísticas expressos em porcentagem média de hiper
+volume alcançado, em relação ao maior hiper-volume de solução conhecida para a instância.
+Cada célula apresenta a média de 30 execuções.
+Em destaque estão os melhores valores de hiper-volume.
+\begin{table}[]
+  \centering
+  \input{tab/sce/zitzler-hvol.tex}
+  \caption{Hiper-volume médio alcançado por cada heurística.}
+  \label{tab:zitzler}
+\end{table}
+
+Pode-se observar pela Tabela~\ref{tab:zitzler} que, apesar de não apresentar resultados
+melhores que os do MOEA/D e que os do recente MOFPA,
+os resultados alcançados pelo SCE foram consistentes,
+sendo melhores que as heurísticas SPEA2 e NSGA-II.
+
+\missingf{Tem que aprofundar essa discussão: porque o SCE foi superior e inferior a cada metaheuristica? Será que as melhores usam mais conhecimento especifico do problema do que as outras?
+
+\resp 
+Nenhuma delas usa conhecimento específico. Aliás, o NSGA-II, o SPEA-II e o MOEA/D são heurísticas genéricas.
+Apenas a proposta do MOFPA foi dedicada ao MOKP, ainda assim não utiliza nenhum conhecimento específico, é só uma proposta de PSO+Firefly
+que testaram no MOKP.
+Nem no artigo do MOFPA encontrei alguma indicação de porque ficou melhor que as outras.
+Seria mesmo interessante explicar por que são melhores, mas estou achando difícil. Não sei o que dizer.
+}
+
+A utilização da \kdtree{} foi comparada à utilização da lista encadeada,
+por ser a estrutura utilizadas nos algoritmos heurísticos em questão.
+A Tabela~\ref{tab:scecpu} apresenta o tempo computacional médio demandado pela execução do
+algoritmo SCE para cada uma das 6 instâncias para a utilização da Lista encadeada,
+\dtree{2} e, no caso 3-objetivo, \dtree{3}.
+A coluna $\ndcol$ apresenta o tamanho médio do conjunto Pareto aproximado dado como
+resposta pelo algoritmo.
+
+\missingf{Porque usou lista e nao avl? No exato usou AVL. Porque mudou? Tem que justificar.
+
+\resp Como o objetivo dos testes era comparar a utilização da \kdtree{} com o que a literatura utiliza,
+eu utilizei apenas a lista no caso heurístico.
+A AVL eu só utilizei no exato por ter sido a proposta da Bazgan para o algoritmo exato.
+Adicionei essa explicação ao texto.
+}
+
+\begin{table}[]
+  \centering
+  \input{tab/sce/cpures.tex}
+  \caption{Tempo computacional médio do algoritmo SCE para instâncias Zouache.}
+  \label{tab:scecpu}
+\end{table}
+
+A Figura~\ref{fig:cmpsce} apresenta o número médio de avaliações de solução
+para os casos (a) bi-objetivo e (b) 3-objetivo.
+O eixo horizontal refere-se ao tamanho da instância (número de itens)
+enquanto que o eixo vertical refere-se ao número médio de avaliações de solução.
+
+\missingf{Vc usou várias vezes "numero medio de avaliação de soluções" e agora usou "numero medio de avaliações de solução". 
+Favor uniformizar ao longo do texto do capítulo. Eu prefiro "numero medio de avaliações de solução"
+
+\resp Ok. Uniformizei assim.}
+
+\begin{figure}
+\centering
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[scale=1.1]{tab/sce/cmpres2}
+  \caption{Instâncias 2-objetivo}
+  \label{fig:cmpsce2}
+\end{subfigure}%
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[scale=1.1]{tab/sce/cmpres3}
+  \caption{Instâncias 3-objetivo.}
+  \label{fig:cmpsce3}
+\end{subfigure}
+\caption{Número de avaliações médio do algoritmo SCE para instâncias Zouache.}
+\label{fig:cmpsce}
+\end{figure}
+
+Pode-se observar que a \dtree{2} não foi capaz de oferecer melhoria no tempo computacional
+demandado pelo algoritmo, apesar da redução no número de avaliações de solução.
+Este resultado se deve ao tamanho reduzido do conjunto Pareto mantido pelo algoritmo,
+em especial para os casos bi-objetivo.
+Para os casos 3-objetivo ainda se pode observar um pequeno speedup no
+caso da \dtree{3}, devido a se ter maiores conjuntos Pareto,
+o que não torna favorável o \emph{overhead} adicional da estrutura.
+
+\missingf{Interessante expandir mais a dicussao do porque o resultado nao foi bom!
+
+\resp Complementei apontando o problema do overhead. (no parágrafo abaixo eu continuo a discussão) }
+
+Vale também observar que, para o algoritmo heurístico,
+a demanda de operações de verificação
+de dominância é relativamente pequena em relação às outras operações relacionadas
+ao caráter evolucionário do algoritmo, diferentemente do algoritmo exato,
+cujo desenvolvimento se baseia em sua maioria na operação de verificação de dominância,
+o que também explica o insucesso da \kdtree{} nesse caso.

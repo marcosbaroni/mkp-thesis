@@ -1,0 +1,17 @@
+\Kw{$x$: solução inviável}
+\Begin{
+  $v \gets \ord^{max}(1, 2, \ldots, n$)\;
+  $i \gets n$\;
+  \While{$w(x) > W$ \mycomment{tratamento de inviabilidade}}{
+    $x[v_i] \gets 0$\;
+    $i \gets i - 1$\;
+  }
+  \For{$ i \gets 1:n$ \mycomment[7.8mm]{complementação da solução}}{
+    \If{$x[v_i] = 0$}{
+      \If{$w(x) + w[v_i] \leq W$}{
+        $x[v_i] \gets 1$\;
+      }
+    }
+  }
+  \textbf{return} $x$\;
+}

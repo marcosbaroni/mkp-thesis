@@ -1,11 +1,11 @@
 \Begin{
   $v \leftarrow $ shuffle($1, 2, \ldots, n$)\;
-  $x \leftarrow \vec{0}$; \Comment{solução vazia}\\
+  $x \leftarrow \vec{0}$; \mycomment[2.15cm]{solução vazia}
   \For{$ i \leftarrow 1:n$ }{
-    $x[v_i] \leftarrow 1$; \Comment{inserção de item}\\
+    $x[v_i] \leftarrow 1$; \mycomment[1cm]{inserção de item}
     \If{ $w(x) > W$ }{
-      $x[v_i] \leftarrow 0$; \Comment{verificação de viabilidade}\\
+      $x[v_i] \leftarrow 0$; \mycomment[0.4cm]{verificação de viabilidade}
     }
   }
-  \textbf{retorna} $s$\;
+  \textbf{return} $s$\;
 }

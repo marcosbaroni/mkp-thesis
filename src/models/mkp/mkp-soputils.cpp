@@ -8,7 +8,8 @@
  *
  *****************************************************************************/
 #include <iostream>
-#include <soplex.h>
+//#include <soplex.h>
+#include "../../soplex/soplex-3.1.0/src/soplex.h"
 
 using namespace soplex;
 using namespace std;

@@ -1,36 +1,71 @@
 
 
 \begin{resumo}
-Resumo...
+Diversos problemas reais envolvem a otimização simultânea de múltiplos critérios,
+os quais são, geralmente, conflitantes entre si.
+Estes problemas são denominados multiobjetivo e
+não possuem uma única solução, mas um conjunto de soluções de interesse, denominadas soluções
+eficientes ou não dominadas.
+Um dos grande desafios a serem enfrentados na resolução deste tipo de problema é o
+tamanho do conjunto solução, que tende a crescer rapidamente dado o tamanho da instância,
+degradando a performance dos algoritmos.
+Dentre os problemas multiobjetivos mais estudados está o problema da mochila multiobjetivo,
+pelo qual diversos problemas reais podem ser modelados.
+Este trabalho propõe a aceleração do processo de solução do problema da mochila multiobjetivo,
+através da utilizando da \kdtree{} como estrutura de indexação multidimensional
+para auxiliar a manipulação das soluções.
+A performance da abordagem é analisada através de experimentos
+computacionais, realizados no contexto exato utilizando um algoritmo estado da arte.
+Testes também são realizados no contexto heurístico, utilizando a adaptação
+de uma meta-heurística para o problema em questão, sendo esta também uma contribuição do presente trabalho.
+Segundo os resultados, para o contexto exato a proposta foi eficaz, apresentam speedup de até $2.3$
+para casos bi-objetivo e $15.5$ em casos 3-objetivo, não sendo porém
+eficaz no contexto heurístico, apresentando pouco impacto no tempo computacional.
+Em todos os casos, porém, houve considerável redução no número de avaliações de soluções.
+
 \vspace{\onelineskip}
 
 \noindent
 \textbf{Palavras Chave}:
-Multi-objective Knapsack Problem,
-Metaheuristic,
-Shuffled Complex Evolution,
-Multi-dimensional indexing
+Problema da Mochila Multiobjetivo,
+Indexação Multidimensional,
+Meta-heurística,
+Algoritmo Exato.
 \end{resumo}
 
+
 \begin{resumo}[Abstract]
- \begin{otherlanguage*}{english}
-Many real applications like project selection, capital budgeting and cutting stock involves optimizing multiple objectives that are usually conflicting and can be modelled as a multi-objective knapsack problem (MOKP).
-Unlike the single-objective case, the MOKP is considered a NP-Hard problem with
-considerable intractability.
-This work propose a hybrid heuristic for the MOKP based on the
-shuffled complex evolution algorithm.
-A multi-dimensional indexing strategy for handling large amount of intermediate
-solutions are proposed as an optimization, which yields considerable
-efficiency, especially on cases with more than two objectives.
-A series of computational experiments show the applicability of the proposal
-to several types of instances.
+\begin{otherlanguage*}{english}
+Several real problems involve the simultaneous optimization of multiple criteria,
+which are generally conflicting with each other.
+These problems are called multiobjective and
+do not have a single solution, but a set of solutions of interest, called efficient solutions
+or non-dominated solutions.
+One of the great challenges to be faced in solving this type of problem is the
+size of the solution set, which tends to grow rapidly given the size of the instance,
+degrading algorithms performance.
+Among the most studied multiobjective problems is the multiobjective knapsack problem,
+by which several real problems can be modeled.
+This work proposes the acceleration of the resolution process of the multiobjective knapsack problem,
+through the use of a \kdtree {} as a multidimensional index structure
+to assist the manipulation of solutions.
+The performance of the approach is analyzed through computational experiments,
+performed in the exact context using a state-of-the-art algorithm.
+Tests are also performed in the heuristic context, using the adaptation
+of a meta-heuristic for the problem in question, being also a contribution of the present work.
+According to the results, the proposal was effective for the exact context, presenting a speedup up to $2.3$
+for bi-objective cases and $15.5$ for 3-objective cases, but not
+effective in the heuristic context, presenting little impact on computational time.
+In all cases, however, there was a considerable reduction in the number of solutions evaluations.
+\vspace{\onelineskip}
 
 \noindent
+
 \textbf{Keywords}:
-Multi-objective Knapsack Problem,
+Multiobjective Knapsack Problem,
+Multidimensional Indexing,
 Metaheuristic,
-Shuffled Complex Evolution,
-Multi-dimensional indexing
+Exact Algorithm.
 \end{otherlanguage*}
 \end{resumo}
 
@@ -38,12 +73,17 @@ Multi-dimensional indexing
 % Falar brevemente sore a estratégia de indexação
 % Resumir os resultados obtidos
 
-\missingt{
-Observar as 5 regras:\\
-1. A general statement introduciong the broad reserach area of the particular topic being investigated;\\
-2. An explanation of the specific problem (difficulty, obstavle, challange) to be solved;\\
-3. A review of existing or standard solutions to this problem and their limitations;\\
-4. An outline of the proposed new solution;\\
-5. A summary of how the solution was evaluated and what the outcomes of the evaluation were.
-}
+%\missingt{
+%Observar as 5 regras:\\
+%1. A general statement introducing the broad research area of the particular topic being investigated;\\
+%2. An explanation of the specific problem (difficulty, obstacle, challenge) to be solved;\\
+%3. A review of existing or standard solutions to this problem and their limitations;\\
+%4. An outline of the proposed new solution;\\
+%5. A summary of how the solution was evaluated and what the outcomes of the evaluation were.
+%}
 
+% 1. Uma declaração geral introduzindo a área de pesquisa;
+% 2. Uma explicação espeficica do problema
+% 3.
+%
+%

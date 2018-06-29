@@ -1,11 +1,11 @@
 \Kw{$\bsym{p}, \bsym{w}, W$}
 \Begin{
   \SetAlgoLined
-  $S^0 = \{(0, \ldots, 0)\}$\;
+  $S_0 = \{(0, \ldots, 0)\}$\;
   \For{$k \gets 1, n$}{
-    $S_k^0 \gets S_{k-1} \cup \big\{(s_{k-1}^1 + p_k^1, \ldots, s_{k-1}^\np + p_k^\np, s_{k-1}^{\np+1} + w_k)
-    \; | \; s_{k-1}^{\np+1} + w_k \leq W, \: s_{k-1} \in S_{k-1} \big\}$\;
+    $S_k \gets S_{k-1} \cup \big\{(s^1 + p_k^1, \ldots, s^\np + p_k^\np, s^{\np+1} + w_k)
+    \; \big| \; s^{\np+1} + w_k \leq W, \: s \in S_{k-1} \big\}$\;
   }
-  $P = \{ s \in S^n \:|\: \nexists (a \in S^n \;|\; a \dom s), \; s^{\np+1} \leq W \}$\;
+  $P = \{ s \in S_n \:|\: \nexists (a \in S_n \;|\; a \dom s)\}$\;
   \textbf{return} $P$\;
 }

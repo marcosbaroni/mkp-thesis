@@ -1,0 +1,110 @@
+O presente trabalho propõe a indexação multidimensional das soluções
+do problema da mochila multiobjetivo,
+como proposta de aceleração das operações de verificação de dominância de solução.
+A operação de verificação de dominância é uma das principais
+operações necessárias para a resolução do problema.
+A indexação multidimensional das soluções tem por objetivo
+reduzir o número de avaliações de soluções necessárias para a execução da operação,
+diminuindo consequentemente o tempo computacional
+demandado pelo algoritmo.
+
+Há na literatura a proposta de utilização da quadtree como estrutura de dados
+de indexação de soluções de problemas multiobjetivo.
+Porém a estratégia mostrou-se eficaz apenas em casos bi-objetivos de conjuntos Paretos consideravelmente extensos.
+Conjectura-se que essa ineficiência é decorrente
+do alto \emph{overhead} da estrutura, especialmente em casos com mais de dois objetivos.
+
+Para que a proposta de indexação fosse possível,
+foi definido no presente trabalho um mapeamento entre a operação
+de verificação de dominância e o problema da busca de faixa.
+O problema de busca de faixa consiste em verificar a existência de pontos em uma determinada
+região do espaço multidimensional.
+Esse problema é bem conhecido em áreas como computação gráfica, geometria computacional e jogos,
+onde a \kdtree{} é geralmente utilizada como estrutura de dados auxiliar.
+Sendo assim, a proposta do presente trabalho foi a utilização da \kdtree{}
+como estrutura auxiliar da operação de verificação de dominância.
+
+A aplicação e o comportamento da \kdtree{} junto à operação
+foram discutidos, bem como os da lista encadeada e da árvore AVL,
+estruturas até então utilizadas pela literatura para este fim.
+O desempenho da proposta de indexação foi testado no contexto exato e heurístico.
+
+No contexto exato, a proposta foi aplicada ao algoritmo Bazgan,
+considerado pela literatura como o mais eficiente atualmente para o problema da mochila multiobjetivo.
+A performance do algoritmo foi comparada através de experimentos computacionais.
+Para tanto, foi considerada a mesma proposta de instâncias empregada pela literatura,
+sendo quatro tipos de instâncias bi-objetivo e dois tipos de instâncias 3-objetivo.
+Para o caso 3-objetivo foram ainda propostas mais dois tipos de instâncias,
+sendo estas generalizações de seus respectivos casos bi-objetivos.
+
+Os resultados dos experimentos computacionais utilizando o algoritmo Bazgan,
+mostraram que a proposta de indexação multidimensional possibilitou o speedup
+de até $2.3$ para os casos bi-objetivo, e até $15.5$ para casos 3-objetivo.
+A proposta não se mostrou eficiente apenas em instâncias consideradas fáceis,
+cujos conjuntos Pareto têm tamanhos consideravelmente reduzidos em relação
+às demais instâncias.
+Nesses casos, onde se dá a manipulação de poucas soluções,
+o \emph{overhead} computacional da \kdtree{} torna sua utilização ineficaz.
+
+No contexto heurístico, a indexação multidimensional
+foi aplicada ao algoritmo SCE para o MOKP, proposto também neste trabalho.
+Primeiramente o SCE foi adaptado para resolver problemas multiobjetivo.
+Para isso, a aptidão das soluções foi definida com base na ordenação
+em frontes não dominados.
+A aproximação do \paretoset{} foi gerada com o auxílio de um arquivo externo.
+Em seguida, foi estabelecida a implementação específica para o MOKP,
+definindo-se a operação de geração de solução viável
+aleatória e a operação de cruzamento de soluções.
+
+A validade da implementação do algoritmo SCE para o MOKP foi primeiramente
+avaliada e comparada com os principais algoritmos da literatura,
+não tendo melhores resultados que as
+heurísticas de estado-da-arte, porém tendo resultados superiores aos
+das heurísticas mais antigas.
+
+Os experimentos computacionais no contexto heurístico
+foram realizados sobre o conjunto de 6 instâncias,
+utilizado pela literatura para avaliar a performance de heurísticas para o MOKP.
+Apesar de reduzir consideravelmente o número de avaliações de soluções,
+a utilização da \kdtree{} não apresentou eficiência relevante quanto ao tempo computacional
+na abordagem heurística, tendo pior performance nas instâncias com \paretoset{}
+relativamente pequenos.
+
+Pode-se concluir que a utilização da \kdtree{} é capaz de reduzir consideravelmente
+o número de avaliações de soluções na maioria dos casos, além de também reduzir o tempo computacional
+demandado em casos em que é necessário executar a verificação de dominância em grandes
+conjuntos de solução.
+Os resultados evidenciam ser indispensável
+a utilização de uma estrutura de indexação multidimensional,
+nos casos de problemas com mais de 2 objetivos com grandes
+conjuntos de solução.
+Vale ressaltar que os algoritmos não foram alterados, somente
+a forma de indexação das soluções.
+
+%\missingf{afirmacao forte: "Segundo os resultados, a utilização de uma estrutura de indexação multidimensional
+%mostra-se indispensável no caso de problemas com mais de 2 objetivos com grandes
+%conjuntos de solução." em vez de mostra, alterei para evidencia... 
+%
+%\resp Ok. Melhor.}
+
+Notou-se porém, que em casos onde o número de soluções manipuladas é pequeno, a utilização
+da \kdtree{} não é recomendável, pois apesar de apresentar redução no número de
+avaliações, o \emph{overhead} da estrutura dificulta uma redução no tempo computacional demandado.
+
+Como trabalhos futuros pretende-se verificar a performance da \kdtree{} em outros problemas
+multiobjetivos, bem como comparar com outras estruturas, inclusive com a ND-Tree, proposta
+em~\cite{jaszkiewicz2017} como estrutura de dados para auxiliar a operação de verificação de dominância.
+Pretende-se também investigar a aplicabilidade de outras estruturas de indexação
+multidimensional ou mesmo a proposta de uma específica para conjuntos Pareto de problemas multiobjetivos.
+
+Pretende-se também aprimorar a implementação do SCE para o MOKP.
+Uma possibilidade seria o aperfeiçoamento das soluções
+através da utilização de conhecimentos específicos do problema.
+Outra possibilidade seria realizando um pré-processamento sobre o problema inicial,
+transformando-o em um problema mais simples ou dividindo-o em sub-problemas
+menores.
+
+
+\missingf{Sugiro expandir a discussão de trabalhos futuros}
+
+\missingf{ na verdade acho que a Conclusao tem que ser expandida como um todo. Tá parecendo conclusao de artigo, que tem limitacao de espaço. Vc poderia falar mais de cada um dos itens comentados, até apresentar exemplos para esclarecer os leitores.}
