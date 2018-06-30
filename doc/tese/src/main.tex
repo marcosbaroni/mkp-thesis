@@ -13,7 +13,7 @@ brazil,				% o último idioma é o principal do documento
 \usepackage[alf]{abntex2cite}	% Citações padrão ABNT
 
 %\usepackage{setspace}
-%\renewcommand{\baselinestretch}{1.3}
+%\renewcommand{\baselinestretch}{1.3} 
 
 \usepackage{cmap}				% Mapear caracteres especiais no PDF
 \usepackage{lmodern}			% Usa a fonte Latin Modern
@@ -34,8 +34,8 @@ brazil,				% o último idioma é o principal do documento
 
 
 %%%    FORMATAÇÃO DE SUMÁRIO
-%\usepackage[tocflat]{tocstyle}
-%\usetocstyle{standard}
+\usepackage[tocflat]{tocstyle}
+\usetocstyle{standard}
 %\usepackage{tocloft}    % ajustes de sumário
 %\cftsetindents{section}{1em}{5em}
 %\cftsetindents{subsection}{2em}{5em}
@@ -68,7 +68,7 @@ brazil,				% o último idioma é o principal do documento
 \titulo{Indexação Multidimensional para Problemas da Mochila Multiobjetivo com Paretos de Alta Cardinalidade}
 \autor{Marcos Daniel V. Baroni}
 \local{Vitória - Espírito Santo - Brasil}
-\data{26 de julho de 2018}
+\data{30 de julho de 2018}
 \orientador{Dr. Flávio Miguel Varejão}
 \instituicao{%
   Universidade Federal do Espírito Santo -- UFES
@@ -132,6 +132,8 @@ do grau de Doutor em Ciência da Computação.}
 \listoftables*
 \cleardoublepage
 
+\input{tex/lista-simbolos}
+
 %%%%%%%%%%%%%%%%%%%%%%%%
 %  Texto               %
 %%%%%%%%%%%%%%%%%%%%%%%%
@@ -161,7 +163,7 @@ do grau de Doutor em Ciência da Computação.}
 \input{tex/04-experimentos.tex}
 
 % Conclusão
-\chapter{Conclusão}
+\chapter{Conclusões e Trabalhos Futuros}
 \label{cap:concl}
 \input{tex/05-conclusao.tex}
 

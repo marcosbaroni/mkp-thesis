@@ -1,5 +1,5 @@
 Diferentemente de problemas de otimização escalar, problemas multiobjetivo
-envolvem a otimização simultânea de múltiplas de funções objetivo geralmente
+envolvem a otimização simultânea de múltiplas de funções objetivo geralmente 
 conflitantes entre si.
 Estes problemas não possuem tipicamente uma única solução, mas um conjunto
 de soluções de interesse chamado \emph{\paretoset{}}.
@@ -101,7 +101,7 @@ que buscam dar uma solução aproximada, demandando um menor esforço computacio
 
 \resp Para esclarecer, mudei: enumeração total das soluções exatas.).
 
-- achei que nao ficou bom.
+- achei que nao ficou bom. 
 Nao seria melhor a enumeracao completa das soluçoes que compoem o conjunto pareto?
 \resp Sim, ficou melhor. Alterei.
 
@@ -136,12 +136,8 @@ de algoritmos para problemas da mochila multiobjetivo, mais especificamente em c
 que possuam conjuntos Paretos com grande quantidade de soluções, ao reduzir
 o número total de avaliações de solução necessárias para a execução do algoritmo.
 %deixando o algoritmoaté $2.3$ vezes mais rápido em casos bi-objetivo e até $15.5$ em casos 3-objetivo.
-A eficácia da proposta será avaliada através de
-testes computacionais, para os quais serão analisados o número de avaliações
-de solução e o tempo computacional demandado pelos algoritmos em instâncias
-consideradas pela literatura.
 
-\missingf{- O objetivo é mostrar que kdtree é adequada para problemas multiobjetivo em geral ou especificamente
+\missingf{- O objetivo é mostrar que kdtree é adequada para problemas multiobjetivo em geral ou especificamente 
 para mochila multiobjetivo? Isso precisa ficar bem claro!!! Se for o geral tem que justificar porque só experimenta
 com mochila e que fazendo isso é razoável generalizar do específico para o geral. Me parece mais dificil!!!
 
@@ -149,26 +145,31 @@ com mochila e que fazendo isso é razoável generalizar do específico para o ge
 Testar com outros problemas seria um trabalho futuro. Ajustei o texto.
 }
 
-\missingf{- Sua principal contribuição é a aplicacao de kd-tree para problemas (da mochila?) multiobjetivo em especial em casos
-de problemas que possuem conjuntos Paretos com grande quantidade de soluções e problemas com mais de dois
+\missingf{- Sua principal contribuição é a aplicacao de kd-tree para problemas (da mochila?) multiobjetivo em especial em casos 
+de problemas que possuem conjuntos Paretos com grande quantidade de soluções e problemas com mais de dois 
 objetivos...
 Aqui vc precisa vender muito bem seu peixe!!!
 Tem que dizer porque considera isso uma contribuição  significativa (para justificar um doutorado).
 Tem trabalhos que fizeram algo semelhante, isto é, cujo objetivo é usar estruturas de dados para melhor o desempenho do mesmo problema (ou problema semelhante)?
-Se sim,  tem que descrever, referenciar e dizer no que diferem da sua contribuiçao. Tem trabalhos nos quais o objetivo é usar
-a kd-tree para melhorar o desempenho de algoritmos em problemas de otimizacao (multiobjetivo em geral ou da
+Se sim,  tem que descrever, referenciar e dizer no que diferem da sua contribuiçao. Tem trabalhos nos quais o objetivo é usar 
+a kd-tree para melhorar o desempenho de algoritmos em problemas de otimizacao (multiobjetivo em geral ou da 
 mochila em geral)? Se sim, tem que descrever, referenciar e dizer no que diferem da sua contribuiçao.
 }
 
-Esta avaliação será feita no contexto exato
+\section{Metodologia}
+
+A eficácia da proposta será avaliada através de
+testes computacionais, para os quais serão analisados o número de avaliações
+de solução e o tempo computacional demandado pelos algoritmos em instâncias
+consideradas pela literatura.
+Os testes no contexto exato serão feitos
 utilizando o algoritmo de Bazgan, considerado pela literatura
 como o método exato mais eficiente para o problema~\cite{bazgan2009}.
 No trabalho original do algoritmo, é proposta a utilização da árvore AVL
 como estrutura de dados auxiliar para indexação de soluções em casos bi-objetivo,
 sendo utilizada a lista encadeada para o caso 3-objetivo.
-As respectivas estruturas de dados foram originalmente utilizadas,
-provavelmente, diante do foco do trabalho, o qual é dedicado à proposta do algoritmo
-e suas provas de corretude.
+O trabalho original é dedicado à proposta do algoritmo e suas provas de corretude,
+o que provavelmente explica a utilização apenas das respectivas estruturas de dados.
 Diante disso, perdura a carência de uma maior investigação sobre a utilização de
 estruturas de dados.
 
@@ -198,10 +199,10 @@ para a execução de cada algoritmo.
 \missingf{
 \begin{itemize}
 \item{
-- voce precisa destacar e descrever melhor a metodologia de pesquisa utilizada. Quais sao as instâncias
-consideradas pela literatura (referenciar)? Quais sao as caracteristicas dessas instancias? Explicar porque as escolheu!
+- voce precisa destacar e descrever melhor a metodologia de pesquisa utilizada. Quais sao as instâncias 
+consideradas pela literatura (referenciar)? Quais sao as caracteristicas dessas instancias? Explicar porque as escolheu! 
 Porque vale a pena avaliar usando essas instancias? Elas são dificeis? O comportamento observado nelas pode ser
-generalizado para o resto do universo (provavelmente não, mas a justificativa pode ser que é o que há de disponível).
+generalizado para o resto do universo (provavelmente não, mas a justificativa pode ser que é o que há de disponível). 
 Existem outras na literatura que vc não escolheu? Se existem, tem que explicar porque nao as escolheu...
 
 \resp Ok, detalhei sobre isso no texto. }
@@ -216,9 +217,9 @@ Se não tiver, vc deve mostrar quais seriam as opcoes (contemporaneas) e porque 
 \resp A referência é o próprio artigo da Bazgan que testa com os outros exatos propostos. Desde então nenhum outro artigo mostrou algum exato melhor.
 Coloquei a referência.}
 
-\item{ Qual a heuristica evolutiva escolheu e porque a escolheu? Porque nao escolheu a com melhores resultados na literatura?
-(Sei que nao dá para colocar aqui a resposta real!!! Mas, é preciso tentar criar algum(ns) argumento(s) que defendam a
-posicao adotada. Pode ser algo do tipo mais facil de ser implementada, precisar de menos tuning, exigir menos parametros ou
+\item{ Qual a heuristica evolutiva escolheu e porque a escolheu? Porque nao escolheu a com melhores resultados na literatura? 
+(Sei que nao dá para colocar aqui a resposta real!!! Mas, é preciso tentar criar algum(ns) argumento(s) que defendam a 
+posicao adotada. Pode ser algo do tipo mais facil de ser implementada, precisar de menos tuning, exigir menos parametros ou 
 até um argumento mais fraco de que era uma heuristica nunca aplicada antes a mochila multiobjetivo (essa é fraca
 porque com certeza tem varias metaheuristicas até mais populares que tb nao devem ter sido aplicadas ao problema).
 Pense ai... Note que vc também está colocando como contribuição do trabalho... Tem que vender bem esse peixe tb!
@@ -345,7 +346,7 @@ No Capítulo~\ref{cap:concl} são apresentadas as conclusões e os  trabalhos fu
 %%% Tópicos da introdução
 % - Introdução à problemas multiobjetivos, citando MOKP. Dficuldade de contruir conjunto solução.
 % - Ressaltar a importancia do problema (aplicações).
-% - Propostas de métodos extados porém, não suporta instancias grande.
+% - Propostas de métodos extados porém, não suporta instancias grande. 
 % - Propostas de métodos heurísticos.
 % - Exclarecer que grande parte da dificuldade é devido ao grande conjunto
 %     de soluções eficientes que existem. Lhe dar com essas soluções é muito custoso.

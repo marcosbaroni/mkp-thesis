@@ -6,7 +6,7 @@
 CPLEX=cplex
 maxtime="60.0"
 maxgap="0.0"
-temp=`tempfile`
+temp=`mktemp`
 input=$temp.lp
 
 # Checkinkg number of arguments

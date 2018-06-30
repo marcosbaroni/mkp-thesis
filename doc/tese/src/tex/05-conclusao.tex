@@ -1,3 +1,5 @@
+\section{Contribuições}
+
 O presente trabalho propõe a indexação multidimensional das soluções
 do problema da mochila multiobjetivo,
 como proposta de aceleração das operações de verificação de dominância de solução.
@@ -5,8 +7,7 @@ A operação de verificação de dominância é uma das principais
 operações necessárias para a resolução do problema.
 A indexação multidimensional das soluções tem por objetivo
 reduzir o número de avaliações de soluções necessárias para a execução da operação,
-diminuindo consequentemente o tempo computacional
-demandado pelo algoritmo.
+diminuindo consequentemente o tempo computacional demandado.
 
 Há na literatura a proposta de utilização da quadtree como estrutura de dados
 de indexação de soluções de problemas multiobjetivo.
@@ -79,7 +80,8 @@ a utilização de uma estrutura de indexação multidimensional,
 nos casos de problemas com mais de 2 objetivos com grandes
 conjuntos de solução.
 Vale ressaltar que os algoritmos não foram alterados, somente
-a forma de indexação das soluções.
+a forma de indexação das soluções, a qual pode ser aplicada a qualquer algoritmo
+que faz utilização da operação de verificação de dominância de solução.
 
 %\missingf{afirmacao forte: "Segundo os resultados, a utilização de uma estrutura de indexação multidimensional
 %mostra-se indispensável no caso de problemas com mais de 2 objetivos com grandes
@@ -91,11 +93,24 @@ Notou-se porém, que em casos onde o número de soluções manipuladas é pequen
 da \kdtree{} não é recomendável, pois apesar de apresentar redução no número de
 avaliações, o \emph{overhead} da estrutura dificulta uma redução no tempo computacional demandado.
 
-Como trabalhos futuros pretende-se verificar a performance da \kdtree{} em outros problemas
-multiobjetivos, bem como comparar com outras estruturas, inclusive com a ND-Tree, proposta
-em~\cite{jaszkiewicz2017} como estrutura de dados para auxiliar a operação de verificação de dominância.
-Pretende-se também investigar a aplicabilidade de outras estruturas de indexação
-multidimensional ou mesmo a proposta de uma específica para conjuntos Pareto de problemas multiobjetivos.
+\section{Trabalhos Futuros}
+
+Como trabalho futuro pretende-se verificar a performance da \kdtree{} em outros problemas
+multiobjetivos, uma vez que o crescimento do \paretoset{} não é
+uma característica específica do problema em questão, mas observado
+em problemas multiobjetivo de forma geral, visto que as possibilidades de soluções
+eficientes aumentando dado o tamanho da instância,
+especialmente para casos com mais dois objetivos~\cite{ehrgott2013multicriteria}.
+
+Outro ponto a ser explorado é a consideração de outras estruturas de dados
+para auxílio à operação de verificação de dominância.
+Uma das estruturas a ser considerada é a ND-Tree, proposta
+em~\cite{jaszkiewicz2017} como estrutura de dados para auxiliar
+a operação de verificação de dominância.
+Vale também considerar a proposta de uma estrutura dedicada ao
+problema de verificação de dominância, considerando que as
+soluções pertencentes a um \paretoset{} possuem uma distribuição espacial
+característica, na qual nenhuma é dominada por outra.
 
 Pretende-se também aprimorar a implementação do SCE para o MOKP.
 Uma possibilidade seria o aperfeiçoamento das soluções
@@ -103,6 +118,10 @@ através da utilização de conhecimentos específicos do problema.
 Outra possibilidade seria realizando um pré-processamento sobre o problema inicial,
 transformando-o em um problema mais simples ou dividindo-o em sub-problemas
 menores.
+
+Além das propostas de contribuição, pretende-se investigar a causa da
+presente implementação do algoritmo Bazgan demandar mais tempo computacional
+que o relatado pela literatura.
 
 
 \missingf{Sugiro expandir a discussão de trabalhos futuros}

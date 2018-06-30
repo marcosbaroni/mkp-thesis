@@ -1,6 +1,6 @@
 #!/bin/bash
-ZIMPL=zimpl 
-temp=`tempfile`
+ZIMPL=./zimpl 
+temp=`mktemp`
 
 # Checkinkg number of arguments
 if [ $# -lt 1 ]; then
