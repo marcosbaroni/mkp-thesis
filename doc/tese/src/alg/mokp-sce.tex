@@ -1,6 +1,6 @@
 \Begin{
   Inicializar população de $N*M$ indivíduos gerados aleatoriamente\;
-  Classificar população em frontes não dominados\;
+  Classificar população em frontes não dominados \only<2>{{\color{defred} \LEFTarrow}}\;
   Selecionar o 1º fronte para compor arquivo externo\;
   \For{$ k \leftarrow 1:K$}{
     Ordenar população por aptidão (desempate por hipervolume)\;
@@ -8,11 +8,11 @@
     \For{$i \leftarrow 1:N$}{
       \For{$k' \leftarrow 1:K'$}{
         Selecionar subcomplexo com $P$ indivíduos retirados do $i$-ésimo complexo\;
-        Evoluir pior indivíduo do subcomplexo gerando um novo indivíduo\;
+        Evoluir pior indivíduo do subcomplexo gerando um novo indivíduo \only<2>{{\color{defred} \LEFTarrow}}\;
       }
     }
-    Classificar toda a população (nova e antiga) em frontes não dominados\;
-    Propor atualização do arquivo utilizando as soluções do 1º fronte $F_1$\;
+    Classificar toda a população (nova e antiga) em frontes não dominados \only<2>{{\color{defred} \LEFTarrow}}\;
+    Propor atualização do arquivo utilizando as soluções do 1º fronte $F_1$ \only<2>{{\color{defred} \LEFTarrow}}\;
     Selecionar população;
   }
   \textbf{return} Arquivo externo\;

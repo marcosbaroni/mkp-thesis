@@ -8,6 +8,7 @@
 \usetheme{Hannover}
 \usecolortheme{dolphin}
 
+\usepackage{wasysym}
 \usepackage{multirow}
 \usepackage{subfigure}
 %\usepackage{color, graphicx}
@@ -28,8 +29,9 @@
 \newtheorem{myteo}{Teorema}
 
 \definecolor{defblue}{rgb}{0.2, 0.2, 0.7}
-\definecolor{defred}{rgb}{0.4, 0.0, 0.0}
-\definecolor{defgreen}{rgb}{0.0, 0.4, 0.0}
+\definecolor{defred}{rgb}{0.6, 0.2, 0.2}
+\definecolor{defgreen}{rgb}{0.2, 0.6, 0.2}
+\definecolor{defgray}{rgb}{0.6, 0.6, 0.6}
 
 \renewcommand{\emph}{\textbf}
 \newcommand{\mytitle}[1]{
@@ -38,6 +40,10 @@
     { \LARGE #1 }
   \end{center}
 }
+
+\newcommand{\badpt}{{\color{defred} \DOWNarrow }}
+\newcommand{\medpt}{{\color{defgray} \CIRCLE }}
+\newcommand{\goodpt}{{\color{defgreen} \UParrow }}
 
 \begin{document}
 
@@ -284,6 +290,11 @@
 \begin{frame}
   \frametitle{Lista encadeada}
   Lista Encadeada:\\
+  \begin{itemize}
+    \item{ Implementação simples \goodpt }
+    \item{ Pouca utilização de memória \goodpt }
+    \item{ Sem indexação -- acesso em tempo linear \badpt }
+  \end{itemize}
   \begin{center}
     \includegraphics[scale=0.4]{../img/kdt/lst-model}
   \end{center}
@@ -312,8 +323,15 @@
 
 \begin{frame}
   \frametitle{Árvore AVL}
+  Árvore AVL:\\
+  \begin{itemize}
+    \item{ Implementação complexa \badpt }
+    \item{ Pouca utilização de memória \goodpt }
+    \item{ Indexação unidimensional \medpt }
+  \end{itemize}
+  \pause
   \begin{center}
-    \includegraphics[scale=0.3]{../img/kdt/avl-model}
+    \includegraphics[scale=0.4]{../img/kdt/avl-model}
   \end{center}
 \end{frame}
 
@@ -341,8 +359,15 @@
 
 \begin{frame}
   \frametitle{Árvore KD}
+  Árvore KD:\\
+  \begin{itemize}
+    \item{ Implementação complexa \badpt }
+    \item{ Pouca utilização de memória \goodpt }
+    \item{ Indexação multidimensional \goodpt }
+  \end{itemize}
+  \pause
   \begin{center}
-    \includegraphics[scale=2.5]{../img/kdt/dom-kd}
+    \includegraphics[scale=3.0]{../img/kdt/dom-kd}
   \end{center}
 \end{frame}
 
@@ -377,17 +402,29 @@
 \section{O Algoritmo de Bazgan}
 
 \begin{frame}
-  \begin{block}{Abordagem Exata}
-    \begin{itemize}
-      \item Algoritmo de Bazgan;
-      \item Estado da arte.
-    \end{itemize}
-  \end{block}
-  \begin{block}{Abordagem Heurística}
+  \mytitle{Algoritmos para o MOKP}
+\end{frame}
+
+\begin{frame}
+  \begin{block}{Algoritmo Exato}
     \begin{itemize}
       \item Algoritmo de Bazgan -- estado da arte;
     \end{itemize}
   \end{block}
+  \begin{block}{Algoritmo Heurístico}
+    \begin{itemize}
+      \item SCE para o MOKP -- proposta do trabalho;
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+\begin{frame}
+	\frametitle{O Algoritmo de Bazgan}
+  \begin{itemize}
+    \item{ Algoritmo exato de melhor desempenho; }
+    \item{ Algoritmo de programação dinâmica -- variação do Nemhauser-Ullmann; }
+    \item{ Utiliza 3 dominâncias para redução do conjunto de estados.}
+  \end{itemize}
 \end{frame}
 
 \begin{frame}
@@ -397,14 +434,11 @@
     \input{../alg/dp1.tex}
     \caption{O algoritmo de Nemhauser e Ullmann para o \mokp.}
   \end{algorithm}
-\end{frame}
-
-\begin{frame}
-	\frametitle{O Algoritmo de Bazgan}
-  As relações de dominância utilizadas para remoção de soluções: \pause
+  \pause
+  Relações de dominância utilizadas:
   \begin{enumerate}
-    \item{ $\rel^r$: Soluções deficientes;} \pause
-    \item{ $\rel^{\dom}$: Soluções ``\textit{pesadas}'';} \pause
+    \item{ $\rel^r$: Soluções deficientes;}
+    \item{ $\rel^{\dom}$: Soluções ``\textit{pesadas}'';}
     \item{ $\rel^{b}$: Soluções não promissoras.}
   \end{enumerate}
 \end{frame}
@@ -448,13 +482,7 @@
 
 \begin{frame}
 	\frametitle{O Algoritmo de Bazgan}
-  \begin{block}{3. A relação $\rel^{b}$:}
-    \vspace*{5cm}
-  \end{block}
-\end{frame}
-
-\begin{frame}
-	\frametitle{O Algoritmo de Bazgan}
+  \begin{block}{3. A relação $\rel^{b}$:}\end{block}
   \begin{block}{Limite inferior}
     Vetor objetivo $lb(s) = (lb^1, \ldots, lb^\np)$ onde \\
     \vspace*{2mm}
@@ -526,15 +554,26 @@
 \end{frame}
 
 \begin{frame}
+	\frametitle{O SCE}
+  \begin{itemize}
+    \item{ Algoritmo populacional evolutivo; }
+    \item{ Evolução simultânea de comunicades independentes; }
+    \item{ Utilizado originalmente para resolver problemas hídricos complexos; }
+    \item{ \textit{Embaralha} a população em $N$ comunidades (complexos); }
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
 	\mytitle{O SCE}
+  \vspace{-5mm}
   \begin{figure}
     \centering
     \hspace{4mm}
-    \begin{minipage}[b]{0.32\textwidth}
+    \begin{minipage}[b]{0.36\textwidth}
       \includegraphics[width=\textwidth]{../img/sce/flow1}
     \end{minipage}
     \hspace{4mm}
-    \begin{minipage}[b]{0.32\textwidth}
+    \begin{minipage}[b]{0.36\textwidth}
       \includegraphics[width=\textwidth]{../img/sce/flow2}
     \end{minipage}
     \hspace{4mm}
@@ -545,18 +584,25 @@
 	\frametitle{O SCE}
   \begin{block}{Adaptação para contexto multiobjetivo:}
     \begin{itemize}
-      \item{ Aptidão da solução:
+      \item{ Aptidão do indivíduo:
+        \only<1>{\\ \phantom{123}}
+        \only<2-3>{
         \begin{itemize}
           \item[-] Ordenação em frontes não dominados
         \end{itemize}
+        }
       }
       \item{ Construção de \paretoset{} aproximado:
+        \only<1-1>{\\ \phantom{123}}
+        \only<2-3>{
         \begin{itemize}
           \item[-] Arquivo externo
         \end{itemize}
+        }
       }
     \end{itemize}
   \end{block}
+  \pause
   \pause
   \begin{block}{Aplicação para o MOKP:}
     \begin{itemize}
@@ -568,7 +614,7 @@
 
 \begin{frame}
 	\frametitle{O SCE}
-  Medida de aptidão de solução: ordenação em frontes não dominados.
+  Aptidão do indivíduo: ordenação em frontes não dominados.
   \begin{figure}
     \centering
     \begin{minipage}[t]{0.48\textwidth}
@@ -600,7 +646,7 @@
 \begin{frame}
 	\frametitle{O SCE}
   \begin{algorithm}[H]
-    \tiny
+    \scriptsize
     \input{../alg/mokp-sce.tex}
     \caption{Algoritmo SCE adaptado para o MOKP.}
   \end{algorithm}
@@ -621,6 +667,7 @@
 
 \begin{frame}
 	\frametitle{Experimentos Computacionais}
+  \framesubtitle{Abordagem Exata}
   Instâncias bi-objetivo divididas em 4 tipos:
   \vspace{3mm}
   \begin{enumerate}
@@ -647,6 +694,7 @@
 
 \begin{frame}
   \frametitle{Experimentos Computacionais}
+  \framesubtitle{Abordagem Exata}
   Instâncias $3$-objetivo divididas em 4 tipos:
   \begin{enumerate}
     \item[A)] Aleatórias: $
@@ -675,6 +723,7 @@
 
 \begin{frame}
   \frametitle{Experimentos Computacionais}
+  \framesubtitle{Abordagem Exata}
   Tempo computacional médio do algoritmo Bazgan para instâncias bi-objetivo:
   \scriptsize
   \begin{table}[h]
@@ -684,6 +733,7 @@
 
 \begin{frame}
   \frametitle{Experimentos Computacionais}
+  \framesubtitle{Abordagem Exata}
   Número de avaliações médio do algoritmo Bazgan para instâncias bi-objetivo:
   \begin{figure}[H]
     \includegraphics[scale=0.3]{../tab/cmp/2dim}
@@ -692,6 +742,7 @@
 
 \begin{frame}
   \frametitle{Experimentos Computacionais}
+  \framesubtitle{Abordagem Exata}
   Tempo computacional médio do algoritmo Bazgan para instâncias $3$-objetivo:
   \scriptsize
   \begin{table}[h]
@@ -701,6 +752,7 @@
 
 \begin{frame}
   \frametitle{Experimentos Computacionais}
+  \framesubtitle{Abordagem Exata}
   Número de avaliações médio do algoritmo Bazgan para instâncias $3$-objetivo:
   \begin{figure}[H]
     \includegraphics[scale=0.3]{../tab/cmp/3dim}
@@ -709,6 +761,7 @@
 
 \begin{frame}
   \frametitle{Experimentos Computacionais}
+  \framesubtitle{Abordagem Heurística}
   Valores de parâmetros utilizados no algoritmo SCE:
   \begin{table}[H]
     \small
@@ -719,6 +772,7 @@
 
 \begin{frame}
   \frametitle{Experimentos Computacionais}
+  \framesubtitle{Abordagem Heurística}
   Métrica para avaliação de qualidade de Pareto: hiper-volume.
   \vfill
   Exemplo de conjunto Pareto bi-objetivo possuindo 18 unidades hiper-volume (área):
@@ -730,6 +784,7 @@
 
 \begin{frame}
   \frametitle{Experimentos Computacionais}
+  \framesubtitle{Abordagem Heurística}
   Hiper-volume médio alcançado por cada heurística:
   \begin{figure}
     \centering
@@ -739,6 +794,7 @@
 
 \begin{frame}
   \frametitle{Experimentos Computacionais}
+  \framesubtitle{Abordagem Heurística}
   Tempo computacional médio do algoritmo SCE para instâncias Zouache:
   \begin{figure}
     \centering
@@ -748,6 +804,7 @@
 
 \begin{frame}
   \frametitle{Experimentos Computacionais}
+  \framesubtitle{Abordagem Heurística}
   Número de avaliações médio do algoritmo SCE para instâncias Zouache:
   \begin{figure}
     \centering
@@ -763,6 +820,33 @@
 
 \begin{frame}
 	\frametitle{Conclusões}
+  \begin{block}{Principais contribuições:}
+    \begin{itemize}
+      \item{ Interpretação do problema de verificação de dominância como problema de busca de faixa }
+      \item{ Proposta da utilização da Árvore KD como estrutura de indexação multidimencional }
+      \item{ Análise da proposta em contextos exatos e heurísticos utilizando as principais instâncias da literatura}
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Conclusões}
+  \begin{itemize}
+    \item{ Indexação multidimensional foi eficiente no contexto exato: } \pause
+    \begin{itemize}
+      \item{ Conjuntos solução de alta cardinalidade } \pause
+      \item{ Speedup de até $2.3$ para bi-objetivo } \pause
+      \item{ Speedup de até $15.5$ para 3-objetivo } \pause
+      \item{ Drástica redução no número de avaliações de solução }
+    \end{itemize}
+    \pause
+    \item{ Indexação multidimensional não foi eficiente no contexto heurístico: } \pause
+    \begin{itemize}
+      \item{ Pouco impacto no tempo computacional } \pause
+      \item{ Conjuntos solução de baixa cardinalidade -- overhead } \pause
+      \item{ Considerável redução no número de avaliações de solução }
+    \end{itemize}
+  \end{itemize}
 \end{frame}
 
 \begin{frame}
@@ -776,6 +860,17 @@
     \item{ Investigar a causa da ineficiência da atual implementação
       do algoritmo Bazgan.}
   \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \vfill
+  \begin{center}
+    Obrigado.
+  \end{center}
+  \vfill
+\end{frame}
+
+\begin{frame}
 \end{frame}
 
 \end{document}

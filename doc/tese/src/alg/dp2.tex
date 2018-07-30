@@ -1,12 +1,12 @@
 \Kw{$\bsym{p}, \bsym{w}, W$}
 \Begin{
   $S_0 \gets \big\{(0, \ldots, 0)\big\}$\;
-  $o_1, \ldots, o_n = \ord^{max}$\;
+  $o_1, \ldots, o_n = \ord^{max}$\;\pause
   \For{$k \gets 1, n$}{
-    $S_k^{*} \gets \big\{ (s^1 + p_{o_k}^1, \ldots, s^\np + p_{o_k}^\np, s^{\np+1} + w_{o_k}) \;\big|\; s \in S_{k-1},s^{\np+1} + w_{o_k} \leq W \big\}$\par
-    $\phantom{S_k^{*}\gets}\cup \big\{ s \in S_{k-1} \;\big|\; s^{\np+1} + w_{o_k} + \ldots + w_{o_n} > W \big\}$\;
-    $S_k^{**} \gets \big\{s \in S_k^{*} \;\big|\; (\nexists u \in S_k^{*})\big[u \dom s\big] \big\}$\;
-    $S_k \gets \big\{s \in S_k^{**} \;\big|\; (\nexists u \in S_k^{**})\big[lb(\sol{u}) \dom ub(\sol{s})\big] \big\}$\;
+    $S_k^{*} \gets \big\{ (s^1 + p_{o_k}^1, \ldots, s^\np + p_{o_k}^\np, s^{\np+1} + w_{o_k}) \;\big|\; s \in S_{k-1},s^{\np+1} + w_{o_k} \leq W \big\}$\par \pause
+    $\phantom{S_k^{*}\gets}\cup \big\{ s \in S_{k-1} \;\big|\; s^{\np+1} + w_{o_k} + \ldots + w_{o_n} > W \big\}$\;\pause
+    $S_k^{**} \gets \big\{s \in S_k^{*} \;\big|\; (\nexists u \in S_k^{*})\big[u \dom s\big] \big\}$  \only<7-8>{{\color{defred} \LEFTarrow}}\;\pause
+    $S_k \gets \big\{s \in S_k^{**} \;\big|\; (\nexists u \in S_k^{**})\big[lb(\sol{u}) \dom ub(\sol{s})\big] \big\}$  \only<8>{{\color{defred} \LEFTarrow}}\;\pause
   }
   \textbf{return} $S_n$\;
 }

@@ -3,8 +3,8 @@
   \SetAlgoLined
   $S_0 = \{(0, \ldots, 0)\}$\;
   \For{$k \gets 1, n$}{
-    $S_k \gets S_{k-1} \cup \big\{(s^1 + p_k^1, \ldots, s^\np + p_k^\np, s^{\np+1} + w_k)
-    \; \big| \; s^{\np+1} + w_k \leq W, \: s \in S_{k-1} \big\}$\;
+    $S_k \gets S_{k-1} \cup \big\{(s^1 + p_k^1, \ldots, s^\np + p_k^\np, s^{\np+1} + w_k)\;$\
+    $\phantom{S_k \gets S_{k-1} \cup \;} \big| \; s^{\np+1} + w_k \leq W, \: s \in S_{k-1} \big\}$\;
   }
   $P = \{ s \in S_n \:|\: \nexists (a \in S_n \;|\; a \dom s)\}$\;
   \textbf{return} $P$\;
