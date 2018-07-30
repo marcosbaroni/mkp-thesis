@@ -73,7 +73,18 @@
 %\newcommand{\dom}[2]{dom(#1, #2)}
 %\newcommand{\dom}{\underline{\Delta}}
 \newcommand{\dom}{\Delta}
+\ifdefined\ord
 \renewcommand{\ord}{\mathcal{O}}
+\else
+\newcommand{\ord}{\mathcal{O}}
+\fi
+
+\ifdefined\pause
+\else
+\newcommand{\pause}{}
+\fi
+
+
 %\newcommand{\domk}[2]{dom_k(#1, #2)}
 \newcommand{\til}[1]{{#1'}}
 \newcommand{\rel}{D}

@@ -1,0 +1,781 @@
+\documentclass[10pt,xcolor=table,fleqn]{beamer}
+
+%\usefonttheme{professionalfonts} % using non standard fonts for beamer
+\usefonttheme{serif} % default family is serif
+%\usepackage{fontspec}
+%\setmainfont{Liberation Serif}
+
+\usetheme{Hannover}
+\usecolortheme{dolphin}
+
+\usepackage{multirow}
+\usepackage{subfigure}
+%\usepackage{color, graphicx}
+\usepackage{amsthm,amsmath,amsfonts,amssymb}
+\usepackage[utf8]{inputenc}
+\usepackage{algpseudocode}
+\usepackage[portuguese, ruled, vlined, linesnumbered]{algorithm2e}
+%\beamertemplatenavigationsymbolsempty
+\input{../tex/predefs.tex}
+
+\newcommand{\otitulo}{
+  Indexação Multidimensional para Problemas da Mochila Multiobjetivo com Paretos de Alta Cardinalidade}
+\author[]{ \textbf{Marcos Daniel Valadão Baroni} }
+\date{31 de julho de 2018}
+
+\newtheorem{mydef}{Definição}
+\newtheorem{myprop}{Proposição}
+\newtheorem{myteo}{Teorema}
+
+\definecolor{defblue}{rgb}{0.2, 0.2, 0.7}
+\definecolor{defred}{rgb}{0.4, 0.0, 0.0}
+\definecolor{defgreen}{rgb}{0.0, 0.4, 0.0}
+
+\renewcommand{\emph}{\textbf}
+\newcommand{\mytitle}[1]{
+  \begin{center}
+    \color{defblue}
+    { \LARGE #1 }
+  \end{center}
+}
+
+\begin{document}
+
+\section{Introdução}
+
+\begin{frame}
+	\frametitle{Sumário}
+	\begin{enumerate}
+		\item Introdução
+		\item O problema da mochila multiobjetivo (MOKP)
+    \item Indexação multidimensional para verificação de dominância
+    \item O Algoritmo de Bazgan
+		\item O SCE para o MOKP
+		\item Experimentos computacionais
+		\item Conclusões e trabalhos futuros
+	\end{enumerate}
+\end{frame}
+
+\begin{frame}
+	\frametitle{}
+  \begin{block}{Tese}
+    \begin{center}
+      É possível otimizar a resolução do problema da mochila
+      multiobjetivo através da indexação multidimensional das soluções.
+    \end{center}
+  \end{block}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Introdução}
+  \begin{itemize}
+		\item Introdução
+		\item O problema da mochila multiobjetivo (MOKP)
+		\item Algoritmos para o MOKP
+		\item Indexação multidimensional para verificação de dominância
+		\item Experimentos computacionais
+		\item Conclusões e trabalhos futuros
+	\end{itemize}
+\end{frame}
+
+\section{O MOKP}
+
+\begin{frame}
+	\frametitle{Problemas de Otimização Multiobjetivo}
+  \begin{itemize}
+    \item{Otimização simultânea de múltiplos objetivos:
+    \begin{align*}
+      \text{max} ~ f(x) &=
+        \big(f_1(x)
+        ,f_2(x)
+        ,\ldots
+        ,f_{\np}(x)\big) \\
+      \text{sujeito a} \quad & x \in X
+    \end{align*}
+    \begin{center}
+      \includegraphics[scale=0.8]{../img/mokp/pareto-def}
+    \end{center}
+    }
+    \item{ Tipicamente mais de uma solução.}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Problemas de Otimização Multiobjetivo}
+  \begin{mydef}[Dominância]
+  Diz-se que uma solução $x \in X$
+  \emph{domina} uma solução $y \in X$, denotado por $x \dom y$
+  se, e somente se, $x$ é ao menos tão boa quanto
+  $y$ em todos os objetivos e melhor que $y$ em ao menos um dos objetivos.
+  \pause
+  Formalmente:
+  \begin{equation*}
+      x \dom y \iff \left\{
+        \begin{array}{l}
+            \forall i \in \{1, 2, \ldots, \np\}: f_i(x) \geq f_i(y) ~\text{e}\\
+            \exists j \in \{1, 2, \ldots, \np\}: f_j(x) > f_j(y)
+    \end{array} \right.
+    \label{eq:dom}
+  \end{equation*}
+  \end{mydef}
+  \pause
+  \begin{center}
+    \vspace*{-4mm}
+    \includegraphics[scale=0.8]{../img/mokp/dom-def}
+  \end{center}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Problemas de Otimização Multiobjetivo}
+  \begin{mydef}[Eficiência]
+    Uma solução $x \in X$ é dita \emph{eficiente}, denotado por $\text{eff}(x)$,
+    se, e somente se, $x$ não é dominada por nenhuma outra solução pertencente a $X$.
+    \\ \pause
+    Formalmente:
+    \begin{displaymath}
+      eff(x) \iff \nexists \big(y \in X \wedge y \dom x \big)
+    \end{displaymath}
+  \end{mydef}
+  \pause
+  \begin{mydef}[\paretoset{}]
+    O conjunto de todas as soluções eficientes de um problema multiobjetivo,
+    denotado por $Par(X)$, é chamado de \emph{\paretoset{}} ou \emph{\paretosetII{}}.
+    \\ \pause
+    Formalmente:
+    \begin{displaymath}
+      Par(X) = \{ x \in X \;|\; \text{eff}(x)\}
+    \end{displaymath}
+  \end{mydef}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Problemas de Otimização Multiobjetivo}
+  \vfill
+  Resolver um problema multiobjetivo consiste em determinar seu \paretoset{}.
+  \vfill \pause
+  \begin{center}
+    \includegraphics[scale=0.8]{../img/mokp/pareto-def}
+  \end{center}
+  \vfill
+\end{frame}
+
+\begin{frame}
+  \frametitle{O Problema da Mochila Multiobjetivo}
+  Problema da mochila multiobjetivo (MOKP):
+  \begin{itemize}
+    \item Generalização do problema da mochila 0-1 (\nphard{});
+    \item Bastante estudado pela literatura;
+    \item Modela diversos problemas reais:
+      \begin{itemize}
+        \item Seleção de projetos;
+        \item Orçamento de capital;
+        \item Planejamento de estoque, etc.
+      \end{itemize}
+    \item De difícil resolução;
+      \begin{itemize}
+        \item Especialmente para mais de 2 objetivos.
+      \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{O Problema da Mochila Multiobjetivo}
+  %Problema da mochila multiobjetivo (MOKP) \\
+  \begin{block}{Definição formal:}
+    \begin{align*}
+      \text{max   } & f(x) =
+        \big(f_1(x) ,f_2(x) ,\ldots ,f_{\np}(x)\big) \\
+      \text{sujeito a   } & w(x) \leq W \\
+      & x \in \{0, 1\}^n\\
+      \text{onde} \phantom{mmmmm} \\
+      %I_n &= \{1, \ldots, n\}\\
+      f_j(x) &= \sum_{i = 1}^n p^j_i x_i \quad j = 1, \ldots, \np\\
+      w(x) &= \sum_{i = 1}^n w_i x_i
+    \end{align*}
+  \end{block}
+\end{frame}
+
+\begin{frame}
+	\frametitle{O Problema da Mochila Multiobjetivo}
+  Exemplo de instância:
+  \begin{table}[ht]
+    \input{../tab/toy-inst.tex}
+  \end{table}
+  \pause
+  Conjunto Pareto:
+  \begin{table}[ht]
+    \input{../tab/toy-sol.tex}
+  \end{table}
+\end{frame}
+
+\begin{frame}
+	\frametitle{O Problema da Mochila Multiobjetivo}
+  Tamanho do \paretoset{} para instâncias do MOKP com 3 objetivos.
+  \begin{center}
+   	\includegraphics[scale=0.4]{../img/mokp/par-grow-d3}
+  \end{center}
+\end{frame}
+
+\begin{frame}
+  \mytitle{A operação de verificação de dominância}
+\end{frame}
+
+\section{A Verificação de Dominância}
+
+\begin{frame}
+  \frametitle{A operação de verificação de dominância}
+  \only<1-4>{1. Exite alguma solução em $Y$ que \emph{é dominada} por $x$?}
+  \begin{center}
+    \only<1-2>{\includegraphics[scale=1.0]{../img/mokp/dom-query-0}}
+    \only<3-3>{\includegraphics[scale=1.0]{../img/mokp/dom-query-1}}
+    \only<4-4>{\includegraphics[scale=1.0]{../img/mokp/dom-query-2}
+      \\ $\exists(y \in Y)[\; x \dom y \;]$
+    }
+  \end{center}
+\end{frame}
+
+\begin{frame}
+  \frametitle{A operação de verificação de dominância}
+  1. Exite alguma solução em $Y$ que \emph{é dominada} por $x$?\\
+  2. Exite alguma solução em $Y$ que \emph{domina} $x$?
+  \begin{center}
+    \only<0-1>{\includegraphics[scale=1.0]{../img/mokp/dom-query-0}}
+    \only<2-2>{\includegraphics[scale=1.0]{../img/mokp/dom-query-3}
+      \\ $\exists(y \in Y)[\; y \dom x \;]$
+    }
+  \end{center}
+\end{frame}
+
+\begin{frame}
+  \frametitle{A operação de verificação de dominância}
+  A partir de $x$ pode-se definir duas regiões de interesse:\pause
+  \begin{center}
+    \hfill
+    \begin{minipage}[b]{0.42\textwidth}
+      \includegraphics[scale=0.8]{../img/mokp/dom-reg}
+      Região \emph{dominada} por $x$.
+    \end{minipage}
+    \hfill
+    \begin{minipage}[b]{0.42\textwidth}
+      \only<1-2>{\hspace{6cm}}
+      \only<3-3>{
+        \includegraphics[scale=0.8]{../img/mokp/dom-reg-minus}
+        Região que \emph{domina} $x$.
+      }
+    \end{minipage}
+    \hfill
+  \end{center}
+  \begin{align*}
+    &R_d(x) = \big\{y \in \mathbb{R}^\np \;\big|\; y_i \leq f_i(x), i \in \{1, \ldots, \np\}\big\}\\
+    \only<3-3>{&R_{d-}(x) = \big\{y \in \mathbb{R}^\np \;\big|\; y_i \geq f_i(x), i \in \{1, \ldots, \np\}\big\}}
+  \end{align*}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Busca de faixa}
+  Estruturas de dados para conter soluções:
+  \begin{itemize}
+    \item{ Lista encadeada (sem indexação)};
+    \item{ Árvore AVL (unidimensional)};
+    \item{ Árvore KD (multidimensional)}.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Lista encadeada}
+  Lista Encadeada:\\
+  \begin{center}
+    \includegraphics[scale=0.4]{../img/kdt/lst-model}
+  \end{center}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Lista encadeada}
+  \begin{center}
+    \includegraphics[scale=0.3]{../img/points-query/lst/points}
+  \end{center}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Lista encadeada}
+  \begin{center}
+    \includegraphics[scale=0.3]{../img/points-query/lst/points-lst-model}
+  \end{center}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Lista encadeada}
+  \begin{center}
+    \includegraphics[scale=0.3]{../img/points-query/lst/points-lst-query}
+  \end{center}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Árvore AVL}
+  \begin{center}
+    \includegraphics[scale=0.3]{../img/kdt/avl-model}
+  \end{center}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Árvore AVL}
+  \begin{center}
+    \includegraphics[scale=0.3]{../img/points-query/avl/points}
+  \end{center}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Árvore AVL}
+  \begin{center}
+    \includegraphics[scale=0.3]{../img/points-query/avl/points-avl-model}
+  \end{center}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Árvore AVL}
+  \begin{center}
+    \includegraphics[scale=0.3]{../img/points-query/avl/points-avl-query}
+  \end{center}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{Árvore KD}
+  \begin{center}
+    \includegraphics[scale=2.5]{../img/kdt/dom-kd}
+  \end{center}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Árvore KD}
+  \begin{center}
+    \includegraphics[scale=0.3]{../img/points-query/kdt/points}
+  \end{center}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Árvore KD}
+  \begin{center}
+    \includegraphics[scale=0.3]{../img/points-query/kdt/points-kdt-model-0}
+  \end{center}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Árvore KD}
+  \begin{center}
+    \includegraphics[scale=0.3]{../img/points-query/kdt/points-kdt-model}
+  \end{center}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Árvore KD}
+  \begin{center}
+    \includegraphics[scale=0.3]{../img/points-query/kdt/points-kdt-query}
+  \end{center}
+\end{frame}
+
+\section{O Algoritmo de Bazgan}
+
+\begin{frame}
+  \begin{block}{Abordagem Exata}
+    \begin{itemize}
+      \item Algoritmo de Bazgan;
+      \item Estado da arte.
+    \end{itemize}
+  \end{block}
+  \begin{block}{Abordagem Heurística}
+    \begin{itemize}
+      \item Algoritmo de Bazgan -- estado da arte;
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+\begin{frame}
+	\frametitle{O Algoritmo de Bazgan}
+  \begin{algorithm}[H]
+    \footnotesize
+    \input{../alg/dp1.tex}
+    \caption{O algoritmo de Nemhauser e Ullmann para o \mokp.}
+  \end{algorithm}
+\end{frame}
+
+\begin{frame}
+	\frametitle{O Algoritmo de Bazgan}
+  As relações de dominância utilizadas para remoção de soluções: \pause
+  \begin{enumerate}
+    \item{ $\rel^r$: Soluções deficientes;} \pause
+    \item{ $\rel^{\dom}$: Soluções ``\textit{pesadas}'';} \pause
+    \item{ $\rel^{b}$: Soluções não promissoras.}
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}
+	\frametitle{O Algoritmo de Bazgan}
+  \begin{block}{1. A relação $\rel^r$:}
+    Caso a capacidade residual de uma solução associada a um estado $s_k$
+    da iteração $k$ seja maior ou igual à soma dos pesos dos itens restantes,
+    o único complemento de $s_k$ que pode resultar
+    em uma solução eficiente é o complemento máximo $I = \{k+1, \ldots, n\}$.
+  \end{block}
+  \pause
+  \begin{displaymath}
+    s_k \relI s_{\til{k}}
+      \Leftrightarrow
+      \begin{cases}
+        s_{\til{k}} \in S_{k-1}, \\
+        s_k = (s_{\til{k}}^1 + p_k^1, \ldots, s_{\til{k}}^\np + p_k^\np, s_{\til{k}}^{\np+1} + w_k), \; \text{e} \\
+        s_{\til{k}}^{\np+1} \leq W - \sum_{i=k}^n w_i
+      \end{cases}
+  \end{displaymath}
+\end{frame}
+
+\begin{frame}
+	\frametitle{O Algoritmo de Bazgan}
+  \begin{block}{2. A relação $\rel^{\dom}$:}
+    Generalização para o caso multiobjetivo
+    da relação de dominância utilizada no Algoritmo de Nemhauser Ullmann.
+  \end{block}
+  \pause
+  \begin{displaymath}
+    s_k \relII s_{\til{k}}
+      \Leftrightarrow
+      \begin{cases}
+        s_k \dom s_{\til{k}} \; & \text{e} \\
+        s_k^{\np+1} \leq s_{\til{k}}^{\np+1} \; & \text{se} \; k < n
+      \end{cases}
+  \end{displaymath}
+\end{frame}
+
+\begin{frame}
+	\frametitle{O Algoritmo de Bazgan}
+  \begin{block}{3. A relação $\rel^{b}$:}
+    \vspace*{5cm}
+  \end{block}
+\end{frame}
+
+\begin{frame}
+	\frametitle{O Algoritmo de Bazgan}
+  \begin{block}{Limite inferior}
+    Vetor objetivo $lb(s) = (lb^1, \ldots, lb^\np)$ onde \\
+    \vspace*{2mm}
+    \hspace*{4mm}
+    $lb^j = s^j + \sum_{i \in J}{p_i^j}$
+    \\
+    \vspace{2mm}
+    para um complemento $J$ qualquer.
+  \end{block}
+  \pause
+  \vspace{5mm}
+  \begin{block}{Limite superior}
+    Vetor objetivo $u = (u^1, \ldots, u^\np)$ tal que $\forall s_n \in Ext(s_k)$
+    tem-se que $u^j \geq s_n^j, \quad j = 1, \ldots, \np$.
+  \end{block}
+\end{frame}
+
+\begin{frame}
+	\frametitle{O Algoritmo de Bazgan}
+  \begin{block}{3. A relação $\rel^{b}$:}
+    \begin{displaymath}
+      s_k \relIII s_{\til{k}}
+        \Leftrightarrow
+        lb(\sol{u}) \dom ub(\sol{s})
+    \end{displaymath}
+    \pause
+    \vspace{6mm}
+    O limite superior utilizado:
+    \footnotesize
+    \begin{equation*}
+      \hspace{-5mm}
+      ub^j(s) = s^j + \sum_{i=k+1}^{c_j-1} p_i^j +
+        max\left\{ \left\lfloor\overline{W}(s)\frac{p^j_{c_j+1}}{w_{c_j+1}} \right\rfloor ,
+         \left\lfloor p^j_{c_j} - \big(w_{c_j} - \overline{W}(s)\big).\frac{p^j_{c_{j-1}}}{w_{c_j-1}}
+         \right\rfloor \right\}
+    \end{equation*}
+    \pause
+    \\ \vspace{6mm}
+    O limite inferior utilizado (complemento $J$):
+    \footnotesize
+    \begin{equation*}
+      \hspace{-5mm}
+      lb^j(s) = s^j + \sum_{i \in J}{p_i^j}, \quad
+        \sum_{i \in J}{w_i} \leq \overline{W}(s)
+    \end{equation*}
+    \vspace{6mm}
+  \end{block}
+\end{frame}
+
+\begin{frame}
+	\frametitle{O Algoritmo de Bazgan}
+  \begin{algorithm}[H]
+    \footnotesize
+    %\input{alg/baz-alg3.tex}
+    \input{../alg/dp2.tex}
+    \caption{Algoritmo Bazgan.}
+  \end{algorithm}
+  \pause
+  \begin{itemize}
+    \item{ verificação da condição $u \dom s$ (linha 7);} \pause
+    \item{ verificação da condição $lb(u) \dom ub(s)$ (linha 8).}
+  \end{itemize}
+\end{frame}
+
+\section{O SCE}
+
+\begin{frame}
+	\mytitle{O SCE para o MOKP}
+\end{frame}
+
+\begin{frame}
+	\mytitle{O SCE}
+  \begin{figure}
+    \centering
+    \hspace{4mm}
+    \begin{minipage}[b]{0.32\textwidth}
+      \includegraphics[width=\textwidth]{../img/sce/flow1}
+    \end{minipage}
+    \hspace{4mm}
+    \begin{minipage}[b]{0.32\textwidth}
+      \includegraphics[width=\textwidth]{../img/sce/flow2}
+    \end{minipage}
+    \hspace{4mm}
+  \end{figure}
+\end{frame}
+
+\begin{frame}
+	\frametitle{O SCE}
+  \begin{block}{Adaptação para contexto multiobjetivo:}
+    \begin{itemize}
+      \item{ Aptidão da solução:
+        \begin{itemize}
+          \item[-] Ordenação em frontes não dominados
+        \end{itemize}
+      }
+      \item{ Construção de \paretoset{} aproximado:
+        \begin{itemize}
+          \item[-] Arquivo externo
+        \end{itemize}
+      }
+    \end{itemize}
+  \end{block}
+  \pause
+  \begin{block}{Aplicação para o MOKP:}
+    \begin{itemize}
+      \item{ Construção de solução aleatória;}
+      \item{ Procedimento de cruzamento.}
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+\begin{frame}
+	\frametitle{O SCE}
+  Medida de aptidão de solução: ordenação em frontes não dominados.
+  \begin{figure}
+    \centering
+    \begin{minipage}[t]{0.48\textwidth}
+      \includegraphics[width=\textwidth]{../img/sce/unrankpop}
+      \caption{População sem ordenação.}
+      \label{img:unrankpop}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.48\textwidth}
+      \includegraphics[width=\textwidth]{../img/sce/rankpop}
+      \caption{População ordenada em frontes não dominados.}
+      \label{img:rankpop}
+    \end{minipage}
+  \end{figure}
+\end{frame}
+
+\begin{frame}
+	\frametitle{O SCE}
+  Construção de \paretoset{} aproximado: utilização de arquivo externo.
+  \vfill
+  \begin{algorithm}[H]
+    \footnotesize
+    \input{../alg/archive-update.tex}
+    \caption{Procedimento de atualização de arquivo, dada uma nova solução.}
+    \label{alg:archupdate}
+  \end{algorithm}
+\end{frame}
+
+\begin{frame}
+	\frametitle{O SCE}
+  \begin{algorithm}[H]
+    \tiny
+    \input{../alg/mokp-sce.tex}
+    \caption{Algoritmo SCE adaptado para o MOKP.}
+  \end{algorithm}
+  \pause
+  \begin{itemize}
+    \small
+    \item{Classificar a população em frontes não dominados (linhas 3 e 12);}
+    \item{Verificar se o indivíduo teve aptidão melhorada (linha 11);}
+    \item{Atualização do arquivo, dada uma nova solução (linha 13).}
+  \end{itemize}
+\end{frame}
+
+\section{Experimentos}
+
+\begin{frame}
+	\mytitle{Experimentos Computacionais}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Experimentos Computacionais}
+  Instâncias bi-objetivo divididas em 4 tipos:
+  \vspace{3mm}
+  \begin{enumerate}
+    \item[A)] Aleatórias: $
+      p^j_i \in [1, 1000],
+      w_i \in [1,1000]$.
+    \vspace{3mm}
+    \item[B)] Não-conflitantes: $
+      p^1_i \in [111, 1000],
+      p^2_i \in [p^1_i - 100, p^1_i + 100],
+      w_i \in [1,1000]$.
+    \vspace{3mm}
+    \item[C)] Conflitantes: $
+      p^1_i \in [1, 1000],
+      p^2_i \in [max\{900-p^1_i;1\}, min\{1100-p^1_i, 1000\}],
+      w_i \in [1,1000]$.
+    \vspace{3mm}
+    \item[D)] Conflitantes com pesos correlacionados: $
+      p^1_i \in [1, 1000],
+      p^2_i \in [max\{900-p^1_i;1\}, min\{1100-p^1_i, 1000\}],
+      w_i \in [p^1_i+p^2_i-200, p^1_i+p^2_i+200]$.
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Experimentos Computacionais}
+  Instâncias $3$-objetivo divididas em 4 tipos:
+  \begin{enumerate}
+    \item[A)] Aleatórias: $
+      p^j_i \in [1, 1000]
+      w_i \in [1,1000]$
+    \vspace{3mm}
+    \item[B)] Não-conflitantes: $
+      p^1_i \in [111, 1000],
+      p^2_i \in [p^1_i - 100, p^1_i + 100],
+      p^3_i \in [p^1_i - 100, p^1_i + 100],
+      w_i \in [1,1000]$.
+    \vspace{3mm}
+    \item[C)] Conflitantes: $
+      p^1_i \in [1, 1000], \;
+      p^2_i \in [1, 1001 - p^1_i]
+      p^3_i \in [max\{900-p^1_i-p^2_i;1\}, min\{1100-p^1_i-p^2_i, 1001-p^1_i\}]
+      w_i \in [1,1000]$.
+    \vspace{3mm}
+    \item[D)] Conflitantes com pesos correlacionados: $
+      p^1_i \in [1, 1000]
+      p^2_i \in [1, 1001 - p^1_i]
+      p^3_i \in [max\{900-p^1_i-p^2_i;1\}, min\{1100-p^1_i-p^2_i, 1001-p^1_i\}]
+      w_i \in [p^1_i+p^2_i+p^3_i-200, p^1_i+p^2_i+p^3_i+200]$.
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Experimentos Computacionais}
+  Tempo computacional médio do algoritmo Bazgan para instâncias bi-objetivo:
+  \scriptsize
+  \begin{table}[h]
+    \includegraphics[scale=0.3]{../tab/cpu2dim}
+  \end{table}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Experimentos Computacionais}
+  Número de avaliações médio do algoritmo Bazgan para instâncias bi-objetivo:
+  \begin{figure}[H]
+    \includegraphics[scale=0.3]{../tab/cmp/2dim}
+  \end{figure}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Experimentos Computacionais}
+  Tempo computacional médio do algoritmo Bazgan para instâncias $3$-objetivo:
+  \scriptsize
+  \begin{table}[h]
+    \includegraphics[scale=0.25]{../tab/cpu3dim}
+  \end{table}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Experimentos Computacionais}
+  Número de avaliações médio do algoritmo Bazgan para instâncias $3$-objetivo:
+  \begin{figure}[H]
+    \includegraphics[scale=0.3]{../tab/cmp/3dim}
+  \end{figure}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Experimentos Computacionais}
+  Valores de parâmetros utilizados no algoritmo SCE:
+  \begin{table}[H]
+    \small
+    \centering
+    \input{../tab/sce/params.tex}
+  \end{table}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Experimentos Computacionais}
+  Métrica para avaliação de qualidade de Pareto: hiper-volume.
+  \vfill
+  Exemplo de conjunto Pareto bi-objetivo possuindo 18 unidades hiper-volume (área):
+  \begin{figure}
+    \centering
+    \includegraphics[width=0.5\textwidth]{../img/sce/hypervol2}
+  \end{figure}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Experimentos Computacionais}
+  Hiper-volume médio alcançado por cada heurística:
+  \begin{figure}
+    \centering
+    \includegraphics[width=1.0\textwidth]{../tab/sce/zitzler-hvol}
+  \end{figure}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Experimentos Computacionais}
+  Tempo computacional médio do algoritmo SCE para instâncias Zouache:
+  \begin{figure}
+    \centering
+    \includegraphics[width=1.0\textwidth]{../tab/sce/cpures}
+  \end{figure}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Experimentos Computacionais}
+  Número de avaliações médio do algoritmo SCE para instâncias Zouache:
+  \begin{figure}
+    \centering
+    \includegraphics[width=1.0\textwidth]{../tab/sce/cmpres}
+  \end{figure}
+\end{frame}
+
+\section{Conclusões e Trabalhos Futuros}
+
+\begin{frame}
+	\mytitle{Conclusões e Trabalhos Futuros}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Conclusões}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Tabalhos Futuros}
+  \begin{itemize}
+    \item{ Verificar a performance da árvore KD em outros problemas
+      multiobjetivos;}
+    \item{ Considerar outras estruturas de dados
+      para auxílio à operação de verificação de dominância;}
+    \item{ Aprimorar a implementação do SCE para o MOKP;}
+    \item{ Investigar a causa da ineficiência da atual implementação
+      do algoritmo Bazgan.}
+  \end{itemize}
+\end{frame}
+
+\end{document}
