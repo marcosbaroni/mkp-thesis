@@ -332,8 +332,8 @@
      fit-margin-right="0"
      fit-margin-bottom="0"
      inkscape:zoom="1.8794886"
-     inkscape:cx="137.94574"
-     inkscape:cy="171.9611"
+     inkscape:cx="185.51907"
+     inkscape:cy="170.89698"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
@@ -711,6 +711,7 @@
 
 
 
+
 <path
    sodipodi:type="arc"
    style="opacity:0;fill:none;stroke:#000000;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
@@ -730,6 +731,7 @@
      xlink:href="#path5195"
      id="textPath5197"
      style="font-size:39px;font-family:sans-serif;letter-spacing:0.72000003px">DOCETE OMNES GENTES</textPath></text>
+
 
 
 
@@ -919,125 +921,134 @@
      inkscape:label="title-sbpo-2011"
      transform="matrix(1.25,0,0,-1.25,0,340.1575)"
      style="display:inline"><text
-       id="text3137"
-       transform="scale(1,-1)"
-       x="182.80223"
-       y="-173.6693"
-       style="font-size:14.80520916px;line-height:0%;text-align:center;text-anchor:middle;stroke-width:1.23376739"><tspan
-         sodipodi:role="line"
-         style="font-variant:normal;font-weight:normal;font-size:14.7499361px;line-height:1.25;font-family:CMSS12;-inkscape-font-specification:CMSS12;text-align:center;writing-mode:lr-tb;text-anchor:middle;fill:#3333b3;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1.23376739"
-         x="182.80223"
-         y="-173.6693"
-         id="tspan2302">Indexação Multidimensional para Problemas</tspan><tspan
-         sodipodi:role="line"
-         style="font-variant:normal;font-weight:normal;font-size:14.7499361px;line-height:1.25;font-family:CMSS12;-inkscape-font-specification:CMSS12;text-align:center;writing-mode:lr-tb;text-anchor:middle;fill:#3333b3;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1.23376739"
-         x="182.80223"
-         y="-155.23187"
-         id="tspan2308">da Mochila Multiobjetivo com Paretos</tspan><tspan
-         sodipodi:role="line"
-         style="font-variant:normal;font-weight:normal;font-size:14.7499361px;line-height:1.25;font-family:CMSS12;-inkscape-font-specification:CMSS12;text-align:center;writing-mode:lr-tb;text-anchor:middle;fill:#3333b3;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1.23376739"
-         x="182.80223"
-         y="-136.79445"
-         id="tspan2318">de Alta Cardinalidade</tspan></text>
+   id="text3137"
+   transform="scale(1,-1)"
+   x="182.80223"
+   y="-173.6693"
+   style="font-size:14.80520916px;line-height:0%;text-align:center;text-anchor:middle;stroke-width:1.23376739"><tspan
+     sodipodi:role="line"
+     style="font-variant:normal;font-weight:normal;font-size:14.7499361px;line-height:1.25;font-family:'DejaVu Serif';-inkscape-font-specification:'DejaVu Serif';text-align:center;writing-mode:lr-tb;text-anchor:middle;fill:#3333b3;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1.23376739;font-style:normal;font-stretch:normal"
+     x="182.80223"
+     y="-173.6693"
+     id="tspan2302">Indexação Multidimensional para Problemas</tspan><tspan
+     sodipodi:role="line"
+     style="font-variant:normal;font-weight:normal;font-size:14.7499361px;line-height:1.25;font-family:'DejaVu Serif';-inkscape-font-specification:'DejaVu Serif';text-align:center;writing-mode:lr-tb;text-anchor:middle;fill:#3333b3;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1.23376739;font-style:normal;font-stretch:normal"
+     x="182.80223"
+     y="-155.23187"
+     id="tspan2308">da Mochila Multiobjetivo com Paretos</tspan><tspan
+     sodipodi:role="line"
+     style="font-variant:normal;font-weight:normal;font-size:14.7499361px;line-height:1.25;font-family:'DejaVu Serif';-inkscape-font-specification:'DejaVu Serif';text-align:center;writing-mode:lr-tb;text-anchor:middle;fill:#3333b3;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1.23376739;font-style:normal;font-stretch:normal"
+     x="182.80223"
+     y="-136.79445"
+     id="tspan2318">de Alta Cardinalidade</tspan></text>
+
 <text
-       y="-53.805416"
-       x="177.1573"
-       id="text3145"
-       transform="scale(1,-1)"
-       style="line-height:0%"><tspan
-         id="tspan3234"
-         y="-53.805416"
-         x="177.1573"
-         sodipodi:role="line"
-         style="font-variant:normal;font-weight:bold;font-size:8.80000019px;line-height:1.25;font-family:'DejaVu Serif';-inkscape-font-specification:'DejaVu Serif Bold';text-align:center;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;font-style:normal;font-stretch:normal">Marcos Daniel Valadão Baroni</tspan></text>
+   y="-53.805416"
+   x="177.1573"
+   id="text3145"
+   transform="scale(1,-1)"
+   style="line-height:0%"><tspan
+     id="tspan3234"
+     y="-53.805416"
+     x="177.1573"
+     sodipodi:role="line"
+     style="font-variant:normal;font-weight:bold;font-size:8.80000019px;line-height:1.25;font-family:'DejaVu Serif';-inkscape-font-specification:'DejaVu Serif Bold';text-align:center;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;font-style:normal;font-stretch:normal">Marcos Daniel Valadão Baroni</tspan></text>
+
 <text
-       y="-122.56263"
-       x="64.596077"
-       id="text3153"
-       transform="scale(1,-1)"
-       style="line-height:0%"><tspan
-         y="-119.44544"
-         x="64.596077"
-         id="tspan3155"
-         sodipodi:role="line"
-         style="font-variant:normal;font-weight:normal;font-size:7.19999981px;line-height:1.25;font-family:CMSS10;-inkscape-font-specification:CMSS10;writing-mode:lr-tb;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none" /></text>
+   y="-122.56263"
+   x="64.596077"
+   id="text3153"
+   transform="scale(1,-1)"
+   style="line-height:0%"><tspan
+     y="-119.44544"
+     x="64.596077"
+     id="tspan3155"
+     sodipodi:role="line"
+     style="font-variant:normal;font-weight:normal;font-size:7.19999981px;line-height:1.25;font-family:CMSS10;-inkscape-font-specification:CMSS10;writing-mode:lr-tb;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none" /></text>
+
 <text
-       id="text3157"
-       transform="scale(1,-1)"
-       style="line-height:0%"
-       x="179.923"
-       y="-112.874"><tspan
-         id="tspan3159"
-         y="-112.874"
-         x="179.923"
-         style="font-variant:normal;font-weight:normal;font-size:9.96259975px;font-family:CMSY10;-inkscape-font-specification:CMSY10;writing-mode:lr-tb;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none" /></text>
+   id="text3157"
+   transform="scale(1,-1)"
+   style="line-height:0%"
+   x="179.923"
+   y="-112.874"><tspan
+     id="tspan3159"
+     y="-112.874"
+     x="179.923"
+     style="font-variant:normal;font-weight:normal;font-size:9.96259975px;font-family:CMSY10;-inkscape-font-specification:CMSY10;writing-mode:lr-tb;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none" /></text>
+
 <text
-       id="text3165"
-       transform="scale(1,-1)"
-       style="line-height:0%"
-       x="247.30901"
-       y="-112.874"><tspan
-         id="tspan3167"
-         y="-112.874"
-         x="247.30901"
-         style="font-variant:normal;font-weight:normal;font-size:9.96259975px;font-family:CMSY10;-inkscape-font-specification:CMSY10;writing-mode:lr-tb;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none" /></text>
+   id="text3165"
+   transform="scale(1,-1)"
+   style="line-height:0%"
+   x="247.30901"
+   y="-112.874"><tspan
+     id="tspan3167"
+     y="-112.874"
+     x="247.30901"
+     style="font-variant:normal;font-weight:normal;font-size:9.96259975px;font-family:CMSY10;-inkscape-font-specification:CMSY10;writing-mode:lr-tb;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none" /></text>
+
 <text
-       id="text3169"
-       transform="scale(1,-1)"
-       x="259.60742"
-       y="-74.82856"
-       style="line-height:0%"><tspan
-         id="tspan3175"
-         sodipodi:role="line"
-         y="-74.82856"
-         x="259.60742"
-         style="font-variant:normal;font-weight:normal;font-size:9.96259975px;line-height:1.25;font-family:CMSS10;-inkscape-font-specification:CMSS10;writing-mode:lr-tb;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none"> </tspan></text>
+   id="text3169"
+   transform="scale(1,-1)"
+   x="259.60742"
+   y="-74.82856"
+   style="line-height:0%"><tspan
+     id="tspan3175"
+     sodipodi:role="line"
+     y="-74.82856"
+     x="259.60742"
+     style="font-variant:normal;font-weight:normal;font-size:9.96259975px;line-height:1.25;font-family:CMSS10;-inkscape-font-specification:CMSS10;writing-mode:lr-tb;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none"> </tspan></text>
+
 <text
-       id="text3181"
-       transform="scale(1,-1)"
-       style="line-height:0%"
-       x="60.178001"
-       y="-2.214"><tspan
-         id="tspan3183"
-         sodipodi:role="line"
-         y="-2.214"
-         x="60.178001"
-         style="font-variant:normal;font-weight:normal;font-size:4.98129988px;line-height:1.25;font-family:CMSS8;-inkscape-font-specification:CMSS8;writing-mode:lr-tb;fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none"> </tspan></text>
+   id="text3181"
+   transform="scale(1,-1)"
+   style="line-height:0%"
+   x="60.178001"
+   y="-2.214"><tspan
+     id="tspan3183"
+     sodipodi:role="line"
+     y="-2.214"
+     x="60.178001"
+     style="font-variant:normal;font-weight:normal;font-size:4.98129988px;line-height:1.25;font-family:CMSS8;-inkscape-font-specification:CMSS8;writing-mode:lr-tb;fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none"> </tspan></text>
+
 <flowRoot
-       style="font-style:normal;font-weight:normal;line-height:0.01%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
-       id="flowRoot3236"
-       xml:space="preserve"><flowRegion
-         id="flowRegion3238"
-         style="font-family:sans-serif"><rect
-           y="156.82166"
-           x="210.4967"
-           height="21.664022"
-           width="94.092995"
-           id="rect3240"
-           style="font-family:sans-serif" /></flowRegion><flowPara
-         id="flowPara3242"
-         style="font-size:12px;line-height:1.25;font-family:sans-serif"> </flowPara></flowRoot><text
-       xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:0%;font-family:'DejaVu Serif';-inkscape-font-specification:'DejaVu Serif';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
-       x="177.34441"
-       y="-18.964972"
-       id="text3451"
-       transform="scale(1,-1)"><tspan
-         sodipodi:role="line"
-         x="177.2724"
-         y="-18.964972"
-         id="tspan3455"
-         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:6.4000001px;line-height:1.25;font-family:'DejaVu Serif';-inkscape-font-specification:'DejaVu Serif';text-align:center;letter-spacing:-0.14399999px;text-anchor:middle">31 de julho de 2018</tspan></text>
+   style="font-style:normal;font-weight:normal;line-height:0.01%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
+   id="flowRoot3236"
+   xml:space="preserve"><flowRegion
+     id="flowRegion3238"
+     style="font-family:sans-serif"><rect
+       y="156.82166"
+       x="210.4967"
+       height="21.664022"
+       width="94.092995"
+       id="rect3240"
+       style="font-family:sans-serif" /></flowRegion><flowPara
+     id="flowPara3242"
+     style="font-size:12px;line-height:1.25;font-family:sans-serif"> </flowPara></flowRoot><text
+   xml:space="preserve"
+   style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:0%;font-family:'DejaVu Serif';-inkscape-font-specification:'DejaVu Serif';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
+   x="177.34441"
+   y="-18.964972"
+   id="text3451"
+   transform="scale(1,-1)"><tspan
+     sodipodi:role="line"
+     x="177.2724"
+     y="-18.964972"
+     id="tspan3455"
+     style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:6.4000001px;line-height:1.25;font-family:'DejaVu Serif';-inkscape-font-specification:'DejaVu Serif';text-align:center;letter-spacing:-0.14399999px;text-anchor:middle">31 de julho de 2018</tspan></text>
+
 <text
-       transform="scale(1,-1)"
-       id="text3401"
-       y="-247.66119"
-       x="20.502188"
-       style="font-style:normal;font-weight:normal;line-height:0%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
-       xml:space="preserve"><tspan
-         style="font-weight:bold;font-size:11.19999981px;line-height:1.25;font-family:'DejaVu Serif';-inkscape-font-specification:'DejaVu Serif Bold';font-style:normal;font-stretch:normal;font-variant:normal"
-         y="-247.66119"
-         x="20.502188"
-         id="tspan3403"
-         sodipodi:role="line">Programa de Pós-Graduação em Informática - UFES</tspan></text>
+   transform="scale(1,-1)"
+   id="text3401"
+   y="-247.66119"
+   x="20.502188"
+   style="font-style:normal;font-weight:normal;line-height:0%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
+   xml:space="preserve"><tspan
+     style="font-weight:bold;font-size:11.19999981px;line-height:1.25;font-family:'DejaVu Serif';-inkscape-font-specification:'DejaVu Serif Bold';font-style:normal;font-stretch:normal;font-variant:normal"
+     y="-247.66119"
+     x="20.502188"
+     id="tspan3403"
+     sodipodi:role="line">Programa de Pós-Graduação em Informática - UFES</tspan></text>
+
 </g></svg>

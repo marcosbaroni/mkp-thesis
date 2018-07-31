@@ -8,7 +8,8 @@
 \usetheme{Hannover}
 \usecolortheme{dolphin}
 
-\usepackage{wasysym}
+\usepackage{wasysym}   % symbolos adicionais
+%\usepackage{enumitem}   % manipular espaçamentos de itemize
 \usepackage{multirow}
 \usepackage{subfigure}
 %\usepackage{color, graphicx}
@@ -52,7 +53,6 @@
 \begin{frame}
 	\frametitle{Sumário}
 	\begin{enumerate}
-		\item Introdução
 		\item O problema da mochila multiobjetivo (MOKP)
     \item Indexação multidimensional para verificação de dominância
     \item O Algoritmo de Bazgan
@@ -60,28 +60,6 @@
 		\item Experimentos computacionais
 		\item Conclusões e trabalhos futuros
 	\end{enumerate}
-\end{frame}
-
-\begin{frame}
-	\frametitle{}
-  \begin{block}{Tese}
-    \begin{center}
-      É possível otimizar a resolução do problema da mochila
-      multiobjetivo através da indexação multidimensional das soluções.
-    \end{center}
-  \end{block}
-\end{frame}
-
-\begin{frame}
-	\frametitle{Introdução}
-  \begin{itemize}
-		\item Introdução
-		\item O problema da mochila multiobjetivo (MOKP)
-		\item Algoritmos para o MOKP
-		\item Indexação multidimensional para verificação de dominância
-		\item Experimentos computacionais
-		\item Conclusões e trabalhos futuros
-	\end{itemize}
 \end{frame}
 
 \section{O MOKP}
@@ -215,11 +193,32 @@
 \end{frame}
 
 \begin{frame}
+	\frametitle{O Algoritmo de Bazgan}
+  \begin{block}{Algoritmo Exato:}
+  \end{block}
+  \begin{algorithm}[H]
+    \footnotesize
+    \input{../alg/nu.tex}
+    \caption{O algoritmo de Nemhauser e Ullmann para o \mokp.}
+  \end{algorithm}
+\end{frame}
+
+\begin{frame}
 	\frametitle{O Problema da Mochila Multiobjetivo}
   Tamanho do \paretoset{} para instâncias do MOKP com 3 objetivos.
   \begin{center}
    	\includegraphics[scale=0.4]{../img/mokp/par-grow-d3}
   \end{center}
+\end{frame}
+
+\begin{frame}
+	\frametitle{}
+  \begin{block}{Tese}
+    \begin{center}
+      É possível otimizar a resolução do problema da mochila
+      multiobjetivo através da indexação multidimensional das soluções.
+    \end{center}
+  \end{block}
 \end{frame}
 
 \begin{frame}
@@ -279,18 +278,22 @@
 
 \begin{frame}
   \frametitle{Busca de faixa}
-  Estruturas de dados para conter soluções:
+  Estruturas de dados que podem ser utilizadas:
+  \vspace{1em}
   \begin{itemize}
-    \item{ Lista encadeada (sem indexação)};
-    \item{ Árvore AVL (unidimensional)};
-    \item{ Árvore KD (multidimensional)}.
+    \setlength\itemsep{1em}
+    \item{ Lista encadeada (sem indexação)}
+    \item{ Árvore AVL (unidimensional)}
+    \item{ Árvore KD (multidimensional)}
   \end{itemize}
 \end{frame}
 
 \begin{frame}
   \frametitle{Lista encadeada}
   Lista Encadeada:\\
+  \vspace{1em}
   \begin{itemize}
+    \setlength\itemsep{1em}
     \item{ Implementação simples \goodpt }
     \item{ Pouca utilização de memória \goodpt }
     \item{ Sem indexação -- acesso em tempo linear \badpt }
@@ -324,7 +327,9 @@
 \begin{frame}
   \frametitle{Árvore AVL}
   Árvore AVL:\\
+  \vspace{0.8em}
   \begin{itemize}
+    \setlength\itemsep{0.8em}
     \item{ Implementação complexa \badpt }
     \item{ Pouca utilização de memória \goodpt }
     \item{ Indexação unidimensional \medpt }
@@ -360,7 +365,9 @@
 \begin{frame}
   \frametitle{Árvore KD}
   Árvore KD:\\
+  \vspace{0.6em}
   \begin{itemize}
+    \setlength\itemsep{0.6em}
     \item{ Implementação complexa \badpt }
     \item{ Pouca utilização de memória \goodpt }
     \item{ Indexação multidimensional \goodpt }
@@ -420,11 +427,14 @@
 
 \begin{frame}
 	\frametitle{O Algoritmo de Bazgan}
-  \begin{itemize}
-    \item{ Algoritmo exato de melhor desempenho; }
-    \item{ Algoritmo de programação dinâmica -- variação do Nemhauser-Ullmann; }
-    \item{ Utiliza 3 dominâncias para redução do conjunto de estados.}
-  \end{itemize}
+  \begin{block}{O Algoritmo de Bazgan:}
+    \begin{itemize}
+      \setlength\itemsep{0.8em}
+      \item{ Algoritmo exato estado da arte }
+      \item{ Algoritmo de programação dinâmica -- variação do Nemhauser-Ullmann }
+      \item{ Utiliza 3 dominâncias para redução do conjunto de estados}
+    \end{itemize}
+  \end{block}
 \end{frame}
 
 \begin{frame}
@@ -432,15 +442,16 @@
   \begin{algorithm}[H]
     \footnotesize
     \input{../alg/dp1.tex}
-    \caption{O algoritmo de Nemhauser e Ullmann para o \mokp.}
+    \caption{\small O algoritmo de Nemhauser e Ullmann para o \mokp.}
   \end{algorithm}
   \pause
-  Relações de dominância utilizadas:
-  \begin{enumerate}
-    \item{ $\rel^r$: Soluções deficientes;}
-    \item{ $\rel^{\dom}$: Soluções ``\textit{pesadas}'';}
-    \item{ $\rel^{b}$: Soluções não promissoras.}
-  \end{enumerate}
+  \begin{block}{Relações de dominância utilizadas por Bazgan:}
+    \begin{enumerate}
+      \item{ $\rel^r$: Soluções deficientes;}
+      \item{ $\rel^{\dom}$: Soluções ``\textit{pesadas}'';}
+      \item{ $\rel^{b}$: Soluções não promissoras.}
+    \end{enumerate}
+  \end{block}
 \end{frame}
 
 \begin{frame}
@@ -555,12 +566,15 @@
 
 \begin{frame}
 	\frametitle{O SCE}
-  \begin{itemize}
-    \item{ Algoritmo populacional evolutivo; }
-    \item{ Evolução simultânea de comunicades independentes; }
-    \item{ Utilizado originalmente para resolver problemas hídricos complexos; }
-    \item{ \textit{Embaralha} a população em $N$ comunidades (complexos); }
-  \end{itemize}
+  \begin{block}{O SCE:}
+    \begin{itemize}
+      \setlength\itemsep{0.8em}
+      \item{ Algoritmo populacional evolutivo; }
+      \item{ Evolução simultânea de comunicades independentes; }
+      \item{ Utilizado originalmente para resolver problemas hídricos complexos; }
+      \item{ \textit{Embaralha} a população em $N$ comunidades (complexos); }
+    \end{itemize}
+  \end{block}
 \end{frame}
 
 \begin{frame}
@@ -573,6 +587,7 @@
       \includegraphics[width=\textwidth]{../img/sce/flow1}
     \end{minipage}
     \hspace{4mm}
+    \pause
     \begin{minipage}[b]{0.36\textwidth}
       \includegraphics[width=\textwidth]{../img/sce/flow2}
     \end{minipage}
@@ -663,6 +678,20 @@
 
 \begin{frame}
 	\mytitle{Experimentos Computacionais}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Experimentos Computacionais}
+  \begin{block}{Instâncias -- Contexto Exato:}
+    \begin{itemize}
+      \setlength\itemsep{0.6em}
+      \item{ Quatro classes de instâncias (A, B, C e D) }
+      \item{ Diversos número de itens }
+      \item{ bi-objetivo e 3-objetivo }
+      \item{ 10 instâncias para cada caso }
+      \item{ 10 execuções para cada instância }
+    \end{itemize}
+  \end{block}
 \end{frame}
 
 \begin{frame}
@@ -760,6 +789,19 @@
 \end{frame}
 
 \begin{frame}
+	\frametitle{Experimentos Computacionais}
+  \begin{block}{Instâncias -- Contexto Heurístico:}
+    \begin{itemize}
+      \item{ Propostas por Zitzler }
+      \item{ 250, 500 e 750 itens }
+      \item{ bi-objetivo e 3-objetivo }
+      \item{ 1 instância para cada caso }
+      \item{ 30 execuções para cada instância }
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+\begin{frame}
   \frametitle{Experimentos Computacionais}
   \framesubtitle{Abordagem Heurística}
   Valores de parâmetros utilizados no algoritmo SCE:
@@ -822,6 +864,7 @@
 	\frametitle{Conclusões}
   \begin{block}{Principais contribuições:}
     \begin{itemize}
+      \setlength\itemsep{0.6em}
       \item{ Interpretação do problema de verificação de dominância como problema de busca de faixa }
       \item{ Proposta da utilização da Árvore KD como estrutura de indexação multidimencional }
       \item{ Análise da proposta em contextos exatos e heurísticos utilizando as principais instâncias da literatura}
@@ -832,16 +875,22 @@
 \begin{frame}
 	\frametitle{Conclusões}
   \begin{itemize}
+    \vspace{0.8em}
     \item{ Indexação multidimensional foi eficiente no contexto exato: } \pause
+    \vspace{0.8em}
     \begin{itemize}
+      \setlength\itemsep{0.6em}
       \item{ Conjuntos solução de alta cardinalidade } \pause
       \item{ Speedup de até $2.3$ para bi-objetivo } \pause
       \item{ Speedup de até $15.5$ para 3-objetivo } \pause
       \item{ Drástica redução no número de avaliações de solução }
     \end{itemize}
     \pause
+    \vspace{0.8em}
     \item{ Indexação multidimensional não foi eficiente no contexto heurístico: } \pause
+    \vspace{0.8em}
     \begin{itemize}
+      \setlength\itemsep{0.6em}
       \item{ Pouco impacto no tempo computacional } \pause
       \item{ Conjuntos solução de baixa cardinalidade -- overhead } \pause
       \item{ Considerável redução no número de avaliações de solução }
@@ -852,6 +901,7 @@
 \begin{frame}
 	\frametitle{Tabalhos Futuros}
   \begin{itemize}
+    \setlength\itemsep{0.6em}
     \item{ Verificar a performance da árvore KD em outros problemas
       multiobjetivos;}
     \item{ Considerar outras estruturas de dados
