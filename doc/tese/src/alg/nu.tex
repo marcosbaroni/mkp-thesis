@@ -1,0 +1,10 @@
+\Kw{$\bsym{p}, \bsym{w}, W$}
+\Begin{
+  \SetAlgoLined
+  $P_0 = \{\emptyset\}$\;
+  \For{$k \gets 1, n$}{
+    $P^*_k \gets P_{k-1} \cup \big\{ x \cup \{k\} \;|\; x \in P_{k-1} \big\}$\;
+    $P_k \gets \big\{ x \in P^*_k \;\big|\; \nexists(y \in P^*_k)[y \dom x] \big\}$\;
+  }
+  \textbf{return} $P_n$\;
+}
