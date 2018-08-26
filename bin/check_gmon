@@ -1,0 +1,17 @@
+#!/bin/bash
+max=0
+
+if [ "$#" -gt 0 ]; then
+	max=$1
+fi
+
+# getting max pid
+if [ "$max" -eq "0" ]; then
+	for f in `ls gmon.out.*`; do
+		pid=${f#"gmon.out."}
+		max=`dc -e "${max}sM ${pid}d ${max}>Mp"`
+	done
+fi
+
+echo gprof from pid ${max}
+gprof mokp gmon.out.${max} | grep -A 10 "Each sample counts a"|tail -n +2
