@@ -307,7 +307,7 @@ int print_usage_bazgan(int argc, char **argv){
     printf("  usage: %s %s <ndim> [input file] [n iterations] [order option=s] [print pareto=0]\n", argv[0], BAZGAN_OPT);
     printf("  ...\n");
     printf("\n  Output:\n");
-    printf("    <n nodes>;<n comparison>;<time (s)>;<max nd>;<hyper volume>\n\n");
+    printf("    <pid>;<n nodes>;<n comparison>;<time (s)>;<max nd>;<hyper volume>\n\n");
 
     return 1;
 }
@@ -322,6 +322,9 @@ int execute_bazgan(int argc, char **argv){
 	char print_pareto = 0;
 	MOKPSolIndexer *msi;
 	double hvol;
+	pid_t pid;
+
+	pid = getpid();
 
     finput = stdin;
     order_opt = 's';
@@ -364,6 +367,7 @@ int execute_bazgan(int argc, char **argv){
 		//msi_apply_all(msi, mokpsol_profit_write);
 	msi_apply_all(msi, mokpsol_free);
 	msi_free(msi);
+	printf("%u;", pid);
     bazgan_print_summary(bazgan);
 	printf(";%.3e", hvol);
     printf("\n");
