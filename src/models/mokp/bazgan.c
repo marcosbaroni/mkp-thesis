@@ -744,7 +744,7 @@ BazganNode *_mantain_non_dom_list(
     ListIter *m_iter;
     BazganNode *m_bnode;
     BazganNode *dominant;
-    
+
     /* Search dominant. */
     dominant = NULL;
     m_iter = list_get_first(m_list);
@@ -799,7 +799,8 @@ BazganNode *_mantain_non_dom_avl(
     if( !dominant ){
         avl_insert(c_avl, bnode);
         avl_insert(m_avl, bnode);
-    }
+    }else{
+	}
 
     return dominant;
 }

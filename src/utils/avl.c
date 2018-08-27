@@ -1028,6 +1028,7 @@ AVLIter* avl_get_higher_lower_than(AVLTree *avl, void *a){
 #ifdef COUNT_COMPARISON
 	ncomp_++;
 #endif
+	printf(" executed higher_lower_than\n");
     while( cmp_res >= 0 )
         if( !(node = node->left) )
             return avliter_new(avl, NULL);
@@ -1070,6 +1071,7 @@ AVLIter* avl_get_lower_higher_than(AVLTree *avl, void *a){
         node = node->right;
         if( !node )
             return avliter_new(avl, NULL);
+		cmp_res = cmp(node->info, a);
     }
 
     /* Search for a lowers */
