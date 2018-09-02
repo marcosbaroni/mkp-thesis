@@ -1067,7 +1067,7 @@ AVLIter* avl_get_lower_higher_than(AVLTree *avl, void *a){
 #ifdef COUNT_COMPARISON
 	ncomp_++;
 #endif
-    while( cmp_res <= 0 ){
+    while( cmp_res < 0 ){
         node = node->right;
         if( !node )
             return avliter_new(avl, NULL);
@@ -1081,7 +1081,7 @@ AVLIter* avl_get_lower_higher_than(AVLTree *avl, void *a){
 #ifdef COUNT_COMPARISON
 		ncomp_++;
 #endif
-        if( cmp_res > 0 ){
+        if( cmp_res >= 0 ){
             node = scout;
             scout = scout->left;
         }else{
