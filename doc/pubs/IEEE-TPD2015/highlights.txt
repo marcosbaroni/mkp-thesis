@@ -1,5 +1,0 @@
-We propose a formal model for the non-technical losses reduction problem.
-Two new variations of the Knapsack Problem are presented.
-We propose three different computational approaches to solve the problem.
-We present a set of benchmark instances used to compare the approaches.
-An exact approach obtains the best results on the benchmark instances.
