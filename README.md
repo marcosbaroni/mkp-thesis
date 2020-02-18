@@ -1,8 +1,9 @@
 # My PhD Thesis Implementation
+
 Author: Marcos Daniel Baroni
+
 Date: 2018-12-10
 
-## Abstract
 Several combinatorial problems involve the simultaneous optimization of multiple criteria, which are generally conflicting with each other.
 These problems are called multiobjective and
 do not have a single solution, but a set of solutions of interest.
