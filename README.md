@@ -1,19 +1,25 @@
-Autor: Marcos Daniel V. Baroni
-Data: Qui Dez 26 14:26:25 BRST 2013
+# My PhD Thesis Implementation
+Author: Marcos Daniel Baroni
+Date: 2018-12-10
 
-PASTAS e ARQUIVOS:
+## Abstract
+Several combinatorial problems involve the simultaneous optimization of multiple criteria, which are generally conflicting with each other.
+These problems are called multiobjective and
+do not have a single solution, but a set of solutions of interest.
+This work proposes the acceleration of the resolution process of the multiobjective knapsack problem,
+through the use of a *kdtree* as a multidimensional index structure to assist the manipulation of solutions.
 
-src/           # Códigos fontes de programas desenvolvidos;
-mip/           # Definições de modelos matemáticos do problema,
-                 em linguagem de modelagem MIP (Mixed Integer Programming);
-doc/           # Pasta com tudo que é documento: publicações, tese,
-                 especificações,etc; 
-defs/          # Pasta com documentos sobre definicções relacionadas ao problema;
-insts/         # Pacote com instâncias geradas;
-experiments/   # Pasta que abriga os resultados dos experimentos. Cada subpasta
-                 é um experimento;
-misc/          # Demais arquivos relacionados;
-script/        # Pasta que contém diversos scripts. Em sua raiz, os scripts de
-                 propositos gerais. Em subpastas, os dedicados a um determinado
-				 experimento;
-
+## Folders:
+ * **bin**: Binaries and scripts
+ * **doc**: Documentation and publications
+ * **exp**: Experiments records
+ * **insts**: Problem instances
+ * **mip**: Mathematical integer programming descriptions
+ * **misc**: Miscellaneous related files
+ * **script**: More scripts
+ * **src**: Algorithms source code
+   * **metahrs**: Metaheuristics implementation
+   * **models**: Models (structured) of problems
+   * **soplex**: Soplex example
+   * **tools**: Auxiliary tools implementation
+   * **utils**: Useful data structures implementation
