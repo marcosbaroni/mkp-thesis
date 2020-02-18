@@ -11,16 +11,16 @@ This work proposes the acceleration of the resolution process of the multiobject
 through the use of a *kdtree* as a multidimensional index structure to assist the manipulation of solutions.
 
 ## Folders:
- * **bin**: Binaries and scripts
- * **doc**: Documentation and publications
- * **exp**: Experiments records
- * **insts**: Problem instances
- * **mip**: Mathematical integer programming descriptions
- * **misc**: Miscellaneous related files
- * **script**: More scripts
- * **src**: Algorithms source code
-   * **metahrs**: Metaheuristics implementation
-   * **models**: Models (structured) of problems
-   * **soplex**: Soplex example
-   * **tools**: Auxiliary tools implementation
-   * **utils**: Useful data structures implementation
+ * **bin**: binaries and scripts
+ * **doc**: documentation and publications
+ * **exp**: experiments records
+ * **insts**: problem instances
+ * **mip**: mathematical integer programming descriptions
+ * **misc**: miscellaneous related files
+ * **script**: more scripts
+ * **src**: algorithms source code
+   * **metahrs**: metaheuristics implementation
+   * **models**: models (structured) of problems
+   * **soplex**: soplex example
+   * **tools**: tools implementation (main: mokp.c)
+   * **utils**: useful data structures implementation
