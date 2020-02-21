@@ -10,9 +10,9 @@ do not have a single solution, but a set of solutions of interest.
 This work proposes the acceleration of the resolution process of the multiobjective knapsack problem,
 through the use of a *kdtree* as a multidimensional index structure to assist the manipulation of solutions.
 
-### The thesis (pt-br): [link](doc/tese/thesis-mbaroni-final.pdf)
+### The thesis (pt-br): [doc/tese/thesis-mbaroni-final.pdf](doc/tese/thesis-mbaroni-final.pdf?raw=true)
 
-### Paper about the approach (en): [link](doc/paper.pdf)
+### Paper about the approach (en): [doc/paper.pdf](doc/paper.pdf?raw=true)
 
 ### Description of folders:
  * **bin**: binaries and scripts
